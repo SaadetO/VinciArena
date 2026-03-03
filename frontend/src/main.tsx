@@ -4,10 +4,10 @@ import './index.css';
 
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import App from './App.tsx';
-import HomePage from './components/pages/HomePage.tsx';
-import AddPizzaPage from './components/pages/AddPizzaPage.tsx';
-import RegisterPage from './components/pages/RegisterPage.tsx';
-import LoginPage from './components/pages/LoginPage.tsx';
+import HomePage from './pages/HomePage.tsx';
+import AddPizzaPage from './pages/AddPizzaPage.tsx';
+import RegisterPage from './pages/RegisterPage.tsx';
+import LoginPage from './pages/LoginPage.tsx';
 import { UserContextProvider } from './contexts/UserContext.tsx';
 import '@fontsource/roboto/700.css';
 import CssBaseline from '@mui/material/CssBaseline';

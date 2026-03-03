@@ -1,7 +1,7 @@
 import { useState, SyntheticEvent } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 
-import { PizzeriaContext } from '../../types';
+import { PizzeriaContext } from '../types';
 import { Box, Button, TextField, useTheme } from '@mui/material';
 
 const AddPizza = () => {
