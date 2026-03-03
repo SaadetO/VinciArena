@@ -14,7 +14,7 @@ interface DrinkMenuProps {
   drinks: Drink[];
 }
 
-const DrinkMenu = ({ title, drinks }: DrinkMenuProps) => {
+export const DrinkMenu = ({ title, drinks }: DrinkMenuProps) => {
   const theme = useTheme();
   return (
     <Container>
@@ -57,5 +57,3 @@ const DrinkMenu = ({ title, drinks }: DrinkMenuProps) => {
     </Container>
   );
 };
-
-export default DrinkMenu;

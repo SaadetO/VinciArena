@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useContext } from 'react';
 import { Outlet } from 'react-router-dom';
-import Footer from './components/Footer';
-import Header from './components/Header';
+import { Footer } from './components/Footer';
+import { Header } from './components/Header';
 import {
   Drink,
   NewPizza,
@@ -9,7 +9,7 @@ import {
   PizzeriaContext,
   UserContextType,
 } from './types';
-import NavBar from './components/Navbar';
+import { NavBar } from './components/Navbar';
 
 import { UserContext } from './contexts/UserContext';
 import Box from '@mui/material/Box';
@@ -40,7 +40,7 @@ const drinks: Drink[] = [
   },
 ];
 
-const App = () => {
+export const App = () => {
   const [actionToBePerformed, setActionToBePerformed] = useState(false);
   const [pizzas, setPizzas] = useState<Pizza[]>([]);
   const { authenticatedUser } = useContext<UserContextType>(UserContext);
@@ -152,5 +152,3 @@ const App = () => {
     </Box>
   );
 };
-
-export default App;

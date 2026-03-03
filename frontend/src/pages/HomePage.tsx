@@ -1,12 +1,12 @@
 import sound from '../assets/sounds/Infecticide-11-Pizza-Spinoza.mp3';
-import AudioPlayer from '../components/AudioPlayer';
-import PizzaMenu from '../components/PizzaMenu';
-import DrinkMenu from '../components/DrinkMenu';
+import { AudioPlayer } from '../components/AudioPlayer';
+import { PizzaMenu } from '../components/PizzaMenu';
+import { DrinkMenu } from '../components/DrinkMenu';
 import { useOutletContext } from 'react-router-dom';
 import { PizzeriaContext } from '../types';
 import { Container, Typography } from '@mui/material';
 
-const HomePage = () => {
+export const HomePage = () => {
   const {
     actionToBePerformed,
     clearActionToBePerformed,
@@ -35,5 +35,3 @@ const HomePage = () => {
     </Container>
   );
 };
-
-export default HomePage;

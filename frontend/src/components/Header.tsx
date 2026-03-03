@@ -7,7 +7,7 @@ interface HeaderProps {
   handleHeaderClick: () => void;
 }
 
-const Header = ({ title, handleHeaderClick }: HeaderProps) => {
+export const Header = ({ title, handleHeaderClick }: HeaderProps) => {
   const theme = useTheme();
   const [menuPrinted, setMenuPrinted] = useState(false);
 
@@ -38,5 +38,3 @@ const Header = ({ title, handleHeaderClick }: HeaderProps) => {
     </Box>
   );
 };
-
-export default Header;

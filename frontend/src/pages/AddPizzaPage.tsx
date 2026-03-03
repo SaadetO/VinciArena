@@ -4,7 +4,7 @@ import { useNavigate, useOutletContext } from 'react-router-dom';
 import { PizzeriaContext } from '../types';
 import { Box, Button, TextField, useTheme } from '@mui/material';
 
-const AddPizza = () => {
+export const AddPizzaPage = () => {
   const theme = useTheme();
   const { addPizza }: PizzeriaContext = useOutletContext();
 
@@ -80,5 +80,3 @@ const AddPizza = () => {
     </Box>
   );
 };
-
-export default AddPizza;

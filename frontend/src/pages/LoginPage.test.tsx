@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter, useNavigate } from 'react-router-dom';
 import { describe, test, expect, vi } from 'vitest';
-import LoginPage from './LoginPage';
+import { LoginPage } from './LoginPage';
 import { UserContext } from '../contexts/UserContext';
 
 vi.mock('react-router-dom', async () => {

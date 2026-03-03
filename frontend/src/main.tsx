@@ -3,16 +3,16 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
-import App from './App.tsx';
-import HomePage from './pages/HomePage.tsx';
-import AddPizzaPage from './pages/AddPizzaPage.tsx';
-import RegisterPage from './pages/RegisterPage.tsx';
-import LoginPage from './pages/LoginPage.tsx';
+import { App } from './App.tsx';
+import { HomePage } from './pages/HomePage.tsx';
+import { AddPizzaPage } from './pages/AddPizzaPage.tsx';
+import { RegisterPage } from './pages/RegisterPage.tsx';
+import { LoginPage } from './pages/LoginPage.tsx';
 import { UserContextProvider } from './contexts/UserContext.tsx';
 import '@fontsource/roboto/700.css';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
-import theme from './themes.ts';
+import { theme } from './themes.ts';
 
 const router = createBrowserRouter([
   {

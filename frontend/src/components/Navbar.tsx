@@ -4,7 +4,7 @@ import { AppBar, Toolbar, Button, Typography } from '@mui/material';
 import { UserContext } from '../contexts/UserContext';
 import { UserContextType } from '../types';
 
-const NavBar = () => {
+export const NavBar = () => {
   const { authenticatedUser, clearUser } =
     useContext<UserContextType>(UserContext);
   const navigate = useNavigate();
@@ -41,5 +41,3 @@ const NavBar = () => {
     </AppBar>
   );
 };
-
-export default NavBar;
