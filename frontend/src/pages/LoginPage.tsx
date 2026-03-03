@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Box, Button, TextField, useTheme } from '@mui/material';
 import { UserContextType } from '../types';
 import { UserContext } from '../contexts/UserContext';
-import './index.css';
 
 const LoginPage = () => {
   const { loginUser }: UserContextType = useContext(UserContext);
