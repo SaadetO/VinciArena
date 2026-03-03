@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
-import App from './components/App/index.tsx';
+import App from './components/App.tsx';
 import HomePage from './components/pages/HomePage.tsx';
 import AddPizzaPage from './components/pages/AddPizzaPage.tsx';
 import RegisterPage from './components/pages/RegisterPage.tsx';

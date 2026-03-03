@@ -7,7 +7,7 @@ import {
   Grid2,
   useTheme,
 } from '@mui/material';
-import { Drink } from '../../types';
+import { Drink } from '../types';
 
 interface DrinkMenuProps {
   title: string;

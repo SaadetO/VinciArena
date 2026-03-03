@@ -1,5 +1,5 @@
 import { Box, Container, Typography, useTheme } from '@mui/material';
-import logo from '../../assets/images/js-logo.png';
+import logo from '../assets/images/js-logo.png';
 import { Copyright } from '@mui/icons-material';
 
 const Footer = () => {

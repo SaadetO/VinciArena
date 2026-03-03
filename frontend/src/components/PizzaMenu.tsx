@@ -9,7 +9,7 @@ import {
   useTheme,
 } from '@mui/material';
 
-import { Pizza } from '../../types';
+import { Pizza } from '../types';
 
 interface PizzaMenuProps {
   pizzas: Pizza[];
