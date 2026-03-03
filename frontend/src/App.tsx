@@ -1,19 +1,19 @@
 import { useEffect, useState, useCallback, useContext } from 'react';
 import { Outlet } from 'react-router-dom';
-import Footer from './Footer';
-import Header from './Header';
+import Footer from './components/Footer';
+import Header from './components/Header';
 import {
   Drink,
   NewPizza,
   Pizza,
   PizzeriaContext,
   UserContextType,
-} from '../types';
-import NavBar from './Navbar';
+} from './types';
+import NavBar from './components/Navbar';
 
-import { UserContext } from '../contexts/UserContext';
+import { UserContext } from './contexts/UserContext';
 import Box from '@mui/material/Box';
-import pizza from '../assets/images/pizza.jpg';
+import pizza from './assets/images/pizza.jpg';
 import { Container } from '@mui/material';
 
 const drinks: Drink[] = [
