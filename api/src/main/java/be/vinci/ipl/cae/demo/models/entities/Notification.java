@@ -14,6 +14,9 @@ import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Notification entity.
+ */
 @Entity
 @Table(name = "notifications")
 @Data

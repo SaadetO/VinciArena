@@ -14,6 +14,9 @@ import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Unavailability entity.
+ */
 @Entity
 @Table(name = "unavailabilities")
 @Data

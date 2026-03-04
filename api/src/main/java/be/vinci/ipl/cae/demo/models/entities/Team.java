@@ -5,6 +5,9 @@ import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Team entity.
+ */
 @Entity
 @Table (name = "teams")
 @Data

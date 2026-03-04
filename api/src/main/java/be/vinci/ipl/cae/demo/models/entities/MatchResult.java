@@ -12,6 +12,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * MatchResult entity.
+ */
 @Entity
 @Table(name = "match_results")
 @Getter

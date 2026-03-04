@@ -9,6 +9,9 @@ import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Image entity.
+ */
 @Entity
 @Table(name = "images")
 @Data

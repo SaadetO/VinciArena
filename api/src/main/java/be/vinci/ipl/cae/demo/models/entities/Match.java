@@ -16,6 +16,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Match entity.
+ */
 @Entity
 @Table(name = "matchs")
 @Getter

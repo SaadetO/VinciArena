@@ -16,6 +16,9 @@ import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * JoinRequest entity.
+ */
 @Entity
 @Table(name = "join_requests")
 @Data
