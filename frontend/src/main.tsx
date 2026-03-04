@@ -12,7 +12,7 @@ import { UserContextProvider } from './contexts/UserContext.tsx';
 import '@fontsource/roboto/700.css';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
-import { theme } from './themes.ts';
+import { theme } from './themes.tsx';
 
 const router = createBrowserRouter([
   {
