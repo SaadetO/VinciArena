@@ -24,8 +24,8 @@ public class Notification {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long idNotification;
 
-  @ManyToOne(fetch= FetchType.LAZY)
-  @JoinColumn(name= "id_member")
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "id_member")
   @JsonBackReference
   private Member member;
 
