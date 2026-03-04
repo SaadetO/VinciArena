@@ -1,11 +1,10 @@
 import { useState, SyntheticEvent, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Button, TextField, useTheme } from '@mui/material';
-import { UserContextType } from '../../types';
-import { UserContext } from '../../contexts/UserContext';
-import './index.css';
+import { UserContextType } from '../types';
+import { UserContext } from '../contexts/UserContext';
 
-const RegisterPage = () => {
+export const RegisterPage = () => {
   const { registerUser }: UserContextType = useContext(UserContext);
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
@@ -83,5 +82,3 @@ const RegisterPage = () => {
     </Box>
   );
 };
-
-export default RegisterPage;

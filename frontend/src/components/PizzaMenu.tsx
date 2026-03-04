@@ -9,12 +9,12 @@ import {
   useTheme,
 } from '@mui/material';
 
-import { Pizza } from '../../types';
+import { Pizza } from '../types';
 
 interface PizzaMenuProps {
   pizzas: Pizza[];
 }
-const PizzaMenu = ({ pizzas }: PizzaMenuProps) => {
+export const PizzaMenu = ({ pizzas }: PizzaMenuProps) => {
   const theme = useTheme();
   return (
     <TableContainer component={Paper}>
@@ -53,5 +53,3 @@ const PizzaMenu = ({ pizzas }: PizzaMenuProps) => {
     </TableContainer>
   );
 };
-
-export default PizzaMenu;

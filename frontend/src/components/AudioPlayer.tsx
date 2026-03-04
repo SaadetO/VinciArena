@@ -6,7 +6,7 @@ interface AudioPlayerProps {
   clearActionToBePerformed: () => void;
 }
 
-const AudioPlayer = ({
+export const AudioPlayer = ({
   sound,
   actionToBePerformed,
   clearActionToBePerformed,
@@ -43,5 +43,3 @@ const AudioPlayer = ({
     </div>
   );
 };
-
-export default AudioPlayer;

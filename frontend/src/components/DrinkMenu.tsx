@@ -7,14 +7,14 @@ import {
   Grid2,
   useTheme,
 } from '@mui/material';
-import { Drink } from '../../types';
+import { Drink } from '../types';
 
 interface DrinkMenuProps {
   title: string;
   drinks: Drink[];
 }
 
-const DrinkMenu = ({ title, drinks }: DrinkMenuProps) => {
+export const DrinkMenu = ({ title, drinks }: DrinkMenuProps) => {
   const theme = useTheme();
   return (
     <Container>
@@ -57,5 +57,3 @@ const DrinkMenu = ({ title, drinks }: DrinkMenuProps) => {
     </Container>
   );
 };
-
-export default DrinkMenu;
