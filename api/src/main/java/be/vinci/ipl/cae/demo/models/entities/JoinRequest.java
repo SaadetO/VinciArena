@@ -48,6 +48,6 @@ public class JoinRequest {
   private LocalDateTime expirationDate;
 
   @Column(nullable = false)
-  private LocalDateTime requestDate;
+  private LocalDateTime requestDate = LocalDateTime.now();
 
 }

@@ -25,7 +25,7 @@ public class Notification {
   private Long idNotification;
 
   @ManyToOne(fetch= FetchType.LAZY)
-  @JoinColumn(name= "member_id")
+  @JoinColumn(name= "id_member")
   @JsonBackReference
   private Member member;
 
