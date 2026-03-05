@@ -30,9 +30,9 @@ public class MatchLineup {
   private Match match;
 
   @ManyToOne
-  @MapsId("memberId")
-  @JoinColumn(name = "id_member")
-  private Member member;
+  @MapsId("teamId")
+  @JoinColumn(name = "id_team")
+  private Team team;
 
   @Column(nullable = false)
   private boolean isRetreated = false;
