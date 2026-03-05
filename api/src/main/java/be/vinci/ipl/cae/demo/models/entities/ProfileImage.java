@@ -22,6 +22,6 @@ public class ProfileImage {
   private Long idImage;
 
   @Column(nullable = false, unique = true)
-  private String link;
+  private String path;
 
 }
