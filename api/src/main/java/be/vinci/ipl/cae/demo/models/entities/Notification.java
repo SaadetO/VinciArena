@@ -42,7 +42,7 @@ public class Notification {
   private boolean isRead;
 
   @Column(nullable = false)
-  private LocalDateTime dateTime;
+  private LocalDateTime dateTime = LocalDateTime.now();
 
 
 }
