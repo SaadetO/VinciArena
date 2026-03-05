@@ -1,7 +1,5 @@
 package be.vinci.ipl.cae.demo.models.entities;
 
-import be.vinci.ipl.cae.demo.models.entities.Speciality;
-import be.vinci.ipl.cae.demo.models.entities.Team;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
