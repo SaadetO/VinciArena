@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "images")
 @Data
 @NoArgsConstructor
-public class Image {
+public class ProfileImage {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long idImage;

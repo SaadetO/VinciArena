@@ -53,7 +53,7 @@ public class Member {
 
   @ManyToOne
   @JoinColumn(name = "id_image")
-  private Image imageProfile;
+  private ProfileImage profileImage;
 
   private boolean deleted;
 
