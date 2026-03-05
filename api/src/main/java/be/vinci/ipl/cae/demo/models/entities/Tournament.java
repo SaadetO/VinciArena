@@ -56,13 +56,10 @@ public class Tournament {
   @Column(nullable = false)
   private int maxNbOfTeams;
 
-  @SuppressWarnings("checkstyle:LineLength")
   @ManyToMany
-  @JoinTable(name = "tournament_registrations", joinColumns = @JoinColumn(name = "id_tournament"),
-      inverseJoinColumns = @JoinColumn(name = "id_team"))
+  @JoinTable(name = "tournament_registrations", joinColumns = @JoinColumn(name = "id_tournament"), inverseJoinColumns = @JoinColumn(name = "id_team"))
   private Set<Team> teams = new HashSet<>();
 
-  @SuppressWarnings("checkstyle:MissingJavadocMethod")
   public void setMaxNbOfTeams(int maxNbOfTeams) {
     if (maxNbOfTeams <= 0) {
       throw new IllegalArgumentException("Max teams must be > 0");
