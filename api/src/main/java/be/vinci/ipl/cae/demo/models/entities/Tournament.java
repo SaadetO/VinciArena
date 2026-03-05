@@ -20,6 +20,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Tournament table.
+ */
 @Entity
 @Table(name = "tournaments")
 @Getter
@@ -53,13 +56,13 @@ public class Tournament {
   @Column(nullable = false)
   private int maxNbOfTeams;
 
+  @SuppressWarnings("checkstyle:LineLength")
   @ManyToMany
-  @JoinTable(
-      name="tournament_registrations",
-  joinColumns = @JoinColumn(name="id_tournament"),
-  inverseJoinColumns =  @JoinColumn(name="id_team"))
+  @JoinTable(name = "tournament_registrations", joinColumns = @JoinColumn(name = "id_tournament"),
+      inverseJoinColumns = @JoinColumn(name = "id_team"))
   private Set<Team> teams = new HashSet<>();
 
+  @SuppressWarnings("checkstyle:MissingJavadocMethod")
   public void setMaxNbOfTeams(int maxNbOfTeams) {
     if (maxNbOfTeams <= 0) {
       throw new IllegalArgumentException("Max teams must be > 0");
@@ -68,26 +71,26 @@ public class Tournament {
   }
 
   /***
-   *Validates the dates in the entity before inserting or updating any attributes
+   *Validates the dates in the entity before inserting or updating any attributes.
    */
   @PrePersist
   @PreUpdate
   public void validateDates() {
-    //check registrationDeadline is before startDate
+    // check registrationDeadline is before startDate
     if (registrationDeadline != null && startDate != null) {
       if (!registrationDeadline.isBefore(startDate)) {
         throw new IllegalStateException("registrationDeadline must be before the startDate.");
       }
     }
 
-    //Check startDate is before endDate
+    // Check startDate is before endDate
     if (startDate != null && endDate != null) {
       if (!startDate.isBefore(endDate)) {
         throw new IllegalStateException("startDate must be before the endDate.");
       }
     }
 
-    //Implied: registrationDeadline is before endDate
+    // Implied: registrationDeadline is before endDate
   }
 }
 

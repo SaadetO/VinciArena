@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MatchLineupId implements Serializable {
+
   private Long match;
   private Long member;
 
