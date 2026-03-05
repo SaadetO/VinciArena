@@ -19,7 +19,7 @@ import lombok.Setter;
  * MatchLineup entity.
  */
 @Entity
-@Table(name = "matchs")
+@Table(name = "match_lineups")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -42,14 +42,19 @@ public class MatchLineup {
   private boolean isRetreated = false;
 
   @ManyToMany
-  @JoinTable(name = "match_members", joinColumns = @JoinColumn(name = "match_lineup_id"), inverseJoinColumns = @JoinColumn(name = "Member_id"))
+  @JoinTable(name = "match_members", joinColumns = {
+      @JoinColumn(name = "id_match", referencedColumnName = "id_match"),
+      @JoinColumn(name = "id_team",
+          referencedColumnName = "id_team")}, inverseJoinColumns = @JoinColumn(name = "id_membre"))
   private Set<Member> members = new HashSet<>();
 
-  /*
-  Adds member to the lineup only if there are less than 4 members in it.
-  Returns false if member wasn't added
+  /**
+   * Adds member to lineup.
+   *
+   * @param member member being added to the lineup
+   * @return true if member added , false if not
    */
-  boolean addMember(Member member) {
+  public boolean addMember(Member member) {
     if (this.members.size() < 4) {
       members.add(member);
       return true;
