@@ -48,7 +48,7 @@ public class Member {
   @JoinColumn(name = "id_team", nullable = true)
   private Team team;
 
-  private LocalDateTime creationDate;
+  private LocalDateTime creationDate = LocalDateTime.now();
 
   @ManyToOne
   @JoinColumn(name = "id_image")
