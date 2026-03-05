@@ -16,6 +16,9 @@ import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Member entity.
+ */
 @Entity
 @Table(
     name = "members",

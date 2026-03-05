@@ -14,6 +14,9 @@ import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Notification entity.
+ */
 @Entity
 @Table(name = "notifications")
 @Data
@@ -24,8 +27,8 @@ public class Notification {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long idNotification;
 
-  @ManyToOne(fetch= FetchType.LAZY)
-  @JoinColumn(name= "id_member")
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "id_member")
   @JsonBackReference
   private Member member;
 

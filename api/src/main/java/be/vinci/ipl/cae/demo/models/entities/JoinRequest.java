@@ -16,7 +16,9 @@ import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
+/**
+ * JoinRequest entity.
+ */
 @Entity
 @Table(name = "join_requests")
 @Data
@@ -28,7 +30,7 @@ public class JoinRequest {
   private Long idJoinRequest;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name= "id_team")
+  @JoinColumn(name = "id_team")
   @JsonBackReference
   private Team requestedTeam;
 
@@ -39,7 +41,7 @@ public class JoinRequest {
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private RequestStatus status = RequestStatus.PENDING; //default value
+  private RequestStatus status = RequestStatus.PENDING; // default value
 
   @Column(nullable = true)
   private String rejectionReason;

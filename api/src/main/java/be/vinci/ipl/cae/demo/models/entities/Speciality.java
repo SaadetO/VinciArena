@@ -7,6 +7,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+/**
+ * Speciality entity.
+ */
 @Entity
 @Table(name = "specialities")
 public class Speciality {
