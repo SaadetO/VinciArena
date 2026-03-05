@@ -57,9 +57,18 @@ public class Tournament {
   private int maxNbOfTeams;
 
   @ManyToMany
-  @JoinTable(name = "tournament_registrations", joinColumns = @JoinColumn(name = "id_tournament"), inverseJoinColumns = @JoinColumn(name = "id_team"))
+  @JoinTable(
+      name = "tournament_registrations",
+      joinColumns = @JoinColumn(name = "id_tournament"),
+      inverseJoinColumns = @JoinColumn(name = "id_team")
+  )
   private Set<Team> teams = new HashSet<>();
 
+  /**
+   * Set max number of teams for the current tournament.
+   *
+   * @param maxNbOfTeams max number of teams
+   */
   public void setMaxNbOfTeams(int maxNbOfTeams) {
     if (maxNbOfTeams <= 0) {
       throw new IllegalArgumentException("Max teams must be > 0");
@@ -67,8 +76,8 @@ public class Tournament {
     this.maxNbOfTeams = maxNbOfTeams;
   }
 
-  /***
-   *Validates the dates in the entity before inserting or updating any attributes.
+  /**
+   * Validates the dates in the entity before inserting or updating any attributes.
    */
   @PrePersist
   @PreUpdate

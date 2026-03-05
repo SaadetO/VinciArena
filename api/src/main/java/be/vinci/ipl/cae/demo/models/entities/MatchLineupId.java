@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * MatchLineupId
+ * MatchLineupId id.
  */
 @Data
 @NoArgsConstructor

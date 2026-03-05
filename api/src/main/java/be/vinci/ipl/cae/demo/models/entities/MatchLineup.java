@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * corresponds to "compositions_equipes_match" table on the DSD
+ * MatchLineup entity.
  */
 @Entity
 @Table(name = "matchs")
