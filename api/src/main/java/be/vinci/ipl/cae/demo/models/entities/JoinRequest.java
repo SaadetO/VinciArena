@@ -14,14 +14,17 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * JoinRequest entity.
  */
 @Entity
 @Table(name = "join_requests")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class JoinRequest {
 
