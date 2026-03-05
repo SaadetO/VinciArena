@@ -54,6 +54,6 @@ public class Member {
   @JoinColumn(name = "id_profile_image")
   private ProfileImage profileImage;
 
-  private boolean deleted;
+  private boolean isDeleted;
 
 }
