@@ -42,7 +42,7 @@ public class Member {
   @JoinColumn(name = "id_speciality")
   private Speciality speciality;
 
-  private boolean admin;
+  private boolean isAdmin;
 
   @ManyToOne
   @JoinColumn(name = "id_team", nullable = true)
