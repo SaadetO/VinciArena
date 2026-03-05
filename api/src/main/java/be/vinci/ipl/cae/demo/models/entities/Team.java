@@ -13,5 +13,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class Team {
+  //TODO: add Many to Many relation with Tournament and jsonIgnore
 
 }
