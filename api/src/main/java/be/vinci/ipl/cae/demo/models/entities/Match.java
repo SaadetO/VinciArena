@@ -32,9 +32,9 @@ public class Match {
   private Long idMatch;
 
   // Foreign Key to the Tournament
-  // @ManyToOne(fetch = FetchType.LAZY)
-  // @JoinColumn(name = "tournament_id", nullable = false)
-  // private Tournament tournoi;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "tournament_id", nullable = false)
+  private Tournament tournament;
 
   // Nullable Foreign Key for Team 1 (Circled in your image)
   @ManyToOne(fetch = FetchType.LAZY)
