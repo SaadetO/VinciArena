@@ -51,7 +51,7 @@ public class Member {
   private LocalDateTime creationDate = LocalDateTime.now();
 
   @ManyToOne
-  @JoinColumn(name = "id_image")
+  @JoinColumn(name = "id_profile_image")
   private ProfileImage profileImage;
 
   private boolean deleted;

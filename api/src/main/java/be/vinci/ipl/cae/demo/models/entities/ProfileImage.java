@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
  * Image entity.
  */
 @Entity
-@Table(name = "images")
+@Table(name = "profile_images")
 @Data
 @NoArgsConstructor
 public class ProfileImage {
