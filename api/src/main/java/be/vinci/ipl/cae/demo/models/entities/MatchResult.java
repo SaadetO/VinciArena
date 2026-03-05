@@ -37,11 +37,4 @@ public class MatchResult {
 
   @Column(name = "confirmation_team2")
   private Boolean confirmationTeam2;
-
-  @Column(name = "score_team1", nullable = false)
-  private Integer scoreTeam1;
-
-  @Column(name = "score_team2", nullable = false)
-  private Integer scoreTeam2;
-
 }

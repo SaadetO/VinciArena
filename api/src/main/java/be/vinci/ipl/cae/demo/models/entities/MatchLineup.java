@@ -41,6 +41,12 @@ public class MatchLineup {
   @Column(nullable = false)
   private boolean isRetreated = false;
 
+  @Column(nullable = true)
+  private int score;
+
+  @Column(nullable = true)
+  private boolean isWinner;
+
   @ManyToMany
   @JoinTable(name = "match_members", joinColumns = {
       @JoinColumn(name = "id_match", referencedColumnName = "id_match"),
