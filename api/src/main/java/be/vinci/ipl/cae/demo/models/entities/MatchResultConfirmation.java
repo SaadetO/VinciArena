@@ -20,7 +20,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class MatchResult {
+public class MatchResultConfirmation {
 
   @Id
   private Long id;
