@@ -49,13 +49,7 @@ public class Team {
   @JoinColumn(name = "responsable2")
   private Member responsable2;
 
-  @ManyToMany
-  @JoinTable(
-      name = "tournament_registration",
-      joinColumns = @JoinColumn(name = "id_team"),
-      inverseJoinColumns = @JoinColumn(name = "id_tournament")
-  )
-
+  @ManyToMany(mappedBy = "teams")
   @JsonIgnore
   private List<Tournament> tournaments = new ArrayList<>();
 
