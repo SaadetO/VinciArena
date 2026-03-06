@@ -20,7 +20,7 @@ import lombok.Setter;
  * Match entity.
  */
 @Entity
-@Table(name = "matchs")
+@Table(name = "matches")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -36,12 +36,12 @@ public class Match {
   @JoinColumn(name = "id_tournament", nullable = false)
   private Tournament tournament;
 
-  // Nullable Foreign Key for Team 1 (Circled in your image)
+  // Nullable Foreign Key for Team 1
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "id_team1")
   private Team team1;
 
-  // Nullable Foreign Key for Team 2 (Circled in your image)
+  // Nullable Foreign Key for Team 2
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "id_team2")
   private Team team2;

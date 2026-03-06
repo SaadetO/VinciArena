@@ -39,7 +39,7 @@ public class MatchLineup {
   private Team team;
 
   @Column(nullable = false)
-  private boolean isRetreated = false;
+  private boolean hasForfeited = false;
 
   @Column(nullable = true)
   private int score;
