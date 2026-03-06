@@ -33,17 +33,17 @@ public class Match {
 
   // Foreign Key to the Tournament
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "tournament_id", nullable = false)
+  @JoinColumn(name = "id_tournament", nullable = false)
   private Tournament tournament;
 
   // Nullable Foreign Key for Team 1 (Circled in your image)
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "team1")
+  @JoinColumn(name = "id_team1")
   private Team team1;
 
   // Nullable Foreign Key for Team 2 (Circled in your image)
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "team2")
+  @JoinColumn(name = "id_team2")
   private Team team2;
 
   @Column(name = "turn", nullable = false)
@@ -59,7 +59,7 @@ public class Match {
 
   // Nullable Foreign Key to the NEXT match (self-referencing)
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "next_match")
+  @JoinColumn(name = "id_next_match")
   private Match nextMatch;
 
 }
