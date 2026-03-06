@@ -13,15 +13,17 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Unavailability entity.
  */
 @Entity
 @Table(name = "unavailabilities")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class Unavailability {
 
@@ -41,7 +43,7 @@ public class Unavailability {
   private LocalDateTime endDate;
 
   /**
-   *Hook that validates dates before inserting unavailability.
+   * Hook that validates dates before inserting unavailability.
    */
   @PrePersist
   @PreUpdate

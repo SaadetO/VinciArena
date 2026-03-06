@@ -32,12 +32,12 @@ public class JoinRequest {
   private Long idJoinRequest;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "id_team")
+  @JoinColumn(name = "id_team", nullable = false)
   @JsonBackReference
   private Team requestedTeam;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "id_member")
+  @JoinColumn(name = "id_member", nullable = false)
   @JsonBackReference
   private Member member;
 
@@ -45,7 +45,6 @@ public class JoinRequest {
   @Column(nullable = false)
   private RequestStatus status = RequestStatus.PENDING; // default value
 
-  @Column(nullable = true)
   private String rejectionReason;
 
   @Column(nullable = false)

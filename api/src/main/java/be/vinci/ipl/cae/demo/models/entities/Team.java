@@ -29,24 +29,23 @@ public class Team {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "id_team")
   private Long idTeam;
 
   @Column(unique = true, nullable = false)
   private String name;
 
-  @Column(name = "is_active", nullable = false)
+  @Column(nullable = false)
   private Boolean isActive;
 
   // Primary responsable Must be not null in order for team to be considered active.
   @ManyToOne
-  @JoinColumn(name = "responsable1")
-  private Member responsable1;
+  @JoinColumn(name = "id_manager1")
+  private Member manager1;
 
   // Secondary responsable (optional for team "active" status).
   @ManyToOne
-  @JoinColumn(name = "responsable2")
-  private Member responsable2;
+  @JoinColumn(name = "id_manager2")
+  private Member manager2;
 
   @ManyToMany(mappedBy = "teams")
   @JsonIgnore

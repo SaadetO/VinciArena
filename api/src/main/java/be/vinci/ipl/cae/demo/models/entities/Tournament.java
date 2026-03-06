@@ -91,7 +91,7 @@ public class Tournament {
 
     // Check startDate is before endDate
     if (startDate != null && endDate != null) {
-      if (!startDate.isBefore(endDate)) {
+      if (startDate.isAfter(endDate)) {
         throw new IllegalStateException("startDate must be before the endDate.");
       }
     }

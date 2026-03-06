@@ -28,7 +28,6 @@ public class Match {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "id_match")
   private Long idMatch;
 
   // Foreign Key to the Tournament
@@ -46,15 +45,15 @@ public class Match {
   @JoinColumn(name = "id_team2")
   private Team team2;
 
-  @Column(name = "turn", nullable = false)
+  @Column(nullable = false)
   private Integer turn;
 
-  @Column(name = "date_hour", nullable = false)
+  @Column(nullable = false)
   private LocalDateTime dateHour;
 
   // Enum mapped to String to save 'PLANIFIE' instead of 0
   @Enumerated(EnumType.STRING)
-  @Column(name = "status", nullable = false)
+  @Column(nullable = false)
   private MatchStatus status;
 
   // Nullable Foreign Key to the NEXT match (self-referencing)

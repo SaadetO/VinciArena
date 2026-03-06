@@ -10,8 +10,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Member entity.
@@ -23,7 +24,8 @@ import lombok.NoArgsConstructor;
         @UniqueConstraint(columnNames = {"tag", "id_team"})
     }
 )
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class Member {
 
@@ -45,7 +47,7 @@ public class Member {
   private boolean isAdmin;
 
   @ManyToOne
-  @JoinColumn(name = "id_team", nullable = true)
+  @JoinColumn(name = "id_team")
   private Team team;
 
   private LocalDateTime creationDate = LocalDateTime.now();

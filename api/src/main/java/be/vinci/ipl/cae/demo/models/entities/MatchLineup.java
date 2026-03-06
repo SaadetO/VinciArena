@@ -41,10 +41,8 @@ public class MatchLineup {
   @Column(nullable = false)
   private boolean hasForfeited = false;
 
-  @Column(nullable = true)
   private int score;
 
-  @Column(nullable = true)
   private boolean isWinner;
 
   @ManyToMany
