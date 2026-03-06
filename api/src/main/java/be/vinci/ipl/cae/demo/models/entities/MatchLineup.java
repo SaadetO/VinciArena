@@ -34,7 +34,7 @@ public class MatchLineup {
   private Match match;
 
   @ManyToOne
-  @MapsId("teamId")
+  @MapsId("idTeam")
   @JoinColumn(name = "id_team")
   private Team team;
 
