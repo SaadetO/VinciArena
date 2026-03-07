@@ -4,7 +4,7 @@ package be.vinci.ipl.cae.demo.repositories;
 import be.vinci.ipl.cae.demo.models.entities.Notification;
 import org.springframework.data.repository.CrudRepository;
 
-public interface NotificationsRepository extends CrudRepository<Notification, Long> {
+public interface NotificationRepository extends CrudRepository<Notification, Long> {
 
   Iterable<Notification> findByMemberIdMember(Long idMember);
 }
