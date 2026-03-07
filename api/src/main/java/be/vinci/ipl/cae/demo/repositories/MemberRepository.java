@@ -4,8 +4,25 @@ import be.vinci.ipl.cae.demo.models.entities.Member;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
+/**
+ * Member Repository.
+ */
 @Repository
-public interface MemberRepository extends CrudRepository<Member , Long> {
+public interface MemberRepository extends CrudRepository<Member, Long> {
+
+  /**
+   * Finds Member by email.
+   *
+   * @param email = email address
+   * @return Member found
+   */
   Member findByEmail(String email);
+
+  /**
+   * Checks if member exists by email.
+   *
+   * @param email = email address
+   * @return true if member exists , false if not
+   */
   Boolean existsByEmail(String email);
 }
