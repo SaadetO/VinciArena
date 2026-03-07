@@ -4,6 +4,7 @@ package be.vinci.ipl.cae.demo.controllers;
 import be.vinci.ipl.cae.demo.models.entities.Notification;
 import be.vinci.ipl.cae.demo.services.NotificationService;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,6 +18,10 @@ public class NotificationController {
     this.notificationService = notificationService;
   }
 
+  @GetMapping("/member/{id}")
+  public Iterable<Notification> listNotifications(@PathVariable long id) {
+    return notificationService.getNotificationsByIdMember(id);
+  }
 
 
 }

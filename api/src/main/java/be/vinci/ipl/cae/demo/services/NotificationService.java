@@ -38,4 +38,8 @@ public class NotificationService {
     return notificationRepository.save(newNotification);
   }
 
+  public Iterable<Notification> getNotificationsByIdMember(long idMember) {
+    return notificationRepository.findByMemberIdMember(idMember);
+  }
+
 }
