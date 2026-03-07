@@ -1,2 +1,2 @@
 // Empty setup file
-export {}
+export {};
