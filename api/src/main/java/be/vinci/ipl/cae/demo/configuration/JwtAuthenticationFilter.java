@@ -1,7 +1,7 @@
 package be.vinci.ipl.cae.demo.configuration;
 
-import be.vinci.ipl.cae.demo.models.entities.User;
-import be.vinci.ipl.cae.demo.services.UserService;
+import be.vinci.ipl.cae.demo.models.entities.Member;
+import be.vinci.ipl.cae.demo.services.MemberService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,52 +18,69 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * JwtAuthenticationFilter to handle user authentication.
+ * JwtAuthenticationFilter to handle member authentication.
  */
 @Configuration
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-  private final UserService userService;
+  private final MemberService memberService;
 
   /**
    * Constructor for JwtAuthenticationFilter.
    *
-   * @param userService the injected UserService.
+   * @param memberService the injected MemberService
    */
-  public JwtAuthenticationFilter(UserService userService) {
-    this.userService = userService;
+  public JwtAuthenticationFilter(MemberService memberService) {
+    this.memberService = memberService;
   }
 
   /**
-   * Filter to handle user authentication.
+   * Filter to handle JWT authentication.
    *
-   * @param request     the request.
-   * @param response    the response.
-   * @param filterChain the filter chain.
-   * @throws ServletException the servlet exception.
-   * @throws IOException      the IO exception.
+   * @param request the request
+   * @param response the response
+   * @param filterChain the filter chain
    */
   @Override
-  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-      FilterChain filterChain) throws ServletException, IOException {
+  protected void doFilterInternal(HttpServletRequest request,
+      HttpServletResponse response,
+      FilterChain filterChain)
+      throws ServletException, IOException {
+
     String token = request.getHeader("Authorization");
+
     if (token != null) {
-      String username = userService.verifyJwtToken(token);
-      if (username != null) {
-        User user = userService.readOneFromUsername(username);
-        if (user != null) {
+
+      String email = memberService.verifyJwtToken(token);
+
+      if (email != null) {
+
+        Member member = memberService.readOneFromEmail(email);
+
+        if (member != null) {
+
           List<GrantedAuthority> authorities = new ArrayList<>();
-          if ("admin".equals(username)) {
+
+          if (member.isAdmin()) {
             authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
           }
+
           UsernamePasswordAuthenticationToken authentication =
               new UsernamePasswordAuthenticationToken(
-                  user, null, authorities);
-          authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                  member,
+                  null,
+                  authorities
+              );
+
+          authentication.setDetails(
+              new WebAuthenticationDetailsSource().buildDetails(request)
+          );
+
           SecurityContextHolder.getContext().setAuthentication(authentication);
         }
       }
     }
+
     filterChain.doFilter(request, response);
   }
 }
