@@ -59,7 +59,7 @@ export const theme = createTheme({
     background: {
       ...surfaceLevels,
       default: surfaceLevels.s0,
-      paper: surfaceLevels.s4,
+      paper: surfaceLevels.s1,
     },
     text: {
       primary: '#FFFFFF',
@@ -74,6 +74,47 @@ export const theme = createTheme({
       'Arial',
       'sans-serif',
     ].join(','),
+    h1: {
+      fontSize: '2.8125rem',
+      lineHeight: '3.375rem',
+      fontWeight: 'bold',
+    },
+    h2: {
+      fontSize: '1.5rem',
+      lineHeight: '2rem',
+      letterSpacing: '0',
+      fontWeight: 'bold',
+    },
+    h3: {
+      fontSize: '1.375rem',
+      lineHeight: '1.75rem',
+      letterSpacing: '0',
+      fontWeight: 'bold',
+    },
+    h4: {
+      fontSize: '1.125rem',
+      lineHeight: '1.5rem',
+      letterSpacing: '0.15%',
+      fontWeight: 'bold',
+    },
+    h5: {
+      fontSize: '0.875rem',
+      lineHeight: '1.25rem',
+      letterSpacing: '0.1%',
+      fontWeight: 'bold',
+    },
+    h6: {
+      fontSize: '0.6875rem',
+      lineHeight: '1rem',
+      letterSpacing: '0.5%',
+      fontWeight: 'bold',
+    },
+    body1: {
+      fontSize: '0.875rem',
+      lineHeight: '1.25rem',
+      letterSpacing: '0.25%',
+      fontWeight: 'normal',
+    },
   },
   components: {
     MuiButtonBase: {
@@ -168,6 +209,7 @@ export const theme = createTheme({
           borderRadius: '100rem',
           padding: '0 0.5rem',
           fontSize: '0.5625rem',
+          letterSpacing: '0.5%',
           lineHeight: '0.625rem',
           fontWeight: 'Bold',
           '& .MuiSvgIcon-root': {
