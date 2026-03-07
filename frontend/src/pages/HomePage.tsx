@@ -1,7 +1,3 @@
 export const HomePage = () => {
-  return (
-    <>
-      Home
-    </>
-  );
+  return <>Home</>;
 };

@@ -102,7 +102,7 @@ export const LoginPage = () => {
         </form>
       </Container>
       <Box
-        width={1 /3}
+        width={1 / 3}
         minHeight="100%"
         alignItems="center"
         justifyContent="center"

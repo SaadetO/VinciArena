@@ -1,5 +1,4 @@
-interface MainContext {
-}
+interface MainContext {}
 
 interface UserContextType {
   authenticatedUser: MaybeAuthenticatedUser;
