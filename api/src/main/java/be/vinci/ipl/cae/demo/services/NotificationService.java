@@ -44,16 +44,11 @@ public class NotificationService {
     return notificationRepository.findByMemberIdMember(idMember);
   }
 
-  public boolean markNotificationAsRead(long idNotification) {
-    Notification notification = notificationRepository.findById(idNotification)
-        .orElseThrow(
-            () -> new EntityNotFoundException("Notification not found with id: " + idNotification));
-    if (!notification.isRead()) {
-      notification.setRead(true);
-      notificationRepository.save(notification);
-      return true;
-    }
-    return false;
+  public void markNotificationAsRead(long idNotification) {
+    Notification notification = notificationRepository.findById(idNotification).orElseThrow(
+        () -> new EntityNotFoundException("Notification not found with id: " + idNotification));
+    notification.setRead(true);
+    notificationRepository.save(notification);
   }
 }
 
