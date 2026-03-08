@@ -1,4 +1,11 @@
-div#root {
-  width: 100%;
-  display: inline-block; /* avoid margins to collapse to avoid vertical scrollbar */
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  color: #ffffff;
+  overflow-x: hidden;
+}
+
+a {
+  color: currentColor !important;
 }
