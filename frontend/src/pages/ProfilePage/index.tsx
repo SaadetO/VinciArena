@@ -12,6 +12,7 @@ export const ProfilePage = () => {
     team: {
       id: '1',
       name: 'M8',
+      isManager: true,
     },
   };
   console.log(user);

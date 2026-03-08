@@ -21,6 +21,7 @@ interface ProfileInfoDto {
   team: {
     id: string;
     name: string;
+    isManager: boolean;
   };
 }
 
