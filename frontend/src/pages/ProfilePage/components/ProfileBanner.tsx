@@ -23,7 +23,7 @@ export const ProfileBanner = ({ user }: { user?: ProfileInfoDto }) => {
           >
             <img
               src={
-                user.avatar === ''
+                !user.avatar
                   ? `https://api.dicebear.com/9.x/initials/svg?seed=${user.tag}`
                   : user.avatar
               }
@@ -41,11 +41,13 @@ export const ProfileBanner = ({ user }: { user?: ProfileInfoDto }) => {
       <Stack direction="row" spacing="0.25rem" alignItems="center">
         {user ? (
           <>
-            <Chip
-              size="small"
-              color="inverse"
-              label={`team ${user.team.name}`}
-            />
+            {user.team && (
+              <Chip
+                size="small"
+                color="inverse"
+                label={`team ${user.team.name}`}
+              />
+            )}
             <Chip
               size="medium"
               variant="text"
