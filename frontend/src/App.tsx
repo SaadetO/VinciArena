@@ -18,6 +18,7 @@ export const App = () => {
         component="main"
         sx={{
           display: 'flex',
+          flexDirection: 'column',
           flex: 1,
         }}
       >
