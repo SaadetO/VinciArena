@@ -33,7 +33,9 @@ export const ProfilePage = () => {
                 padding="1.25rem 1rem 1rem"
                 borderRadius="0.5rem"
               >
-                <Typography variant="h5" textAlign='center'>Placeholder for match & tournament section</Typography>
+                <Typography variant="h5" textAlign="center">
+                  Placeholder for match & tournament section
+                </Typography>
               </Stack>
             </Stack>
           </Grid2>
