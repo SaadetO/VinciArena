@@ -5,7 +5,6 @@ import be.vinci.ipl.cae.demo.models.entities.Notification;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.NotificationRepository;
 import jakarta.persistence.EntityNotFoundException;
-import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 @Service
