@@ -1,5 +1,6 @@
 package be.vinci.ipl.cae.demo.models.entities;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
@@ -29,7 +30,9 @@ public class MatchResultConfirmation {
   @JoinColumn(name = "match")
   private Match match;
 
+  @Column(name = "confirmation_team1")
   private Boolean confirmationTeam1;
 
+  @Column(name = "confirmation_team2")
   private Boolean confirmationTeam2;
 }
