@@ -16,19 +16,21 @@ interface ProfileInfoDto {
   id: number;
   email: string | null;
   tag: string;
-  specialty: string | null;  // Corresponding to Member's Speciality entity
-  creation_date: string | null;     // ISO Date string
-  avatar: string | null;            // URL or base64 from ProfileImage entity
+  specialty: string | null; // Corresponding to Member's Speciality entity
+  creation_date: string | null; // ISO Date string
+  avatar: string | null; // URL or base64 from ProfileImage entity
   isAdmin: boolean | null;
   team: {
     id: number;
     name: string;
-    isManager: boolean;      // Calculated based on if Member is manager1 or manager2 in Team
-  } | null;                  // User might not have a team yet
-  unavailabilities: {
-    startDate: string;
-    endDate: string;
-  }[] | null;
+    isManager: boolean; // Calculated based on if Member is manager1 or manager2 in Team
+  } | null; // User might not have a team yet
+  unavailabilities:
+    | {
+        startDate: string;
+        endDate: string;
+      }[]
+    | null;
 }
 
 interface AuthenticatedUser {
