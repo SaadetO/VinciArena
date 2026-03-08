@@ -32,9 +32,8 @@ export const ProfilePage = () => {
                 sx={{ background: (theme) => theme.palette.background.s1 }}
                 padding="1.25rem 1rem 1rem"
                 borderRadius="0.5rem"
-                minHeight="20rem"
               >
-                <Typography variant="h4">Matchs</Typography>
+                <Typography variant="h5" textAlign='center'>Placeholder for match & tournament section</Typography>
               </Stack>
             </Stack>
           </Grid2>
