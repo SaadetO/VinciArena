@@ -33,7 +33,7 @@ const DataField = ({
   skeletonWidth,
   icon,
 }: {
-  data?: string;
+  data?: string | null;
   skeletonWidth?: string;
   icon: ReactNode;
 }) => {

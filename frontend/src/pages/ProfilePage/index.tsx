@@ -4,16 +4,19 @@ import { ProfileBanner } from './components/ProfileBanner';
 
 export const ProfilePage = () => {
   const user = {
+    id: 1,
     tag: 'Larry',
     avatar: '',
     email: 'larry@cae.com',
     specialty: 'architect',
     creation_date: '2022-01-01',
+    isAdmin: false,
     team: {
-      id: '1',
+      id: 1,
       name: 'M8',
       isManager: true,
     },
+    unavailabilities: [],
   };
   console.log(user);
   return (
