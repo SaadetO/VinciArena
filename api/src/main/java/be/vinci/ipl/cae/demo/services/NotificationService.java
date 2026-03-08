@@ -40,7 +40,7 @@ public class NotificationService {
   }
 
   public Iterable<Notification> getNotificationsByIdMember(long idMember) {
-    return notificationRepository.findByMemberIdMember(idMember);
+    return notificationRepository.findByMemberIdMemberOrderByIsReadAscDateTimeDesc(idMember);
   }
 
   public void markNotificationAsRead(long idNotification) {
