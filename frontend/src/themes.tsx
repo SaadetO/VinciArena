@@ -214,6 +214,7 @@ export const theme = createTheme({
       },
       styleOverrides: {
         root: {
+          width: 'fit-content',
           textTransform: 'uppercase',
           fontWeight: 'Bold',
           fontSize: '0.875rem',
