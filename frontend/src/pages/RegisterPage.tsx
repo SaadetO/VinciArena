@@ -24,7 +24,7 @@ export const RegisterPage = () => {
     email: '',
     password: '',
     tag: '',
-    specialty: 'architect',
+    specialty: 'architecte',
   });
 
   const handleSubmit = async (e: SyntheticEvent) => {
@@ -122,13 +122,13 @@ export const RegisterPage = () => {
                 }))
               }
             >
-              <MenuItem value="architect">Architecte</MenuItem>
-              <MenuItem value="executioner">Exécuteur</MenuItem>
-              <MenuItem value="tactician">Tacticien</MenuItem>
-              <MenuItem value="guard">Gardien</MenuItem>
-              <MenuItem value="catalyst">Catalyseur</MenuItem>
-              <MenuItem value="disruptor">Perturbateur</MenuItem>
-              <MenuItem value="healer">Guérisseur</MenuItem>
+              <MenuItem value="architecte">Architecte</MenuItem>
+              <MenuItem value="exécuteur">Exécuteur</MenuItem>
+              <MenuItem value="tacticien">Tacticien</MenuItem>
+              <MenuItem value="gardien">Gardien</MenuItem>
+              <MenuItem value="catalyseur">Catalyseur</MenuItem>
+              <MenuItem value="perturbateur">Perturbateur</MenuItem>
+              <MenuItem value="guérisseur">Guérisseur</MenuItem>
             </Select>
           </Stack>
           <Stack spacing="1.5rem" paddingTop="1.5rem">

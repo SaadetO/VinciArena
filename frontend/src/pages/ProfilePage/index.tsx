@@ -8,7 +8,7 @@ export const ProfilePage = () => {
     tag: 'Larry',
     avatar: '',
     email: 'larry@cae.com',
-    specialty: 'architect',
+    specialty: 'architecte',
     creation_date: '2022-01-01',
     isAdmin: false,
     team: {
