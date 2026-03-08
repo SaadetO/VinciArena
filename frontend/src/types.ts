@@ -12,6 +12,19 @@ interface User {
   password: string;
 }
 
+interface ProfileInfoDto {
+  tag: string;
+  avatar: string;
+  email: string;
+  specialty: string;
+  creation_date: string;
+  team: {
+    id: string;
+    name: string;
+    isManager: boolean;
+  };
+}
+
 interface AuthenticatedUser {
   username: string;
   token: string;
@@ -25,4 +38,5 @@ export type {
   AuthenticatedUser,
   MaybeAuthenticatedUser,
   UserContextType,
+  ProfileInfoDto,
 };
