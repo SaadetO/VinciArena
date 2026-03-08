@@ -6,7 +6,10 @@ import be.vinci.ipl.cae.demo.models.dtos.NewMember;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.services.MemberService;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 /**
@@ -18,10 +21,21 @@ public class AuthController {
 
   private final MemberService memberService;
 
+  /**
+   * Constructor.
+   *
+   * @param memberService the member service
+   */
   public AuthController(MemberService memberService) {
     this.memberService = memberService;
   }
 
+  /**
+   * Check if credentials are invalid.
+   *
+   * @param credentials the credentials
+   * @return true if invalid
+   */
   private boolean isInvalidCredentials(Credentials credentials) {
     return credentials == null
         || credentials.getUsername() == null
@@ -30,6 +44,11 @@ public class AuthController {
         || credentials.getPassword().isBlank();
   }
 
+  /**
+   * Register a new member.
+   *
+   * @param newMember the member to register
+   */
   @PostMapping("/register")
   public void register(@RequestBody NewMember newMember) {
 
@@ -48,6 +67,12 @@ public class AuthController {
     }
   }
 
+  /**
+   * Login a member.
+   *
+   * @param credentials the login credentials
+   * @return the authenticated user
+   */
   @PostMapping("/login")
   public AuthenticatedUser login(@RequestBody Credentials credentials) {
 
