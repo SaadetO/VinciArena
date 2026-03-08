@@ -1,10 +1,11 @@
-import { Box, Chip, Stack, Typography } from '@mui/material';
-import profileHeroHeader from '../../assets/images/profile_hero_header.jpg';
+import { Container, Grid2, Stack, Typography } from '@mui/material';
+import { PersonalInfoCard } from './components/PersonalInfoCard';
+import { ProfileBanner } from './components/ProfileBanner';
 
 export const ProfilePage = () => {
   const user = {
     tag: 'Larry',
-    avatar: null,
+    avatar: '',
     email: 'larry@cae.com',
     specialty: 'architect',
     creation_date: '2022-01-01',
@@ -13,44 +14,36 @@ export const ProfilePage = () => {
       name: 'M8',
     },
   };
+  console.log(user);
   return (
     <>
-      <Stack
-        sx={{
-          background: `linear-gradient(0, rgba(0, 0, 0, 0.2)), url("${profileHeroHeader}") no-repeat center/cover`,
-        }}
-        spacing="0.375rem"
-        width={1}
-        height="fit-content"
-        padding="5rem 5rem"
-      >
-        <Stack spacing="0.75rem" alignItems="center" direction="row">
-          <Box
-            borderRadius="100rem"
-            overflow="hidden"
-            height="2.5rem"
-            width="2.5rem"
-          >
-            <img
-              src={
-                user.avatar ??
-                `https://api.dicebear.com/9.x/initials/svg?seed=${user.tag}`
-              }
-              width="100%"
-              height="100%"
-            />
-          </Box>
-          <Typography variant="h1">{user.tag}</Typography>
-        </Stack>
-        <Stack direction="row" spacing="0.25rem" alignItems="center">
-          <Chip size="small" color="inverse" label={`team ${user.team.name}`} />
-          <Chip
-            size="medium"
-            variant="text"
-            label={`spécialité ${user.specialty}`}
-          />
-        </Stack>
-      </Stack>
+      <ProfileBanner user={user} />
+      <Container maxWidth="lg">
+        <Grid2
+          container
+          spacing={3}
+          paddingTop="1.5rem"
+          direction={{ xs: 'column-reverse', md: 'row' }}
+        >
+          <Grid2 size={{ xs: 12, md: 7 }}>
+            <Stack spacing="1.5rem">
+              <Stack
+                sx={{ background: (theme) => theme.palette.background.s1 }}
+                padding="1.25rem 1rem 1rem"
+                borderRadius="0.5rem"
+                minHeight="20rem"
+              >
+                <Typography variant="h4">Matchs</Typography>
+              </Stack>
+            </Stack>
+          </Grid2>
+          <Grid2 size={{ xs: 12, md: 5 }}>
+            <Stack spacing="1.5rem">
+              <PersonalInfoCard user={user} />
+            </Stack>
+          </Grid2>
+        </Grid2>
+      </Container>
     </>
   );
 };
