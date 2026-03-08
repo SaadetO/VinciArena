@@ -1,6 +1,5 @@
 package be.vinci.ipl.cae.demo;
 
-
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Notification;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;

@@ -6,12 +6,21 @@ import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.NotificationRepository;
 import org.springframework.stereotype.Service;
 
+/**
+ * Notification Service.
+ */
 @Service
 public class NotificationService {
 
   private final MemberRepository memberRepository;
   private final NotificationRepository notificationRepository;
 
+  /**
+   * Creates the NotificationService.
+   *
+   * @param memberRepository member repository
+   * @param notificationRepository notification repository
+   */
   public NotificationService(MemberRepository memberRepository,
       NotificationRepository notificationRepository) {
     this.memberRepository = memberRepository;
@@ -38,6 +47,12 @@ public class NotificationService {
     return notificationRepository.save(newNotification);
   }
 
+  /**
+   * Get a notification by its id.
+   *
+   * @param idMember id of the member
+   * @return all the notification of a member
+   */
   public Iterable<Notification> getNotificationsByIdMember(long idMember) {
     return notificationRepository.findByMemberIdMember(idMember);
   }

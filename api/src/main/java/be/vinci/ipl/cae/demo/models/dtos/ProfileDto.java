@@ -5,19 +5,25 @@ import java.util.List;
 import lombok.Builder;
 import lombok.Data;
 
+/**
+ * Profile DTO.
+ */
 @Data
 @Builder
 public class ProfileDto {
   private Long id;
-  private String email;          // NULL if not owner
+  private String email;
   private String tag;
   private String specialty;
-  private LocalDateTime creationDate; // NULL if not owner, but using string in frontend. DTO can be JSON serialized.
+  private LocalDateTime creationDate;
   private String avatar;
-  private Boolean isAdmin;       // NULL if not owner
+  private Boolean isAdmin;
   private TeamDto team;
-  private List<UnavailabilityDto> unavailabilities; // NULL if not owner
+  private List<UnavailabilityDto> unavailabilities;
 
+  /**
+   * Team DTO.
+   */
   @Data
   @Builder
   public static class TeamDto {
@@ -26,6 +32,9 @@ public class ProfileDto {
     private boolean isManager;
   }
 
+  /**
+   * Unavailability DTO.
+   */
   @Data
   @Builder
   public static class UnavailabilityDto {
