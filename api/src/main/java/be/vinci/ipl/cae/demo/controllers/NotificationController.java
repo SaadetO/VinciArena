@@ -1,6 +1,7 @@
 package be.vinci.ipl.cae.demo.controllers;
 
 import be.vinci.ipl.cae.demo.models.entities.Notification;
+import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.services.NotificationService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -20,14 +22,16 @@ import org.springframework.web.server.ResponseStatusException;
 public class NotificationController {
 
   private final NotificationService notificationService;
+  private final MemberRepository memberRepository;
 
   /**
    * Constructor initializes notificationService.
    *
    * @param notificationService = service
    */
-  public NotificationController(NotificationService notificationService) {
+  public NotificationController(NotificationService notificationService, MemberRepository memberRepository) {
     this.notificationService = notificationService;
+    this.memberRepository = memberRepository;
   }
 
   /**
@@ -37,10 +41,13 @@ public class NotificationController {
    * @return list of Notifications that belongs to the User
    */
   @GetMapping("/member/{id}")
-  public Iterable<Notification> listNotifications(@PathVariable long id) {
+  public Iterable<Notification> listNotifications(@PathVariable long id,
+      @RequestParam(required = false, defaultValue = "false") boolean unreadOnly) {
     // TODO: Add authentification and authorization checks
-    // TODO: check if member exists before fetching notifs
-    return notificationService.getNotificationsByIdMember(id);
+    if (memberRepository.existsById(id)) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+    return notificationService.getNotificationsByIdMember(id, unreadOnly);
   }
 
   @PatchMapping("/{id}/read")

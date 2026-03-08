@@ -5,6 +5,7 @@ import be.vinci.ipl.cae.demo.models.entities.Notification;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.NotificationRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.aspectj.weaver.ast.Not;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -39,9 +40,13 @@ public class NotificationService {
     return notificationRepository.save(newNotification);
   }
 
-  public Iterable<Notification> getNotificationsByIdMember(long idMember) {
+  public Iterable<Notification> getNotificationsByIdMember(long idMember, boolean unreadOnly) {
+    if (unreadOnly) {
+      return notificationRepository.findByMemberIdMemberAndIsReadFalse(idMember);
+    }
     return notificationRepository.findByMemberIdMemberOrderByIsReadAscDateTimeDesc(idMember);
   }
+
 
   public void markNotificationAsRead(long idNotification) {
     Notification notification = notificationRepository.findById(idNotification).orElseThrow(
