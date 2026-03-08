@@ -115,8 +115,38 @@ export const theme = createTheme({
       letterSpacing: '0.25%',
       fontWeight: 'normal',
     },
+    body2: {
+      fontSize: '0.75rem',
+      lineHeight: '1rem',
+      letterSpacing: '0.25%',
+      fontWeight: 'normal',
+    },
   },
   components: {
+    MuiTypography: {
+      styleOverrides: {},
+      variants: [
+        {
+          props: { color: 'primary' },
+          style: {
+            color: '#FFFFFF',
+          },
+        },
+        {
+          props: { color: 'secondary' },
+          style: {
+            color: '#8C8C8C',
+          },
+        },
+      ],
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          borderRadius: '8px',
+        },
+      },
+    },
     MuiButtonBase: {
       defaultProps: {
         disableRipple: true,
@@ -288,6 +318,9 @@ export const theme = createTheme({
           '& .MuiTabs-list': {
             height: '100%',
           },
+          '& .MuiTabs-flexContainer': {
+            height: '100%',
+          },
         },
         indicator: {
           backgroundColor: '#FFFFFF',
@@ -368,6 +401,17 @@ export const theme = createTheme({
         },
       ],
     },
+    MuiSelect: {
+      styleOverrides: {
+        root: {
+          borderRadius: '0.5rem',
+          border: '1px solid #303030 !important',
+          '& .MuiSvgIcon-root': {
+            color: '#8C8C8C',
+          },
+        },
+      },
+    },
     MuiTextField: {
       defaultProps: {
         variant: 'outlined',
@@ -375,15 +419,20 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           '& .MuiInputBase-root': {
-            background: '#262626',
+            // background: '#262626',
             border: '1px solid #303030',
-            paddingLeft: '0.75rem',
+            paddingLeft: '1rem',
+            borderRadius: '0.5rem',
           },
-          '& input': {
-            height: '2.75rem',
-            padding: '0 0.75rem 0 0',
+          '& .MuiInputBase-input': {
+            height: '3rem',
+            padding: '0 1rem 0 0',
             fontWeight: 'Medium',
             fontSize: '1rem',
+            color: '#FFFFFF',
+          },
+          '& input::placeholder': {
+            color: '#8C8C8C',
           },
         },
       },

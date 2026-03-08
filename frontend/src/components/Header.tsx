@@ -1,40 +1,52 @@
-import { Box, Container, Typography, useTheme } from '@mui/material';
-import { useState } from 'react';
-
-interface HeaderProps {
-  title: string;
-  version: number;
-  handleHeaderClick: () => void;
-}
-
-export const Header = ({ title, handleHeaderClick }: HeaderProps) => {
-  const theme = useTheme();
-  const [menuPrinted, setMenuPrinted] = useState(false);
-
-  const handleClick = () => {
-    console.log(`value of menuPrinted before click: ${menuPrinted}`);
-    setMenuPrinted(!menuPrinted);
-    handleHeaderClick();
-  };
-
+import { Button, Stack, Tab, Tabs, Typography } from '@mui/material';
+import logo from '../assets/images/Logo.svg';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { SyntheticEvent } from 'react';
+export const Header = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   return (
-    <Box
+    <Stack
       component="header"
+      direction="row"
+      height="5rem"
+      padding="0 2.25rem"
+      alignItems="center"
       sx={{
-        px: 2,
-        backgroundColor:
-          theme.palette.mode === 'light'
-            ? theme.palette.primary.light
-            : theme.palette.primary.dark,
-        color: (theme) => theme.palette.primary.contrastText,
+        background: (theme) => theme.palette.background.s1,
+        border: (theme) => `1px solid ${theme.palette.divider}`,
       }}
-      onClick={handleClick}
     >
-      <Container maxWidth="sm">
-        <Typography variant="h1">
-          {menuPrinted ? `${title}... and rarely do we hate it!` : title}
-        </Typography>
-      </Container>
-    </Box>
+      <Link to="/" style={{ textDecoration: 'none', height: '100%' }}>
+        <Stack
+          direction="row"
+          spacing="0.75rem"
+          alignItems="center"
+          paddingRight="2.5rem"
+          height="100%"
+        >
+          <img src={logo} alt="logo" width={24} height={24} />
+          <Typography variant="h4">Vinci Arena</Typography>
+        </Stack>
+      </Link>
+      <Tabs
+        value={location.pathname}
+        sx={{ flex: 1 }}
+        onChange={(_e: SyntheticEvent, newValue: string) => navigate(newValue)}
+      >
+        <Tab label="tournois" value="/" />
+        <Tab label="teams" value="/teams" />
+      </Tabs>
+      <Stack direction="row" spacing="1rem">
+        <Link to="/auth/register">
+          <Button variant="contained" color="secondary">
+            s'inscrire
+          </Button>
+        </Link>
+        <Link to="/auth/login">
+          <Button variant="contained">se connecter</Button>
+        </Link>
+      </Stack>
+    </Stack>
   );
 };
