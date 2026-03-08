@@ -4,6 +4,7 @@ import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Notification;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.NotificationRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 /**
@@ -53,8 +54,19 @@ public class NotificationService {
    * @param idMember id of the member
    * @return all the notification of a member
    */
-  public Iterable<Notification> getNotificationsByIdMember(long idMember) {
-    return notificationRepository.findByMemberIdMember(idMember);
+  public Iterable<Notification> getNotificationsByIdMember(long idMember, boolean unreadOnly) {
+    if (unreadOnly) {
+      return notificationRepository.findByMemberIdMemberAndIsReadFalse(idMember);
+    }
+    return notificationRepository.findByMemberIdMemberOrderByIsReadAscDateTimeDesc(idMember);
   }
-
+  
+  public void markNotificationAsRead(long idNotification) {
+    Notification notification = notificationRepository.findById(idNotification).orElseThrow(
+        () -> new EntityNotFoundException("Notification not found with id: " + idNotification));
+    notification.setRead(true);
+    notificationRepository.save(notification);
+  }
 }
+
+

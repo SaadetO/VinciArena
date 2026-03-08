@@ -1,4 +1,6 @@
 @baseUrl = http://localhost:3000
 ### Get notification by idMember
-GET{{baseUrl}}/notifications/member/1
+GET{{baseUrl}}/notifications/member/2
 
+### Mark notification As read
+PATCH {{baseUrl}}/notifications/3/read
