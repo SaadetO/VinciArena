@@ -21,7 +21,7 @@ export const PersonalInfoCard = ({ user }: { user?: ProfileInfoDto }) => {
           icon={<Person sx={iconSx} />}
         />
       </Stack>
-      <Button variant="contained" color="secondary">
+      <Button variant="contained" color="secondary" disabled={!user}>
         modifier mon mot de passe
       </Button>
     </Stack>
