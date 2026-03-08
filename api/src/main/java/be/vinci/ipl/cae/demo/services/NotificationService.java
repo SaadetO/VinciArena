@@ -60,7 +60,12 @@ public class NotificationService {
     }
     return notificationRepository.findByMemberIdMemberOrderByIsReadAscDateTimeDesc(idMember);
   }
-  
+
+  /**
+   * Mark a Notification as read.
+   *
+   * @param idNotification notification id
+   */
   public void markNotificationAsRead(long idNotification) {
     Notification notification = notificationRepository.findById(idNotification).orElseThrow(
         () -> new EntityNotFoundException("Notification not found with id: " + idNotification));

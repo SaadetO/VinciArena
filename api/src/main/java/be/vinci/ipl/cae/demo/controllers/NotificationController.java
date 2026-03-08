@@ -29,7 +29,10 @@ public class NotificationController {
    *
    * @param notificationService = service
    */
-  public NotificationController(NotificationService notificationService, MemberRepository memberRepository) {
+  public NotificationController(
+      NotificationService notificationService,
+      MemberRepository memberRepository
+  ) {
     this.notificationService = notificationService;
     this.memberRepository = memberRepository;
   }
@@ -50,6 +53,11 @@ public class NotificationController {
     return notificationService.getNotificationsByIdMember(id, unreadOnly);
   }
 
+  /**
+   * Mark a Notification as read.
+   *
+   * @param id id of the notification
+   */
   @PatchMapping("/{id}/read")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void markAsRead(@PathVariable long id) {
