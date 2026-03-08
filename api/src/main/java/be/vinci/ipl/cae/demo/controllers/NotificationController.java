@@ -47,11 +47,10 @@ public class NotificationController {
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void markAsRead(@PathVariable long id) {
     // TODO: Add authentification and authorization checks
-    boolean wasUpdated;
     try {
       notificationService.markNotificationAsRead(id);
     } catch (EntityNotFoundException e) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
     }
   }
 }
