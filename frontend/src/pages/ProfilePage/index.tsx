@@ -1,8 +1,18 @@
 import { Container, Grid2, Stack, Typography } from '@mui/material';
 import { PersonalInfoCard } from './components/PersonalInfoCard';
 import { ProfileBanner } from './components/ProfileBanner';
+import { useParams } from 'react-router-dom';
+import { useContext, useEffect } from 'react';
+import { UserContext } from '../../contexts/UserContext';
 
 export const ProfilePage = () => {
+  const { id } = useParams();
+  const { authenticatedUser } = useContext(UserContext);
+
+  useEffect(() => {
+    if (isNaN(Number(id))) return;
+  }, [authenticatedUser]);
+
   const user = {
     id: 1,
     tag: 'Larry',
@@ -11,6 +21,7 @@ export const ProfilePage = () => {
     specialty: 'architecte',
     creation_date: '2022-01-01',
     isAdmin: false,
+    isSelf: false,
     team: {
       id: 1,
       name: 'M8',

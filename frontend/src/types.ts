@@ -20,6 +20,7 @@ interface ProfileInfoDto {
   creation_date: string | null; // ISO Date string
   avatar: string | null; // URL or base64 from ProfileImage entity
   isAdmin: boolean | null;
+  isSelf: boolean; // Indicates if this profile belongs to the currently logged in user
   team: {
     id: number;
     name: string;
