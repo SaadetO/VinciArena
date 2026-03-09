@@ -34,5 +34,5 @@ public interface NotificationRepository extends CrudRepository<Notification, Lon
    * @param idMember the unique identifier of the member.
    * @return the total number of unread notifications.
    */
-  long countMemberIdMemberAndIsReadFalse(Long idMember);
+  long countByMemberIdMemberAndIsReadFalse(Long idMember);
 }
