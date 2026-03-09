@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 export const NotFoundPage = ({
   error,
 }: {
-  error: { message: string; subtitle?: string };
+  error: { code: number; message: string; subtitle?: string };
 }) => {
   return (
     <Stack
@@ -20,7 +20,7 @@ export const NotFoundPage = ({
         fontSize="20rem"
         lineHeight="1"
       >
-        404
+        {error.code}
       </Typography>
       <Typography variant="h2">{error.message}</Typography>
       <Typography variant="h5" color="secondary" paddingBottom="2rem">
