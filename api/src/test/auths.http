@@ -79,3 +79,66 @@ Content-Type: application/json
 ### Try to register with empty request
 POST {{baseUrl}}/auths/register
 Content-Type: application/json
+
+### Login an existing member
+POST {{baseUrl}}/auths/login
+Content-Type: application/json
+
+{
+  "email":"player1@mail.com",
+  "password":"123"
+}
+
+### Login another existing member
+POST {{baseUrl}}/auths/login
+Content-Type: application/json
+
+{
+  "email":"player2@mail.com",
+  "password":"123"
+}
+
+### Try to login with wrong password
+POST {{baseUrl}}/auths/login
+Content-Type: application/json
+
+{
+  "email":"player1@mail.com",
+  "password":"123"
+}
+
+### Try to login an unexisting member
+POST {{baseUrl}}/auths/login
+Content-Type: application/json
+
+{
+  "email":"unexisting@mail.com",
+  "password":"123"
+}
+
+### Try to login without email
+POST {{baseUrl}}/auths/login
+Content-Type: application/json
+
+{
+  "password":"123"
+}
+
+### Try to login without password
+POST {{baseUrl}}/auths/login
+Content-Type: application/json
+
+{
+  "email":"player1@mail.com"
+}
+
+### Try to login with empty body
+POST {{baseUrl}}/auths/login
+Content-Type: application/json
+
+{
+}
+
+### Try to login with empty request
+POST {{baseUrl}}/auths/login
+Content-Type: application/json
