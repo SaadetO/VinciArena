@@ -11,7 +11,7 @@ export const ProfilePage = () => {
 
   useEffect(() => {
     if (isNaN(Number(id))) return;
-  }, [authenticatedUser]);
+  }, [authenticatedUser, id]);
 
   const user = {
     id: 1,
