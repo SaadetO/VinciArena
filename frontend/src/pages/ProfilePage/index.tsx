@@ -1,6 +1,7 @@
 import { Container, Grid2, Stack, Typography } from '@mui/material';
 import { PersonalInfoCard } from './components/PersonalInfoCard';
 import { ProfileBanner } from './components/ProfileBanner';
+import { TeamCard } from './components/TeamCard';
 
 export const ProfilePage = () => {
   const user = {
@@ -11,6 +12,7 @@ export const ProfilePage = () => {
     specialty: 'architecte',
     creation_date: '2022-01-01',
     isAdmin: false,
+    // team: null,
     team: {
       id: 1,
       name: 'M8',
@@ -45,6 +47,7 @@ export const ProfilePage = () => {
           <Grid2 size={{ xs: 12, md: 5 }}>
             <Stack spacing="1.5rem">
               <PersonalInfoCard user={user} />
+              <TeamCard user={user} />
             </Stack>
           </Grid2>
         </Grid2>
