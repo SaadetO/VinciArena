@@ -15,32 +15,24 @@ export const ProfilePage = () => {
   const [error, setError] = useState<
     { message: string; subtitle?: string } | undefined
   >(undefined);
-  const getProfile = async () => {
-    let params = {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: authenticatedUser?.token ?? '',
-      },
-    };
-    const response = await fetch(`/api/members/${idNbr}`, params);
-    if (response.status === 404)
-      return setError({
-        message: 'Membre introuvable',
-        subtitle:
-          "Le membre que vous cherchez n'existe pas ou a été surpprimé.",
-      });
-    setUser(await response.json());
-  };
-
   useEffect(() => {
     if (isNaN(idNbr) || idNbr <= 0) return;
-    getProfile();
+    (async () => {
+      const response = await fetch(`/api/members/${idNbr}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: authenticatedUser?.token ?? '',
+        },
+      });
+      if (response.status === 404)
+        return setError({
+          message: 'Membre introuvable',
+          subtitle:
+            "Le membre que vous cherchez n'existe pas ou a été surpprimé.",
+        });
+      setUser(await response.json());
+    })();
   }, [idNbr, authenticatedUser]);
-
-  useEffect(() => {
-    if (!user) return;
-    console.log(user);
-  }, [user]);
 
   if (error) return <NotFoundPage error={error} />;
   return (
