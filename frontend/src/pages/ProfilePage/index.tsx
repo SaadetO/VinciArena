@@ -13,7 +13,7 @@ export const ProfilePage = () => {
   const { authenticatedUser } = useContext(UserContext);
   const [user, setUser] = useState<ProfileInfoDto | undefined>(undefined);
   const [error, setError] = useState<
-    { message: string; subtitle?: string } | undefined
+    { code: number; message: string; subtitle?: string } | undefined
   >(undefined);
 
   useEffect(() => {
@@ -21,8 +21,9 @@ export const ProfilePage = () => {
     setError(undefined);
     if (isNaN(idNbr) || idNbr <= 0) return;
     (async () => {
+      let response: Response | undefined = undefined;
       try {
-        const response = await fetch(`/api/members/${idNbr}`, {
+        response = await fetch(`/api/members/${idNbr}`, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: authenticatedUser?.token ?? '',
@@ -30,6 +31,7 @@ export const ProfilePage = () => {
         });
         if (response.status === 404)
           return setError({
+            code: 404,
             message: 'Membre introuvable',
             subtitle:
               "Le membre que vous cherchez n'existe pas ou a été surpprimé.",
@@ -40,6 +42,7 @@ export const ProfilePage = () => {
         setUser(await response.json());
       } catch (err) {
         setError({
+          code: response?.status ?? 500,
           message: 'Une erreur est survenue',
           subtitle:
             'Une erreur est survenue lors de la récupération du profil.',
