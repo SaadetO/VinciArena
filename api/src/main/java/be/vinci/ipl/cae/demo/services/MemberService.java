@@ -157,7 +157,7 @@ public class MemberService {
         authenticatedEmail != null
             ? memberRepository.findByEmail(authenticatedEmail)
             : null;
-    boolean isOwner = authMember != null && authMember.getIdMember().equals(requestedId);
+    boolean isSelf = authMember != null && authMember.getIdMember().equals(requestedId);
 
     ProfileDto.ProfileDtoBuilder builder = ProfileDto.builder()
         .id(requestedMember.getIdMember())
@@ -171,7 +171,8 @@ public class MemberService {
             requestedMember.getProfileImage() != null
                 ? requestedMember.getProfileImage().getPath()
                 : null
-        );
+        )
+        .isSelf(isSelf);
 
     Team team = requestedMember.getTeam();
     if (team != null) {
@@ -186,7 +187,7 @@ public class MemberService {
           .build());
     }
 
-    if (isOwner) {
+    if (isSelf) {
       builder.email(requestedMember.getEmail())
           .creationDate(requestedMember.getCreationDate())
           .isAdmin(requestedMember.isAdmin());
