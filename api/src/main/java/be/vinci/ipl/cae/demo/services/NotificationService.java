@@ -19,7 +19,7 @@ public class NotificationService {
   /**
    * Creates the NotificationService.
    *
-   * @param memberRepository member repository
+   * @param memberRepository       member repository
    * @param notificationRepository notification repository
    */
   public NotificationService(MemberRepository memberRepository,
@@ -71,6 +71,16 @@ public class NotificationService {
         () -> new EntityNotFoundException("Notification not found with id: " + idNotification));
     notification.setRead(true);
     notificationRepository.save(notification);
+  }
+
+  /**
+   * calculates unread notifs.
+   *
+   * @param idMember = member ID
+   * @return number of unread notification the member in question has
+   */
+  public long countUnreadNotifications(long idMember) {
+    return notificationRepository.countByMemberIdMemberAndIsReadFalse(idMember);
   }
 }
 

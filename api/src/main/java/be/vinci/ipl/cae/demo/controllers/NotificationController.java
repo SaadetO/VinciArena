@@ -38,7 +38,7 @@ public class NotificationController {
   }
 
   /**
-   * Route GET /notifications/member/:id.
+   * Route GET /notifications/member/{id}.
    *
    * @param id = member ID
    * @return list of Notifications that belongs to the User
@@ -47,14 +47,14 @@ public class NotificationController {
   public Iterable<Notification> listNotifications(@PathVariable long id,
       @RequestParam(required = false, defaultValue = "false") boolean unreadOnly) {
     // TODO: Add authentification and authorization checks
-    if (memberRepository.existsById(id)) {
+    if (!memberRepository.existsById(id)) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
     return notificationService.getNotificationsByIdMember(id, unreadOnly);
   }
 
   /**
-   * Mark a Notification as read.
+   * Route PATCH notifications/{id}/read.
    *
    * @param id id of the notification
    */
@@ -67,5 +67,19 @@ public class NotificationController {
     } catch (EntityNotFoundException e) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
     }
+  }
+
+  /**
+   * route GET /notifications/member/{id}/unread-count.
+   *
+   * @param id = member Id
+   * @return nb of unread notifs
+   */
+  @GetMapping("/member/{id}/unread-count")
+  public long countUnreadNotifications(@PathVariable long id) {
+    if (!memberRepository.existsById(id)) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+    return notificationService.countUnreadNotifications(id);
   }
 }
