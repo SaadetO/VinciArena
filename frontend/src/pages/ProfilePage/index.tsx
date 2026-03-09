@@ -15,22 +15,36 @@ export const ProfilePage = () => {
   const [error, setError] = useState<
     { message: string; subtitle?: string } | undefined
   >(undefined);
+
   useEffect(() => {
+    setUser(undefined);
+    setError(undefined);
     if (isNaN(idNbr) || idNbr <= 0) return;
     (async () => {
-      const response = await fetch(`/api/members/${idNbr}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: authenticatedUser?.token ?? '',
-        },
-      });
-      if (response.status === 404)
-        return setError({
-          message: 'Membre introuvable',
-          subtitle:
-            "Le membre que vous cherchez n'existe pas ou a été surpprimé.",
+      try {
+        const response = await fetch(`/api/members/${idNbr}`, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: authenticatedUser?.token ?? '',
+          },
         });
-      setUser(await response.json());
+        if (response.status === 404)
+          return setError({
+            message: 'Membre introuvable',
+            subtitle:
+              "Le membre que vous cherchez n'existe pas ou a été surpprimé.",
+          });
+        if (!response.ok) {
+          throw new Error('Failed to fetch profile');
+        }
+        setUser(await response.json());
+      } catch (err) {
+        setError({
+          message: 'Une erreur est survenue',
+          subtitle:
+            'Une erreur est survenue lors de la récupération du profil.',
+        });
+      }
     })();
   }, [idNbr, authenticatedUser]);
 
