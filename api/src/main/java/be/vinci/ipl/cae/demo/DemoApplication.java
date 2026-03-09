@@ -2,8 +2,14 @@ package be.vinci.ipl.cae.demo;
 
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Notification;
+import be.vinci.ipl.cae.demo.models.entities.Speciality;
+import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.NotificationRepository;
+import be.vinci.ipl.cae.demo.repositories.SpecialityRepository;
+import be.vinci.ipl.cae.demo.repositories.TeamRepository;
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -30,10 +36,10 @@ public class DemoApplication {
   // default values for test
   @Bean
   CommandLineRunner seed(
-      MemberRepository memberRepo, 
+      MemberRepository memberRepo,
       NotificationRepository notifsRepo,
-      be.vinci.ipl.cae.demo.repositories.TeamRepository teamRepo,
-      be.vinci.ipl.cae.demo.repositories.SpecialityRepository specRepo) {
+      TeamRepository teamRepo,
+      SpecialityRepository specRepo) {
     return args -> {
       // Create Specialities
       String[] specialities = {
@@ -45,11 +51,11 @@ public class DemoApplication {
           "perturbateur",
           "guérisseur"
       };
-      java.util.Map<String, be.vinci.ipl.cae.demo.models.entities.Speciality> specMap =
-          new java.util.HashMap<>();
+      Map<String, Speciality> specMap =
+          new HashMap<>();
       for (String specialty : specialities) {
-        be.vinci.ipl.cae.demo.models.entities.Speciality spec =
-            new be.vinci.ipl.cae.demo.models.entities.Speciality();
+        Speciality spec =
+            new Speciality();
         spec.setName(specialty);
         specMap.put(specialty, specRepo.save(spec));
       }
@@ -75,8 +81,8 @@ public class DemoApplication {
       member2 = memberRepo.save(member2);
 
       // Create Team
-      be.vinci.ipl.cae.demo.models.entities.Team team1 =
-          new be.vinci.ipl.cae.demo.models.entities.Team();
+      Team team1 =
+          new Team();
       team1.setName("M8");
       team1.setIsActive(true);
       team1.setManager1(member1);
