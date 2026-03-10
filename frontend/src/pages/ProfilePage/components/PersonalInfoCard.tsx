@@ -3,7 +3,15 @@ import { ProfileInfoDto } from '../../../types';
 import { AlternateEmail, Person } from '@mui/icons-material';
 import { ReactNode } from 'react';
 
-export const PersonalInfoCard = ({ user }: { user?: ProfileInfoDto }) => {
+interface PersonalInfoCardProps {
+  user?: ProfileInfoDto;
+  setPasswordModal: (value: boolean) => void;
+}
+
+export const PersonalInfoCard = ({
+  user,
+  setPasswordModal,
+}: PersonalInfoCardProps) => {
   const iconSx = { width: '1rem', height: '1rem' };
   return (
     <Stack
@@ -21,7 +29,12 @@ export const PersonalInfoCard = ({ user }: { user?: ProfileInfoDto }) => {
           icon={<Person sx={iconSx} />}
         />
       </Stack>
-      <Button variant="contained" color="secondary" disabled={!user}>
+      <Button
+        variant="contained"
+        color="secondary"
+        disabled={!user}
+        onClick={() => setPasswordModal(true)}
+      >
         modifier mon mot de passe
       </Button>
     </Stack>

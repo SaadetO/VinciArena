@@ -1,16 +1,21 @@
 import { Container, Grid2, Stack, Typography } from '@mui/material';
 import { PersonalInfoCard } from './components/PersonalInfoCard';
 import { ProfileBanner } from './components/ProfileBanner';
-import { useParams } from 'react-router-dom';
+import { TeamCard } from './components/TeamCard';
+import { CreateTeamModal } from './components/CreateTeamModal';
 import { useContext, useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { UserContext } from '../../contexts/UserContext';
 import { ProfileInfoDto } from '../../types';
 import { NotFoundPage } from '../NotFoundPage';
+import { PasswordModal } from './components/PasswordModal';
 
 export const ProfilePage = () => {
+  const [open, setOpen] = useState(false);
   const { id } = useParams();
   const idNbr = Number(id);
   const { authenticatedUser } = useContext(UserContext);
+  const [passwordModal, setPasswordModal] = useState(false);
   const [user, setUser] = useState<ProfileInfoDto | undefined>(undefined);
   const [error, setError] = useState<
     { code: number; message: string; subtitle?: string } | undefined
@@ -80,12 +85,21 @@ export const ProfilePage = () => {
           {authenticatedUser?.id === idNbr && (
             <Grid2 size={{ xs: 12, md: 5 }}>
               <Stack spacing="1.5rem">
-                <PersonalInfoCard user={user} />
+                <PersonalInfoCard
+                  user={user}
+                  setPasswordModal={setPasswordModal}
+                />
+                <TeamCard user={user} setOpen={setOpen} />
               </Stack>
             </Grid2>
           )}
         </Grid2>
       </Container>
+      <CreateTeamModal open={open} onClose={() => setOpen(false)} />
+      <PasswordModal
+        open={passwordModal}
+        onClose={() => setPasswordModal(false)}
+      />
     </>
   );
 };

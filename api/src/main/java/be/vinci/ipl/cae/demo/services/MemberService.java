@@ -200,11 +200,6 @@ public class MemberService {
               .build())
           .collect(Collectors.toList());
       builder.unavailabilities(unavailabilities);
-    } else {
-      builder.email(null)
-          .creationDate(null)
-          .isAdmin(null)
-          .unavailabilities(null);
     }
 
     return builder.build();

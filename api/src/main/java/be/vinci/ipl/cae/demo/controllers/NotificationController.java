@@ -4,7 +4,6 @@ import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Notification;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.services.NotificationService;
-
 import java.util.Objects;
 import java.util.Optional;
 import org.springframework.http.HttpStatus;
@@ -91,7 +90,13 @@ public class NotificationController {
     return notificationService.countUnreadNotifications(id);
   }
 
-  //For tests ONLY: to be deleted before merging to main
+  // For tests ONLY: to be deleted before merging to main
+
+  /**
+   * Test notification for a said user id.
+   *
+   * @param id id of the member
+   */
   @PostMapping("/test-insert/{id}")
   public void insertTestData(@PathVariable long id) {
     notificationService.notifyMember(id, "Notification 1");

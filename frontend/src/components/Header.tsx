@@ -31,7 +31,13 @@ export const Header = () => {
         </Stack>
       </Link>
       <Tabs
-        value={location.pathname}
+        value={
+          location.pathname === '/'
+            ? '/'
+            : location.pathname.startsWith('/teams')
+              ? '/teams'
+              : false
+        }
         sx={{ flex: 1 }}
         onChange={(_e: SyntheticEvent, newValue: string) => navigate(newValue)}
       >
