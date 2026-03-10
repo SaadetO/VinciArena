@@ -34,9 +34,11 @@ export const ProfilePage = () => {
           spacing={3}
           paddingTop="1.5rem"
           direction={{ xs: 'column-reverse', md: 'row' }}
+          justifyContent="center"
         >
           <Grid2 size={{ xs: 12, md: 7 }}>
             <Stack spacing="1.5rem">
+              {/* menu */}
               <Stack
                 sx={{ background: (theme) => theme.palette.background.s1 }}
                 padding="1.25rem 1rem 1rem"

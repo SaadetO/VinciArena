@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AuthenticatedUser {
 
+  private Long id;
   private String username;
   private String token;
 }

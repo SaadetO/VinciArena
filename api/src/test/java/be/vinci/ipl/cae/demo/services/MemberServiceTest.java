@@ -3,6 +3,7 @@ package be.vinci.ipl.cae.demo.services;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
+import be.vinci.ipl.cae.demo.models.dtos.AuthenticatedUser;
 import be.vinci.ipl.cae.demo.models.dtos.NewMember;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
@@ -66,4 +67,51 @@ class MemberServiceTest {
     assertNull(result);
   }
 
+  @Test
+  void loginMemberWithValidEmailAndPassword(){
+    String email = "test@mail.com";
+    String password = "123";
+
+    Member member = new Member();
+    member.setEmail(email);
+    member.setPassword("encodedPassword");
+
+    when(memberRepository.findByEmail(email)).thenReturn(member);
+    when(passwordEncoder.matches(password, "encodedPassword")).thenReturn(true);
+
+    AuthenticatedUser result = memberService.login(email, password);
+
+    assertNotNull(result);
+    assertEquals(email, result.getUsername());
+    assertNotNull(result.getToken());
+  }
+
+  @Test
+  void loginMemberWithWrongPassword(){
+    String email = "test@mail.com";
+    String password = "wrong";
+
+    Member member = new Member();
+    member.setEmail(email);
+    member.setPassword("encodedPassword");
+
+    when(memberRepository.findByEmail(email)).thenReturn(member);
+    when(passwordEncoder.matches(password, "encodedPassword")).thenReturn(false);
+
+    AuthenticatedUser result = memberService.login(email, password);
+
+    assertNull(result);
+  }
+
+  @Test
+  void loginMemberWithUnknownEmail(){
+    String email = "unknown@mail.com";
+    String password = "123";
+
+    when(memberRepository.findByEmail(email)).thenReturn(null);
+
+    AuthenticatedUser result = memberService.login(email, password);
+
+    assertNull(result);
+  }
 }

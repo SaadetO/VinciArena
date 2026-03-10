@@ -61,6 +61,7 @@ public class MemberService {
         .sign(algorithm);
 
     AuthenticatedUser authenticatedUser = new AuthenticatedUser();
+    authenticatedUser.setId(memberRepository.findByEmail(email).getIdMember());
     authenticatedUser.setUsername(email);
     authenticatedUser.setToken(token);
 
@@ -157,7 +158,7 @@ public class MemberService {
         authenticatedEmail != null
             ? memberRepository.findByEmail(authenticatedEmail)
             : null;
-    boolean isOwner = authMember != null && authMember.getIdMember().equals(requestedId);
+    boolean isSelf = authMember != null && authMember.getIdMember().equals(requestedId);
 
     ProfileDto.ProfileDtoBuilder builder = ProfileDto.builder()
         .id(requestedMember.getIdMember())
@@ -186,7 +187,7 @@ public class MemberService {
           .build());
     }
 
-    if (isOwner) {
+    if (isSelf) {
       builder.email(requestedMember.getEmail())
           .creationDate(requestedMember.getCreationDate())
           .isAdmin(requestedMember.isAdmin());
