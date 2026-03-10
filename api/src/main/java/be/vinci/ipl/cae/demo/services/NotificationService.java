@@ -33,8 +33,8 @@ public class NotificationService {
   /**
    * Inserts new notification in to the db.
    *
-   * @param idMember = id of member who owns the notification
-   * @param content  = text message that the notification contains
+   * @param idMember id of member who owns the notification
+   * @param content   text message that the notification contains
    * @return new Notification
    */
   public Notification createNotification(Long idMember, String content) {
@@ -78,7 +78,7 @@ public class NotificationService {
   /**
    * calculates unread notifs.
    *
-   * @param idMember = member ID
+   * @param idMember  member ID
    * @return number of unread notification the member in question has
    */
   public long countUnreadNotifications(long idMember) {

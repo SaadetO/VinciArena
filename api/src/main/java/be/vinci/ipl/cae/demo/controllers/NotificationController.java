@@ -54,12 +54,7 @@ public class NotificationController {
   public Iterable<Notification> listNotifications(@PathVariable long id,
       @RequestParam(required = false, defaultValue = "false") boolean unreadOnly,
       @AuthenticationPrincipal Member currentMember) {
-    if (!Objects.equals(currentMember.getIdMember(), id)) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-    }
-    if (!memberRepository.existsById(id)) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-    }
+    verifyAccess(id, currentMember);
     return notificationService.getNotificationsByIdMember(id, unreadOnly);
   }
 
@@ -94,12 +89,7 @@ public class NotificationController {
   @PreAuthorize("isAuthenticated()")
   public long countUnreadNotifications(@PathVariable long id,
       @AuthenticationPrincipal Member currentMember) {
-    if (!Objects.equals(currentMember.getIdMember(), id)) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-    }
-    if (!memberRepository.existsById(id)) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-    }
+    verifyAccess(id, currentMember);
     return notificationService.countUnreadNotifications(id);
   }
 
@@ -110,5 +100,14 @@ public class NotificationController {
     notificationService.createNotification(id, "Notification 2");
     notificationService.createNotification(id, "Notification 3");
 
+  }
+
+  private void verifyAccess(long id, Member currentMember) {
+    if (currentMember == null || !Objects.equals(currentMember.getIdMember(), id)) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+    }
+    if (!memberRepository.existsById(id)) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
   }
 }
