@@ -2,8 +2,12 @@ import { Container, Grid2, Stack, Typography } from '@mui/material';
 import { PersonalInfoCard } from './components/PersonalInfoCard';
 import { ProfileBanner } from './components/ProfileBanner';
 import { TeamCard } from './components/TeamCard';
+import { CreateTeamModal } from './components/CreateTeamModal';
+import { useState } from 'react';
 
 export const ProfilePage = () => {
+  const [open, setOpen] = useState(false);
+
   const user = {
     id: 1,
     tag: 'Larry',
@@ -47,11 +51,12 @@ export const ProfilePage = () => {
           <Grid2 size={{ xs: 12, md: 5 }}>
             <Stack spacing="1.5rem">
               <PersonalInfoCard user={user} />
-              <TeamCard user={user} />
+              <TeamCard user={user} setOpen={setOpen} />
             </Stack>
           </Grid2>
         </Grid2>
       </Container>
+      <CreateTeamModal open={open} onClose={() => setOpen(false)} />
     </>
   );
 };

@@ -1,7 +1,13 @@
 import { Button, Skeleton, Stack, Typography } from '@mui/material';
 import { ProfileInfoDto } from '../../../types';
+import { Dispatch, SetStateAction } from 'react';
 
-export const TeamCard = ({ user }: { user?: ProfileInfoDto }) => {
+interface TeamCardProps {
+    setOpen: Dispatch<SetStateAction<boolean>>;
+    user?: ProfileInfoDto;
+}
+
+export const TeamCard = ({ setOpen, user }: TeamCardProps) => {
   return (
     <Stack
       sx={{ background: (theme) => theme.palette.background.s1 }}
@@ -42,6 +48,7 @@ export const TeamCard = ({ user }: { user?: ProfileInfoDto }) => {
               rejoindre une team
             </Button>
             <Button
+              onClick={() => setOpen(true)}
               variant="contained"
               color="secondary"
               disabled={!user}
