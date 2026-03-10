@@ -24,8 +24,8 @@ import { useEffect, useState } from 'react';
  * future iterations which is why I included it.
  */
 interface PasswordData {
-  password: String | null;
-  confirmPassword: String | null;
+  password: string | null;
+  confirmPassword: string | null;
 }
 
 const initPasswordData = (): PasswordData => ({
