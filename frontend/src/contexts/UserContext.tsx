@@ -35,7 +35,7 @@ const UserContextProvider = ({ children }: { children: ReactNode }) => {
       };
 
       const response = await fetch('/api/auths/register', options);
- 
+
       if (!response.ok)
         throw new Error(
           `fetch error : ${response.status} : ${response.statusText}`,
