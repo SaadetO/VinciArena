@@ -3,8 +3,8 @@ import { ProfileInfoDto } from '../../../types';
 import { Dispatch, SetStateAction } from 'react';
 
 interface TeamCardProps {
-    setOpen: Dispatch<SetStateAction<boolean>>;
-    user?: ProfileInfoDto;
+  setOpen: Dispatch<SetStateAction<boolean>>;
+  user?: ProfileInfoDto;
 }
 
 export const TeamCard = ({ setOpen, user }: TeamCardProps) => {
@@ -32,7 +32,7 @@ export const TeamCard = ({ setOpen, user }: TeamCardProps) => {
               variant="contained"
               color="secondary"
               fullWidth
-              disabled={true} //future issue
+              disabled={true} // future issue
             >
               quitter {user.team.name}
             </Button>
@@ -42,7 +42,7 @@ export const TeamCard = ({ setOpen, user }: TeamCardProps) => {
             <Button
               variant="contained"
               color="secondary"
-              disabled={true} //future issue
+              disabled={true} // future issue
               fullWidth
             >
               rejoindre une team
@@ -67,7 +67,7 @@ export const TeamCard = ({ setOpen, user }: TeamCardProps) => {
             variant="contained"
             color="secondary"
             fullWidth
-            disabled={true} //future issue
+            disabled={true} // future issue
           >
             désigner un responsable
           </Button>

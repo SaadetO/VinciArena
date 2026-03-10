@@ -18,7 +18,7 @@ interface CreateTeamModalProps {
 export const CreateTeamModal = ({ open, onClose }: CreateTeamModalProps) => {
   const [teamName, setTeamName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<String | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleChange = (e: SyntheticEvent) => {
     const input = e.target as HTMLInputElement;
@@ -53,9 +53,13 @@ export const CreateTeamModal = ({ open, onClose }: CreateTeamModalProps) => {
       }
 
       onClose();
-      //window.location.reload
-    } catch (err: any) {
-      setError(err.message);
+      // window.location.reload
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Une erreur est survenue.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -69,7 +73,7 @@ export const CreateTeamModal = ({ open, onClose }: CreateTeamModalProps) => {
 
   return (
     <>
-      <Dialog  open={open} onClose={handleClose} fullWidth>
+      <Dialog open={open} onClose={handleClose} fullWidth>
         <DialogTitle variant="h4">Créer une Team</DialogTitle>
         <DialogContent>
           <Typography>Comment s'appelle votre team ? </Typography>
@@ -79,7 +83,7 @@ export const CreateTeamModal = ({ open, onClose }: CreateTeamModalProps) => {
             placeholder="Votre nom de team"
             onChange={handleChange}
             variant="outlined"
-            error={!!error} //If error message, the first ! returns false, the second ! turns it into true
+            error={!!error} // If error message, the first ! returns false, the second ! turns it into true
             helperText={error}
           ></TextField>
         </DialogContent>
