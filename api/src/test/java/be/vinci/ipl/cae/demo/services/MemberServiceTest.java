@@ -82,7 +82,7 @@ class MemberServiceTest {
     AuthenticatedUser result = memberService.login(email, password);
 
     assertNotNull(result);
-    assertEquals(email, result.getUsername());
+    assertEquals(email, result.getEmail());
     assertNotNull(result.getToken());
   }
 
