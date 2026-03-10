@@ -1,5 +1,26 @@
 import { CloseRounded } from '@mui/icons-material';
+import { Zoom } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
+import { TransitionProps } from '@mui/material/transitions';
+import { forwardRef, ReactElement, Ref } from 'react';
+
+const ZoomTransition = forwardRef(function Transition(
+  props: TransitionProps & {
+    children: ReactElement;
+  },
+  ref: Ref<unknown>,
+) {
+  return (
+    <Zoom
+      easing={{
+        enter: 'cubic-bezier(0.16, 1.0, 0.3, 1.0)',
+        exit: 'cubic-bezier(0.7, 0, 0.84, 0)',
+      }}
+      ref={ref}
+      {...props}
+    />
+  );
+});
 
 declare module '@mui/material/styles' {
   interface TypeBackground {
@@ -420,7 +441,6 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           '& .MuiInputBase-root': {
-            // background: '#262626',
             border: '1px solid #303030',
             paddingLeft: '1rem',
             borderRadius: '0.5rem',
@@ -459,6 +479,43 @@ export const theme = createTheme({
               'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent)',
             animationTimingFunction: 'cubic-bezier(0.4, 0, 0.5, 1)',
           },
+        },
+      },
+    },
+    MuiDialog: {
+      defaultProps: {
+        TransitionComponent: ZoomTransition,
+      },
+      styleOverrides: {
+        root: {
+          '& .MuiDialog-paper': {
+            borderRadius: '0.5rem',
+            background: surfaceLevels.s1,
+            backgroundImage: 'none',
+            width: '25rem',
+          },
+        },
+      },
+    },
+    MuiDialogTitle: {
+      styleOverrides: {
+        root: {
+          padding: '2rem 1rem 0.25rem',
+          textAlign: 'center',
+        },
+      },
+    },
+    MuiDialogContent: {
+      styleOverrides: {
+        root: {
+          padding: '1rem',
+        },
+      },
+    },
+    MuiDialogActions: {
+      styleOverrides: {
+        root: {
+          padding: '1rem',
         },
       },
     },
