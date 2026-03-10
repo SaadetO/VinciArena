@@ -5,6 +5,7 @@ import be.vinci.ipl.cae.demo.models.entities.Notification;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.NotificationRepository;
 import jakarta.persistence.EntityNotFoundException;
+import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 /**
@@ -27,6 +28,7 @@ public class NotificationService {
     this.memberRepository = memberRepository;
     this.notificationRepository = notificationRepository;
   }
+
 
   /**
    * Inserts new notification in to the db.
@@ -81,6 +83,10 @@ public class NotificationService {
    */
   public long countUnreadNotifications(long idMember) {
     return notificationRepository.countByMemberIdMemberAndIsReadFalse(idMember);
+  }
+
+  public Optional<Notification> getById(Long idNotification) {
+    return notificationRepository.getNotificationByIdNotification(idNotification);
   }
 }
 
