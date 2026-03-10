@@ -26,5 +26,11 @@ public interface MemberRepository extends CrudRepository<Member, Long> {
    */
   Boolean existsByEmail(String email);
 
+  /**
+   * Get a list of members by deleted status.
+   *
+   * @param isDeleted deleted status
+   * @return an array of members
+   */
   Member[] getAllByIsDeleted(boolean isDeleted);
 }
