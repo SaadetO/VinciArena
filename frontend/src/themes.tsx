@@ -421,7 +421,6 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           '& .MuiInputBase-root': {
-            border: '1px solid #303030',
             paddingLeft: '1rem',
             borderRadius: '0.5rem',
           },
@@ -431,6 +430,9 @@ export const theme = createTheme({
             fontWeight: 'Medium',
             fontSize: '1rem',
             color: '#FFFFFF',
+          },
+          '& .MuiOutlinedInput-notchedOutline': {
+            border: '1px solid #303030',
           },
           '& input::placeholder': {
             color: '#8C8C8C',
@@ -468,7 +470,7 @@ export const theme = createTheme({
       },
       styleOverrides: {
         root: {
-          '& .MuiDialog-paper': {
+          '& .MuiInputBase-input': {
             borderRadius: '0.5rem',
             background: surfaceLevels.s1,
             backgroundImage: 'none',
@@ -496,6 +498,25 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           padding: '1rem',
+        },
+      },
+    },
+    MuiAutocomplete: {
+      styleOverrides: {
+        root: {
+          '& .MuiOutlinedInput-root': {
+            padding: '0 0 0 1rem',
+            '& .MuiAutocomplete-input': {
+              padding: '0',
+            },
+          },
+          '& .MuiButtonBase-root': {
+            width: '2rem',
+            height: '2rem',
+          },
+          '& .MuiButtonBase-root:last-child': {
+            color: '#8C8C8C',
+          },
         },
       },
     },
