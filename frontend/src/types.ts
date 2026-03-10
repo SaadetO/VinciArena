@@ -17,7 +17,7 @@ interface ProfileInfoDto {
   email: string | null;
   tag: string;
   specialty: string | null;
-  creation_date: string | null;
+  creationDate: string | null;
   avatar: string | null;
   isAdmin: boolean | null;
   team: {

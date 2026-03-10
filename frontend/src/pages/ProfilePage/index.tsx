@@ -40,6 +40,7 @@ export const ProfilePage = () => {
           throw new Error('Failed to fetch profile');
         }
         setUser(await response.json());
+        console.log(user);
       } catch (err) {
         setError({
           code: response?.status ?? 500,
