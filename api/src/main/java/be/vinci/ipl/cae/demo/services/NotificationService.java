@@ -19,7 +19,6 @@ public class NotificationService {
 
   private final MemberRepository memberRepository;
   private final NotificationRepository notificationRepository;
-  private final TeamRepository teamRepository;
 
   /**
    * Creates the NotificationService.
@@ -31,7 +30,6 @@ public class NotificationService {
       NotificationRepository notificationRepository, TeamRepository teamRepository) {
     this.memberRepository = memberRepository;
     this.notificationRepository = notificationRepository;
-    this.teamRepository = teamRepository;
   }
 
   /**
