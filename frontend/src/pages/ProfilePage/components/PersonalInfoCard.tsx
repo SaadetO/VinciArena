@@ -16,7 +16,7 @@ export const PersonalInfoCard = ({ user }: { user?: ProfileInfoDto }) => {
       <Stack spacing="0.75rem">
         <DataField data={user?.email} icon={<AlternateEmail sx={iconSx} />} />
         <DataField
-          data={user?.creation_date}
+          data={user?.creationDate}
           skeletonWidth="15rem"
           icon={<Person sx={iconSx} />}
         />
