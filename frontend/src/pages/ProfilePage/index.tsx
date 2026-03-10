@@ -77,7 +77,7 @@ export const ProfilePage = () => {
               </Stack>
             </Stack>
           </Grid2>
-          {(user === undefined || user?.isSelf) && (
+          {authenticatedUser?.id === idNbr && (
             <Grid2 size={{ xs: 12, md: 5 }}>
               <Stack spacing="1.5rem">
                 <PersonalInfoCard user={user} />
