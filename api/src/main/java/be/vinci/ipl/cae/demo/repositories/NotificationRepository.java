@@ -1,6 +1,7 @@
 package be.vinci.ipl.cae.demo.repositories;
 
 import be.vinci.ipl.cae.demo.models.entities.Notification;
+import java.util.Optional;
 import org.springframework.data.repository.CrudRepository;
 
 /**
@@ -35,4 +36,6 @@ public interface NotificationRepository extends CrudRepository<Notification, Lon
    * @return the total number of unread notifications.
    */
   long countByMemberIdMemberAndIsReadFalse(Long idMember);
+
+  Optional<Notification> getNotificationByIdNotification(Long idNotification);
 }
