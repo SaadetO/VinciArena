@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -46,5 +48,32 @@ public class MemberController {
     }
 
     return profile;
+  }
+
+  /**
+   * Update a member's password.
+   *
+   * @param id the ID of the member whose password to update.
+   * @param newPassword the new password.
+   * @param currentMember the currently authenticated member.
+   */
+  @PutMapping("/{id}/password")
+  public void updatePassword(
+      @PathVariable Long id,
+      @RequestBody String newPassword,
+      @AuthenticationPrincipal Member currentMember) {
+
+    if (currentMember == null || !currentMember.getIdMember().equals(id)) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+    }
+
+    if (newPassword == null || newPassword.trim().isEmpty()) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password cannot be empty");
+    }
+
+    boolean updated = memberService.updatePassword(id, newPassword);
+    if (!updated) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
   }
 }

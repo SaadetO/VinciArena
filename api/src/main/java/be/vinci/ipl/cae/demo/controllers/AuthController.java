@@ -38,8 +38,8 @@ public class AuthController {
    */
   private boolean isInvalidCredentials(Credentials credentials) {
     return credentials == null
-        || credentials.getUsername() == null
-        || credentials.getUsername().isBlank()
+        || credentials.getEmail() == null
+        || credentials.getEmail().isBlank()
         || credentials.getPassword() == null
         || credentials.getPassword().isBlank();
   }
@@ -81,7 +81,7 @@ public class AuthController {
     }
 
     AuthenticatedUser user = memberService.login(
-        credentials.getUsername(),
+        credentials.getEmail(),
         credentials.getPassword()
     );
 

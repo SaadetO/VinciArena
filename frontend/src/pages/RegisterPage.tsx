@@ -1,12 +1,10 @@
-import { useState, SyntheticEvent, useContext } from 'react';
+import { useState, SyntheticEvent, useContext, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
+  Autocomplete,
   Box,
   Button,
   Container,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
   Stack,
   TextField,
   Typography,
@@ -17,14 +15,32 @@ import logo from '../assets/images/logo.svg';
 import authBackground from '../assets/images/auth_background.jpg';
 import { ArrowBack } from '@mui/icons-material';
 
+interface FormData {
+  email: string;
+  password: string;
+  tag: string;
+  specialty: number | null;
+}
+
+// ---- fetch the real array of specialties from the db ---- //
+const specialties = [
+  { label: 'architecte', id: 1 },
+  { label: 'exécuteur', id: 2 },
+  { label: 'tacticien', id: 3 },
+  { label: 'gardien', id: 4 },
+  { label: 'catalyseur', id: 5 },
+  { label: 'perturbateur', id: 6 },
+  { label: 'guérisseur', id: 7 },
+];
+
 export const RegisterPage = () => {
   const { registerUser }: UserContextType = useContext(UserContext);
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     email: '',
     password: '',
     tag: '',
-    specialty: 1,
+    specialty: null,
   });
 
   const specialties = [
@@ -61,15 +77,8 @@ export const RegisterPage = () => {
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
 
-    const payload = {
-      email: formData.email,
-      password: formData.password,
-      tag: formData.tag,
-      specialityId: formData.specialty,
-    };
-
     try {
-      await registerUser(payload);
+      await registerUser(formData);
       navigate('/auth/login');
     } catch (err) {
       console.error('RegisterPage::error: ', err);
@@ -81,6 +90,9 @@ export const RegisterPage = () => {
     setFormData({ ...formData, [input.name]: input.value });
   };
 
+  useEffect(() => {
+    console.log(formData);
+  }, [formData]);
   return (
     <Stack direction="row" flex="1">
       <Link to="/" style={{ padding: '1rem', position: 'fixed' }}>
@@ -149,25 +161,20 @@ export const RegisterPage = () => {
               onChange={handleChange}
               required
             />
-            <Select
+            <Autocomplete
+              options={specialties}
               fullWidth
-              id="specialty"
-              name="specialty"
-              value={formData.specialty + ''}
-              onChange={(e: SelectChangeEvent) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  [e.target.name]: Number(e.target.value),
-                }))
+              getOptionLabel={(e) =>
+                e.label.charAt(0).toUpperCase() + e.label.slice(1)
               }
-            >
-              {specialties.map((specialty) => (
-                <MenuItem key={specialty.id} value={specialty.id}>
-                  {specialty.name.charAt(0).toUpperCase() +
-                    specialty.name.slice(1)}
-                </MenuItem>
-              ))}
-            </Select>
+              autoHighlight
+              renderInput={(params) => (
+                <TextField {...params} placeholder="Spécialité" />
+              )}
+              onChange={(_, e) =>
+                setFormData((prev) => ({ ...prev, specialty: e?.id ?? null }))
+              }
+            />
           </Stack>
           <Stack spacing="1.5rem" paddingTop="1.5rem">
             <Button type="submit" variant="contained">
