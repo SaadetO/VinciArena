@@ -86,7 +86,7 @@ const UserContextProvider = ({ children }: { children: ReactNode }) => {
     if (!authenticatedUser?.token) return;
     try {
       const response = await fetch(
-        `api/notifications/member/${authenticatedUser.id}/unread-count`,
+        `/api/notifications/member/${authenticatedUser.id}/unread-count`,
         { headers: { Authorization: authenticatedUser.token } },
       );
       if (response.ok) {
