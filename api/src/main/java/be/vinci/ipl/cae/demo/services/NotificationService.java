@@ -29,7 +29,7 @@ public class NotificationService {
    * @param teamRepository         the repository for team data
    */
   public NotificationService(MemberRepository memberRepository,
-      NotificationRepository notificationRepository, TeamRepository teamRepository) {
+      NotificationRepository notificationRepository) {
     this.memberRepository = memberRepository;
     this.notificationRepository = notificationRepository;
   }
