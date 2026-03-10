@@ -1,62 +1,122 @@
 import { useState, MouseEvent } from 'react';
-import { Badge, IconButton, Menu, MenuItem, Button } from '@mui/material';
+import {
+  Badge,
+  IconButton,
+  Menu,
+  MenuItem,
+  Typography,
+  Box,
+  Divider,
+  Link,
+} from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 
 const NotificationMenu = () => {
-  const [menuPosition, setMenuPosition] = useState<null | HTMLElement>();
-  const ITEM_HEIGHT = 60;
-  let isOpen = false;
-  if (menuPosition) {
-    isOpen = true;
-  }
+  const [menuPosition, setMenuPosition] = useState<null | HTMLElement>(null);
+
+  const isOpen = menuPosition != null;
+
   const handleClick = (event: MouseEvent<HTMLElement>) => {
     setMenuPosition(event.currentTarget);
-    isOpen = true;
   };
+
   const handleClose = () => {
     setMenuPosition(null);
-    isOpen = false;
   };
 
   return (
     <>
       <IconButton color="primary" onClick={handleClick}>
-        <Badge badgeContent={0} color="warning">
+        <Badge badgeContent={5} color="warning">
           <NotificationsIcon />
         </Badge>
       </IconButton>
+
       <Menu
         open={isOpen}
         onClose={handleClose}
         anchorEl={menuPosition}
         slotProps={{
           paper: {
-            style: {
-              maxHeight: ITEM_HEIGHT * 4.5,
+            sx: {
               width: '50ch',
+              maxHeight: 350,
+              // GLOBAL STYLES for items (Handles wrapping)
+              '& .MuiMenuItem-root': {
+                whiteSpace: 'normal',
+                wordWrap: 'break-word',
+                py: 1.5,
+                borderBottom: '1px solid gray',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-start',
+                '&:last-child': { borderBottom: 'none' },
+                cursor: 'default',
+              },
             },
           },
         }}
       >
-        <Button>Voir tous</Button>
-        <MenuItem sx={{ height: ITEM_HEIGHT }} onClick={handleClose}>
-          Nouveau Tournoi : Le Choc des Titans est ouvert !
+        <Box
+          sx={{
+            px: 2,
+            py: 1,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <Typography variant="subtitle2" fontWeight="bold">
+            Notifications
+          </Typography>
+          <Link variant="caption" color="primary" sx={{ cursor: 'pointer' }}>
+            Voir tous
+          </Link>
+        </Box>
+        <Divider />
+        {/* 1. Tournament Created */}
+        <MenuItem>
+          <Typography variant="body2" fontWeight="500">
+            🏆 Nouveau Tournoi : Le Choc des Titans est ouvert !
+          </Typography>
         </MenuItem>
-        <MenuItem sx={{ height: ITEM_HEIGHT }} onClick={handleClose}>
-          Vous êtes dans le composition. Match prévu ce soir à 20h30 contre Les
-          Phénix d'Azur.
+        {/* 2. Selected for Lineup */}
+        <MenuItem>
+          <Typography variant="body2" fontWeight="500">
+            ⚽ Composition : Vous êtes titulaire pour le match de ce soir contre
+            Les Phénix d'Azur !
+          </Typography>
         </MenuItem>
-        <MenuItem sx={{ height: ITEM_HEIGHT }} onClick={handleClose}>
-          Chloé Masson souhaite rejoindre les Cyber Dragons.
+        {/* 3. Join Request Status (Accepted) */}
+        <MenuItem>
+          <Typography variant="body2" fontWeight="500">
+            ✅ Félicitations ! Votre demande pour rejoindre Squadra Corse a été
+            acceptée.
+          </Typography>
         </MenuItem>
-        <MenuItem sx={{ height: ITEM_HEIGHT }} onClick={handleClose}>
-          Score à valider : Olympique Bel-Air (3) - (1) AS Grigny.
+        {/* 4. Manager Join Request */}
+        <MenuItem>
+          <Typography variant="body2" fontWeight="500">
+            📩 Chloé Masson souhaite rejoindre les Cyber Dragons.
+          </Typography>
         </MenuItem>
-        <MenuItem sx={{ height: ITEM_HEIGHT }} onClick={handleClose}>
-          Résultat publié : Victoire éclatante pour Les Lions de Lyon !
+        {/* 5. Result Confirmation */}
+        <MenuItem>
+          <Typography variant="body2" fontWeight="500">
+            ⚠️ Confirmation requise : Score du match Olympique Bel-Air (3) - (1)
+            AS Grigny.
+          </Typography>
+        </MenuItem>
+        {/* 6. Result Published */}
+        <MenuItem onClick={handleClose}>
+          <Typography variant="body2" fontWeight="500">
+            📊 Résultat publié : Victoire éclatante pour Les Lions de Lyon !
+            Score final 4-0.
+          </Typography>
         </MenuItem>
       </Menu>
     </>
   );
 };
+
 export default NotificationMenu;
