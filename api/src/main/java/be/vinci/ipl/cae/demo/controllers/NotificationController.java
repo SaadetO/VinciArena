@@ -70,9 +70,9 @@ public class NotificationController {
   }
 
   /**
-   * route GET /notifications/member/{id}/unread-count.
+   * Route GET /notifications/member/{id}/unread-count.
    *
-   * @param id = member Id
+   * @param id member id
    * @return nb of unread notifs
    */
   @GetMapping("/member/{id}/unread-count")

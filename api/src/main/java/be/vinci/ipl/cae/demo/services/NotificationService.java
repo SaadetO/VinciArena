@@ -74,7 +74,7 @@ public class NotificationService {
   }
 
   /**
-   * calculates unread notifs.
+   * Calculates unread notifs.
    *
    * @param idMember = member ID
    * @return number of unread notification the member in question has
