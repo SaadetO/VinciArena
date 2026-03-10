@@ -5,7 +5,6 @@ import be.vinci.ipl.cae.demo.models.entities.Notification;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.NotificationRepository;
-import be.vinci.ipl.cae.demo.repositories.TeamRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
