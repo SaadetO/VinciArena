@@ -21,7 +21,7 @@ describe('CreateTeamModal', () => {
     render(<CreateTeamModal open={true} onClose={() => {}} />);
 
     expect(screen.getByText('Créer une Team')).toBeTruthy();
-    expect(screen.getByPlaceholderText('Votre nom de team')).toBeTruthy();
+    expect(screen.getByPlaceholderText('Nom de Team')).toBeTruthy();
     expect(screen.getByRole('button', { name: /créer/i })).toBeTruthy();
     expect(screen.getByRole('button', { name: /annuler/i })).toBeTruthy();
   });
@@ -63,7 +63,7 @@ describe('CreateTeamModal', () => {
     render(<CreateTeamModal open={true} onClose={mockOnClose} />);
 
     // Filling the field
-    const input = screen.getByPlaceholderText('Votre nom de team');
+    const input = screen.getByPlaceholderText('Nom de Team');
     fireEvent.change(input, { target: { value: 'My Team' } });
 
     // Simulate button being clicked
@@ -102,7 +102,7 @@ describe('CreateTeamModal', () => {
 
     render(<CreateTeamModal open={true} onClose={() => {}} />);
 
-    const input = screen.getByPlaceholderText('Votre nom de team');
+    const input = screen.getByPlaceholderText('Nom de Team');
     fireEvent.change(input, { target: { value: 'Existing Team' } });
 
     const createButton = screen.getByRole('button', { name: /créer/i });
@@ -132,7 +132,7 @@ describe('CreateTeamModal', () => {
 
     render(<CreateTeamModal open={true} onClose={() => {}} />);
 
-    const input = screen.getByPlaceholderText('Votre nom de team');
+    const input = screen.getByPlaceholderText('Nom de Team');
     fireEvent.change(input, { target: { value: 'Failed Team' } });
 
     const createButton = screen.getByRole('button', { name: /créer/i });
