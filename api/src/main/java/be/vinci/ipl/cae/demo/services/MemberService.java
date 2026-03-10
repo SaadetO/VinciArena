@@ -172,8 +172,7 @@ public class MemberService {
             requestedMember.getProfileImage() != null
                 ? requestedMember.getProfileImage().getPath()
                 : null
-        )
-        .isSelf(isSelf);
+        );
 
     Team team = requestedMember.getTeam();
     if (team != null) {

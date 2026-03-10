@@ -18,7 +18,6 @@ public class ProfileDto {
   private LocalDateTime creationDate;
   private String avatar;
   private Boolean isAdmin;
-  private Boolean isSelf;
   private TeamDto team;
   private List<UnavailabilityDto> unavailabilities;
 
