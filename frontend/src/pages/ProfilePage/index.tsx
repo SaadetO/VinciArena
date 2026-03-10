@@ -16,7 +16,7 @@ export const ProfilePage = () => {
   const [user, setUser] = useState<ProfileInfoDto | undefined>(undefined);
   const [error, setError] = useState<
     { code: number; message: string; subtitle?: string } | undefined
-    >(undefined);
+  >(undefined);
 
   useEffect(() => {
     setUser(undefined);
@@ -82,13 +82,19 @@ export const ProfilePage = () => {
           {authenticatedUser?.id === idNbr && (
             <Grid2 size={{ xs: 12, md: 5 }}>
               <Stack spacing="1.5rem">
-                <PersonalInfoCard user={user} setPasswordModal={setPasswordModal} />
+                <PersonalInfoCard
+                  user={user}
+                  setPasswordModal={setPasswordModal}
+                />
               </Stack>
             </Grid2>
           )}
         </Grid2>
       </Container>
-      <PasswordModal open={passwordModal} onClose={() => setPasswordModal(false)} />
+      <PasswordModal
+        open={passwordModal}
+        onClose={() => setPasswordModal(false)}
+      />
     </>
   );
 };
