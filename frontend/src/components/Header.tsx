@@ -34,8 +34,8 @@ export const Header = () => {
           location.pathname === '/'
             ? '/'
             : location.pathname.startsWith('/teams')
-            ? '/teams'
-            : false
+              ? '/teams'
+              : false
         }
         sx={{ flex: 1 }}
         onChange={(_e: SyntheticEvent, newValue: string) => navigate(newValue)}
