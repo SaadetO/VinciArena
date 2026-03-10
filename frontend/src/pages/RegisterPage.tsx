@@ -138,7 +138,7 @@ export const RegisterPage = () => {
                 e.label.charAt(0).toUpperCase() + e.label.slice(1)
               }
               renderInput={(params) => (
-                <TextField {...params} placeholder="Specialité" />
+                <TextField {...params} placeholder="Spécialité" />
               )}
               onChange={(_, e) =>
                 setFormData((prev) => ({ ...prev, specialty: e?.id ?? null }))
