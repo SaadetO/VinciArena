@@ -29,9 +29,28 @@ export const RegisterPage = () => {
 
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
+
+    const specialtyMap = {
+      architecte: 1,
+      exécuteur: 2,
+      tacticien: 3,
+      gardien: 4,
+      catalyseur: 5,
+      perturbateur: 6,
+      guérisseur: 7,
+    };
+
+    const payload = {
+      email: formData.email,
+      password: formData.password,
+      tag: formData.tag,
+      specialityId:
+        specialtyMap[formData.specialty as keyof typeof specialtyMap],
+    };
+
     try {
-      await registerUser(formData);
-      navigate('/');
+      await registerUser(payload);
+      navigate('/auth/login');
     } catch (err) {
       console.error('RegisterPage::error: ', err);
     }
