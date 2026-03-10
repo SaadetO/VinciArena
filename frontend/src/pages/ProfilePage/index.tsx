@@ -3,28 +3,59 @@ import { PersonalInfoCard } from './components/PersonalInfoCard';
 import { ProfileBanner } from './components/ProfileBanner';
 import { TeamCard } from './components/TeamCard';
 import { CreateTeamModal } from './components/CreateTeamModal';
-import { useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { UserContext } from '../../contexts/UserContext';
+import { ProfileInfoDto } from '../../types';
+import { NotFoundPage } from '../NotFoundPage';
 
 export const ProfilePage = () => {
   const [open, setOpen] = useState(false);
+  const { id } = useParams();
+  const idNbr = Number(id);
+  const { authenticatedUser } = useContext(UserContext);
+  const [user, setUser] = useState<ProfileInfoDto | undefined>(undefined);
+  const [error, setError] = useState<
+    { code: number; message: string; subtitle?: string } | undefined
+  >(undefined);
 
-  const user = {
-    id: 1,
-    tag: 'Larry',
-    avatar: '',
-    email: 'larry@cae.com',
-    specialty: 'architecte',
-    creation_date: '2022-01-01',
-    isAdmin: false,
-    // team: null,
-    team: {
-      id: 1,
-      name: 'M8',
-      isManager: true,
-    },
-    unavailabilities: [],
-  };
-  console.log(user);
+  useEffect(() => {
+    setUser(undefined);
+    setError(undefined);
+    if (isNaN(idNbr) || idNbr <= 0) return;
+    (async () => {
+      let response: Response | undefined = undefined;
+      try {
+        response = await fetch(`/api/members/${idNbr}`, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: authenticatedUser?.token ?? '',
+          },
+        });
+        if (response.status === 404)
+          return setError({
+            code: 404,
+            message: 'Membre introuvable',
+            subtitle:
+              "Le membre que vous cherchez n'existe pas ou a été surpprimé.",
+          });
+        if (!response.ok) {
+          throw new Error('Failed to fetch profile');
+        }
+        setUser(await response.json());
+        console.log(user);
+      } catch (err) {
+        setError({
+          code: response?.status ?? 500,
+          message: 'Une erreur est survenue',
+          subtitle:
+            'Une erreur est survenue lors de la récupération du profil.',
+        });
+      }
+    })();
+  }, [idNbr, authenticatedUser]);
+
+  if (error) return <NotFoundPage error={error} />;
   return (
     <>
       <ProfileBanner user={user} />
@@ -50,12 +81,14 @@ export const ProfilePage = () => {
               </Stack>
             </Stack>
           </Grid2>
-          <Grid2 size={{ xs: 12, md: 5 }}>
-            <Stack spacing="1.5rem">
-              <PersonalInfoCard user={user} />
-              <TeamCard user={user} setOpen={setOpen} />
-            </Stack>
-          </Grid2>
+          {authenticatedUser?.id === idNbr && (
+            <Grid2 size={{ xs: 12, md: 5 }}>
+              <Stack spacing="1.5rem">
+                <PersonalInfoCard user={user} />
+                <TeamCard user={user} setOpen={setOpen} />
+              </Stack>
+            </Grid2>
+          )}
         </Grid2>
       </Container>
       <CreateTeamModal open={open} onClose={() => setOpen(false)} />

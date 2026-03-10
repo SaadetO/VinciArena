@@ -14,6 +14,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 
 /**
@@ -61,9 +62,11 @@ public class DemoApplication {
       }
 
       // Create Member 1: Manager
+      String pw = "123";
+      String encodedPw = new BCryptPasswordEncoder().encode(pw);
       Member member1 = new Member();
       member1.setEmail("larry@cae.com");
-      member1.setPassword("$2y$10$EW75BdcbCfKEA3NbE7in4OiYYacfP3OY4Q2JsVzjxd3jNxxgAEZNu");
+      member1.setPassword(encodedPw);
       member1.setTag("Larry");
       member1.setAdmin(true);
       member1.setDeleted(false);
@@ -73,7 +76,7 @@ public class DemoApplication {
       // Create Member 2: Player
       Member member2 = new Member();
       member2.setEmail("barry@cae.com");
-      member2.setPassword("$2y$10$EW75BdcbCfKEA3NbE7in4OiYYacfP3OY4Q2JsVzjxd3jNxxgAEZNu");
+      member2.setPassword(encodedPw);
       member2.setTag("Barry");
       member2.setAdmin(false);
       member2.setDeleted(false);
