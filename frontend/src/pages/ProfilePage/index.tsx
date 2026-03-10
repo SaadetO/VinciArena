@@ -6,11 +6,13 @@ import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../contexts/UserContext';
 import { ProfileInfoDto } from '../../types';
 import { NotFoundPage } from '../NotFoundPage';
+import { PasswordModal } from './components/PasswordModal';
 
 export const ProfilePage = () => {
   const { id } = useParams();
   const idNbr = Number(id);
   const { authenticatedUser } = useContext(UserContext);
+  const [passwordModal, setPasswordModal] = useState(false);
   const [user, setUser] = useState<ProfileInfoDto | undefined>(undefined);
   const [error, setError] = useState<
     { code: number; message: string; subtitle?: string } | undefined
@@ -80,12 +82,19 @@ export const ProfilePage = () => {
           {authenticatedUser?.id === idNbr && (
             <Grid2 size={{ xs: 12, md: 5 }}>
               <Stack spacing="1.5rem">
-                <PersonalInfoCard user={user} />
+                <PersonalInfoCard
+                  user={user}
+                  setPasswordModal={setPasswordModal}
+                />
               </Stack>
             </Grid2>
           )}
         </Grid2>
       </Container>
+      <PasswordModal
+        open={passwordModal}
+        onClose={() => setPasswordModal(false)}
+      />
     </>
   );
 };
