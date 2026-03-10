@@ -16,8 +16,8 @@ POST {{baseUrl}}/auths/login
 Content-Type: application/json
 
 {
-  "email": "student@vinci.be",
-  "password": "password123"
+  "email": "larry@cae.com",
+  "password": "123"
 }
 
 > {%
@@ -36,7 +36,7 @@ Authorization:{{token}}
 
 
 ### 3. Get unread count (Dynamic Token)
-GET {{baseUrl}}/notifications/member/3/unread-count
+GET {{baseUrl}}/notifications/member/1/unread-count
 Authorization: {{token}}
 
 

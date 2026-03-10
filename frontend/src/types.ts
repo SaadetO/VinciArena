@@ -5,6 +5,7 @@ interface UserContextType {
   registerUser: (newUser: User) => Promise<void>;
   loginUser: (user: User) => Promise<void>;
   clearUser: () => void;
+  unreadCount: number;
 }
 
 interface User {

@@ -1,4 +1,4 @@
-import { useState, MouseEvent } from 'react';
+import { useState, MouseEvent, useContext } from 'react';
 import {
   Badge,
   IconButton,
@@ -10,8 +10,10 @@ import {
   Link,
 } from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
+import { UserContext } from '../contexts/UserContext';
 
 const NotificationMenu = () => {
+  const { unreadCount } = useContext(UserContext);
   const [menuPosition, setMenuPosition] = useState<null | HTMLElement>(null);
 
   const isOpen = menuPosition != null;
@@ -27,7 +29,7 @@ const NotificationMenu = () => {
   return (
     <>
       <IconButton color="primary" onClick={handleClick}>
-        <Badge badgeContent={5} color="warning">
+        <Badge badgeContent={unreadCount} color="warning">
           <NotificationsIcon />
         </Badge>
       </IconButton>

@@ -1,4 +1,4 @@
-import { createContext, useState, ReactNode } from 'react';
+import { createContext, useState, ReactNode, useEffect } from 'react';
 import {
   MaybeAuthenticatedUser,
   UserContextType,
@@ -16,6 +16,7 @@ const defaultUserContext: UserContextType = {
   registerUser: async () => {},
   loginUser: async () => {},
   clearUser: () => {},
+  unreadCount: 0,
 };
 
 const UserContext = createContext<UserContextType>(defaultUserContext);
@@ -23,6 +24,7 @@ const UserContext = createContext<UserContextType>(defaultUserContext);
 const UserContextProvider = ({ children }: { children: ReactNode }) => {
   const [authenticatedUser, setAuthenticatedUser] =
     useState<MaybeAuthenticatedUser>(undefined);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const registerUser = async (newUser: User) => {
     try {
@@ -77,13 +79,42 @@ const UserContextProvider = ({ children }: { children: ReactNode }) => {
   const clearUser = () => {
     clearAuthenticatedUser();
     setAuthenticatedUser(undefined);
+    setUnreadCount(0);
   };
+
+  const fetchUnreadCount = async () => {
+    if (!authenticatedUser?.token) return;
+    try {
+      const response = await fetch(
+        `api/notifications/member/${authenticatedUser.id}/unread-count`,
+        { headers: { Authorization: authenticatedUser.token } },
+      );
+      if (response.ok) {
+        const data = await response.text();
+        setUnreadCount(parseInt(data));
+      }
+    } catch (err) {
+      console.error('Failed to fetch unread count', err);
+    }
+  };
+
+  useEffect(() => {
+    if (authenticatedUser) {
+      fetchUnreadCount();
+      const id = setInterval(fetchUnreadCount, 3000);
+      return () => clearInterval(id);
+    } else {
+      setUnreadCount(0); // Reset count if user logs out
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authenticatedUser]);
 
   const myContext: UserContextType = {
     authenticatedUser,
     registerUser,
     loginUser,
     clearUser,
+    unreadCount,
   };
 
   return (
