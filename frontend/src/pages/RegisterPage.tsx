@@ -24,28 +24,48 @@ export const RegisterPage = () => {
     email: '',
     password: '',
     tag: '',
-    specialty: 'architecte',
+    specialty: 1,
   });
+
+  const specialties = [
+    {
+      id: 1,
+      name: 'architecte',
+    },
+    {
+      id: 2,
+      name: 'exécuteur',
+    },
+    {
+      id: 3,
+      name: 'tacticien',
+    },
+    {
+      id: 4,
+      name: 'gardien',
+    },
+    {
+      id: 5,
+      name: 'catalyseur',
+    },
+    {
+      id: 6,
+      name: 'perturbateur',
+    },
+    {
+      id: 7,
+      name: 'guérisseur',
+    },
+  ];
 
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
-
-    const specialtyMap = {
-      architecte: 1,
-      exécuteur: 2,
-      tacticien: 3,
-      gardien: 4,
-      catalyseur: 5,
-      perturbateur: 6,
-      guérisseur: 7,
-    };
 
     const payload = {
       email: formData.email,
       password: formData.password,
       tag: formData.tag,
-      specialityId:
-        specialtyMap[formData.specialty as keyof typeof specialtyMap],
+      specialityId: formData.specialty,
     };
 
     try {
@@ -133,21 +153,20 @@ export const RegisterPage = () => {
               fullWidth
               id="specialty"
               name="specialty"
-              value={formData.specialty}
+              value={formData.specialty + ''}
               onChange={(e: SelectChangeEvent) =>
                 setFormData((prev) => ({
                   ...prev,
-                  [e.target.name]: e.target.value as string,
+                  [e.target.name]: Number(e.target.value),
                 }))
               }
             >
-              <MenuItem value="architecte">Architecte</MenuItem>
-              <MenuItem value="exécuteur">Exécuteur</MenuItem>
-              <MenuItem value="tacticien">Tacticien</MenuItem>
-              <MenuItem value="gardien">Gardien</MenuItem>
-              <MenuItem value="catalyseur">Catalyseur</MenuItem>
-              <MenuItem value="perturbateur">Perturbateur</MenuItem>
-              <MenuItem value="guérisseur">Guérisseur</MenuItem>
+              {specialties.map((specialty) => (
+                <MenuItem key={specialty.id} value={specialty.id}>
+                  {specialty.name.charAt(0).toUpperCase() +
+                    specialty.name.slice(1)}
+                </MenuItem>
+              ))}
             </Select>
           </Stack>
           <Stack spacing="1.5rem" paddingTop="1.5rem">
