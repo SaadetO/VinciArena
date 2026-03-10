@@ -96,9 +96,9 @@ public class NotificationController {
   //to test: to be deleted before merging to main
   @PostMapping("/test-insert/{id}")
   public void insertTestData(@PathVariable long id){
-    notificationService.createNotification(id, "Notification 1");
-    notificationService.createNotification(id, "Notification 2");
-    notificationService.createNotification(id, "Notification 3");
+    notificationService.createNotificationForMember(id, "Notification 1");
+    notificationService.createNotificationForMember(id, "Notification 2");
+    notificationService.createNotificationForMember(id, "Notification 3");
 
   }
 

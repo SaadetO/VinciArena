@@ -5,7 +5,6 @@ import be.vinci.ipl.cae.demo.models.entities.Notification;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.NotificationRepository;
 import jakarta.persistence.EntityNotFoundException;
-import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 /**
@@ -29,15 +28,14 @@ public class NotificationService {
     this.notificationRepository = notificationRepository;
   }
 
-
   /**
    * Inserts new notification in to the db.
    *
-   * @param idMember id of member who owns the notification
-   * @param content   text message that the notification contains
+   * @param idMember = id of member who owns the notification
+   * @param content  = text message that the notification contains
    * @return new Notification
    */
-  public Notification createNotification(Long idMember, String content) {
+  public void createNotificationForMember(Long idMember, String content) {
     if (content.isBlank()) {
       throw new IllegalArgumentException("content must contain text");
     }
@@ -47,8 +45,10 @@ public class NotificationService {
     Notification newNotification = new Notification();
     newNotification.setContent(content);
     newNotification.setMember(member);
-    return notificationRepository.save(newNotification);
+    notificationRepository.save(newNotification);
   }
+
+
 
   /**
    * Get a notification by its id.
@@ -76,17 +76,13 @@ public class NotificationService {
   }
 
   /**
-   * Calculates unread notifs.
+   * calculates unread notifs.
    *
-   * @param idMember  member ID
+   * @param idMember = member ID
    * @return number of unread notification the member in question has
    */
   public long countUnreadNotifications(long idMember) {
     return notificationRepository.countByMemberIdMemberAndIsReadFalse(idMember);
-  }
-
-  public Optional<Notification> getById(Long idNotification) {
-    return notificationRepository.getNotificationByIdNotification(idNotification);
   }
 }
 
