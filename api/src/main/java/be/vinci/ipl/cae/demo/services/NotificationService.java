@@ -28,8 +28,7 @@ public class NotificationService {
    * @param notificationRepository notification repository
    */
   public NotificationService(MemberRepository memberRepository,
-      NotificationRepository notificationRepository,
-      TeamRepository teamRepository) {
+      NotificationRepository notificationRepository, TeamRepository teamRepository) {
     this.memberRepository = memberRepository;
     this.notificationRepository = notificationRepository;
     this.teamRepository = teamRepository;
@@ -40,19 +39,12 @@ public class NotificationService {
    *
    * @param idMember = id of member who owns the notification
    * @param content  = text message that the notification contains
-   * @return new Notification
    */
   public void notifyMember(Long idMember, String content) {
-    if (content.isBlank()) {
-      throw new IllegalArgumentException("content must contain text");
-    }
+
     Member member = memberRepository.findById(idMember)
         .orElseThrow(() -> new IllegalArgumentException("Member not found"));
-
-    Notification newNotification = new Notification();
-    newNotification.setContent(content);
-    newNotification.setMember(member);
-    notificationRepository.save(newNotification);
+    saveNotification(member, content);
   }
 
   /**
@@ -63,14 +55,14 @@ public class NotificationService {
   public void notifyAllMembers(String content) {
     Member[] activeMembers = memberRepository.getAllByIsDeleted(false);
     for (Member activeMember : activeMembers) {
-      notifyMember(activeMember.getIdMember(), content);
+      saveNotification(activeMember, content);
     }
   }
 
   public void notifyTeam(Team team, String content) {
     List<Member> teamMembers = team.getMembers();
     for (Member teamMember : teamMembers) {
-      notifyMember(teamMember.getIdMember(), content);
+      saveNotification(teamMember, content);
     }
   }
 
@@ -78,11 +70,21 @@ public class NotificationService {
     Member manager1 = team.getManager1();
     Member manager2 = team.getManager2();
     if (manager1 != null) {
-      notifyMember(manager1.getIdMember(), content);
+      saveNotification(manager1, content);
     }
     if (manager2 != null) {
-      notifyMember(manager2.getIdMember(), content);
+      saveNotification(manager2, content);
     }
+  }
+
+  private void saveNotification(Member member, String content) {
+    if (content == null || content.isBlank()) {
+      throw new IllegalArgumentException("content must contain text");
+    }
+    Notification notification = new Notification();
+    notification.setContent(content);
+    notification.setMember(member);
+    notificationRepository.save(notification);
   }
 
   /**
@@ -113,7 +115,7 @@ public class NotificationService {
   /**
    * calculates unread notifs.
    *
-   * @param idMember = member ID
+   * @param idMember member ID
    * @return number of unread notification the member in question has
    */
   public long countUnreadNotifications(long idMember) {
