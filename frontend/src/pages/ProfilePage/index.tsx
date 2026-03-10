@@ -85,11 +85,11 @@ export const ProfilePage = () => {
           {authenticatedUser?.id === idNbr && (
             <Grid2 size={{ xs: 12, md: 5 }}>
               <Stack spacing="1.5rem">
-                <TeamCard user={user} setOpen={setOpen} />
                 <PersonalInfoCard
                   user={user}
                   setPasswordModal={setPasswordModal}
                 />
+                <TeamCard user={user} setOpen={setOpen} />
               </Stack>
             </Grid2>
           )}

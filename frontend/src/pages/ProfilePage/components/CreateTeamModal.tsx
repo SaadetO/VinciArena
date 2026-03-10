@@ -4,6 +4,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Stack,
   TextField,
   Typography,
 } from '@mui/material';
@@ -74,27 +75,38 @@ export const CreateTeamModal = ({ open, onClose }: CreateTeamModalProps) => {
   return (
     <>
       <Dialog open={open} onClose={handleClose} fullWidth>
-        <DialogTitle variant="h4">Créer une Team</DialogTitle>
+        <DialogTitle variant="h2">Créer une Team</DialogTitle>
+        <Typography textAlign="center" padding="0 2rem 1rem" color="secondary">
+          Comment s'appelle votre Team ?
+        </Typography>
         <DialogContent>
-          <Typography>Comment s'appelle votre team ? </Typography>
-          <TextField
-            id="teamName"
-            name="teamName"
-            placeholder="Votre nom de team"
-            onChange={handleChange}
-            variant="outlined"
-            error={!!error} // If error message, the first ! returns false, the second ! turns it into true
-            helperText={error}
-          ></TextField>
+          <Stack>
+            <TextField
+              id="teamName"
+              name="teamName"
+              placeholder="Nom de Team"
+              onChange={handleChange}
+              variant="outlined"
+              error={!!error} // If error message, the first ! returns false, the second ! turns it into true
+              helperText={error}
+            ></TextField>
+          </Stack>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} disabled={isLoading}>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={handleClose}
+            disabled={isLoading}
+            fullWidth
+          >
             Annuler
           </Button>
           <Button
             variant="contained"
             disabled={isLoading}
             onClick={handleCreate}
+            fullWidth
           >
             Créer
           </Button>
