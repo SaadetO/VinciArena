@@ -40,12 +40,6 @@ const UserContextProvider = ({ children }: { children: ReactNode }) => {
         throw new Error(
           `fetch error : ${response.status} : ${response.statusText}`,
         );
-
-      const createdUser: AuthenticatedUser = await response.json();
-
-      setAuthenticatedUser(createdUser);
-      storeAuthenticatedUser(createdUser);
-      console.log('createdUser: ', createdUser);
     } catch (err) {
       console.error('registerUser::error: ', err);
       throw err;
