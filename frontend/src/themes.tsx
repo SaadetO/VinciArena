@@ -1,5 +1,6 @@
 import { CloseRounded } from '@mui/icons-material';
 import { createTheme } from '@mui/material/styles';
+import { ZoomTransition } from './components/ZoomTransition';
 
 declare module '@mui/material/styles' {
   interface TypeBackground {
@@ -420,8 +421,6 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           '& .MuiInputBase-root': {
-            // background: '#262626',
-            border: '1px solid #303030',
             paddingLeft: '1rem',
             borderRadius: '0.5rem',
           },
@@ -431,6 +430,9 @@ export const theme = createTheme({
             fontWeight: 'Medium',
             fontSize: '1rem',
             color: '#FFFFFF',
+          },
+          '& .MuiOutlinedInput-notchedOutline': {
+            border: '1px solid #303030',
           },
           '& input::placeholder': {
             color: '#8C8C8C',
@@ -463,10 +465,58 @@ export const theme = createTheme({
       },
     },
     MuiDialog: {
+      defaultProps: {
+        TransitionComponent: ZoomTransition,
+      },
       styleOverrides: {
-        paper: {
-          backgroundColor: surfaceLevels.s1,
-          borderRadius: '0.5rem',
+        root: {
+          '& .MuiDialog-paper': {
+            borderRadius: '0.5rem',
+            background: surfaceLevels.s1,
+            backgroundImage: 'none',
+            width: '25rem',
+          },
+        },
+      },
+    },
+    MuiDialogTitle: {
+      styleOverrides: {
+        root: {
+          padding: '2rem 1rem 0.25rem',
+          textAlign: 'center',
+        },
+      },
+    },
+    MuiDialogContent: {
+      styleOverrides: {
+        root: {
+          padding: '1rem',
+        },
+      },
+    },
+    MuiDialogActions: {
+      styleOverrides: {
+        root: {
+          padding: '1rem',
+        },
+      },
+    },
+    MuiAutocomplete: {
+      styleOverrides: {
+        root: {
+          '& .MuiOutlinedInput-root': {
+            padding: '0 0 0 1rem',
+            '& .MuiAutocomplete-input': {
+              padding: '0',
+            },
+          },
+          '& .MuiButtonBase-root': {
+            width: '2rem',
+            height: '2rem',
+          },
+          '& .MuiButtonBase-root:last-child': {
+            color: '#8C8C8C',
+          },
         },
       },
     },

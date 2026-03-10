@@ -25,4 +25,6 @@ public interface MemberRepository extends CrudRepository<Member, Long> {
    * @return true if member exists , false if not
    */
   Boolean existsByEmail(String email);
+
+  Member[] getAllByIsDeleted(boolean isDeleted);
 }

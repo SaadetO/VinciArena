@@ -35,10 +35,8 @@ public class NotificationController {
    *
    * @param notificationService = service
    */
-  public NotificationController(
-      NotificationService notificationService,
-      MemberRepository memberRepository
-  ) {
+  public NotificationController(NotificationService notificationService,
+      MemberRepository memberRepository) {
     this.notificationService = notificationService;
     this.memberRepository = memberRepository;
   }
@@ -93,12 +91,13 @@ public class NotificationController {
     return notificationService.countUnreadNotifications(id);
   }
 
-  //to test: to be deleted before merging to main
+  //For tests ONLY: to be deleted before merging to main
   @PostMapping("/test-insert/{id}")
-  public void insertTestData(@PathVariable long id){
-    notificationService.createNotification(id, "Notification 1");
-    notificationService.createNotification(id, "Notification 2");
-    notificationService.createNotification(id, "Notification 3");
+  public void insertTestData(@PathVariable long id) {
+    notificationService.notifyMember(id, "Notification 1");
+    notificationService.notifyMember(id, "Notification 2");
+    notificationService.notifyMember(id, "Notification 3");
+    notificationService.notifyAllMembers("Hello everyone");
 
   }
 

@@ -16,7 +16,7 @@ POST {{baseUrl}}/auths/login
 Content-Type: application/json
 
 {
-  "username": "student@vinci.be",
+  "email": "student@vinci.be",
   "password": "password123"
 }
 
