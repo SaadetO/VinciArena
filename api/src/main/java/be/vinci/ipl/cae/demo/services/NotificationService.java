@@ -12,7 +12,8 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 /**
- * Notification Service.
+ * Service class handling all notification-related business logic. Provides methods for individual,
+ * group, and bulk notifications.
  */
 @Service
 public class NotificationService {
@@ -21,10 +22,11 @@ public class NotificationService {
   private final NotificationRepository notificationRepository;
 
   /**
-   * Creates the NotificationService.
+   * Constructs a new NotificationService with required repositories.
    *
-   * @param memberRepository       member repository
-   * @param notificationRepository notification repository
+   * @param memberRepository       the repository for member data
+   * @param notificationRepository the repository for notification data
+   * @param teamRepository         the repository for team data
    */
   public NotificationService(MemberRepository memberRepository,
       NotificationRepository notificationRepository, TeamRepository teamRepository) {
@@ -33,10 +35,11 @@ public class NotificationService {
   }
 
   /**
-   * Inserts new notification in to the db for one member.
+   * Creates and saves a notification for a specific member identified by their ID.
    *
-   * @param idMember = id of member who owns the notification
-   * @param content  = text message that the notification contains
+   * @param idMember the unique identifier of the member
+   * @param content  the text message of the notification
+   * @throws IllegalArgumentException if the member is not found or content is blank
    */
   public void notifyMember(Long idMember, String content) {
 
@@ -46,9 +49,10 @@ public class NotificationService {
   }
 
   /**
-   * Inserts new notification in to the db for all the members isDeleted = false.
+   * Sends a notification to all active members in the system.
+   * Active members are those where isDeleted is false.
    *
-   * @param content message of the notification
+   * @param content the text message of the notification
    */
   public void notifyAllMembers(String content) {
     Member[] activeMembers = memberRepository.getAllByIsDeleted(false);
@@ -57,6 +61,12 @@ public class NotificationService {
     }
   }
 
+  /**
+   * Sends a notification to every member currently belonging to a specific team.
+   *
+   * @param team    the team entity whose members will be notified
+   * @param content the text message of the notification
+   */
   public void notifyTeam(Team team, String content) {
     List<Member> teamMembers = team.getMembers();
     for (Member teamMember : teamMembers) {
@@ -64,6 +74,13 @@ public class NotificationService {
     }
   }
 
+  /**
+   * Sends a notification to the managers (responsables) of a team.
+   * Only attempts to notify managers that are explicitly assigned (not null).
+   *
+   * @param team    the team whose managers will be notified
+   * @param content the text message of the notification
+   */
   public void notifyTeamManagers(Team team, String content) {
     Member manager1 = team.getManager1();
     Member manager2 = team.getManager2();
@@ -75,6 +92,13 @@ public class NotificationService {
     }
   }
 
+  /**
+   * Internal helper to persist a notification.
+   *
+   * @param member  the member entity to associate with the notification
+   * @param content the message content
+   * @throws IllegalArgumentException if content is null or blank
+   */
   private void saveNotification(Member member, String content) {
     if (content == null || content.isBlank()) {
       throw new IllegalArgumentException("content must contain text");
@@ -86,10 +110,11 @@ public class NotificationService {
   }
 
   /**
-   * Get a notification by its id.
+   * Retrieves notifications for a specific member, optionally filtering for unread ones.
    *
-   * @param idMember id of the member
-   * @return all the notification of a member
+   * @param idMember   the unique identifier of the member
+   * @param unreadOnly true to return only unread notifications, false for all
+   * @return an iterable collection of notifications
    */
   public Iterable<Notification> getNotificationsByIdMember(long idMember, boolean unreadOnly) {
     if (unreadOnly) {
@@ -99,9 +124,10 @@ public class NotificationService {
   }
 
   /**
-   * Mark a Notification as read.
+   * Marks a specific notification as read.
    *
-   * @param idNotification notification id
+   * @param idNotification the unique identifier of the notification
+   * @throws EntityNotFoundException if the notification does not exist
    */
   public void markNotificationAsRead(long idNotification) {
     Notification notification = notificationRepository.findById(idNotification).orElseThrow(
@@ -111,15 +137,21 @@ public class NotificationService {
   }
 
   /**
-   * calculates unread notifs.
+   * Counts the number of unread notifications for a specific member.
    *
-   * @param idMember member ID
-   * @return number of unread notification the member in question has
+   * @param idMember the unique identifier of the member
+   * @return the total count of unread notifications
    */
   public long countUnreadNotifications(long idMember) {
     return notificationRepository.countByMemberIdMemberAndIsReadFalse(idMember);
   }
 
+  /**
+   * Finds a specific notification by its identifier.
+   *
+   * @param idNotification the unique identifier of the notification
+   * @return an Optional containing the notification if found, or empty otherwise
+   */
   public Optional<Notification> getById(Long idNotification) {
     return notificationRepository.getNotificationByIdNotification(idNotification);
   }
