@@ -18,7 +18,9 @@ describe('CreateTeamModal', () => {
 
   // 1.
   test('renders a form with team name input and buttons', () => {
-    render(<CreateTeamModal open={true} onClose={() => {}} />);
+    render(
+      <CreateTeamModal open={true} onClose={() => {}} onSuccess={() => {}} />,
+    );
 
     expect(screen.getByText('Créer une Team')).toBeTruthy();
     expect(screen.getByPlaceholderText('Nom de Team')).toBeTruthy();
@@ -28,7 +30,9 @@ describe('CreateTeamModal', () => {
 
   // 2.
   test('shows error when creating team with empty name', async () => {
-    render(<CreateTeamModal open={true} onClose={() => {}} />);
+    render(
+      <CreateTeamModal open={true} onClose={() => {}} onSuccess={() => {}} />,
+    );
 
     const createButton = screen.getByRole('button', { name: /créer/i });
     fireEvent.click(createButton);
@@ -60,7 +64,14 @@ describe('CreateTeamModal', () => {
       json: async () => ({ id: 10, name: 'My Team' }),
     });
 
-    render(<CreateTeamModal open={true} onClose={mockOnClose} />);
+    const mockOnSuccess = vi.fn();
+    render(
+      <CreateTeamModal
+        open={true}
+        onClose={mockOnClose}
+        onSuccess={mockOnSuccess}
+      />,
+    );
 
     // Filling the field
     const input = screen.getByPlaceholderText('Nom de Team');
@@ -100,7 +111,9 @@ describe('CreateTeamModal', () => {
       status: 409,
     });
 
-    render(<CreateTeamModal open={true} onClose={() => {}} />);
+    render(
+      <CreateTeamModal open={true} onClose={() => {}} onSuccess={() => {}} />,
+    );
 
     const input = screen.getByPlaceholderText('Nom de Team');
     fireEvent.change(input, { target: { value: 'Existing Team' } });
@@ -130,7 +143,9 @@ describe('CreateTeamModal', () => {
       status: 500,
     });
 
-    render(<CreateTeamModal open={true} onClose={() => {}} />);
+    render(
+      <CreateTeamModal open={true} onClose={() => {}} onSuccess={() => {}} />,
+    );
 
     const input = screen.getByPlaceholderText('Nom de Team');
     fireEvent.change(input, { target: { value: 'Failed Team' } });

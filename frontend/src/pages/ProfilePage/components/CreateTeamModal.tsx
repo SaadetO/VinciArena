@@ -14,9 +14,14 @@ import { getAuthenticatedUser } from '../../../utils/session';
 interface CreateTeamModalProps {
   open: boolean;
   onClose: () => void;
+  onSuccess: (team: { id: number; name: string; isManager: boolean }) => void;
 }
 
-export const CreateTeamModal = ({ open, onClose }: CreateTeamModalProps) => {
+export const CreateTeamModal = ({
+  open,
+  onClose,
+  onSuccess,
+}: CreateTeamModalProps) => {
   const [teamName, setTeamName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,8 +58,14 @@ export const CreateTeamModal = ({ open, onClose }: CreateTeamModalProps) => {
         throw new Error('Erreur lors de la création de la team.');
       }
 
+      const createdTeam = await response.json();
+
+      onSuccess({
+        id: createdTeam.idTeam,
+        name: createdTeam.name,
+        isManager: true,
+      });
       onClose();
-      // window.location.reload
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
