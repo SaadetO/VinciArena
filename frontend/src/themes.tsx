@@ -470,7 +470,7 @@ export const theme = createTheme({
       },
       styleOverrides: {
         root: {
-          '& .MuiInputBase-input': {
+          '& .MuiDialog-paper': {
             borderRadius: '0.5rem',
             background: surfaceLevels.s1,
             backgroundImage: 'none',
