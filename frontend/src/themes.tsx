@@ -462,5 +462,13 @@ export const theme = createTheme({
         },
       },
     },
+    MuiDialog: {
+      styleOverrides: {
+        paper: {
+          backgroundColor: surfaceLevels.s1,
+          borderRadius: '0.5rem',
+        },
+      },
+    },
   },
 });
