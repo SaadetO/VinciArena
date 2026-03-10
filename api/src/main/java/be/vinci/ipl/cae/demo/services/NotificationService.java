@@ -25,7 +25,6 @@ public class NotificationService {
    *
    * @param memberRepository       the repository for member data
    * @param notificationRepository the repository for notification data
-   * @param teamRepository         the repository for team data
    */
   public NotificationService(MemberRepository memberRepository,
       NotificationRepository notificationRepository) {
