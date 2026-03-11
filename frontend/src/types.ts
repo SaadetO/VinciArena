@@ -40,7 +40,7 @@ interface AuthenticatedUser {
   token: string;
 }
 
-interface Notification {
+interface NotificationDto {
   idNotification: number;
   content: string;
   isRead: boolean;
@@ -56,5 +56,5 @@ export type {
   MaybeAuthenticatedUser,
   UserContextType,
   ProfileInfoDto,
-  Notification,
+  NotificationDto,
 };

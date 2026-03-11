@@ -31,7 +31,7 @@ Content-Type: application/json
 
 ### 2. Get my notifications (Dynamic Token)
 # If your ID is 3, keep it 3. If it's 1, change it to 1.
-GET {{baseUrl}}/notifications/member/3
+GET {{baseUrl}}/notifications/member/1
 Authorization:{{token}}
 
 
@@ -45,4 +45,4 @@ PATCH {{baseUrl}}/notifications/1/read
 Authorization: {{token}}
 
 ### insert test notifications
-POST {{baseUrl}}/notifications/test-insert/3
+POST {{baseUrl}}/notifications/test-insert/1
