@@ -39,6 +39,12 @@ interface AuthenticatedUser {
   token: string;
 }
 
+interface Team {
+  idTeam: number;
+  name: string;
+  isActive: boolean;
+}
+
 type MaybeAuthenticatedUser = AuthenticatedUser | undefined;
 
 export type {
@@ -48,4 +54,5 @@ export type {
   MaybeAuthenticatedUser,
   UserContextType,
   ProfileInfoDto,
+  Team,
 };
