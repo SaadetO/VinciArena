@@ -1,11 +1,13 @@
 package be.vinci.ipl.cae.demo.services;
 
+import be.vinci.ipl.cae.demo.models.dtos.NotificationDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Notification;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.NotificationRepository;
 import jakarta.persistence.EntityNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
@@ -47,8 +49,8 @@ public class NotificationService {
   }
 
   /**
-   * Sends a notification to all active members in the system.
-   * Active members are those where isDeleted is false.
+   * Sends a notification to all active members in the system. Active members are those where
+   * isDeleted is false.
    *
    * @param content the text message of the notification
    */
@@ -73,8 +75,8 @@ public class NotificationService {
   }
 
   /**
-   * Sends a notification to the managers (responsables) of a team.
-   * Only attempts to notify managers that are explicitly assigned (not null).
+   * Sends a notification to the managers (responsables) of a team. Only attempts to notify managers
+   * that are explicitly assigned (not null).
    *
    * @param team    the team whose managers will be notified
    * @param content the text message of the notification
@@ -114,11 +116,21 @@ public class NotificationService {
    * @param unreadOnly true to return only unread notifications, false for all
    * @return an iterable collection of notifications
    */
-  public Iterable<Notification> getNotificationsByIdMember(long idMember, boolean unreadOnly) {
+  public Iterable<NotificationDto> getNotificationsByIdMember(long idMember, boolean unreadOnly) {
+    Iterable<Notification> entities;
     if (unreadOnly) {
-      return notificationRepository.findByMemberIdMemberAndIsReadFalse(idMember);
+      entities = notificationRepository.findByMemberIdMemberAndIsReadFalse(idMember);
+    } else {
+      entities = notificationRepository.findByMemberIdMemberOrderByIsReadAscDateTimeDesc(idMember);
     }
-    return notificationRepository.findByMemberIdMemberOrderByIsReadAscDateTimeDesc(idMember);
+    List<NotificationDto> dtos = new ArrayList<>();
+    for (Notification entity : entities) {
+      dtos.add(
+          new NotificationDto(entity.getIdNotification(), entity.getContent(), entity.isRead(),
+              entity.getDateTime())
+      );
+    }
+    return dtos;
   }
 
   /**
