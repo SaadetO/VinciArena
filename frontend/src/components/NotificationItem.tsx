@@ -55,6 +55,8 @@ export const NotificationItem = ({
           py: 2,
           padding: 2.5,
           bgcolor: notification.isRead ? 'transparent' : 'action.hover',
+          pr: 8,
+          alignItems: 'flex-start',
         }}
         secondaryAction={
           !notification.isRead && (
