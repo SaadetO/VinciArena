@@ -95,10 +95,11 @@ export const UnavailabilitiesModal = ({
   };
 
   useEffect(() => {
-    open && setDates({
-      startDate: dayjs(Date.now()),
-      endDate: dayjs(Date.now()).add(7, 'day'),
-    });
+    open &&
+      setDates({
+        startDate: dayjs(Date.now()),
+        endDate: dayjs(Date.now()).add(7, 'day'),
+      });
   }, [open]);
   return (
     <Dialog
