@@ -1,4 +1,4 @@
-import { Container, Grid2, Stack, Typography } from '@mui/material';
+import { Container, Grid2, Snackbar, Stack, Typography } from '@mui/material';
 import { PersonalInfoCard } from './components/PersonalInfoCard';
 import { ProfileBanner } from './components/ProfileBanner';
 import { TeamCard } from './components/TeamCard';
@@ -6,12 +6,16 @@ import { CreateTeamModal } from './components/CreateTeamModal';
 import { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { UserContext } from '../../contexts/UserContext';
-import { ProfileInfoDto } from '../../types';
+import { ProfileInfoDto, Team } from '../../types';
 import { NotFoundPage } from '../NotFoundPage';
 import { PasswordModal } from './components/PasswordModal';
+import { JoinTeamModal } from './components/JoinTeamModal';
 
 export const ProfilePage = () => {
-  const [open, setOpen] = useState(false);
+  const [snackBarText, setSnackBarText] = useState<string | null>(null);
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [openJoin, setOpenJoin] = useState(false);
+  const [openCreate, setOpenCreate] = useState(false);
   const { id } = useParams();
   const idNbr = Number(id);
   const { authenticatedUser } = useContext(UserContext);
@@ -65,10 +69,10 @@ export const ProfilePage = () => {
           container
           spacing={3}
           paddingTop="1.5rem"
-          direction={{ xs: 'column-reverse', md: 'row' }}
+          direction={{ xs: 'column-reverse', lg: 'row' }}
           justifyContent="center"
         >
-          <Grid2 size={{ xs: 12, md: 7 }}>
+          <Grid2 size={{ xs: 12,  lg: 7 }}>
             <Stack spacing="1.5rem">
               {/* menu */}
               <Stack
@@ -83,31 +87,49 @@ export const ProfilePage = () => {
             </Stack>
           </Grid2>
           {authenticatedUser?.id === idNbr && (
-            <Grid2 size={{ xs: 12, md: 5 }}>
+            <Grid2 size={{ xs: 12, lg: 5 }}>
               <Stack spacing="1.5rem">
                 <PersonalInfoCard
                   user={user}
                   setPasswordModal={setPasswordModal}
                 />
-                <TeamCard user={user} setOpen={setOpen} />
+                <TeamCard
+                  user={user}
+                  setOpen={setOpenCreate}
+                  setOpenJoin={setOpenJoin}
+                />
               </Stack>
             </Grid2>
           )}
         </Grid2>
       </Container>
       <CreateTeamModal
-        open={open}
-        onClose={() => setOpen(false)}
+        open={openCreate}
+        onClose={() => setOpenCreate(false)}
         onSuccess={(team) => {
-          setOpen(false);
+          setSnackBarText('Team créée avec succès !');
+          setOpenCreate(false);
           if (user) {
             setUser({ ...user, team });
           }
         }}
       />
+      <JoinTeamModal
+        teams={teams}
+        setTeams={setTeams}
+        open={openJoin}
+        onClose={() => setOpenJoin(false)}
+        onSuccess={() => setSnackBarText('Demande effectuée avec succès !')}
+      />
       <PasswordModal
         open={passwordModal}
         onClose={() => setPasswordModal(false)}
+      />
+      <Snackbar
+        open={!!snackBarText}
+        autoHideDuration={3000}
+        onClose={() => setSnackBarText(null)}
+        message={snackBarText}
       />
     </>
   );
