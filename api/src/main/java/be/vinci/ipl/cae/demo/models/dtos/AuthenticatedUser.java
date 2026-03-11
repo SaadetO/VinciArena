@@ -12,6 +12,7 @@ public class AuthenticatedUser {
 
   private Long id;
   private String email;
+  private boolean isAdmin;
   private String tag;
   private String token;
 }

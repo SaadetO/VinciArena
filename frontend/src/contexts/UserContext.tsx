@@ -72,7 +72,7 @@ const UserContextProvider = ({ children }: { children: ReactNode }) => {
         );
 
       const authenticatedUser: AuthenticatedUser = await response.json();
-      console.log('authenticatedUser: ', authenticatedUser);
+      console.log('authenticatedUser.token: ', authenticatedUser.token);
 
       setAuthenticatedUser(authenticatedUser);
       storeAuthenticatedUser(authenticatedUser);
