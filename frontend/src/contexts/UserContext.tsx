@@ -27,11 +27,11 @@ const UserContextProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const storedUser = getAuthenticatedUser();
-    if(storedUser){
+    if (storedUser) {
       setAuthenticatedUser(storedUser);
     }
   }, []);
-  
+
   const registerUser = async (newUser: User) => {
     try {
       const options = {

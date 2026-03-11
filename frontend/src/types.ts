@@ -37,7 +37,7 @@ interface ProfileInfoDto {
 interface AuthenticatedUser {
   id: number;
   email: string;
-  tag: string; //username: string;
+  tag: string;
   token: string;
 }
 
