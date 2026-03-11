@@ -21,12 +21,11 @@ public class SpecialtyService {
 
   public Iterable<SpecialtyDto> readAllSpecialties() {
     Iterable<Specialty> iter = specialtyRepository.findAll();
-    var specialties = StreamSupport.stream(iter.spliterator(), false)
+    return StreamSupport.stream(iter.spliterator(), false)
         .map(s -> SpecialtyDto.builder()
             .id(s.getIdSpecialty())
             .label(s.getName())
             .build())
         .collect(Collectors.toList());
-    return specialties;
   }
 }
