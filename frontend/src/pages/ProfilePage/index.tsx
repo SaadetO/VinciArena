@@ -9,6 +9,8 @@ import { UserContext } from '../../contexts/UserContext';
 import { ProfileInfoDto } from '../../types';
 import { NotFoundPage } from '../NotFoundPage';
 import { PasswordModal } from './components/PasswordModal';
+import { UnavailabilitiesCard } from './components/UnavailabilitiesCard';
+import { UnavailabilitiesModal } from './components/UnavailabilitiesModal';
 
 export const ProfilePage = () => {
   const [open, setOpen] = useState(false);
@@ -16,6 +18,7 @@ export const ProfilePage = () => {
   const idNbr = Number(id);
   const { authenticatedUser } = useContext(UserContext);
   const [passwordModal, setPasswordModal] = useState(false);
+  const [unavailabilitiesModal, setUnavailabilitiesModal] = useState(false);
   const [user, setUser] = useState<ProfileInfoDto | undefined>(undefined);
   const [error, setError] = useState<
     { code: number; message: string; subtitle?: string } | undefined
@@ -89,6 +92,10 @@ export const ProfilePage = () => {
                   setPasswordModal={setPasswordModal}
                 />
                 <TeamCard user={user} setOpen={setOpen} />
+                <UnavailabilitiesCard
+                  user={user}
+                  setUnavailabilitiesModal={setUnavailabilitiesModal}
+                />
               </Stack>
             </Grid2>
           )}
@@ -107,6 +114,10 @@ export const ProfilePage = () => {
       <PasswordModal
         open={passwordModal}
         onClose={() => setPasswordModal(false)}
+      />
+      <UnavailabilitiesModal
+        open={unavailabilitiesModal}
+        onClose={() => setUnavailabilitiesModal(false)}
       />
     </>
   );
