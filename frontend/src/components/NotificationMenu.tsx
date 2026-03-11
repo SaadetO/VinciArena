@@ -1,4 +1,4 @@
-import { useState, MouseEvent, useContext } from 'react';
+import { useState, MouseEvent, useContext, useEffect } from 'react';
 import {
   Badge,
   IconButton,
@@ -14,7 +14,8 @@ import { UserContext } from '../contexts/UserContext';
 import { useNavigate } from 'react-router-dom';
 
 const NotificationMenu = () => {
-  const { unreadCount } = useContext(UserContext);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const { authenticatedUser } = useContext(UserContext);
   const [menuPosition, setMenuPosition] = useState<null | HTMLElement>(null);
   const navigate = useNavigate();
 
@@ -31,6 +32,32 @@ const NotificationMenu = () => {
   const handleClose = () => {
     setMenuPosition(null);
   };
+  const fetchUnreadCount = async () => {
+    if (!authenticatedUser?.token) return;
+    try {
+      const response = await fetch(
+        `/api/notifications/member/${authenticatedUser.id}/unread-count`,
+        { headers: { Authorization: authenticatedUser.token } },
+      );
+      if (response.ok) {
+        const data = await response.text();
+        setUnreadCount(parseInt(data));
+      }
+    } catch (err) {
+      console.error('Failed to fetch unread count', err);
+    }
+  };
+
+  useEffect(() => {
+    if (authenticatedUser) {
+      fetchUnreadCount();
+      const id = setInterval(fetchUnreadCount, 3000);
+      return () => clearInterval(id);
+    } else {
+      setUnreadCount(0); // Reset count if user logs out
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authenticatedUser]);
 
   return (
     <>
