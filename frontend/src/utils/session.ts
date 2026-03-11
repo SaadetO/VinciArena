@@ -3,7 +3,7 @@ import { AuthenticatedUser, MaybeAuthenticatedUser } from '../types';
 const storeAuthenticatedUser = (authenticatedUser: AuthenticatedUser) => {
   localStorage.setItem(
     'authenticatedUser',
-    JSON.stringify({ token: authenticatedUser.token }),
+    JSON.stringify(authenticatedUser),
   );
 };
 
