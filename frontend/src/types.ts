@@ -20,11 +20,12 @@ interface ProfileInfoDto {
   creationDate: string | null;
   avatar: string | null;
   isAdmin: boolean | null;
+  isSelf: boolean; // Indicates if this profile belongs to the currently logged in user
   team: {
     id: number;
     name: string;
-    isManager: boolean;
-  } | null;
+    isManager: boolean; // Calculated based on if Member is manager1 or manager2 in Team
+  } | null; // User might not have a team yet
   unavailabilities:
     | {
         startDate: string;
@@ -35,7 +36,8 @@ interface ProfileInfoDto {
 
 interface AuthenticatedUser {
   id: number;
-  username: string;
+  isAdmin: boolean;
+  tag: string;
   token: string;
 }
 

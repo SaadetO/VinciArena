@@ -64,8 +64,10 @@ public class MemberService {
         .sign(algorithm);
 
     AuthenticatedUser authenticatedUser = new AuthenticatedUser();
-    authenticatedUser.setId(memberRepository.findByEmail(email).getIdMember());
-    authenticatedUser.setUsername(email);
+    Member member = memberRepository.findByEmail(email);
+    authenticatedUser.setId(member.getIdMember());
+    authenticatedUser.setEmail(email);
+    authenticatedUser.setTag(member.getTag());
     authenticatedUser.setToken(token);
 
     return authenticatedUser;
