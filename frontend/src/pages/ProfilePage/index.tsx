@@ -72,7 +72,7 @@ export const ProfilePage = () => {
           direction={{ xs: 'column-reverse', lg: 'row' }}
           justifyContent="center"
         >
-          <Grid2 size={{ xs: 12,  lg: 7 }}>
+          <Grid2 size={{ xs: 12, lg: 7 }}>
             <Stack spacing="1.5rem">
               {/* menu */}
               <Stack

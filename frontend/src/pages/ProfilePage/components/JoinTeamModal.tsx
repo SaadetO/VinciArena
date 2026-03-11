@@ -71,7 +71,6 @@ export const JoinTeamModal = ({
 
   useEffect(() => {
     if (teams.length) return;
-    console.log("blabla");
 
     const user = getAuthenticatedUser();
 
