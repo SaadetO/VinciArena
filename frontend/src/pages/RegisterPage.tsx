@@ -19,7 +19,7 @@ interface FormData {
   email: string;
   password: string;
   tag: string;
-  specialty: number | null;
+  specialtyId: number | null;
 }
 
 // ---- fetch the real array of specialties from the db ---- //
@@ -40,7 +40,7 @@ export const RegisterPage = () => {
     email: '',
     password: '',
     tag: '',
-    specialty: null,
+    specialtyId: null,
   });
 
   const handleSubmit = async (e: SyntheticEvent) => {
@@ -141,7 +141,7 @@ export const RegisterPage = () => {
                 <TextField {...params} placeholder="Spécialité" />
               )}
               onChange={(_, e) =>
-                setFormData((prev) => ({ ...prev, specialty: e?.id ?? null }))
+                setFormData((prev) => ({ ...prev, specialtyId: e?.id ?? null }))
               }
             />
           </Stack>
