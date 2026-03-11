@@ -16,9 +16,9 @@ interface ProfileInfoDto {
   id: number;
   email: string | null;
   tag: string;
-  specialty: string | null; // Corresponding to Member's Speciality entity
-  creation_date: string | null; // ISO Date string
-  avatar: string | null; // URL or base64 from ProfileImage entity
+  specialty: string | null;
+  creationDate: string | null;
+  avatar: string | null;
   isAdmin: boolean | null;
   isSelf: boolean; // Indicates if this profile belongs to the currently logged in user
   team: {
@@ -41,6 +41,13 @@ interface AuthenticatedUser {
   token: string;
 }
 
+interface NotificationDto {
+  idNotification: number;
+  content: string;
+  isRead: boolean;
+  dateTime: Date;
+}
+
 type MaybeAuthenticatedUser = AuthenticatedUser | undefined;
 
 export type {
@@ -50,4 +57,5 @@ export type {
   MaybeAuthenticatedUser,
   UserContextType,
   ProfileInfoDto,
+  NotificationDto,
 };

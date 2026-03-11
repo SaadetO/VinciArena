@@ -1,10 +1,10 @@
 package be.vinci.ipl.cae.demo.controllers;
 
+import be.vinci.ipl.cae.demo.models.dtos.NotificationDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Notification;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.services.NotificationService;
-
 import java.util.Objects;
 import java.util.Optional;
 import org.springframework.http.HttpStatus;
@@ -35,10 +35,8 @@ public class NotificationController {
    *
    * @param notificationService = service
    */
-  public NotificationController(
-      NotificationService notificationService,
-      MemberRepository memberRepository
-  ) {
+  public NotificationController(NotificationService notificationService,
+      MemberRepository memberRepository) {
     this.notificationService = notificationService;
     this.memberRepository = memberRepository;
   }
@@ -51,7 +49,7 @@ public class NotificationController {
    */
   @GetMapping("/member/{id}")
   @PreAuthorize("isAuthenticated()")
-  public Iterable<Notification> listNotifications(@PathVariable long id,
+  public Iterable<NotificationDto> listNotifications(@PathVariable long id,
       @RequestParam(required = false, defaultValue = "false") boolean unreadOnly,
       @AuthenticationPrincipal Member currentMember) {
     verifyAccess(id, currentMember);
@@ -93,12 +91,20 @@ public class NotificationController {
     return notificationService.countUnreadNotifications(id);
   }
 
-  //to test: to be deleted before merging to main
+  // For tests ONLY: to be deleted before merging to main
+
+  /**
+   * Test notification for a said user id.
+   *
+   * @param id id of the member
+   */
   @PostMapping("/test-insert/{id}")
-  public void insertTestData(@PathVariable long id){
-    notificationService.createNotification(id, "Notification 1");
-    notificationService.createNotification(id, "Notification 2");
-    notificationService.createNotification(id, "Notification 3");
+  public void insertTestData(@PathVariable long id) {
+    notificationService.notifyMember(id, "Notification 1");
+    notificationService.notifyMember(id, "Notification 2");
+    notificationService.notifyMember(id, "Notification 3 longgggggggggggggggggggggggggggggggggggggggggggggggg"
+        + "messageeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+    notificationService.notifyAllMembers("Hello everyone");
 
   }
 

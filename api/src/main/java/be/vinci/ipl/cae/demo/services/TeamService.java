@@ -55,4 +55,13 @@ public class TeamService {
 
     return team;
   }
+
+  /**
+   * Get all active teams.
+   *
+   * @return an iterable containing all active teams
+   */
+  public Iterable<Team> getAllActiveTeams() {
+    return teamRepository.findByIsActiveTrue();
+  }
 }

@@ -41,8 +41,8 @@ public class Member {
   private String tag;
 
   @ManyToOne
-  @JoinColumn(name = "id_speciality")
-  private Speciality speciality;
+  @JoinColumn(name = "id_specialty")
+  private Specialty specialty;
 
   private boolean isAdmin;
 

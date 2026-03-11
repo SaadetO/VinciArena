@@ -17,4 +17,11 @@ public interface TeamRepository extends CrudRepository<Team, Long> {
    * @return true if a team with this name exists
    */
   boolean existsByName(String name);
+
+  /**
+   * Returns an iterable of all active teams.
+   *
+   * @return an iterable of all active teams
+   */
+  Iterable<Team> findByIsActiveTrue();
 }

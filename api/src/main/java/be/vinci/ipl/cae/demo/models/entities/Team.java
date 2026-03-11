@@ -1,6 +1,7 @@
 package be.vinci.ipl.cae.demo.models.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -40,11 +41,13 @@ public class Team {
   // Primary responsable Must be not null in order for team to be considered active.
   @ManyToOne
   @JoinColumn(name = "id_manager1")
+  @JsonIgnoreProperties("team")
   private Member manager1;
 
   // Secondary responsable (optional for team "active" status).
   @ManyToOne
   @JoinColumn(name = "id_manager2")
+  @JsonIgnoreProperties("team")
   private Member manager2;
 
   @ManyToMany(mappedBy = "teams")

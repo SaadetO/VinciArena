@@ -1,5 +1,6 @@
 package be.vinci.ipl.cae.demo.controllers;
 
+import be.vinci.ipl.cae.demo.models.dtos.PasswordUpdateDto;
 import be.vinci.ipl.cae.demo.models.dtos.ProfileDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.services.MemberService;
@@ -7,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -32,7 +35,7 @@ public class MemberController {
   /**
    * Read one member's profile.
    *
-   * @param id the ID of the requested member profile.
+   * @param id            the ID of the requested member profile.
    * @param currentMember the currently authenticated member (can be null if not logged in).
    * @return the profile information (filtered based on privacy rules).
    */
@@ -46,5 +49,29 @@ public class MemberController {
     }
 
     return profile;
+  }
+
+  /**
+   * Update a member's password.
+   *
+   * @param passwordDto   the new password DTO.
+   * @param currentMember the currently authenticated member.
+   */
+  @PutMapping("/me/password")
+  public void updatePassword(
+      @RequestBody PasswordUpdateDto passwordDto,
+      @AuthenticationPrincipal Member currentMember) {
+
+    if (passwordDto == null
+        || passwordDto.getPassword() == null
+        || passwordDto.getPassword().trim().isEmpty()
+    ) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password cannot be empty");
+    }
+
+    boolean updated = memberService.updatePassword(currentMember, passwordDto.getPassword());
+    if (!updated) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
   }
 }

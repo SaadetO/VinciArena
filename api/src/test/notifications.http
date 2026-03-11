@@ -16,8 +16,8 @@ POST {{baseUrl}}/auths/login
 Content-Type: application/json
 
 {
-  "username": "student@vinci.be",
-  "password": "password123"
+  "email": "larry@cae.com",
+  "password": "123"
 }
 
 > {%
@@ -31,12 +31,12 @@ Content-Type: application/json
 
 ### 2. Get my notifications (Dynamic Token)
 # If your ID is 3, keep it 3. If it's 1, change it to 1.
-GET {{baseUrl}}/notifications/member/3
+GET {{baseUrl}}/notifications/member/1?unreadOnly=true
 Authorization:{{token}}
 
 
 ### 3. Get unread count (Dynamic Token)
-GET {{baseUrl}}/notifications/member/3/unread-count
+GET {{baseUrl}}/notifications/member/1/unread-count
 Authorization: {{token}}
 
 
@@ -45,4 +45,4 @@ PATCH {{baseUrl}}/notifications/1/read
 Authorization: {{token}}
 
 ### insert test notifications
-POST {{baseUrl}}/notifications/test-insert/3
+POST {{baseUrl}}/notifications/test-insert/1
