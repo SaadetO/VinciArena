@@ -131,12 +131,12 @@ export const RegisterPage = () => {
               required
             />
             <Autocomplete
-              disablePortal
               options={specialties}
               fullWidth
               getOptionLabel={(e) =>
                 e.label.charAt(0).toUpperCase() + e.label.slice(1)
               }
+              autoHighlight
               renderInput={(params) => (
                 <TextField {...params} placeholder="Spécialité" />
               )}

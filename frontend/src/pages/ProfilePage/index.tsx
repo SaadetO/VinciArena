@@ -95,7 +95,16 @@ export const ProfilePage = () => {
           )}
         </Grid2>
       </Container>
-      <CreateTeamModal open={open} onClose={() => setOpen(false)} />
+      <CreateTeamModal
+        open={open}
+        onClose={() => setOpen(false)}
+        onSuccess={(team) => {
+          setOpen(false);
+          if (user) {
+            setUser({ ...user, team });
+          }
+        }}
+      />
       <PasswordModal
         open={passwordModal}
         onClose={() => setPasswordModal(false)}
