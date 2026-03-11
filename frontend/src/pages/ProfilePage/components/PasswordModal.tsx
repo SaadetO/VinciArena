@@ -134,7 +134,11 @@ export const PasswordModal = ({ open, onClose }: PasswordModalProps) => {
     });
   }, [password]);
   return (
-    <Dialog open={open} onClose={handleClose}>
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      onKeyUp={(e) => e.key === 'Enter' && handleSubmit()}
+    >
       <DialogTitle variant="h2">Modifier mon mot de passe</DialogTitle>
       <Typography textAlign="center" padding="0 2rem 1rem" color="secondary">
         Creez votre nouveau mot de passe en complétant les champs ci-dessous
