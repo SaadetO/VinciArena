@@ -70,7 +70,6 @@ export const PasswordModal = ({ open, onClose }: PasswordModalProps) => {
         ...prev,
         confirmPassword: errorMsgs[1],
       }));
-    if (error.password || error.confirmPassword) return;
 
     if (
       isPasswordEmpty ||
@@ -91,13 +90,14 @@ export const PasswordModal = ({ open, onClose }: PasswordModalProps) => {
       });
 
       if (!response.ok) throw new Error('Failed to update password');
+      // TODO : Success message
     } catch (err: unknown) {
-      // TODO
+      // TODO : Error message
     } finally {
       setIsLoading(false);
     }
 
-    onClose();
+    onClose(); // TODO : Optimistic close next
   };
 
   useEffect(() => {
