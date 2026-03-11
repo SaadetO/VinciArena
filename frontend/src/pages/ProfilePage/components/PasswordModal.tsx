@@ -8,29 +8,17 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
+import { UserContext } from '../../../contexts/UserContext';
 
-/**
- * Design Note - Error Handling:
- * The 'PasswordData' interface is used for both the
- * form values and the validation errors.
- *
- * This is done to future proof the component and
- * allow verifications like including at least one
- * letter, number, uppercase letter,...
- *
- * So even tho we are not currently using the password
- * field in theerror useState, it could be useful for
- * future iterations which is why I included it.
- */
 interface PasswordData {
-  password: string | null;
-  confirmPassword: string | null;
+  password: string;
+  confirmPassword: string;
 }
 
 const initPasswordData = (): PasswordData => ({
-  password: null,
-  confirmPassword: null,
+  password: '',
+  confirmPassword: '',
 });
 
 interface PasswordModalProps {
@@ -38,10 +26,17 @@ interface PasswordModalProps {
   onClose: () => void;
 }
 
+const errorMsgs = [
+  'Le mot de passe ne peut pas être vide.',
+  'Veuillez confirmer votre mot de passe.',
+  'Les mots de passe ne correspondent pas.',
+];
+
 export const PasswordModal = ({ open, onClose }: PasswordModalProps) => {
   const [password, setPassword] = useState<PasswordData>(initPasswordData());
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<PasswordData>(initPasswordData());
+  const { authenticatedUser } = useContext(UserContext);
 
   const handleClose = () => {
     setPassword(initPasswordData());
@@ -58,32 +53,61 @@ export const PasswordModal = ({ open, onClose }: PasswordModalProps) => {
     }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setIsLoading(true);
-    console.log(password);
-    setError({
-      password: null,
-      confirmPassword: null,
-    });
+    if (!password.password?.trim())
+      setError((prev) => ({
+        ...prev,
+        password: errorMsgs[0],
+      }));
+
+    if (!password.confirmPassword?.trim())
+      setError((prev) => ({
+        ...prev,
+        confirmPassword: errorMsgs[1],
+      }));
+    if (error.password || error.confirmPassword) return;
+
+    try {
+      const response = await fetch('/api/members/me/password', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: authenticatedUser?.token ?? '',
+        },
+        body: JSON.stringify({ password: password.password }),
+      });
+
+      if (!response.ok) throw new Error('Failed to update password');
+
+    } catch (err: unknown) {
+      // TODO
+    } finally {
+      setIsLoading(false);
+    }
+
     onClose();
   };
 
   useEffect(() => {
+    if (error.password === errorMsgs[0] && password.password.trim())
+      setError((prev) => ({ ...prev, password: '' }));
     if (
-      password.password !== password.confirmPassword &&
-      password.confirmPassword !== null
+      error.confirmPassword === errorMsgs[1] &&
+      password.confirmPassword.trim()
     )
-      setError((prev) => ({
-        ...prev,
-        confirmPassword: 'Les mots de passe ne correspondent pas.',
-      }));
-    else setError(initPasswordData());
+      setError((prev) => ({ ...prev, confirmPassword: '' }));
 
     if (
-      password.password?.trim() === '' &&
-      password.confirmPassword?.trim() === ''
+      password.confirmPassword !== '' &&
+      password.password !== password.confirmPassword
     )
-      setPassword(initPasswordData());
+      setError((prev) => ({ ...prev, confirmPassword: errorMsgs[2] }));
+    else if (
+      password.confirmPassword !== '' &&
+      password.password === password.confirmPassword
+    )
+      setError((prev) => ({ ...prev, confirmPassword: '' }));
   }, [password]);
   return (
     <Dialog open={open} onClose={handleClose}>
@@ -114,22 +138,16 @@ export const PasswordModal = ({ open, onClose }: PasswordModalProps) => {
         </Stack>
       </DialogContent>
       <DialogActions>
-        {/* <Button onClick={handleClose} disabled={isLoading}>
-          Annuler
-        </Button> */}
         <Button
           variant="contained"
           color="secondary"
-          disabled={
-            isLoading ||
-            !!error.password ||
-            !!error.confirmPassword ||
-            !password.password ||
-            !password.confirmPassword
-          }
-          onClick={handleSubmit}
+          onClick={handleClose}
+          disabled={isLoading}
           fullWidth
         >
+          Annuler
+        </Button>
+        <Button variant="contained" onClick={handleSubmit} fullWidth>
           confirmer
         </Button>
       </DialogActions>
