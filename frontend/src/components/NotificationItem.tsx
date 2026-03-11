@@ -79,6 +79,11 @@ export const NotificationItem = ({
               variant: 'body1',
               fontWeight: notification.isRead ? 400 : 700,
               color: notification.isRead ? 'text.secondary' : 'text.primary',
+              sx: {
+                wordBreak: 'break-word',
+                whiteSpace: 'normal',
+                display: 'block',
+              },
             },
             secondary: {
               variant: 'caption',

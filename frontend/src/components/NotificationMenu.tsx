@@ -49,7 +49,6 @@ const NotificationMenu = () => {
             sx: {
               width: '50ch',
               maxHeight: 350,
-              // GLOBAL STYLES for items (Handles wrapping)
               '& .MuiMenuItem-root': {
                 whiteSpace: 'normal',
                 wordWrap: 'break-word',
@@ -60,6 +59,8 @@ const NotificationMenu = () => {
                 alignItems: 'flex-start',
                 '&:last-child': { borderBottom: 'none' },
                 cursor: 'default',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
               },
             },
           },
