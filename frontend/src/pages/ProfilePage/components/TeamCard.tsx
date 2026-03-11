@@ -4,10 +4,11 @@ import { Dispatch, SetStateAction } from 'react';
 
 interface TeamCardProps {
   setOpen: Dispatch<SetStateAction<boolean>>;
+  setOpenJoin: Dispatch<SetStateAction<boolean>>;
   user?: ProfileInfoDto;
 }
 
-export const TeamCard = ({ setOpen, user }: TeamCardProps) => {
+export const TeamCard = ({ setOpen, setOpenJoin, user }: TeamCardProps) => {
   return (
     <Stack
       sx={{ background: (theme) => theme.palette.background.s1 }}
@@ -40,9 +41,9 @@ export const TeamCard = ({ setOpen, user }: TeamCardProps) => {
         ) : (
           <>
             <Button
+              onClick={() => setOpenJoin(true)}
               variant="contained"
               color="secondary"
-              disabled={true} // future issue
               fullWidth
             >
               rejoindre une team

@@ -41,6 +41,12 @@ interface AuthenticatedUser {
   token: string;
 }
 
+interface Team {
+  idTeam: number;
+  name: string;
+  isActive: boolean;
+}
+
 interface NotificationDto {
   idNotification: number;
   content: string;
@@ -57,5 +63,6 @@ export type {
   MaybeAuthenticatedUser,
   UserContextType,
   ProfileInfoDto,
+  Team,
   NotificationDto,
 };
