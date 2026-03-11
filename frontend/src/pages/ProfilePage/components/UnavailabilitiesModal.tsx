@@ -14,7 +14,7 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import { Theme } from '@mui/material/styles';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const datePickerSx: SxProps<Theme> = {
   '& .MuiPickersSectionList-root': {
@@ -83,10 +83,6 @@ export const UnavailabilitiesModal = ({
   };
 
   const handleClose = () => {
-    setDates({
-      startDate: dayjs(Date.now()),
-      endDate: dayjs(Date.now()).add(7, 'day'),
-    });
     onClose();
   };
 
@@ -97,6 +93,13 @@ export const UnavailabilitiesModal = ({
     });
     handleClose();
   };
+
+  useEffect(() => {
+    open && setDates({
+      startDate: dayjs(Date.now()),
+      endDate: dayjs(Date.now()).add(7, 'day'),
+    });
+  }, [open]);
   return (
     <Dialog
       open={open}
