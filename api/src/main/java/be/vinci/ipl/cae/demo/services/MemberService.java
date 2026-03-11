@@ -6,6 +6,7 @@ import be.vinci.ipl.cae.demo.models.dtos.ProfileDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
+import be.vinci.ipl.cae.demo.repositories.SpecialtyRepository;
 import be.vinci.ipl.cae.demo.repositories.UnavailabilityRepository;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -29,6 +30,7 @@ public class MemberService {
   private final BCryptPasswordEncoder passwordEncoder;
   private final MemberRepository memberRepository;
   private final UnavailabilityRepository unavailabilityRepository;
+  private final SpecialtyRepository specialtyRepository;
 
   /**
    * Constructor.
@@ -39,10 +41,11 @@ public class MemberService {
    */
   public MemberService(BCryptPasswordEncoder passwordEncoder,
       MemberRepository memberRepository,
-      UnavailabilityRepository unavailabilityRepository) {
+      UnavailabilityRepository unavailabilityRepository, SpecialtyRepository specialityRepository) {
     this.passwordEncoder = passwordEncoder;
     this.memberRepository = memberRepository;
     this.unavailabilityRepository = unavailabilityRepository;
+    this.specialtyRepository = specialityRepository;
   }
 
   /**
@@ -61,8 +64,10 @@ public class MemberService {
         .sign(algorithm);
 
     AuthenticatedUser authenticatedUser = new AuthenticatedUser();
-    authenticatedUser.setId(memberRepository.findByEmail(email).getIdMember());
-    authenticatedUser.setUsername(email);
+    Member member = memberRepository.findByEmail(email);
+    authenticatedUser.setId(member.getIdMember());
+    authenticatedUser.setEmail(email);
+    authenticatedUser.setTag(member.getTag());
     authenticatedUser.setToken(token);
 
     return authenticatedUser;
@@ -127,7 +132,7 @@ public class MemberService {
     member.setTag(newMember.getTag());
     member.setAdmin(false);
     member.setDeleted(false);
-
+    member.setSpecialty(specialtyRepository.getByIdSpecialty(newMember.getSpecialtyId()));
     return memberRepository.save(member);
   }
 
@@ -144,15 +149,10 @@ public class MemberService {
   /**
    * Update a member's password.
    *
-   * @param id the member ID
    * @param newPassword the new password
    * @return true if updated, false if the member is not found
    */
-  public boolean updatePassword(Long id, String newPassword) {
-    Member member = memberRepository.findById(id).orElse(null);
-    if (member == null) {
-      return false;
-    }
+  public boolean updatePassword(Member member, String newPassword) {
     member.setPassword(passwordEncoder.encode(newPassword));
     memberRepository.save(member);
     return true;
@@ -181,8 +181,8 @@ public class MemberService {
         .id(requestedMember.getIdMember())
         .tag(requestedMember.getTag())
         .specialty(
-            requestedMember.getSpeciality() != null
-                ? requestedMember.getSpeciality().getName()
+            requestedMember.getSpecialty() != null
+                ? requestedMember.getSpecialty().getName()
                 : null
         )
         .avatar(

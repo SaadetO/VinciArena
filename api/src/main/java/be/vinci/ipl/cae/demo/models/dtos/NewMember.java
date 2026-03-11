@@ -13,7 +13,7 @@ public class NewMember {
   private String email;
   private String password;
   private String tag;
-  private Long specialityId;
+  private Long specialtyId;
   private Long profileImageId;
 
 }

@@ -1,4 +1,4 @@
-import { createContext, useState, ReactNode } from 'react';
+import { createContext, useState, ReactNode, useEffect } from 'react';
 import {
   MaybeAuthenticatedUser,
   UserContextType,
@@ -8,6 +8,7 @@ import {
 
 import {
   clearAuthenticatedUser,
+  getAuthenticatedUser,
   storeAuthenticatedUser,
 } from '../utils/session';
 
@@ -23,6 +24,13 @@ const UserContext = createContext<UserContextType>(defaultUserContext);
 const UserContextProvider = ({ children }: { children: ReactNode }) => {
   const [authenticatedUser, setAuthenticatedUser] =
     useState<MaybeAuthenticatedUser>(undefined);
+
+  useEffect(() => {
+    const storedUser = getAuthenticatedUser();
+    if (storedUser) {
+      setAuthenticatedUser(storedUser);
+    }
+  }, []);
 
   const registerUser = async (newUser: User) => {
     try {
@@ -64,7 +72,7 @@ const UserContextProvider = ({ children }: { children: ReactNode }) => {
         );
 
       const authenticatedUser: AuthenticatedUser = await response.json();
-      console.log('authenticatedUser: ', authenticatedUser);
+      console.log('authenticatedUser.token: ', authenticatedUser.token);
 
       setAuthenticatedUser(authenticatedUser);
       storeAuthenticatedUser(authenticatedUser);

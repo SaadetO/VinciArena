@@ -7,7 +7,7 @@ import { Box } from '@mui/material';
 
 export const App = () => {
   const { authenticatedUser } = useContext<UserContextType>(UserContext);
-  console.log(authenticatedUser);
+  console.log('TOKEN: ' + authenticatedUser?.token);
 
   const mainContext: MainContext = {};
 

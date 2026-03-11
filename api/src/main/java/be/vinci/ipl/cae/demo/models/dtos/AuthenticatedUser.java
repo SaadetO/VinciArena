@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 public class AuthenticatedUser {
 
   private Long id;
-  private String username;
+  private String email;
+  private boolean isAdmin;
+  private String tag;
   private String token;
 }

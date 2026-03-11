@@ -7,6 +7,7 @@ import be.vinci.ipl.cae.demo.models.dtos.AuthenticatedUser;
 import be.vinci.ipl.cae.demo.models.dtos.NewMember;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
+import be.vinci.ipl.cae.demo.repositories.SpecialtyRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -26,6 +27,9 @@ class MemberServiceTest {
   @InjectMocks
   private MemberService memberService;
 
+  @Mock
+  private SpecialtyRepository specialtyRepository;
+
   @Test
   void registerMemberWithValidEmail() {
 
@@ -41,6 +45,7 @@ class MemberServiceTest {
     when(memberRepository.existsByEmail("test@mail.com")).thenReturn(false);
     when(passwordEncoder.encode("123")).thenReturn("encodedPassword");
     when(memberRepository.save(org.mockito.ArgumentMatchers.any(Member.class))).thenReturn(member);
+    when(specialtyRepository.getByIdSpecialty(org.mockito.ArgumentMatchers.any())).thenReturn(null);
 
     // Act
     Member result = memberService.register(newMember);
@@ -82,7 +87,7 @@ class MemberServiceTest {
     AuthenticatedUser result = memberService.login(email, password);
 
     assertNotNull(result);
-    assertEquals(email, result.getUsername());
+    assertEquals(email, result.getEmail());
     assertNotNull(result.getToken());
   }
 

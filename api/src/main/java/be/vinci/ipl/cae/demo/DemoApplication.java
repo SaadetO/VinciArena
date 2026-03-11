@@ -2,11 +2,11 @@ package be.vinci.ipl.cae.demo;
 
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Notification;
-import be.vinci.ipl.cae.demo.models.entities.Speciality;
+import be.vinci.ipl.cae.demo.models.entities.Specialty;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.NotificationRepository;
-import be.vinci.ipl.cae.demo.repositories.SpecialityRepository;
+import be.vinci.ipl.cae.demo.repositories.SpecialtyRepository;
 import be.vinci.ipl.cae.demo.repositories.TeamRepository;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,7 +40,7 @@ public class DemoApplication {
       MemberRepository memberRepo,
       NotificationRepository notifsRepo,
       TeamRepository teamRepo,
-      SpecialityRepository specRepo) {
+      SpecialtyRepository specRepo) {
     return args -> {
       // Create Specialities
       String[] specialities = {
@@ -52,11 +52,11 @@ public class DemoApplication {
           "perturbateur",
           "guérisseur"
       };
-      Map<String, Speciality> specMap =
+      Map<String, Specialty> specMap =
           new HashMap<>();
       for (String specialty : specialities) {
-        Speciality spec =
-            new Speciality();
+        Specialty spec =
+            new Specialty();
         spec.setName(specialty);
         specMap.put(specialty, specRepo.save(spec));
       }
@@ -70,7 +70,7 @@ public class DemoApplication {
       member1.setTag("Larry");
       member1.setAdmin(true);
       member1.setDeleted(false);
-      member1.setSpeciality(specMap.get("architecte"));
+      member1.setSpecialty(specMap.get("architecte"));
       member1 = memberRepo.save(member1);
 
       // Create Member 2: Player
@@ -80,7 +80,7 @@ public class DemoApplication {
       member2.setTag("Barry");
       member2.setAdmin(false);
       member2.setDeleted(false);
-      member2.setSpeciality(specMap.get("exécuteur"));
+      member2.setSpecialty(specMap.get("exécuteur"));
       member2 = memberRepo.save(member2);
 
       // Create Team
