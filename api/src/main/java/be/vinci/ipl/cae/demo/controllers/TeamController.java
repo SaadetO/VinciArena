@@ -7,6 +7,7 @@ import be.vinci.ipl.cae.demo.services.TeamService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -57,5 +58,15 @@ public class TeamController {
     }
 
     return createdTeam;
+  }
+
+  /**
+   * Get all active teams.
+   *
+   * @return an iterable of all active teams.
+   */
+  @GetMapping({"", "/"})
+  public Iterable<Team> getAllActiveTeams() {
+    return teamService.getAllActiveTeams();
   }
 }
