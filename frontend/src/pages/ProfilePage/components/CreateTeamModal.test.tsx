@@ -54,7 +54,8 @@ describe('CreateTeamModal', () => {
     vi.mocked(getAuthenticatedUser).mockReturnValue({
       token: 'fake-token',
       id: 1,
-      username: 'testuser',
+      isAdmin: false,
+      tag: 'testuser',
     });
 
     // Mocks successfull api request
@@ -102,7 +103,8 @@ describe('CreateTeamModal', () => {
     vi.mocked(getAuthenticatedUser).mockReturnValue({
       token: 'fake-token',
       id: 1,
-      username: 'user',
+      isAdmin: false,
+      tag: 'user',
     });
 
     // Mocks API request creating a conflict
@@ -134,7 +136,8 @@ describe('CreateTeamModal', () => {
     vi.mocked(getAuthenticatedUser).mockReturnValue({
       token: 'fake-token',
       id: 1,
-      username: 'user',
+      isAdmin: false,
+      tag: 'user',
     });
 
     // Mocks API error 500
