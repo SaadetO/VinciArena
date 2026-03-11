@@ -8,29 +8,17 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
+import { UserContext } from '../../../contexts/UserContext';
 
-/**
- * Design Note - Error Handling:
- * The 'PasswordData' interface is used for both the
- * form values and the validation errors.
- *
- * This is done to future proof the component and
- * allow verifications like including at least one
- * letter, number, uppercase letter,...
- *
- * So even tho we are not currently using the password
- * field in theerror useState, it could be useful for
- * future iterations which is why I included it.
- */
 interface PasswordData {
-  password: string | null;
-  confirmPassword: string | null;
+  password: string;
+  confirmPassword: string;
 }
 
 const initPasswordData = (): PasswordData => ({
-  password: null,
-  confirmPassword: null,
+  password: '',
+  confirmPassword: '',
 });
 
 interface PasswordModalProps {
@@ -38,10 +26,17 @@ interface PasswordModalProps {
   onClose: () => void;
 }
 
+const errorMsgs = [
+  'Le mot de passe ne peut pas être vide.',
+  'Veuillez confirmer votre mot de passe.',
+  'Les mots de passe ne correspondent pas.',
+];
+
 export const PasswordModal = ({ open, onClose }: PasswordModalProps) => {
   const [password, setPassword] = useState<PasswordData>(initPasswordData());
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<PasswordData>(initPasswordData());
+  const { authenticatedUser } = useContext(UserContext);
 
   const handleClose = () => {
     setPassword(initPasswordData());
@@ -58,35 +53,92 @@ export const PasswordModal = ({ open, onClose }: PasswordModalProps) => {
     }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setIsLoading(true);
-    console.log(password);
-    setError({
-      password: null,
-      confirmPassword: null,
-    });
-    onClose();
+
+    const isPasswordEmpty = !password.password?.trim();
+    const isConfirmEmpty = !password.confirmPassword?.trim();
+
+    if (isPasswordEmpty)
+      setError((prev) => ({
+        ...prev,
+        password: errorMsgs[0],
+      }));
+
+    if (isConfirmEmpty)
+      setError((prev) => ({
+        ...prev,
+        confirmPassword: errorMsgs[1],
+      }));
+
+    if (
+      isPasswordEmpty ||
+      isConfirmEmpty ||
+      error.password ||
+      error.confirmPassword
+    )
+      return setIsLoading(false);
+
+    try {
+      const response = await fetch('/api/members/me/password', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: authenticatedUser?.token ?? '',
+        },
+        body: JSON.stringify({ password: password.password }),
+      });
+
+      if (!response.ok) throw new Error('Failed to update password');
+      // TODO : Success message
+    } catch (err: unknown) {
+      // TODO : Error message
+    } finally {
+      setIsLoading(false);
+    }
+
+    onClose(); // TODO : Optimistic close next
   };
 
   useEffect(() => {
-    if (
-      password.password !== password.confirmPassword &&
-      password.confirmPassword !== null
-    )
-      setError((prev) => ({
-        ...prev,
-        confirmPassword: 'Les mots de passe ne correspondent pas.',
-      }));
-    else setError(initPasswordData());
+    setError((prevError) => {
+      const newError = { ...prevError };
 
-    if (
-      password.password?.trim() === '' &&
-      password.confirmPassword?.trim() === ''
-    )
-      setPassword(initPasswordData());
+      if (prevError.password === errorMsgs[0] && password.password.trim())
+        newError.password = '';
+
+      if (
+        prevError.confirmPassword === errorMsgs[1] &&
+        password.confirmPassword.trim()
+      )
+        newError.confirmPassword = '';
+
+      if (
+        password.confirmPassword !== '' &&
+        password.password !== password.confirmPassword
+      )
+        newError.confirmPassword = errorMsgs[2];
+      else if (
+        password.confirmPassword !== '' &&
+        password.password === password.confirmPassword
+      )
+        newError.confirmPassword = '';
+
+      if (
+        newError.password !== prevError.password ||
+        newError.confirmPassword !== prevError.confirmPassword
+      )
+        return newError;
+
+      return prevError;
+    });
   }, [password]);
   return (
-    <Dialog open={open} onClose={handleClose}>
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      onKeyUp={(e) => e.key === 'Enter' && handleSubmit()}
+    >
       <DialogTitle variant="h2">Modifier mon mot de passe</DialogTitle>
       <Typography textAlign="center" padding="0 2rem 1rem" color="secondary">
         Creez votre nouveau mot de passe en complétant les champs ci-dessous
@@ -114,19 +166,17 @@ export const PasswordModal = ({ open, onClose }: PasswordModalProps) => {
         </Stack>
       </DialogContent>
       <DialogActions>
-        {/* <Button onClick={handleClose} disabled={isLoading}>
-          Annuler
-        </Button> */}
         <Button
           variant="contained"
           color="secondary"
-          disabled={
-            isLoading ||
-            !!error.password ||
-            !!error.confirmPassword ||
-            !password.password ||
-            !password.confirmPassword
-          }
+          onClick={handleClose}
+          fullWidth
+        >
+          Annuler
+        </Button>
+        <Button
+          variant="contained"
+          disabled={isLoading}
           onClick={handleSubmit}
           fullWidth
         >

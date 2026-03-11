@@ -1,5 +1,6 @@
 package be.vinci.ipl.cae.demo.controllers;
 
+import be.vinci.ipl.cae.demo.models.dtos.PasswordUpdateDto;
 import be.vinci.ipl.cae.demo.models.dtos.ProfileDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.services.MemberService;
@@ -34,7 +35,7 @@ public class MemberController {
   /**
    * Read one member's profile.
    *
-   * @param id the ID of the requested member profile.
+   * @param id            the ID of the requested member profile.
    * @param currentMember the currently authenticated member (can be null if not logged in).
    * @return the profile information (filtered based on privacy rules).
    */
@@ -53,25 +54,22 @@ public class MemberController {
   /**
    * Update a member's password.
    *
-   * @param id the ID of the member whose password to update.
-   * @param newPassword the new password.
+   * @param passwordDto   the new password DTO.
    * @param currentMember the currently authenticated member.
    */
-  @PutMapping("/{id}/password")
+  @PutMapping("/me/password")
   public void updatePassword(
-      @PathVariable Long id,
-      @RequestBody String newPassword,
+      @RequestBody PasswordUpdateDto passwordDto,
       @AuthenticationPrincipal Member currentMember) {
 
-    if (currentMember == null || !currentMember.getIdMember().equals(id)) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-    }
-
-    if (newPassword == null || newPassword.trim().isEmpty()) {
+    if (passwordDto == null
+        || passwordDto.getPassword() == null
+        || passwordDto.getPassword().trim().isEmpty()
+    ) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password cannot be empty");
     }
 
-    boolean updated = memberService.updatePassword(id, newPassword);
+    boolean updated = memberService.updatePassword(currentMember, passwordDto.getPassword());
     if (!updated) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }

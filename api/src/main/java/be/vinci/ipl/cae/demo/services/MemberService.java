@@ -147,15 +147,10 @@ public class MemberService {
   /**
    * Update a member's password.
    *
-   * @param id the member ID
    * @param newPassword the new password
    * @return true if updated, false if the member is not found
    */
-  public boolean updatePassword(Long id, String newPassword) {
-    Member member = memberRepository.findById(id).orElse(null);
-    if (member == null) {
-      return false;
-    }
+  public boolean updatePassword(Member member, String newPassword) {
     member.setPassword(passwordEncoder.encode(newPassword));
     memberRepository.save(member);
     return true;
