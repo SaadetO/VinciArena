@@ -14,17 +14,16 @@ import lombok.Setter;
  * Speciality entity.
  */
 @Entity
-@Table(name = "specialities")
+@Table(name = "specialties")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Speciality {
+public class Specialty {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long idSpeciality;
+  private Long idSpecialty;
 
   @Column(unique = true, nullable = false)
   private String name;
-
 }
