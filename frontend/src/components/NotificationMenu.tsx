@@ -11,15 +11,21 @@ import {
 } from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { UserContext } from '../contexts/UserContext';
+import { useNavigate } from 'react-router-dom';
 
 const NotificationMenu = () => {
   const { unreadCount } = useContext(UserContext);
   const [menuPosition, setMenuPosition] = useState<null | HTMLElement>(null);
+  const navigate = useNavigate();
 
   const isOpen = menuPosition != null;
 
-  const handleClick = (event: MouseEvent<HTMLElement>) => {
+  const handleMenuClick = (event: MouseEvent<HTMLElement>) => {
     setMenuPosition(event.currentTarget);
+  };
+
+  const handleSeeAllCLick = () => {
+    navigate('/notifications');
   };
 
   const handleClose = () => {
@@ -28,7 +34,7 @@ const NotificationMenu = () => {
 
   return (
     <>
-      <IconButton color="primary" onClick={handleClick}>
+      <IconButton color="primary" onClick={handleMenuClick}>
         <Badge badgeContent={unreadCount} color="warning">
           <NotificationsIcon />
         </Badge>
@@ -71,7 +77,12 @@ const NotificationMenu = () => {
           <Typography variant="subtitle2" fontWeight="bold">
             Notifications
           </Typography>
-          <Link variant="caption" color="primary" sx={{ cursor: 'pointer' }}>
+          <Link
+            onClick={handleSeeAllCLick}
+            variant="caption"
+            color="primary"
+            sx={{ cursor: 'pointer' }}
+          >
             Voir tous
           </Link>
         </Box>

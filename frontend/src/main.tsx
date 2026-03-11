@@ -13,6 +13,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
 import { theme } from './themes.tsx';
 import { ProfilePage } from './pages/ProfilePage/index.tsx';
+import { NotificationsPage } from './pages/NotificationsPage.tsx';
 
 const router = createBrowserRouter([
   {
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
       {
         path: 'users/:id',
         element: <ProfilePage />,
+      },
+      {
+        path: 'notifications',
+        element: <NotificationsPage></NotificationsPage>,
       },
     ],
   },
