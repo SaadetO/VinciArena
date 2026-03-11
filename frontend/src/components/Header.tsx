@@ -2,6 +2,7 @@ import { Button, Stack, Tab, Tabs, Typography } from '@mui/material';
 import logo from '../assets/images/Logo.svg';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { SyntheticEvent } from 'react';
+import NotificationMenu from './NotificationMenu';
 export const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -44,6 +45,7 @@ export const Header = () => {
         <Tab label="teams" value="/teams" />
       </Tabs>
       <Stack direction="row" spacing="1rem">
+        <NotificationMenu></NotificationMenu>
         <Link to="/auth/register">
           <Button variant="contained" color="secondary">
             s'inscrire
