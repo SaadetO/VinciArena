@@ -34,6 +34,7 @@ export const NotificationsPage = () => {
     fetchAllNotifications();
     const id = setInterval(fetchAllNotifications, 3000);
     return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authenticatedUser]);
   if (loading) return <LoadingIcon></LoadingIcon>;
   return (
