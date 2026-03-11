@@ -31,7 +31,7 @@ Content-Type: application/json
 
 ### 2. Get my notifications (Dynamic Token)
 # If your ID is 3, keep it 3. If it's 1, change it to 1.
-GET {{baseUrl}}/notifications/member/1
+GET {{baseUrl}}/notifications/member/1?unreadOnly=true
 Authorization:{{token}}
 
 

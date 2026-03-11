@@ -32,6 +32,8 @@ export const NotificationsPage = () => {
   };
   useEffect(() => {
     fetchAllNotifications();
+    const id = setInterval(fetchAllNotifications, 3000);
+    return () => clearInterval(id);
   }, [authenticatedUser]);
   if (loading) return <LoadingIcon></LoadingIcon>;
   return (

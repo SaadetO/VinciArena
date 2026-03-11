@@ -3,7 +3,6 @@ import {
   Badge,
   IconButton,
   Menu,
-  MenuItem,
   Typography,
   Box,
   Divider,
@@ -12,17 +11,23 @@ import {
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { UserContext } from '../contexts/UserContext';
 import { useNavigate } from 'react-router-dom';
+import { NotificationDto } from '../types';
+import { NotificationItem } from './NotificationItem';
 
 const NotificationMenu = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const { authenticatedUser } = useContext(UserContext);
   const [menuPosition, setMenuPosition] = useState<null | HTMLElement>(null);
+  const [unreadNotifications, setUnreadNotifications] = useState<
+    NotificationDto[]
+  >([]);
   const navigate = useNavigate();
 
   const isOpen = menuPosition != null;
 
   const handleMenuClick = (event: MouseEvent<HTMLElement>) => {
     setMenuPosition(event.currentTarget);
+    fetchUnreadNotifications();
   };
 
   const handleSeeAllCLick = () => {
@@ -50,7 +55,6 @@ const NotificationMenu = () => {
 
   useEffect(() => {
     if (authenticatedUser) {
-      fetchUnreadCount();
       const id = setInterval(fetchUnreadCount, 3000);
       return () => clearInterval(id);
     } else {
@@ -59,6 +63,22 @@ const NotificationMenu = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authenticatedUser]);
 
+  const fetchUnreadNotifications = async () => {
+    if (!authenticatedUser?.token) return;
+    try {
+      const response = await fetch(
+        `/api/notifications/member/${authenticatedUser.id}?unreadOnly=true`,
+        { headers: { Authorization: authenticatedUser.token } },
+      );
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Data from server:', data[0]);
+        setUnreadNotifications(data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch unreadNotifications', err);
+    }
+  };
   return (
     <>
       <IconButton color="primary" onClick={handleMenuClick}>
@@ -115,46 +135,17 @@ const NotificationMenu = () => {
           </Link>
         </Box>
         <Divider />
-        {/* 1. Tournament Created */}
-        <MenuItem>
-          <Typography variant="body2" fontWeight="500">
-            🏆 Nouveau Tournoi : Le Choc des Titans est ouvert !
-          </Typography>
-        </MenuItem>
-        {/* 2. Selected for Lineup */}
-        <MenuItem>
-          <Typography variant="body2" fontWeight="500">
-            ⚽ Composition : Vous êtes titulaire pour le match de ce soir contre
-            Les Phénix d'Azur !
-          </Typography>
-        </MenuItem>
-        {/* 3. Join Request Status (Accepted) */}
-        <MenuItem>
-          <Typography variant="body2" fontWeight="500">
-            ✅ Félicitations ! Votre demande pour rejoindre Squadra Corse a été
-            acceptée.
-          </Typography>
-        </MenuItem>
-        {/* 4. Manager Join Request */}
-        <MenuItem>
-          <Typography variant="body2" fontWeight="500">
-            📩 Chloé Masson souhaite rejoindre les Cyber Dragons.
-          </Typography>
-        </MenuItem>
-        {/* 5. Result Confirmation */}
-        <MenuItem>
-          <Typography variant="body2" fontWeight="500">
-            ⚠️ Confirmation requise : Score du match Olympique Bel-Air (3) - (1)
-            AS Grigny.
-          </Typography>
-        </MenuItem>
-        {/* 6. Result Published */}
-        <MenuItem onClick={handleClose}>
-          <Typography variant="body2" fontWeight="500">
-            📊 Résultat publié : Victoire éclatante pour Les Lions de Lyon !
-            Score final 4-0.
-          </Typography>
-        </MenuItem>
+        {unreadNotifications.map((notif, index) => (
+          <NotificationItem
+            key={notif.idNotification}
+            notification={notif}
+            isLast={index === unreadNotifications.length - 1}
+            onRefresh={() => {
+              fetchUnreadNotifications();
+              fetchUnreadCount(); // Refresh the badge too!
+            }}
+          />
+        ))}
       </Menu>
     </>
   );
