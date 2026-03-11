@@ -30,7 +30,7 @@ public class MemberService {
   private final BCryptPasswordEncoder passwordEncoder;
   private final MemberRepository memberRepository;
   private final UnavailabilityRepository unavailabilityRepository;
-  private final SpecialtyRepository specialityRepository;
+  private final SpecialtyRepository specialtyRepository;
 
   /**
    * Constructor.
@@ -45,7 +45,7 @@ public class MemberService {
     this.passwordEncoder = passwordEncoder;
     this.memberRepository = memberRepository;
     this.unavailabilityRepository = unavailabilityRepository;
-    this.specialityRepository = specialityRepository;
+    this.specialtyRepository = specialityRepository;
   }
 
   /**
@@ -130,7 +130,7 @@ public class MemberService {
     member.setTag(newMember.getTag());
     member.setAdmin(false);
     member.setDeleted(false);
-    member.setSpecialty(specialityRepository.getByIdSpecialty(newMember.getSpecialtyId()));
+    member.setSpecialty(specialtyRepository.getByIdSpecialty(newMember.getSpecialtyId()));
     return memberRepository.save(member);
   }
 
