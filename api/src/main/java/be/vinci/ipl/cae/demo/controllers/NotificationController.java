@@ -1,5 +1,6 @@
 package be.vinci.ipl.cae.demo.controllers;
 
+import be.vinci.ipl.cae.demo.models.dtos.NotificationDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Notification;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
@@ -48,7 +49,7 @@ public class NotificationController {
    */
   @GetMapping("/member/{id}")
   @PreAuthorize("isAuthenticated()")
-  public Iterable<Notification> listNotifications(@PathVariable long id,
+  public Iterable<NotificationDto> listNotifications(@PathVariable long id,
       @RequestParam(required = false, defaultValue = "false") boolean unreadOnly,
       @AuthenticationPrincipal Member currentMember) {
     verifyAccess(id, currentMember);
