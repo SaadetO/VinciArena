@@ -42,7 +42,7 @@ export const ProfilePage = () => {
               "Le membre que vous cherchez n'existe pas ou a été surpprimé.",
           });
         if (!response.ok) throw new Error('Failed to fetch profile');
-        
+
         setUser(await response.json());
       } catch (err) {
         setError({

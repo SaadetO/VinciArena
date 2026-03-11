@@ -55,18 +55,30 @@ export const PasswordModal = ({ open, onClose }: PasswordModalProps) => {
 
   const handleSubmit = async () => {
     setIsLoading(true);
-    if (!password.password?.trim())
+
+    const isPasswordEmpty = !password.password?.trim();
+    const isConfirmEmpty = !password.confirmPassword?.trim();
+
+    if (isPasswordEmpty)
       setError((prev) => ({
         ...prev,
         password: errorMsgs[0],
       }));
 
-    if (!password.confirmPassword?.trim())
+    if (isConfirmEmpty)
       setError((prev) => ({
         ...prev,
         confirmPassword: errorMsgs[1],
       }));
     if (error.password || error.confirmPassword) return;
+
+    if (
+      isPasswordEmpty ||
+      isConfirmEmpty ||
+      error.password ||
+      error.confirmPassword
+    )
+      return setIsLoading(false);
 
     try {
       const response = await fetch('/api/members/me/password', {
@@ -79,7 +91,6 @@ export const PasswordModal = ({ open, onClose }: PasswordModalProps) => {
       });
 
       if (!response.ok) throw new Error('Failed to update password');
-
     } catch (err: unknown) {
       // TODO
     } finally {
@@ -90,24 +101,37 @@ export const PasswordModal = ({ open, onClose }: PasswordModalProps) => {
   };
 
   useEffect(() => {
-    if (error.password === errorMsgs[0] && password.password.trim())
-      setError((prev) => ({ ...prev, password: '' }));
-    if (
-      error.confirmPassword === errorMsgs[1] &&
-      password.confirmPassword.trim()
-    )
-      setError((prev) => ({ ...prev, confirmPassword: '' }));
+    setError((prevError) => {
+      const newError = { ...prevError };
 
-    if (
-      password.confirmPassword !== '' &&
-      password.password !== password.confirmPassword
-    )
-      setError((prev) => ({ ...prev, confirmPassword: errorMsgs[2] }));
-    else if (
-      password.confirmPassword !== '' &&
-      password.password === password.confirmPassword
-    )
-      setError((prev) => ({ ...prev, confirmPassword: '' }));
+      if (prevError.password === errorMsgs[0] && password.password.trim())
+        newError.password = '';
+
+      if (
+        prevError.confirmPassword === errorMsgs[1] &&
+        password.confirmPassword.trim()
+      )
+        newError.confirmPassword = '';
+
+      if (
+        password.confirmPassword !== '' &&
+        password.password !== password.confirmPassword
+      )
+        newError.confirmPassword = errorMsgs[2];
+      else if (
+        password.confirmPassword !== '' &&
+        password.password === password.confirmPassword
+      )
+        newError.confirmPassword = '';
+
+      if (
+        newError.password !== prevError.password ||
+        newError.confirmPassword !== prevError.confirmPassword
+      )
+        return newError;
+
+      return prevError;
+    });
   }, [password]);
   return (
     <Dialog open={open} onClose={handleClose}>
@@ -142,12 +166,16 @@ export const PasswordModal = ({ open, onClose }: PasswordModalProps) => {
           variant="contained"
           color="secondary"
           onClick={handleClose}
-          disabled={isLoading}
           fullWidth
         >
           Annuler
         </Button>
-        <Button variant="contained" onClick={handleSubmit} fullWidth>
+        <Button
+          variant="contained"
+          disabled={isLoading}
+          onClick={handleSubmit}
+          fullWidth
+        >
           confirmer
         </Button>
       </DialogActions>
