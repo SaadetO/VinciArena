@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
+import java.util.List;
 import be.vinci.ipl.cae.demo.repositories.TeamRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -97,5 +98,26 @@ class TeamServiceTest {
     assertNull(result);
     verify(memberRepository, never()).save(any(Member.class));
     verify(teamRepository, never()).save(any(Team.class));
+  }
+
+  @Test
+  void getAllActiveTeams() {
+    // Arrange
+    Team team1 = new Team();
+    team1.setName("Team 1");
+    Team team2 = new Team();
+    team2.setName("Team 2");
+    Team teamInactive = new Team();
+    teamInactive.setIsActive(false);
+    
+    when(teamRepository.findByIsActiveTrue()).thenReturn(List.of(team1, team2));
+
+    // Act
+    Iterable<Team> result = teamService.getAllActiveTeams();
+
+    // Assert
+    assertNotNull(result);
+    assertEquals(List.of(team1, team2), result);
+    verify(teamRepository).findByIsActiveTrue();
   }
 }
