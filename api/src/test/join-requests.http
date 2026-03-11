@@ -1,0 +1,81 @@
+@baseUrl = http://localhost:3000
+
+# ----------- Setup for Join Requests Tests -----------
+
+### 1: Register a new member
+POST {{baseUrl}}/auths/register
+Content-Type: application/json
+
+{
+  "email": "player@test.com",
+  "password": "password123",
+  "tag": "PlayerOne"
+}
+
+### 2: Login to get JWT token (stored in auth_token)
+POST {{baseUrl}}/auths/login
+Content-Type: application/json
+
+{
+  "email": "player@test.com",
+  "password": "password123"
+}
+
+> {% client.global.set("auth_token", response.body.token); %}
+
+### 3: Create a team (expect 201)
+POST {{baseUrl}}/teams/
+Content-Type: application/json
+Authorization: {{auth_token}}
+
+{
+  "name": "My Team"
+}
+
+### 4: Register Player to join team
+POST {{baseUrl}}/auths/register
+Content-Type: application/json
+
+{
+  "email": "joiner@test.com",
+  "password": "password123",
+  "tag": "Joiner"
+}
+
+### 5: Login Player to get JWT token
+POST {{baseUrl}}/auths/login
+Content-Type: application/json
+
+{
+  "email": "joiner@test.com",
+  "password": "password123"
+}
+
+> {% client.global.set("joiner_token", response.body.token); %}
+
+### ----------- Join Requests Tests -----------
+
+### 6: Player creates a join request for the team (expect 201)
+@team_id = 1
+POST {{baseUrl}}/teams/{{team_id}}/join-requests
+Content-Type: application/json
+Authorization: {{joiner_token}}
+
+### 7: Player creates a join request for the same team again (expect 409)
+POST {{baseUrl}}/teams/{{team_id}}/join-requests
+Content-Type: application/json
+Authorization: {{joiner_token}}
+
+### 8: Player creates a join request for a non-existent team (expect 404)
+POST {{baseUrl}}/teams/999999/join-requests
+Content-Type: application/json
+Authorization: {{joiner_token}}
+
+### 9: Unauthenticated user tries to create a join request (expect 403)
+POST {{baseUrl}}/teams/{{team_id}}/join-requests
+Content-Type: application/json
+
+### 10: Creator creates a join request for their own team (expect 409)
+POST {{baseUrl}}/teams/{{team_id}}/join-requests
+Content-Type: application/json
+Authorization: {{auth_token}}
