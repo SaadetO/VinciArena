@@ -43,37 +43,6 @@ export const RegisterPage = () => {
     specialty: null,
   });
 
-  const specialties = [
-    {
-      id: 1,
-      name: 'architecte',
-    },
-    {
-      id: 2,
-      name: 'exécuteur',
-    },
-    {
-      id: 3,
-      name: 'tacticien',
-    },
-    {
-      id: 4,
-      name: 'gardien',
-    },
-    {
-      id: 5,
-      name: 'catalyseur',
-    },
-    {
-      id: 6,
-      name: 'perturbateur',
-    },
-    {
-      id: 7,
-      name: 'guérisseur',
-    },
-  ];
-
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
 
