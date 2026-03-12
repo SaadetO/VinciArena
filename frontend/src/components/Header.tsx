@@ -10,6 +10,7 @@ export const Header = () => {
   const { authenticatedUser, clearUser } = useContext(UserContext);
   const handleDisconnection = () => {
     clearUser();
+    navigate('/');
   };
 
   if (!authenticatedUser) {
