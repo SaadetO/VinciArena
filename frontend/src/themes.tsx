@@ -542,7 +542,7 @@ export const theme = createTheme({
             borderRadius: '0.75rem',
             background: surfaceLevels.s2,
             backgroundImage: 'none',
-            minWidth: '25rem',
+            width: '25rem',
             marginTop: '0.375rem',
           },
         },
@@ -551,7 +551,7 @@ export const theme = createTheme({
     MuiListItem: {
       styleOverrides: {
         root: {
-          padding: '0.5rem 1.5rem',
+          padding: '0.5rem 4.25rem 0.5rem 1.5rem',
         },
       },
     },

@@ -77,9 +77,19 @@ export const NotificationItem = ({
             primary: {
               variant: 'h5',
               color: 'text.primary',
+              sx: {
+                textOverflow: 'ellipsis',
+                overflow: 'hidden',
+                whiteSpace: 'nowrap',
+              },
             },
             secondary: {
               variant: 'body2',
+              sx: {
+                textOverflow: 'ellipsis',
+                overflow: 'hidden',
+                whiteSpace: 'nowrap',
+              },
             },
           }}
         />
