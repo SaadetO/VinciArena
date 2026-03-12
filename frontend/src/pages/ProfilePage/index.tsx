@@ -9,12 +9,9 @@ import { UserContext } from '../../contexts/UserContext';
 import { ProfileInfoDto, Team } from '../../types';
 import { NotFoundPage } from '../NotFoundPage';
 import { PasswordModal } from './components/PasswordModal';
-<<<<<<< frontend/src/pages/ProfilePage/index.tsx
 import { UnavailabilitiesCard } from './components/UnavailabilitiesCard';
 import { UnavailabilitiesModal } from './components/UnavailabilitiesModal';
-=======
 import { JoinTeamModal } from './components/JoinTeamModal';
->>>>>>> frontend/src/pages/ProfilePage/index.tsx
 
 export const ProfilePage = () => {
   const [snackBarText, setSnackBarText] = useState<string | null>(null);
