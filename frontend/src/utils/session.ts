@@ -1,4 +1,4 @@
-import { StoredUser } from '../types';
+import { StoredUser, AuthenticatedUser } from '../types';
 
 const storeAuthenticatedUser = (authenticatedUser: AuthenticatedUser) => {
   localStorage.setItem('authenticatedUser', JSON.stringify(authenticatedUser));
