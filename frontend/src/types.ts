@@ -59,6 +59,11 @@ interface StoredUser {
   token: string;
 }
 
+interface SpecialtyDto {
+  id: number;
+  label: string;
+}
+
 type MaybeAuthenticatedUser = AuthenticatedUser | undefined;
 
 export type {
@@ -71,4 +76,5 @@ export type {
   Team,
   NotificationDto,
   StoredUser,
+  SpecialtyDto,
 };
