@@ -6,7 +6,7 @@ import {
   AuthenticatedUser,
 } from '../types';
 
-import { clearAuthenticatedUser, getAuthenticatedUser } from '../utils/session';
+import { clearAuthenticatedUser, getAuthenticatedUser, storeAuthenticatedUser } from '../utils/session';
 
 const defaultUserContext: UserContextType = {
   authenticatedUser: undefined,
@@ -85,12 +85,7 @@ const UserContextProvider = ({ children }: { children: ReactNode }) => {
 
       const authenticatedUser: AuthenticatedUser = await response.json();
 
-      // REMEMBER ME
-      if (rememberMe) {
-        localStorage.setItem('token', authenticatedUser.token);
-      } else {
-        sessionStorage.setItem('token', authenticatedUser.token);
-      }
+      storeAuthenticatedUser(authenticatedUser, rememberMe ?? false);
 
       setAuthenticatedUser(authenticatedUser);
     } catch (err) {
