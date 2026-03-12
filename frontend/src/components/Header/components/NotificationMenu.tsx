@@ -1,4 +1,4 @@
-import { useState, MouseEvent, useContext, useEffect } from 'react';
+import { useState, MouseEvent, useContext, useEffect, useCallback } from 'react';
 import {
   Badge,
   IconButton,
@@ -16,12 +16,11 @@ import { NotificationItem } from '../../NotificationItem';
 import { NotificationsOutlined } from '@mui/icons-material';
 
 const NotificationMenu = () => {
-  const [unreadCount, setUnreadCount] = useState(0);
-  const { authenticatedUser } = useContext(UserContext);
   const [menuPosition, setMenuPosition] = useState<null | HTMLElement>(null);
   const [unreadNotifications, setUnreadNotifications] = useState<
     NotificationDto[]
-  >([]);
+    >([]);
+  const { authenticatedUser } = useContext(UserContext);
   const navigate = useNavigate();
 
   const isOpen = menuPosition != null;
@@ -39,32 +38,8 @@ const NotificationMenu = () => {
   const handleClose = () => {
     setMenuPosition(null);
   };
-  const fetchUnreadCount = async () => {
-    if (!authenticatedUser?.token) return;
-    try {
-      const response = await fetch(
-        `/api/notifications/member/${authenticatedUser.id}/unread-count`,
-        { headers: { Authorization: authenticatedUser.token } },
-      );
-      if (response.ok) {
-        const data = await response.text();
-        setUnreadCount(parseInt(data));
-      }
-    } catch (err) {
-      console.error('Failed to fetch unread count', err);
-    }
-  };
-
-  useEffect(() => {
-    if (authenticatedUser) {
-      const id = setInterval(fetchUnreadCount, 3000);
-      return () => clearInterval(id);
-    } else {
-      setUnreadCount(0);
-    }
-  }, [authenticatedUser, fetchUnreadCount]);
-
-  const fetchUnreadNotifications = async () => {
+  
+  const fetchUnreadNotifications = useCallback(async () => {
     if (!authenticatedUser?.token) return;
     try {
       const response = await fetch(
@@ -77,12 +52,25 @@ const NotificationMenu = () => {
       }
     } catch (err) {
       console.error('Failed to fetch unreadNotifications', err);
+      setUnreadNotifications([]);
     }
-  };
+  }, [authenticatedUser]);
+
+  useEffect(() => {
+    if (!authenticatedUser) {
+      setUnreadNotifications([]);
+      return;
+    }
+
+    fetchUnreadNotifications();
+
+    const intervalId = setInterval(fetchUnreadNotifications, 30000);
+    return () => clearInterval(intervalId);
+  }, [authenticatedUser, fetchUnreadNotifications]);
   return (
     <>
       <IconButton size="small" onClick={handleMenuClick} sx={{background: (theme) => isOpen ? theme.palette.background.s4 : 'transparent'}}>
-        <Badge badgeContent={unreadCount} color="primary" variant="dot">
+        <Badge badgeContent={unreadNotifications.length} color="primary">
           <NotificationsOutlined />
         </Badge>
       </IconButton>
@@ -149,7 +137,6 @@ const NotificationMenu = () => {
               isLast={index === unreadNotifications.length - 1}
               onRefresh={() => {
                 fetchUnreadNotifications();
-                fetchUnreadCount(); // Refresh the badge too!
               }}
             />
           ))
