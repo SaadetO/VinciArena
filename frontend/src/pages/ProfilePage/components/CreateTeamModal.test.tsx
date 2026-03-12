@@ -2,7 +2,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { CreateTeamModal } from './CreateTeamModal';
 import { UserContext } from '../../../contexts/UserContext';
-import { AuthenticatedUser } from '../../../types';
+import { AuthenticatedUser, UserContextType } from '../../../types';
 
 describe('CreateTeamModal', () => {
   const fetchMock = vi.fn();
@@ -13,16 +13,16 @@ describe('CreateTeamModal', () => {
     tag: 'test-tag',
   };
 
-  const renderWithContext = (ui: React.ReactElement, user: any = null) => {
+  const renderWithContext = (ui: React.ReactElement, user: AuthenticatedUser | null = null) => {
     return render(
       <UserContext.Provider
         value={
           {
-            authenticatedUser: user,
+            authenticatedUser: user ?? undefined,
             loginUser: vi.fn(),
             registerUser: vi.fn(),
             clearUser: vi.fn(),
-          } as any
+          } as UserContextType
         }
       >
         {ui}
