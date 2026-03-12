@@ -3,7 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   Box,
   Button,
+  Checkbox,
   Container,
+  FormControlLabel,
   Stack,
   TextField,
   Typography,
@@ -16,6 +18,10 @@ import { ArrowBack } from '@mui/icons-material';
 
 export const LoginPage = () => {
   const { loginUser }: UserContextType = useContext(UserContext);
+
+  // REMEMBER ME
+  const [rememberMe, setRememberMe] = useState(false);
+
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
@@ -25,7 +31,7 @@ export const LoginPage = () => {
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
     try {
-      await loginUser(formData);
+      await loginUser({ ...formData, rememberMe });
       navigate('/');
     } catch (err) {
       console.error('LoginPage::error: ', err);
@@ -92,6 +98,15 @@ export const LoginPage = () => {
             />
           </Stack>
           <Stack spacing="1.5rem" paddingTop="1.5rem">
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                />
+              }
+              label="Se souvenir de moi"
+            />
             <Button type="submit" variant="contained">
               Se Connecter
             </Button>
