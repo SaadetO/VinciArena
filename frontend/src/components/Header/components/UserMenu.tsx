@@ -40,7 +40,7 @@ export const UserMenu = () => {
         anchorEl={menuPosition}
         sx={{
           '& .MuiPaper-root': {
-            width: 'fit-content', 
+            width: 'fit-content',
           },
         }}
         anchorOrigin={{
