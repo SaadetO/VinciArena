@@ -1,6 +1,8 @@
 import { StoredUser } from '../types';
 
-const storeAuthenticatedUser = () => {};
+const storeAuthenticatedUser = (authenticatedUser: AuthenticatedUser) => {
+  localStorage.setItem('authenticatedUser', JSON.stringify(authenticatedUser));
+};
 
 const getAuthenticatedUser = (): StoredUser | undefined => {
   const token =
