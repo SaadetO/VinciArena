@@ -39,9 +39,6 @@ export const PasswordModal = ({ open, onClose }: PasswordModalProps) => {
   const { authenticatedUser } = useContext(UserContext);
 
   const handleClose = () => {
-    setPassword(initPasswordData());
-    setError(initPasswordData());
-    setIsLoading(false);
     onClose();
   };
 
@@ -133,6 +130,12 @@ export const PasswordModal = ({ open, onClose }: PasswordModalProps) => {
       return prevError;
     });
   }, [password]);
+
+  useEffect(() => {
+    setPassword(initPasswordData());
+    setError(initPasswordData());
+    setIsLoading(false);
+  }, [open]);
   return (
     <Dialog
       open={open}
