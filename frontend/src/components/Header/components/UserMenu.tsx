@@ -42,7 +42,6 @@ export const UserMenu = () => {
           '& .MuiPaper-root': {
             width: 'fit-content',
             minWidth: '0 !important',
-            
           },
         }}
         anchorOrigin={{

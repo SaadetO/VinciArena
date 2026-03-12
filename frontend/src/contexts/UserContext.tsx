@@ -6,7 +6,11 @@ import {
   AuthenticatedUser,
 } from '../types';
 
-import { clearAuthenticatedUser, getAuthenticatedUser, storeAuthenticatedUser } from '../utils/session';
+import {
+  clearAuthenticatedUser,
+  getAuthenticatedUser,
+  storeAuthenticatedUser,
+} from '../utils/session';
 
 const defaultUserContext: UserContextType = {
   authenticatedUser: undefined,

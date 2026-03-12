@@ -1,4 +1,10 @@
-import { useState, MouseEvent, useContext, useEffect, useCallback } from 'react';
+import {
+  useState,
+  MouseEvent,
+  useContext,
+  useEffect,
+  useCallback,
+} from 'react';
 import {
   Badge,
   IconButton,
@@ -19,7 +25,7 @@ const NotificationMenu = () => {
   const [menuPosition, setMenuPosition] = useState<null | HTMLElement>(null);
   const [unreadNotifications, setUnreadNotifications] = useState<
     NotificationDto[]
-    >([]);
+  >([]);
   const { authenticatedUser } = useContext(UserContext);
   const navigate = useNavigate();
 
@@ -38,7 +44,7 @@ const NotificationMenu = () => {
   const handleClose = () => {
     setMenuPosition(null);
   };
-  
+
   const fetchUnreadNotifications = useCallback(async () => {
     if (!authenticatedUser?.token) return;
     try {
@@ -69,7 +75,14 @@ const NotificationMenu = () => {
   }, [authenticatedUser, fetchUnreadNotifications]);
   return (
     <>
-      <IconButton size="small" onClick={handleMenuClick} sx={{background: (theme) => isOpen ? theme.palette.background.s4 : 'transparent'}}>
+      <IconButton
+        size="small"
+        onClick={handleMenuClick}
+        sx={{
+          background: (theme) =>
+            isOpen ? theme.palette.background.s4 : 'transparent',
+        }}
+      >
         <Badge badgeContent={unreadNotifications.length} color="primary">
           <NotificationsOutlined />
         </Badge>
