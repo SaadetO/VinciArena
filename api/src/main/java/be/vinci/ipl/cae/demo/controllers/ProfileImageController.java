@@ -6,6 +6,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Controller for managing profile images.
+ */
 @RestController
 @RequestMapping("/profile-images")
 public class ProfileImageController {
@@ -16,6 +19,11 @@ public class ProfileImageController {
     this.profileImageService = profileImageService;
   }
 
+  /**
+   * Gets all images from db.
+   *
+   * @return all images
+   */
   @GetMapping("/")
   public Iterable<ProfileImage> getAll() {
     return profileImageService.readAllProfileImages();
