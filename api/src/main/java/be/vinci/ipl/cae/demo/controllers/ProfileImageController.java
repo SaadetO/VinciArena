@@ -15,6 +15,11 @@ public class ProfileImageController {
 
   private final ProfileImageService profileImageService;
 
+  /**
+   * Constructs image controller with service.
+   *
+   * @param profileImageService imageService
+   */
   public ProfileImageController(ProfileImageService profileImageService) {
     this.profileImageService = profileImageService;
   }
