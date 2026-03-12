@@ -7,11 +7,11 @@ import {
   IconButton,
   Tooltip,
 } from '@mui/material';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import { NotificationDto } from '../types';
 import { useContext } from 'react';
 import { UserContext } from '../contexts/UserContext';
+import { MarkEmailReadOutlined } from '@mui/icons-material';
+import { formatRelativeTime } from '../utils/date';
 
 interface Props {
   notification: NotificationDto;
@@ -52,43 +52,44 @@ export const NotificationItem = ({
     <Box>
       <ListItem
         sx={{
-          py: 2,
-          padding: 2.5,
-          bgcolor: notification.isRead ? 'transparent' : 'action.hover',
-          pr: 8,
-          alignItems: 'flex-start',
+          backgroundColor: (theme) =>
+            notification.isRead ? 'transparent' : theme.palette.background.s3,
+          alignItems: 'center',
         }}
         secondaryAction={
           !notification.isRead && (
-            <Tooltip title="Marquer comme lu">
-              <IconButton onClick={() => handleMarkAsReadClick()}>
-                <CheckCircleOutlineIcon color="primary" />
+            <Tooltip title="Marquer comme lu" placement="left" arrow>
+              <IconButton
+                size="small"
+                color="primary"
+                onClick={() => handleMarkAsReadClick()}
+              >
+                <MarkEmailReadOutlined />
               </IconButton>
             </Tooltip>
           )
         }
       >
-        {!notification.isRead && (
-          <FiberManualRecordIcon
-            sx={{ fontSize: 12, color: 'primary.main', mr: 2, mt: 1 }}
-          />
-        )}
         <ListItemText
           primary={notification.content}
-          secondary={new Date(notification.dateTime).toLocaleString('fr-FR')}
+          secondary={formatRelativeTime(notification.dateTime)}
           slotProps={{
             primary: {
-              variant: 'body1',
-              fontWeight: notification.isRead ? 400 : 700,
-              color: notification.isRead ? 'text.secondary' : 'text.primary',
+              variant: 'h5',
+              color: 'text.primary',
               sx: {
-                wordBreak: 'break-word',
-                whiteSpace: 'normal',
-                display: 'block',
+                textOverflow: 'ellipsis',
+                overflow: 'hidden',
+                whiteSpace: 'nowrap',
               },
             },
             secondary: {
-              variant: 'caption',
+              variant: 'body2',
+              sx: {
+                textOverflow: 'ellipsis',
+                overflow: 'hidden',
+                whiteSpace: 'nowrap',
+              },
             },
           }}
         />

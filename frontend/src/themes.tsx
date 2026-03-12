@@ -363,7 +363,22 @@ export const theme = createTheme({
           height: '2.75rem',
           borderRadius: '0.25rem',
         },
+        sizeSmall: {
+          width: '2rem',
+          height: '2rem',
+          borderRadius: '0.75rem',
+        },
         colorPrimary: {
+          color: '#FFFFFF',
+          background: '#262626',
+          '&:hover': {
+            background: 'color-mix(in srgb, #262626 92%, #FFFFFF 8%)',
+          },
+          '&:active': {
+            background: 'color-mix(in srgb, #262626 88%, #FFFFFF 12%)',
+          },
+        },
+        colorSecondary: {
           color: '#FFFFFF',
           background: '#262626',
           '&:hover': {
@@ -517,6 +532,48 @@ export const theme = createTheme({
           '& .MuiButtonBase-root:last-child': {
             color: '#8C8C8C',
           },
+        },
+      },
+    },
+    MuiMenu: {
+      styleOverrides: {
+        root: {
+          '& .MuiMenu-paper': {
+            borderRadius: '0.75rem',
+            background: surfaceLevels.s2,
+            backgroundImage: 'none',
+            width: '25rem',
+            marginTop: '0.375rem',
+          },
+        },
+      },
+    },
+    MuiListItem: {
+      styleOverrides: {
+        root: {
+          padding: '0.5rem 4.25rem 0.5rem 1.5rem',
+        },
+      },
+    },
+    MuiListItemSecondaryAction: {
+      styleOverrides: {
+        root: {
+          right: '1.5rem',
+          color: '#FFFFFF',
+        },
+      },
+    },
+    MuiBadge: {
+      styleOverrides: {
+        badge: {
+          padding: '0 0.25rem',
+          width: 'fit-content',
+          height: 'fit-content',
+          minWidth: '0.875rem',
+          minHeight: '0.875rem',
+          lineHeight: '0.875rem',
+          fontSize: '0.6875rem',
+          fontWeight: 'bold',
         },
       },
     },
