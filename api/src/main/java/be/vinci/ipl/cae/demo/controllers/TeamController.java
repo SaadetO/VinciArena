@@ -1,6 +1,7 @@
 package be.vinci.ipl.cae.demo.controllers;
 
 import be.vinci.ipl.cae.demo.models.dtos.NewTeam;
+import be.vinci.ipl.cae.demo.models.dtos.TeamDetailsDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.services.TeamService;
@@ -8,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -68,5 +70,23 @@ public class TeamController {
   @GetMapping({"", "/"})
   public Iterable<Team> getAllActiveTeams() {
     return teamService.getAllActiveTeams();
+  }
+
+  /**
+   * Get team details.
+   *
+   * @param id            the team ID
+   * @param currentMember the current member
+   * @return the team details
+   */
+  @GetMapping("/{id}/details")
+  @PreAuthorize("isAuthenticated()")
+  public TeamDetailsDto getTeamDetails(@PathVariable Long id,
+      @AuthenticationPrincipal Member currentMember) {
+    TeamDetailsDto teamDetails = teamService.getTeamDetails(id, currentMember);
+    if (teamDetails == null) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+    return teamDetails;
   }
 }
