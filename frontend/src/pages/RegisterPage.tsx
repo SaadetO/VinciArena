@@ -32,6 +32,7 @@ export const RegisterPage = () => {
     specialtyId: null,
   });
   const [specialties, setSpecialties] = useState<SpecialtyDto[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
@@ -50,36 +51,28 @@ export const RegisterPage = () => {
     setFormData({ ...formData, [input.name]: input.value });
   };
 
-  async function getAllSpecialties() {
-    try {
-      const response = await fetch('/api/specialties');
-
-      if (!response.ok) {
-        throw new Error(
-          `fetch error : ${response.status} : ${response.statusText}`,
-        );
-      }
-
-      const specialties = await response.json();
-
-      return specialties;
-    } catch (err) {
-      console.log('getAllSpecialties::error: ', err);
-      throw err;
-    }
-  }
-
   useEffect(() => {
-    const fetchSpecialties = async () => {
+    (async () => {
+      setLoading(true);
       try {
-        const specialties = await getAllSpecialties();
+        const response = await fetch('/api/specialties');
+
+        if (!response.ok) {
+          throw new Error(
+            `fetch error : ${response.status} : ${response.statusText}`,
+          );
+        }
+
+        const specialties = await response.json();
+
         setSpecialties(specialties);
       } catch (err) {
-        console.log('RegisterPage::error: ', err);
+        console.log('getAllSpecialties::error: ', err);
+        setSpecialties([]);
+      } finally {
+        setLoading(false);
       }
-    };
-
-    fetchSpecialties();
+    })();
   }, []);
 
   useEffect(() => {
@@ -156,6 +149,7 @@ export const RegisterPage = () => {
             />
             <Autocomplete
               options={specialties}
+              loading={loading}
               fullWidth
               getOptionLabel={(e) =>
                 e.label.charAt(0).toUpperCase() + e.label.slice(1)
