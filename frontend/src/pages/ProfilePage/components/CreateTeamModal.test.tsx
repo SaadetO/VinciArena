@@ -13,7 +13,10 @@ describe('CreateTeamModal', () => {
     tag: 'test-tag',
   };
 
-  const renderWithContext = (ui: React.ReactElement, user: AuthenticatedUser | null = null) => {
+  const renderWithContext = (
+    ui: React.ReactElement,
+    user: AuthenticatedUser | null = null,
+  ) => {
     return render(
       <UserContext.Provider
         value={
