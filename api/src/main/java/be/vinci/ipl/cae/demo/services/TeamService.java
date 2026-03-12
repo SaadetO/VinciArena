@@ -1,9 +1,17 @@
 package be.vinci.ipl.cae.demo.services;
 
+import be.vinci.ipl.cae.demo.models.dtos.JoinRequestDto;
+import be.vinci.ipl.cae.demo.models.dtos.ProfileDto;
+import be.vinci.ipl.cae.demo.models.dtos.TeamDetailsDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
+import be.vinci.ipl.cae.demo.models.entities.RequestStatus;
 import be.vinci.ipl.cae.demo.models.entities.Team;
+import be.vinci.ipl.cae.demo.repositories.JoinRequestRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.TeamRepository;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 /**
@@ -14,16 +22,83 @@ public class TeamService {
 
   private final TeamRepository teamRepository;
   private final MemberRepository memberRepository;
+  private final JoinRequestRepository joinRequestRepository;
+  private final MemberService memberService;
 
   /**
    * Constructor.
    *
-   * @param teamRepository   the team repository
-   * @param memberRepository the member repository
+   * @param teamRepository        the team repository
+   * @param memberRepository      the member repository
+   * @param joinRequestRepository the join-request repository
+   * @param memberService         the member service
    */
-  public TeamService(TeamRepository teamRepository, MemberRepository memberRepository) {
+  public TeamService(TeamRepository teamRepository, MemberRepository memberRepository,
+      JoinRequestRepository joinRequestRepository, MemberService memberService) {
     this.teamRepository = teamRepository;
     this.memberRepository = memberRepository;
+    this.joinRequestRepository = joinRequestRepository;
+    this.memberService = memberService;
+  }
+
+  /**
+   * Get team details.
+   *
+   * @param id            the team ID
+   * @param currentMember the current member
+   * @return the team details; joinRequests is null if currentMember is not a team manager
+   */
+  public TeamDetailsDto getTeamDetails(Long id, Member currentMember) {
+    Team team = teamRepository.findById(id).orElse(null);
+    if (team == null) {
+      return null;
+    }
+
+    String authEmail = currentMember != null ? currentMember.getEmail() : null;
+
+    List<ProfileDto> managers = new ArrayList<>();
+    if (team.getManager1() != null) {
+      managers.add(memberService.getProfile(team.getManager1().getIdMember(), authEmail));
+    }
+    if (team.getManager2() != null) {
+      managers.add(memberService.getProfile(team.getManager2().getIdMember(), authEmail));
+    }
+
+    List<ProfileDto> members = team.getMembers().stream()
+        .map(m -> memberService.getProfile(m.getIdMember(), authEmail))
+        .collect(Collectors.toList());
+
+    boolean isManager = currentMember != null && (
+        (team.getManager1() != null && team.getManager1().getIdMember()
+            .equals(currentMember.getIdMember()))
+            || (team.getManager2() != null && team.getManager2().getIdMember()
+            .equals(currentMember.getIdMember()))
+    );
+
+    List<JoinRequestDto> joinRequests = null;
+    if (isManager) {
+      joinRequests = joinRequestRepository.findAllByRequestedTeamAndStatus(team,
+              RequestStatus.PENDING)
+          .stream()
+          .map(jr -> JoinRequestDto.builder()
+              .idJoinRequest(jr.getIdJoinRequest())
+              .idTeam(jr.getRequestedTeam().getIdTeam())
+              .teamName(jr.getRequestedTeam().getName())
+              .status(jr.getStatus())
+              .expirationDate(jr.getExpirationDate())
+              .requester(memberService.getProfile(jr.getMember().getIdMember(), authEmail))
+              .build())
+          .collect(Collectors.toList());
+    }
+
+    return TeamDetailsDto.builder()
+        .idTeam(team.getIdTeam())
+        .name(team.getName())
+        .isActive(team.getIsActive())
+        .managers(managers)
+        .members(members)
+        .joinRequests(joinRequests)
+        .build();
   }
 
   /**
@@ -31,8 +106,8 @@ public class TeamService {
    *
    * @param teamName the name for the new team
    * @param creator  the member creating the team
-   * @return the created team, or null if the name is already taken
-   *         or the creator already belongs to a team
+   * @return the created team, or null if the name is already taken or the creator already belongs
+   *     to a team
    */
   public Team createTeam(String teamName, Member creator) {
     if (teamRepository.existsByName(teamName)) {

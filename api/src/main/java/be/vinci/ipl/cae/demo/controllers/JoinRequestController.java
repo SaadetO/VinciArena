@@ -2,12 +2,15 @@ package be.vinci.ipl.cae.demo.controllers;
 
 import be.vinci.ipl.cae.demo.models.dtos.JoinRequestDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
+import be.vinci.ipl.cae.demo.models.entities.RequestStatus;
 import be.vinci.ipl.cae.demo.services.JoinRequestService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -50,6 +53,28 @@ public class JoinRequestController {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
     } catch (IllegalStateException e) {
       throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage(), e);
+    }
+  }
+
+  /**
+   * Update the status of a join request (accept or deny).
+   *
+   * @param requestId     the ID of the join request
+   * @param status        the new status (ACCEPTED or REFUSED)
+   * @param currentMember the authenticated manager performing the action
+   * @return the updated join request as a DTO
+   */
+  @PatchMapping("/join-requests/{requestId}")
+  @PreAuthorize("isAuthenticated()")
+  public JoinRequestDto updateJoinRequestStatus(@PathVariable Long requestId,
+      @RequestBody RequestStatus status,
+      @AuthenticationPrincipal Member currentMember) {
+    try {
+      return joinRequestService.updateJoinRequestStatus(requestId, status, currentMember);
+    } catch (IllegalArgumentException e) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
+    } catch (IllegalStateException e) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
     }
   }
 }
