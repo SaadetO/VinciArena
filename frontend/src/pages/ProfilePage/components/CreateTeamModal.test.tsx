@@ -53,9 +53,6 @@ describe('CreateTeamModal', () => {
     // Mocks authenticated user
     vi.mocked(getAuthenticatedUser).mockReturnValue({
       token: 'fake-token',
-      id: 1,
-      isAdmin: false,
-      tag: 'testuser',
     });
 
     // Mocks successfull api request
@@ -102,9 +99,6 @@ describe('CreateTeamModal', () => {
   test('shows error message on 409 conflict', async () => {
     vi.mocked(getAuthenticatedUser).mockReturnValue({
       token: 'fake-token',
-      id: 1,
-      isAdmin: false,
-      tag: 'user',
     });
 
     // Mocks API request creating a conflict
@@ -135,9 +129,6 @@ describe('CreateTeamModal', () => {
   test('shows generic error message on other errors (e.g. 500)', async () => {
     vi.mocked(getAuthenticatedUser).mockReturnValue({
       token: 'fake-token',
-      id: 1,
-      isAdmin: false,
-      tag: 'user',
     });
 
     // Mocks API error 500

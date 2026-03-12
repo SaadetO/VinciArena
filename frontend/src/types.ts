@@ -10,6 +10,7 @@ interface UserContextType {
 interface User {
   email: string;
   password: string;
+  rememberMe?: boolean;
 }
 
 interface ProfileInfoDto {
@@ -48,6 +49,10 @@ interface NotificationDto {
   dateTime: Date;
 }
 
+interface StoredUser {
+  token: string;
+}
+
 type MaybeAuthenticatedUser = AuthenticatedUser | undefined;
 
 export type {
@@ -58,4 +63,5 @@ export type {
   UserContextType,
   ProfileInfoDto,
   NotificationDto,
+  StoredUser,
 };

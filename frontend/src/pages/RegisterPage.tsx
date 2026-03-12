@@ -45,6 +45,7 @@ export const RegisterPage = () => {
 
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
+    console.log(formData.specialtyId);
 
     try {
       await registerUser(formData);

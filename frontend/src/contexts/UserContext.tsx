@@ -6,11 +6,7 @@ import {
   AuthenticatedUser,
 } from '../types';
 
-import {
-  clearAuthenticatedUser,
-  getAuthenticatedUser,
-  storeAuthenticatedUser,
-} from '../utils/session';
+import { clearAuthenticatedUser, getAuthenticatedUser } from '../utils/session';
 
 const defaultUserContext: UserContextType = {
   authenticatedUser: undefined,
@@ -27,8 +23,20 @@ const UserContextProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const storedUser = getAuthenticatedUser();
-    if (storedUser) {
-      setAuthenticatedUser(storedUser);
+
+    if (storedUser?.token) {
+      fetch('/api/auths/me', {
+        headers: {
+          Authorization: `Bearer ${storedUser.token}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((fullUser) => {
+          setAuthenticatedUser({
+            ...fullUser,
+            token: storedUser.token,
+          });
+        });
     }
   }, []);
 
@@ -54,11 +62,11 @@ const UserContextProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const loginUser = async (user: User) => {
+  const loginUser = async ({ email, password, rememberMe }: User) => {
     try {
       const options = {
         method: 'POST',
-        body: JSON.stringify(user),
+        body: JSON.stringify({ email, password }),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -72,10 +80,15 @@ const UserContextProvider = ({ children }: { children: ReactNode }) => {
         );
 
       const authenticatedUser: AuthenticatedUser = await response.json();
-      console.log('authenticatedUser.token: ', authenticatedUser.token);
+
+      // REMEMBER ME
+      if (rememberMe) {
+        localStorage.setItem('token', authenticatedUser.token);
+      } else {
+        sessionStorage.setItem('token', authenticatedUser.token);
+      }
 
       setAuthenticatedUser(authenticatedUser);
-      storeAuthenticatedUser(authenticatedUser);
     } catch (err) {
       console.error('loginUser::error: ', err);
       throw err;
