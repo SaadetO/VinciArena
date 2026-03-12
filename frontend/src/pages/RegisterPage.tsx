@@ -50,15 +50,6 @@ export const RegisterPage = () => {
     setFormData({ ...formData, [input.name]: input.value });
   };
 
-  const fetchSpecialties = async () => {
-    try {
-      const specialties = await getAllSpecialties();
-      setSpecialties(specialties);
-    } catch (err) {
-      console.log('RegisterPage::error: ', err);
-    }
-  };
-
   async function getAllSpecialties() {
     try {
       const response = await fetch('/api/specialties');
@@ -79,6 +70,15 @@ export const RegisterPage = () => {
   }
 
   useEffect(() => {
+    const fetchSpecialties = async () => {
+      try {
+        const specialties = await getAllSpecialties();
+        setSpecialties(specialties);
+      } catch (err) {
+        console.log('RegisterPage::error: ', err);
+      }
+    };
+
     fetchSpecialties();
   }, []);
 
