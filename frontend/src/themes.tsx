@@ -563,5 +563,19 @@ export const theme = createTheme({
         },
       },
     },
+    MuiBadge: {
+      styleOverrides: {
+        badge: {
+          padding: '0 0.25rem',
+          width: 'fit-content',
+          height: 'fit-content',
+          minWidth: '0.875rem',
+          minHeight: '0.875rem',
+          lineHeight: '0.875rem',
+          fontSize: '0.6875rem',
+          fontWeight: 'bold',
+        },
+      },
+    },
   },
 });
