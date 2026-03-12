@@ -9,7 +9,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { UserContextType } from '../types';
+import { SpecialtyDto, UserContextType } from '../types';
 import { UserContext } from '../contexts/UserContext';
 import logo from '../assets/images/logo.svg';
 import authBackground from '../assets/images/auth_background.jpg';
@@ -22,17 +22,6 @@ interface FormData {
   specialtyId: number | null;
 }
 
-// ---- fetch the real array of specialties from the db ---- //
-const specialties = [
-  { label: 'architecte', id: 1 },
-  { label: 'exécuteur', id: 2 },
-  { label: 'tacticien', id: 3 },
-  { label: 'gardien', id: 4 },
-  { label: 'catalyseur', id: 5 },
-  { label: 'perturbateur', id: 6 },
-  { label: 'guérisseur', id: 7 },
-];
-
 export const RegisterPage = () => {
   const { registerUser }: UserContextType = useContext(UserContext);
   const navigate = useNavigate();
@@ -42,6 +31,7 @@ export const RegisterPage = () => {
     tag: '',
     specialtyId: null,
   });
+  const [specialties, setSpecialties] = useState<SpecialtyDto[]>([]);
 
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
@@ -60,9 +50,44 @@ export const RegisterPage = () => {
     setFormData({ ...formData, [input.name]: input.value });
   };
 
+  const fetchSpecialties = async () => {
+    try {
+      const specialties = await getAllSpecialties();
+      setSpecialties(specialties);
+
+    } catch (err) {
+      console.log('RegisterPage::error: ', err);
+    }
+  };
+
+  async function getAllSpecialties() {
+    try {
+      const response = await fetch('/api/specialties');
+
+      if(!response.ok){
+        throw new Error(
+          `fetch error : ${response.status} : ${response.statusText}`,
+        );
+      }
+
+      const specialties = await response.json();
+
+      return specialties;
+
+    } catch (err) {
+      console.log('getAllSpecialties::error: ', err);
+      throw err;
+    }
+  }
+
+  useEffect(() => {
+    fetchSpecialties();
+  }, []);
+
   useEffect(() => {
     console.log(formData);
   }, [formData]);
+  
   return (
     <Stack direction="row" flex="1">
       <Link to="/" style={{ padding: '1rem', position: 'fixed' }}>

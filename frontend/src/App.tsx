@@ -10,7 +10,7 @@ export const App = () => {
   const { authenticatedUser } = useContext<UserContextType>(UserContext);
 
   useEffect(() => {
-    console.log('USER: ' + authenticatedUser);
+    console.log('USER: ' + JSON.stringify(authenticatedUser));
   }, [authenticatedUser]);
 
   const mainContext: MainContext = {};
