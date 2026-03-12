@@ -12,7 +12,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { ProfileImage, UserContextType } from '../types';
+import { SpecialtyDto, ProfileImage, UserContextType } from '../types';
 import { UserContext } from '../contexts/UserContext';
 import logo from '../assets/images/logo.svg';
 import authBackground from '../assets/images/auth_background.jpg';
@@ -27,17 +27,6 @@ interface FormData {
   profileImageId: number | null;
 }
 
-// ---- fetch the real array of specialties from the db ---- //
-const specialties = [
-  { label: 'architecte', id: 1 },
-  { label: 'exécuteur', id: 2 },
-  { label: 'tacticien', id: 3 },
-  { label: 'gardien', id: 4 },
-  { label: 'catalyseur', id: 5 },
-  { label: 'perturbateur', id: 6 },
-  { label: 'guérisseur', id: 7 },
-];
-
 export const RegisterPage = () => {
   const { registerUser }: UserContextType = useContext(UserContext);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -51,6 +40,8 @@ export const RegisterPage = () => {
     specialtyId: null,
     profileImageId: null,
   });
+  const [specialties, setSpecialties] = useState<SpecialtyDto[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
@@ -73,6 +64,30 @@ export const RegisterPage = () => {
     setFormData({ ...formData, [input.name]: input.value });
   };
 
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      try {
+        const response = await fetch('/api/specialties');
+
+        if (!response.ok) {
+          throw new Error(
+            `fetch error : ${response.status} : ${response.statusText}`,
+          );
+        }
+
+        const specialties = await response.json();
+
+        setSpecialties(specialties);
+      } catch (err) {
+        console.log('getAllSpecialties::error: ', err);
+        setSpecialties([]);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
   const handleSelectImage = (image: ProfileImage) => {
     setChosenImage(image);
     setFormData((prev) => ({ ...prev, profileImageId: image.idImage }));
@@ -81,6 +96,7 @@ export const RegisterPage = () => {
   useEffect(() => {
     console.log(formData);
   }, [formData]);
+
   return (
     <Stack direction="row" flex="1">
       <Link to="/" style={{ padding: '1rem', position: 'fixed' }}>
@@ -172,6 +188,7 @@ export const RegisterPage = () => {
             />
             <Autocomplete
               options={specialties}
+              loading={loading}
               fullWidth
               getOptionLabel={(e) =>
                 e.label.charAt(0).toUpperCase() + e.label.slice(1)

@@ -6,7 +6,11 @@ import {
   AuthenticatedUser,
 } from '../types';
 
-import { clearAuthenticatedUser, getAuthenticatedUser } from '../utils/session';
+import {
+  clearAuthenticatedUser,
+  getAuthenticatedUser,
+  storeAuthenticatedUser,
+} from '../utils/session';
 
 const defaultUserContext: UserContextType = {
   authenticatedUser: undefined,
@@ -23,34 +27,40 @@ const UserContextProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const storedUser = getAuthenticatedUser();
+    if (!storedUser) return;
 
-    if (storedUser?.token) {
-      fetch('/api/auths/me', {
-        headers: {
-          Authorization: `Bearer ${storedUser.token}`,
-        },
-      })
-        .then((res) => res.json())
-        .then((fullUser) => {
-          setAuthenticatedUser({
-            ...fullUser,
-            token: storedUser.token,
-          });
+    (async () => {
+      try {
+        const response = await fetch('/api/auths/login/me', {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: storedUser.token,
+          },
         });
-    }
+
+        if (!response.ok) throw new Error('Failed to fetch user');
+
+        const authenticatedUser: AuthenticatedUser = await response.json();
+
+        setAuthenticatedUser({
+          ...authenticatedUser,
+        });
+      } catch (err) {
+        console.error('Failed to fetch user: ', err);
+        clearUser();
+      }
+    })();
   }, []);
 
   const registerUser = async (newUser: User) => {
     try {
-      const options = {
+      const response = await fetch('/api/auths/register', {
         method: 'POST',
         body: JSON.stringify(newUser),
         headers: {
           'Content-Type': 'application/json',
         },
-      };
-
-      const response = await fetch('/api/auths/register', options);
+      });
 
       if (!response.ok)
         throw new Error(
@@ -64,15 +74,13 @@ const UserContextProvider = ({ children }: { children: ReactNode }) => {
 
   const loginUser = async ({ email, password, rememberMe }: User) => {
     try {
-      const options = {
+      const response = await fetch('/api/auths/login', {
         method: 'POST',
         body: JSON.stringify({ email, password }),
         headers: {
           'Content-Type': 'application/json',
         },
-      };
-
-      const response = await fetch('/api/auths/login', options);
+      });
 
       if (!response.ok)
         throw new Error(
@@ -81,12 +89,7 @@ const UserContextProvider = ({ children }: { children: ReactNode }) => {
 
       const authenticatedUser: AuthenticatedUser = await response.json();
 
-      // REMEMBER ME
-      if (rememberMe) {
-        localStorage.setItem('token', authenticatedUser.token);
-      } else {
-        sessionStorage.setItem('token', authenticatedUser.token);
-      }
+      storeAuthenticatedUser(authenticatedUser, rememberMe ?? false);
 
       setAuthenticatedUser(authenticatedUser);
     } catch (err) {

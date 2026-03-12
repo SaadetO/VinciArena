@@ -8,12 +8,21 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 
+import be.vinci.ipl.cae.demo.models.dtos.ProfileDto;
+import be.vinci.ipl.cae.demo.models.dtos.TeamDetailsDto;
+
+import be.vinci.ipl.cae.demo.models.entities.JoinRequest;
 import be.vinci.ipl.cae.demo.models.entities.Member;
+import be.vinci.ipl.cae.demo.models.entities.RequestStatus;
 import be.vinci.ipl.cae.demo.models.entities.Team;
+import be.vinci.ipl.cae.demo.repositories.JoinRequestRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
-import java.util.List;
 import be.vinci.ipl.cae.demo.repositories.TeamRepository;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,6 +38,12 @@ class TeamServiceTest {
 
   @Mock
   private MemberRepository memberRepository;
+
+  @Mock
+  private JoinRequestRepository joinRequestRepository;
+
+  @Mock
+  private MemberService memberService;
 
   @InjectMocks
   private TeamService teamService;
@@ -119,5 +134,76 @@ class TeamServiceTest {
     assertNotNull(result);
     assertEquals(List.of(team1, team2), result);
     verify(teamRepository).findByIsActiveTrue();
+  }
+
+  @Test
+  void getTeamDetails_NotFound() {
+    when(teamRepository.findById(1L)).thenReturn(Optional.empty());
+    TeamDetailsDto result = teamService.getTeamDetails(1L, null);
+    assertNull(result);
+  }
+
+  @Test
+  void getTeamDetails_AsRegularMember() {
+    // Arrange
+    Team team = new Team();
+    team.setIdTeam(1L);
+    team.setName("Team 1");
+    team.setIsActive(true);
+    Member member1 = new Member();
+    member1.setIdMember(10L);
+    team.setMembers(List.of(member1));
+
+    Member currentMember = new Member();
+    currentMember.setIdMember(20L);
+    currentMember.setEmail("user@test.com");
+
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+    when(memberService.getProfile(eq(10L), anyString())).thenReturn(ProfileDto.builder().id(10L).build());
+
+    // Act
+    TeamDetailsDto result = teamService.getTeamDetails(1L, currentMember);
+
+    // Assert
+    assertNotNull(result);
+    assertEquals("Team 1", result.getName());
+    assertEquals(1, result.getMembers().size());
+    assertNull(result.getJoinRequests()); // Regular members do not see join requests
+  }
+
+  @Test
+  void getTeamDetails_AsManager() {
+    // Arrange
+    Team team = new Team();
+    team.setIdTeam(1L);
+    team.setName("Team 1");
+    team.setIsActive(true);
+    Member manager = new Member();
+    manager.setIdMember(10L);
+    manager.setEmail("manager@test.com");
+    team.setManager1(manager);
+    team.setMembers(List.of());
+
+    JoinRequest jr = new JoinRequest();
+    jr.setIdJoinRequest(100L);
+    jr.setMember(new Member());
+    jr.getMember().setIdMember(30L);
+    jr.setRequestedTeam(team);
+    jr.setStatus(RequestStatus.PENDING);
+
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+    when(memberService.getProfile(eq(10L), anyString())).thenReturn(ProfileDto.builder().id(10L).build());
+    when(memberService.getProfile(eq(30L), anyString())).thenReturn(ProfileDto.builder().id(30L).build());
+    when(joinRequestRepository.findAllByRequestedTeamAndStatus(team, RequestStatus.PENDING))
+        .thenReturn(List.of(jr));
+
+    // Act
+    TeamDetailsDto result = teamService.getTeamDetails(1L, manager);
+
+    // Assert
+    assertNotNull(result);
+    assertNotNull(result.getJoinRequests());
+    assertEquals(1, result.getJoinRequests().size());
+    assertEquals(100L, result.getJoinRequests().getFirst().getIdJoinRequest());
   }
 }

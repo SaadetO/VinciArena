@@ -98,16 +98,16 @@ export const LoginPage = () => {
               required
             />
           </Stack>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+              />
+            }
+            label="Se souvenir de moi"
+          />
           <Stack spacing="1.5rem" paddingTop="1.5rem">
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                />
-              }
-              label="Se souvenir de moi"
-            />
             <Button type="submit" variant="contained">
               Se Connecter
             </Button>

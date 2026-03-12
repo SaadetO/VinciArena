@@ -1,5 +1,12 @@
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import {
+  Dispatch,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { Team } from '../../../types';
+import { UserContext } from '../../../contexts/UserContext';
 import {
   Autocomplete,
   Button,
@@ -10,7 +17,6 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { getAuthenticatedUser } from '../../../utils/session';
 
 interface JoinTeamModalProps {
   teams: Team[];
@@ -30,6 +36,7 @@ export const JoinTeamModal = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [requestedTeam, setRequestedTeam] = useState<Team | null>(null);
+  const { authenticatedUser } = useContext(UserContext);
 
   const handleClose = () => {
     setError(null);
@@ -44,14 +51,12 @@ export const JoinTeamModal = ({
     const idTeam = requestedTeam?.idTeam;
     if (!idTeam) return;
 
-    const user = getAuthenticatedUser();
-
     try {
       const response = await fetch(`/api/teams/${idTeam}/join-requests`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: user ? user.token : '',
+          Authorization: authenticatedUser?.token ?? '',
         },
       });
 
@@ -72,8 +77,6 @@ export const JoinTeamModal = ({
   useEffect(() => {
     if (teams.length) return;
 
-    const user = getAuthenticatedUser();
-
     setIsLoading(true);
     setError(null);
     (async () => {
@@ -81,7 +84,7 @@ export const JoinTeamModal = ({
         const response = await fetch('/api/teams', {
           method: 'GET',
           headers: {
-            Authorization: user ? user.token : '',
+            Authorization: authenticatedUser?.token ?? '',
           },
         });
 
@@ -99,7 +102,7 @@ export const JoinTeamModal = ({
         setIsLoading(false);
       }
     })();
-  }, [setTeams, teams]);
+  }, [setTeams, teams, authenticatedUser]);
 
   return (
     <Dialog open={open} onClose={handleClose} fullWidth>
