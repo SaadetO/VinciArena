@@ -8,8 +8,8 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { SyntheticEvent, useState } from 'react';
-import { getAuthenticatedUser } from '../../../utils/session';
+import { SyntheticEvent, useContext, useState } from 'react';
+import { UserContext } from '../../../contexts/UserContext';
 
 interface CreateTeamModalProps {
   open: boolean;
@@ -25,6 +25,7 @@ export const CreateTeamModal = ({
   const [teamName, setTeamName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { authenticatedUser } = useContext(UserContext);
 
   const handleChange = (e: SyntheticEvent) => {
     const input = e.target as HTMLInputElement;
@@ -39,14 +40,13 @@ export const CreateTeamModal = ({
 
     setIsLoading(true);
     setError(null);
-    const user = getAuthenticatedUser();
 
     try {
       const response = await fetch('/api/teams/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: user ? user.token : '',
+          Authorization: authenticatedUser?.token ?? '',
         },
         body: JSON.stringify({ name: teamName.trim() }),
       });
