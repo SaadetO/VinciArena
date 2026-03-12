@@ -54,7 +54,6 @@ export const RegisterPage = () => {
     try {
       const specialties = await getAllSpecialties();
       setSpecialties(specialties);
-
     } catch (err) {
       console.log('RegisterPage::error: ', err);
     }
@@ -64,7 +63,7 @@ export const RegisterPage = () => {
     try {
       const response = await fetch('/api/specialties');
 
-      if(!response.ok){
+      if (!response.ok) {
         throw new Error(
           `fetch error : ${response.status} : ${response.statusText}`,
         );
@@ -73,7 +72,6 @@ export const RegisterPage = () => {
       const specialties = await response.json();
 
       return specialties;
-
     } catch (err) {
       console.log('getAllSpecialties::error: ', err);
       throw err;
@@ -87,7 +85,7 @@ export const RegisterPage = () => {
   useEffect(() => {
     console.log(formData);
   }, [formData]);
-  
+
   return (
     <Stack direction="row" flex="1">
       <Link to="/" style={{ padding: '1rem', position: 'fixed' }}>
