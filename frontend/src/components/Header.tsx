@@ -7,7 +7,11 @@ import { UserContext } from '../contexts/UserContext';
 export const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { authenticatedUser } = useContext(UserContext);
+  const { authenticatedUser, clearUser } = useContext(UserContext);
+  const handleDisconnection = () => {
+    clearUser();
+  };
+
   if (!authenticatedUser) {
     return (
       <Stack
@@ -104,7 +108,9 @@ export const Header = () => {
         </Tabs>
         <Stack direction="row" spacing="1rem">
           <NotificationMenu></NotificationMenu>
-          <Button variant="contained">se déconnecter</Button>
+          <Button onClick={handleDisconnection} variant="contained">
+            se déconnecter
+          </Button>
         </Stack>
       </Stack>
     );
