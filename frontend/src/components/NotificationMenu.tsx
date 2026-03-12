@@ -4,15 +4,16 @@ import {
   IconButton,
   Menu,
   Typography,
-  Box,
   Divider,
   Link,
+  Stack,
+  Button,
 } from '@mui/material';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 import { UserContext } from '../contexts/UserContext';
 import { useNavigate } from 'react-router-dom';
 import { NotificationDto } from '../types';
 import { NotificationItem } from './NotificationItem';
+import { NotificationsOutlined } from '@mui/icons-material';
 
 const NotificationMenu = () => {
   const [unreadCount, setUnreadCount] = useState(0);
@@ -58,10 +59,9 @@ const NotificationMenu = () => {
       const id = setInterval(fetchUnreadCount, 3000);
       return () => clearInterval(id);
     } else {
-      setUnreadCount(0); // Reset count if user logs out
+      setUnreadCount(0);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authenticatedUser]);
+  }, [authenticatedUser, fetchUnreadCount]);
 
   const fetchUnreadNotifications = async () => {
     if (!authenticatedUser?.token) return;
@@ -72,7 +72,6 @@ const NotificationMenu = () => {
       );
       if (response.ok) {
         const data = await response.json();
-        console.log('Data from server:', data[0]);
         setUnreadNotifications(data);
       }
     } catch (err) {
@@ -81,71 +80,95 @@ const NotificationMenu = () => {
   };
   return (
     <>
-      <IconButton color="primary" onClick={handleMenuClick}>
-        <Badge badgeContent={unreadCount} color="warning">
-          <NotificationsIcon />
+      <IconButton size="small" onClick={handleMenuClick}>
+        <Badge badgeContent={unreadCount} color="primary" variant="dot">
+          <NotificationsOutlined />
         </Badge>
       </IconButton>
-
       <Menu
         open={isOpen}
         onClose={handleClose}
         anchorEl={menuPosition}
-        slotProps={{
-          paper: {
-            sx: {
-              width: '50ch',
-              maxHeight: 350,
-              '& .MuiMenuItem-root': {
-                whiteSpace: 'normal',
-                wordWrap: 'break-word',
-                py: 1.5,
-                borderBottom: '1px solid gray',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'flex-start',
-                '&:last-child': { borderBottom: 'none' },
-                cursor: 'default',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              },
-            },
-          },
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
         }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+        // slotProps={{
+        //   paper: {
+        //     sx: {
+        //       width: '50ch',
+        //       maxHeight: 350,
+        //       '& .MuiMenuItem-root': {
+        //         whiteSpace: 'normal',
+        //         wordWrap: 'break-word',
+        //         py: 1.5,
+        //         borderBottom: '1px solid gray',
+        //         display: 'flex',
+        //         flexDirection: 'column',
+        //         alignItems: 'flex-start',
+        //         '&:last-child': { borderBottom: 'none' },
+        //         cursor: 'default',
+        //         overflow: 'hidden',
+        //         textOverflow: 'ellipsis',
+        //       },
+        //     },
+        //   },
+        // }}
       >
-        <Box
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          minWidth="15rem"
+          padding="0.5rem 1.5rem 0.75rem 1.5rem"
           sx={{
-            px: 2,
-            py: 1,
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
+            outline: 'none',
           }}
         >
-          <Typography variant="subtitle2" fontWeight="bold">
-            Notifications
-          </Typography>
+          <Typography variant="h4">Notifications</Typography>
           <Link
             onClick={handleSeeAllCLick}
             variant="caption"
             color="primary"
             sx={{ cursor: 'pointer' }}
           >
-            Voir tous
+            <Button variant="contained" color="secondary" size="small">
+              voir tout
+            </Button>
           </Link>
-        </Box>
+        </Stack>
         <Divider />
-        {unreadNotifications.map((notif, index) => (
-          <NotificationItem
-            key={notif.idNotification}
-            notification={notif}
-            isLast={index === unreadNotifications.length - 1}
-            onRefresh={() => {
-              fetchUnreadNotifications();
-              fetchUnreadCount(); // Refresh the badge too!
-            }}
-          />
-        ))}
+        {unreadNotifications.length === 0 ? (
+          <Stack padding="2rem 1.5rem" spacing="0.25rem" alignItems="center">
+            <Typography variant="h5" textAlign="center">
+              Rien à signaler!
+            </Typography>
+            <Typography
+              variant="body2"
+              textAlign="center"
+              width="14rem"
+              color="text.secondary"
+            >
+              Vous n'avez aucune nouvelle notification pour le moment.
+            </Typography>
+          </Stack>
+        ) : (
+          unreadNotifications.map((notif, index) => (
+            <NotificationItem
+              key={notif.idNotification}
+              notification={notif}
+              isLast={index === unreadNotifications.length - 1}
+              onRefresh={() => {
+                fetchUnreadNotifications();
+                fetchUnreadCount(); // Refresh the badge too!
+              }}
+            />
+          ))
+        )}
       </Menu>
     </>
   );
