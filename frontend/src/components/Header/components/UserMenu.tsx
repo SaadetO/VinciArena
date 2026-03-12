@@ -64,6 +64,7 @@ export const UserMenu = () => {
           onClick={() => {
             clearUser();
             handleClose();
+            navigate('/');
           }}
         >
           <Typography variant="h5" color="error">
