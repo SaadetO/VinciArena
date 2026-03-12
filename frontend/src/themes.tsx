@@ -539,10 +539,11 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           '& .MuiMenu-paper': {
-            borderRadius: '0.5rem',
+            borderRadius: '0.75rem',
             background: surfaceLevels.s2,
             backgroundImage: 'none',
             minWidth: '25rem',
+            marginTop: '0.375rem',
           },
         },
       },
