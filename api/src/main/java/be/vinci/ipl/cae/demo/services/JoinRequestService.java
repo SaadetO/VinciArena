@@ -6,6 +6,7 @@ import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.RequestStatus;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.repositories.JoinRequestRepository;
+import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.TeamRepository;
 import java.time.LocalDateTime;
 import org.springframework.stereotype.Service;
@@ -19,7 +20,7 @@ public class JoinRequestService {
   private final JoinRequestRepository joinRequestRepository;
   private final TeamRepository teamRepository;
   private final NotificationService notificationService;
-  private final be.vinci.ipl.cae.demo.repositories.MemberRepository memberRepository;
+  private final MemberRepository memberRepository;
 
   /**
    * Constructor.
@@ -31,7 +32,7 @@ public class JoinRequestService {
    */
   public JoinRequestService(JoinRequestRepository joinRequestRepository,
       TeamRepository teamRepository, NotificationService notificationService,
-      be.vinci.ipl.cae.demo.repositories.MemberRepository memberRepository) {
+      MemberRepository memberRepository) {
     this.joinRequestRepository = joinRequestRepository;
     this.teamRepository = teamRepository;
     this.notificationService = notificationService;

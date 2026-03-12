@@ -1,5 +1,6 @@
 package be.vinci.ipl.cae.demo.services;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -8,6 +9,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.eq;
 
 import be.vinci.ipl.cae.demo.models.dtos.JoinRequestDto;
 import be.vinci.ipl.cae.demo.models.entities.JoinRequest;
@@ -15,6 +17,7 @@ import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.RequestStatus;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.repositories.JoinRequestRepository;
+import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.TeamRepository;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,6 +38,9 @@ class JoinRequestServiceTest {
 
   @Mock
   private NotificationService notificationService;
+
+  @Mock
+  private MemberRepository memberRepository;
 
   @InjectMocks
   private JoinRequestService joinRequestService;
@@ -114,5 +120,89 @@ class JoinRequestServiceTest {
 
     assertEquals("Vous avez déjà une demande en attente pour cette équipe", exception.getMessage());
     verify(joinRequestRepository, never()).save(any(JoinRequest.class));
+  }
+
+  @Test
+  void updateJoinRequestStatus_Accepted() {
+    // Arrange
+    Team teamA = new Team();
+    teamA.setIdTeam(1L);
+    teamA.setName("Team A");
+    Member manager = new Member();
+    manager.setIdMember(10L);
+    teamA.setManager1(manager);
+
+    JoinRequest jr = new JoinRequest();
+    jr.setIdJoinRequest(100L);
+    jr.setMember(requester);
+    jr.setRequestedTeam(teamA);
+    jr.setStatus(RequestStatus.PENDING);
+
+    when(joinRequestRepository.findById(100L)).thenReturn(Optional.of(jr));
+
+    // Act
+    JoinRequestDto result = joinRequestService.updateJoinRequestStatus(100L, RequestStatus.ACCEPTED, manager);
+
+    // Assert
+    assertNotNull(result);
+    assertEquals(RequestStatus.ACCEPTED, result.getStatus());
+    assertEquals(teamA, requester.getTeam());
+    verify(joinRequestRepository).save(jr);
+    verify(memberRepository).save(requester);
+    verify(notificationService).notifyMember(eq(requester.getIdMember()), anyString());
+    verify(joinRequestRepository).deleteAllByMemberAndStatus(requester, RequestStatus.PENDING);
+  }
+
+  @Test
+  void updateJoinRequestStatus_Rejected() {
+    // Arrange
+    Team teamA = new Team();
+    teamA.setIdTeam(1L);
+    teamA.setName("Team A");
+    Member manager = new Member();
+    manager.setIdMember(10L);
+    teamA.setManager1(manager);
+
+    JoinRequest jr = new JoinRequest();
+    jr.setIdJoinRequest(100L);
+    jr.setMember(requester);
+    jr.setRequestedTeam(teamA);
+    jr.setStatus(RequestStatus.PENDING);
+
+    when(joinRequestRepository.findById(100L)).thenReturn(Optional.of(jr));
+
+    // Act
+    JoinRequestDto result = joinRequestService.updateJoinRequestStatus(100L, RequestStatus.REJECTED, manager);
+
+    // Assert
+    assertNotNull(result);
+    assertEquals(RequestStatus.REJECTED, result.getStatus());
+    verify(joinRequestRepository).save(jr);
+    verify(notificationService).notifyMember(eq(requester.getIdMember()), anyString());
+    verify(memberRepository, never()).save(any(Member.class));
+    verify(joinRequestRepository, never()).deleteAllByMemberAndStatus(any(), any());
+  }
+
+  @Test
+  void updateJoinRequestStatus_NotManager() {
+    // Arrange
+    Team teamA = new Team();
+    teamA.setIdTeam(1L);
+    Member manager = new Member();
+    manager.setIdMember(10L);
+    teamA.setManager1(manager);
+
+    JoinRequest jr = new JoinRequest();
+    jr.setStatus(RequestStatus.PENDING);
+    jr.setRequestedTeam(teamA);
+
+    Member intruder = new Member();
+    intruder.setIdMember(99L);
+
+    when(joinRequestRepository.findById(100L)).thenReturn(Optional.of(jr));
+
+    // Act & Assert
+    assertThrows(IllegalStateException.class, 
+        () -> joinRequestService.updateJoinRequestStatus(100L, RequestStatus.ACCEPTED, intruder));
   }
 }
