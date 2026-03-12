@@ -1,0 +1,190 @@
+@baseUrl = http://localhost:3000
+
+
+### --- Setup: Create Managers and 2 Teams ---
+
+### 1: Register Manager 1
+POST {{baseUrl}}/auths/register
+Content-Type: application/json
+
+{
+  "email": "manager@test.com",
+  "password": "password123",
+  "tag": "ManagerOne"
+}
+
+### 2: Login to get JWT token (stored in auth_token)
+POST {{baseUrl}}/auths/login
+Content-Type: application/json
+
+{
+  "email": "manager@test.com",
+  "password": "password123"
+}
+
+> {% client.global.set("auth1_token", response.body.token); %}
+
+### 3: Create Team A with Manager 1
+POST {{baseUrl}}/teams/
+Content-Type: application/json
+Authorization: {{auth1_token}}
+
+{
+  "name": "Team A"
+}
+
+> {% client.global.set("team_a_id", response.body.idTeam); %}
+
+### 4: Register Manager 2
+POST {{baseUrl}}/auths/register
+Content-Type: application/json
+
+{
+  "email": "manager2@test.com",
+  "password": "password123",
+  "tag": "ManagerTwo"
+}
+
+### 5: Login to get JWT token (stored in auth_token)
+POST {{baseUrl}}/auths/login
+Content-Type: application/json
+
+{
+  "email": "manager2@test.com",
+  "password": "password123"
+}
+
+> {% client.global.set("auth2_token", response.body.token); %}
+
+### 6: Create Team B (to test cleanup later)
+POST {{baseUrl}}/teams/
+Content-Type: application/json
+Authorization: {{auth2_token}}
+
+{
+  "name": "Team B"
+}
+
+> {% client.global.set("team_b_id", response.body.idTeam); %}
+
+
+### --- Setup: Create Users and Requests ---
+### 7: Register User 1
+POST {{baseUrl}}/auths/register
+Content-Type: application/json
+
+{
+  "email": "user1@test.com",
+  "password": "password123",
+  "tag": "UserOne"
+}
+
+### 8: Login User 1
+POST {{baseUrl}}/auths/login
+Content-Type: application/json
+
+{
+  "email": "user1@test.com",
+  "password": "password123"
+}
+
+> {%
+  client.global.set("user1_token", response.body.token);
+  client.global.set("user1_id", response.body.id);
+%}
+
+### 9: User 1 requests to join Team A (expects 201)
+POST {{baseUrl}}/teams/{{team_a_id}}/join-requests
+Content-Type: application/json
+Authorization: {{user1_token}}
+
+> {%
+  client.global.set("user1_request_id", response.body.idJoinRequest);
+%}
+
+### 10: User 1 requests to join Team B (expects 201)
+POST {{baseUrl}}/teams/{{team_b_id}}/join-requests
+Content-Type: application/json
+Authorization: {{user1_token}}
+
+> {%
+  client.global.set("user1_request2_id", response.body.idJoinRequest);
+%}
+
+### 9: Register User 2
+POST {{baseUrl}}/auths/register
+Content-Type: application/json
+
+{
+  "email": "user2@test.com",
+  "password": "password123",
+  "tag": "UserTwo"
+}
+
+### 10: Login User 2
+POST {{baseUrl}}/auths/login
+Content-Type: application/json
+
+{
+  "email": "user2@test.com",
+  "password": "password123"
+}
+
+> {%
+  client.global.set("user2_token", response.body.token);
+  client.global.set("user2_id", response.body.id);
+%}
+
+### 11: User 2 requests to join Team A
+POST {{baseUrl}}/teams/{{team_a_id}}/join-requests
+Content-Type: application/json
+Authorization: {{user2_token}}
+
+> {%
+  client.global.set("user2_request_id", response.body.idJoinRequest);
+%}
+
+### --- Testing Phase: Team Details and Actions ---
+### 12: Manager 1 gets Team A details (should see 2 join requests)
+GET {{baseUrl}}/teams/{{team_a_id}}/details
+Authorization: {{auth1_token}}
+
+### 13: Manager 1 rejects User 2
+PATCH {{baseUrl}}/teams/join-requests/{{user2_request_id}}
+Content-Type: application/json
+Authorization: {{auth1_token}}
+
+"REJECTED"
+
+### 14: Verify User 2 received notification
+# User 2 login if needed, or just use their token
+GET {{baseUrl}}/notifications/member/{{user2_id}}
+Authorization: {{user2_token}}
+
+### 15: Manager 1 accepts User 1
+PATCH {{baseUrl}}/teams/join-requests/{{user1_request_id}}
+Content-Type: application/json
+Authorization: {{auth1_token}}
+
+"ACCEPTED"
+
+### 16: Verify User 1 is now in Team A (through their profile)
+GET {{baseUrl}}/members/{{user1_id}}
+Authorization: {{user1_token}}
+
+### 17: Verify User 1 received notification
+GET {{baseUrl}}/notifications/member/{{user1_id}}
+Authorization: {{user1_token}}
+
+### 18: Verify User 1's other request (for Team B) is DELETED
+# By checking whether the Manager of Team B still sees it in team details.
+GET {{baseUrl}}/teams/{{team_b_id}}/details
+Authorization: {{auth2_token}}
+
+### 19: Attempt to accept the already rejected User 2 request (expect 403/Conflict or 400)
+# Our logic throws IllegalStateException for "Cette demande n'est plus en attente" -> 403 Forbidden as per our controller mapping
+PATCH {{baseUrl}}/teams/join-requests/{{user2_request_id}}
+Content-Type: application/json
+Authorization: {{auth1_token}}
+
+"ACCEPTED"
