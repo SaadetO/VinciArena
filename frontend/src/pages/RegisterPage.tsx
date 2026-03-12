@@ -1,25 +1,30 @@
 import { useState, SyntheticEvent, useContext, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
+  Alert,
   Autocomplete,
+  Avatar,
   Box,
   Button,
   Container,
+  Divider,
   Stack,
   TextField,
   Typography,
 } from '@mui/material';
-import { UserContextType } from '../types';
+import { ProfileImage, UserContextType } from '../types';
 import { UserContext } from '../contexts/UserContext';
 import logo from '../assets/images/logo.svg';
 import authBackground from '../assets/images/auth_background.jpg';
 import { ArrowBack } from '@mui/icons-material';
+import { ProfileImageMenu } from '../components/ProfileImageMenu';
 
 interface FormData {
   email: string;
   password: string;
   tag: string;
   specialtyId: number | null;
+  profileImageId: number | null;
 }
 
 // ---- fetch the real array of specialties from the db ---- //
@@ -35,17 +40,25 @@ const specialties = [
 
 export const RegisterPage = () => {
   const { registerUser }: UserContextType = useContext(UserContext);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [chosenImage, setChosenImage] = useState<ProfileImage | null>(null);
+  const [showError, setShowError] = useState(false);
   const navigate = useNavigate();
   const [formData, setFormData] = useState<FormData>({
     email: '',
     password: '',
     tag: '',
     specialtyId: null,
+    profileImageId: null,
   });
 
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
     console.log(formData.specialtyId);
+    if (!formData.profileImageId || !formData.specialtyId) {
+      setShowError(true);
+      return;
+    }
 
     try {
       await registerUser(formData);
@@ -58,6 +71,11 @@ export const RegisterPage = () => {
   const handleChange = (e: SyntheticEvent) => {
     const input = e.target as HTMLInputElement;
     setFormData({ ...formData, [input.name]: input.value });
+  };
+
+  const handleSelectImage = (image: ProfileImage) => {
+    setChosenImage(image);
+    setFormData((prev) => ({ ...prev, profileImageId: image.idImage }));
   };
 
   useEffect(() => {
@@ -93,6 +111,26 @@ export const RegisterPage = () => {
             </Typography>
           </Stack>
         </Stack>
+        <Stack alignItems="center" spacing={1}>
+          <Avatar
+            onClick={() => setIsMenuOpen(true)}
+            src={chosenImage ? `/src/assets/images/${chosenImage.path}` : ''}
+            sx={{
+              width: 70,
+              height: 70,
+              border: '2px solid #ccc',
+              cursor: 'pointer',
+            }}
+          />
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
+            Sélectionnez une image de profil
+          </Typography>
+        </Stack>
         <form
           onSubmit={handleSubmit}
           style={{
@@ -115,6 +153,7 @@ export const RegisterPage = () => {
               fullWidth
               id="password"
               name="password"
+              type="password"
               placeholder="Mot de passe"
               variant="outlined"
               value={formData.password}
@@ -146,6 +185,12 @@ export const RegisterPage = () => {
               }
             />
           </Stack>
+          <Divider sx={{ my: 1 }}></Divider>
+          {showError && (
+            <Alert severity="error" variant="filled">
+              Tous les champs sont requis !
+            </Alert>
+          )}
           <Stack spacing="1.5rem" paddingTop="1.5rem">
             <Button type="submit" variant="contained">
               S'inscrire
@@ -156,6 +201,11 @@ export const RegisterPage = () => {
           </Stack>
         </form>
       </Container>
+      <ProfileImageMenu
+        open={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        onSelect={handleSelectImage}
+      />
       <Box
         width={1 / 3}
         minHeight="100%"

@@ -6,6 +6,10 @@ interface UserContextType {
   loginUser: (user: User) => Promise<void>;
   clearUser: () => void;
 }
+interface ProfileImage {
+  idImage: number;
+  path: string;
+}
 
 interface User {
   email: string;
@@ -71,4 +75,5 @@ export type {
   Team,
   NotificationDto,
   StoredUser,
+  ProfileImage,
 };
