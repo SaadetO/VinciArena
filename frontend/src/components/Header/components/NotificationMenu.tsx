@@ -9,10 +9,10 @@ import {
   Stack,
   Button,
 } from '@mui/material';
-import { UserContext } from '../contexts/UserContext';
+import { UserContext } from '../../../contexts/UserContext';
 import { useNavigate } from 'react-router-dom';
-import { NotificationDto } from '../types';
-import { NotificationItem } from './NotificationItem';
+import { NotificationDto } from '../../../types';
+import { NotificationItem } from '../../NotificationItem';
 import { NotificationsOutlined } from '@mui/icons-material';
 
 const NotificationMenu = () => {
@@ -33,6 +33,7 @@ const NotificationMenu = () => {
 
   const handleSeeAllCLick = () => {
     navigate('/notifications');
+    handleClose();
   };
 
   const handleClose = () => {
@@ -80,7 +81,7 @@ const NotificationMenu = () => {
   };
   return (
     <>
-      <IconButton size="small" onClick={handleMenuClick}>
+      <IconButton size="small" onClick={handleMenuClick} sx={{background: (theme) => isOpen ? theme.palette.background.s4 : 'transparent'}}>
         <Badge badgeContent={unreadCount} color="primary" variant="dot">
           <NotificationsOutlined />
         </Badge>
@@ -97,27 +98,11 @@ const NotificationMenu = () => {
           vertical: 'top',
           horizontal: 'right',
         }}
-        // slotProps={{
-        //   paper: {
-        //     sx: {
-        //       width: '50ch',
-        //       maxHeight: 350,
-        //       '& .MuiMenuItem-root': {
-        //         whiteSpace: 'normal',
-        //         wordWrap: 'break-word',
-        //         py: 1.5,
-        //         borderBottom: '1px solid gray',
-        //         display: 'flex',
-        //         flexDirection: 'column',
-        //         alignItems: 'flex-start',
-        //         '&:last-child': { borderBottom: 'none' },
-        //         cursor: 'default',
-        //         overflow: 'hidden',
-        //         textOverflow: 'ellipsis',
-        //       },
-        //     },
-        //   },
-        // }}
+        sx={{
+          '& .MuiPaper-root': {
+            marginTop: '0.375rem',
+          },
+        }}
       >
         <Stack
           direction="row"
