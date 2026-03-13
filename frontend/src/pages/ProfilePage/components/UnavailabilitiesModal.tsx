@@ -14,7 +14,9 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import { Theme } from '@mui/material/styles';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
+import { UserContext } from '../../../contexts/UserContext';
+import { checkOverlap, getDurationString } from '../../../utils/date';
 
 const datePickerSx: SxProps<Theme> = {
   '& .MuiPickersSectionList-root': {
@@ -40,16 +42,33 @@ const datePickerSx: SxProps<Theme> = {
 interface UnavailabilitiesModalProps {
   open: boolean;
   onClose: () => void;
+  onSuccess: (data: {
+    tempId: number;
+    startDate: string;
+    endDate: string;
+  }) => void;
+  onError: (errorMessage: string) => void;
+  onIdResolved: (tempId: number, realId: number) => void;
+  unavailabilities: { id: number; startDate: string; endDate: string }[] | null;
 }
 
 export const UnavailabilitiesModal = ({
   open,
   onClose,
+  onSuccess,
+  onError,
+  onIdResolved,
+  unavailabilities,
 }: UnavailabilitiesModalProps) => {
+  const { authenticatedUser } = useContext(UserContext);
   const [dates, setDates] = useState({
     startDate: dayjs(Date.now()),
     endDate: dayjs(Date.now()).add(7, 'day'),
   });
+
+  const onIdResolvedRef = useRef(onIdResolved);
+  onIdResolvedRef.current = onIdResolved;
+  const [overlapError, setOverlapError] = useState<string | null>(null);
 
   const handleDateChange = (
     date: dayjs.Dayjs | null,
@@ -65,42 +84,72 @@ export const UnavailabilitiesModal = ({
       else if (field === 'endDate' && date.isBefore(prevDates.startDate))
         newDates.startDate = date.subtract(7, 'day');
 
+      if (
+        field === 'startDate' &&
+        newDates.startDate.isSame(newDates.endDate, 'day')
+      )
+        newDates.endDate = newDates.startDate.add(7, 'day');
+
+      if (
+        field === 'endDate' &&
+        newDates.endDate.isSame(newDates.startDate, 'day')
+      )
+        newDates.startDate = newDates.endDate.subtract(7, 'day');
+
+      const error = checkOverlap(
+        newDates.startDate,
+        newDates.endDate,
+        unavailabilities,
+      );
+      setOverlapError(error);
       return newDates;
     });
-  };
-
-  const getDurationString = () => {
-    const diffInDays = dates.endDate.diff(dates.startDate, 'day');
-    if (diffInDays < 0) return '';
-    const weeks = Math.floor(diffInDays / 7);
-    const days = diffInDays % 7;
-
-    const parts = [];
-    if (weeks > 0) parts.push(`${weeks} semaine${weeks > 1 ? 's' : ''}`);
-    if (days > 0) parts.push(`${days} jour${days > 1 ? 's' : ''}`);
-
-    return parts.length > 0 ? parts.join(', ') : '0 jours';
   };
 
   const handleClose = () => {
     onClose();
   };
 
-  const handleSubmit = () => {
-    console.log({
+  const handleSubmit = async () => {
+    const tempId = -Date.now();
+    const submittedDates = {
       startDate: dates.startDate.toISOString(),
       endDate: dates.endDate.toISOString(),
-    });
+    };
+
+    onSuccess({ tempId, ...submittedDates });
     handleClose();
+
+    try {
+      const response = await fetch('/api/unavailabilities/me', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: authenticatedUser?.token ?? '',
+        },
+        body: JSON.stringify(submittedDates),
+      });
+
+      if (!response.ok) {
+        throw new Error("Erreur lors de l'ajout de l'indisponibilité.");
+      }
+
+      const created = await response.json();
+      onIdResolvedRef.current(tempId, created.idUnavailability);
+    } catch (err: unknown) {
+      onError(err instanceof Error ? err.message : 'Une erreur est survenue.');
+    }
   };
 
   useEffect(() => {
-    open &&
-      setDates({
-        startDate: dayjs(Date.now()),
-        endDate: dayjs(Date.now()).add(7, 'day'),
-      });
-  }, [open]);
+    if (open) {
+      const start = dayjs(Date.now());
+      const end = dayjs(Date.now()).add(7, 'day');
+      setDates({ startDate: start, endDate: end });
+      const error = checkOverlap(start, end, unavailabilities);
+      setOverlapError(error);
+    }
+  }, [open, unavailabilities]);
   return (
     <Dialog
       open={open}
@@ -122,7 +171,7 @@ export const UnavailabilitiesModal = ({
               onChange={(date) => handleDateChange(date, 'startDate')}
               disablePast
             />
-            <Tooltip title={getDurationString()} arrow placement="top">
+            <Tooltip title={getDurationString(dates)} arrow placement="top">
               <ArrowForward
                 sx={{
                   color: (theme: Theme) => theme.palette.text.secondary,
@@ -140,6 +189,16 @@ export const UnavailabilitiesModal = ({
             />
           </LocalizationProvider>
         </Stack>
+        {overlapError && (
+          <Typography
+            color="error"
+            variant="body2"
+            textAlign="center"
+            padding="0.5rem 1rem 0"
+          >
+            {overlapError}
+          </Typography>
+        )}
       </DialogContent>
       <DialogActions>
         <Button
@@ -150,7 +209,12 @@ export const UnavailabilitiesModal = ({
         >
           Annuler
         </Button>
-        <Button variant="contained" onClick={handleSubmit} fullWidth>
+        <Button
+          variant="contained"
+          onClick={handleSubmit}
+          fullWidth
+          disabled={!!overlapError}
+        >
           Confirmer
         </Button>
       </DialogActions>

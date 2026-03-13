@@ -1,4 +1,11 @@
-import { Container, Grid2, Snackbar, Stack, Typography } from '@mui/material';
+import {
+  Container,
+  Grid2,
+  Slide,
+  Snackbar,
+  Stack,
+  Typography,
+} from '@mui/material';
 import { PersonalInfoCard } from './components/PersonalInfoCard';
 import { ProfileBanner } from './components/ProfileBanner';
 import { TeamCard } from './components/TeamCard';
@@ -14,7 +21,11 @@ import { UnavailabilitiesModal } from './components/UnavailabilitiesModal';
 import { JoinTeamModal } from './components/JoinTeamModal';
 
 export const ProfilePage = () => {
-  const [snackBarText, setSnackBarText] = useState<string | null>(null);
+  const [snackBarMessage, setSnackBarMessage] = useState<{
+    text: string;
+    isError: boolean;
+    isOpen: boolean;
+  } | null>(null);
   const [teams, setTeams] = useState<Team[]>([]);
   const [openJoin, setOpenJoin] = useState(false);
   const [openCreate, setOpenCreate] = useState(false);
@@ -62,6 +73,10 @@ export const ProfilePage = () => {
     })();
   }, [idNbr, authenticatedUser]);
 
+  useEffect(() => {
+    console.log(user);
+  }, [user]);
+
   if (error) return <NotFoundPage error={error} />;
   return (
     <>
@@ -103,6 +118,29 @@ export const ProfilePage = () => {
                 <UnavailabilitiesCard
                   user={user}
                   setUnavailabilitiesModal={setUnavailabilitiesModal}
+                  onError={(errorMessage: string) => {
+                    setSnackBarMessage({
+                      text: errorMessage,
+                      isError: true,
+                      isOpen: true,
+                    });
+                  }}
+                  onSuccessDelete={(id: number) => {
+                    setSnackBarMessage({
+                      text: 'Indisponibilité supprimée avec succès !',
+                      isError: false,
+                      isOpen: true,
+                    });
+                    setUser((prev) => {
+                      if (!prev) return prev;
+                      return {
+                        ...prev,
+                        unavailabilities: (prev.unavailabilities ?? []).filter(
+                          (u) => u.id !== id,
+                        ),
+                      };
+                    });
+                  }}
                 />
               </Stack>
             </Grid2>
@@ -113,11 +151,13 @@ export const ProfilePage = () => {
         open={openCreate}
         onClose={() => setOpenCreate(false)}
         onSuccess={(team) => {
-          setSnackBarText('Team créée avec succès !');
+          setSnackBarMessage({
+            text: 'Team créée avec succès !',
+            isError: false,
+            isOpen: true,
+          });
           setOpenCreate(false);
-          if (user) {
-            setUser({ ...user, team });
-          }
+          if (user) setUser({ ...user, team });
         }}
       />
       <JoinTeamModal
@@ -125,22 +165,99 @@ export const ProfilePage = () => {
         setTeams={setTeams}
         open={openJoin}
         onClose={() => setOpenJoin(false)}
-        onSuccess={() => setSnackBarText('Demande effectuée avec succès !')}
+        onSuccess={() =>
+          setSnackBarMessage({
+            text: 'Demande effectuée avec succès !',
+            isError: false,
+            isOpen: true,
+          })
+        }
       />
       <PasswordModal
         open={passwordModal}
         onClose={() => setPasswordModal(false)}
+        onSuccess={() =>
+          setSnackBarMessage({
+            text: 'Mot de passe modifié avec succès !',
+            isError: false,
+            isOpen: true,
+          })
+        }
+        onError={(errorMessage: string) =>
+          setSnackBarMessage({
+            text: errorMessage,
+            isError: true,
+            isOpen: true,
+          })
+        }
       />
       <UnavailabilitiesModal
         open={unavailabilitiesModal}
         onClose={() => setUnavailabilitiesModal(false)}
+        unavailabilities={user?.unavailabilities ?? null}
+        onSuccess={({ tempId, startDate, endDate }) => {
+          setSnackBarMessage({
+            text: 'Indisponibilité ajoutée avec succès !',
+            isError: false,
+            isOpen: true,
+          });
+          if (user)
+            setUser((prev) => {
+              if (!prev) return prev;
+              return {
+                ...prev,
+                unavailabilities: [
+                  ...(prev.unavailabilities ?? []),
+                  { id: tempId, startDate, endDate },
+                ],
+              };
+            });
+        }}
+        onIdResolved={(tempId, realId) => {
+          setUser((prev) => {
+            if (!prev) return prev;
+            return {
+              ...prev,
+              unavailabilities: (prev.unavailabilities ?? []).map((u) =>
+                u.id === tempId ? { ...u, id: realId } : u,
+              ),
+            };
+          });
+        }}
+        onError={(errorMessage: string) => {
+          setSnackBarMessage({
+            text: errorMessage,
+            isError: true,
+            isOpen: true,
+          });
+        }}
       />
-      <Snackbar
-        open={!!snackBarText}
-        autoHideDuration={3000}
-        onClose={() => setSnackBarText(null)}
-        message={snackBarText}
-      />
+      <Slide direction="up" in={snackBarMessage?.isOpen ?? false}>
+        <Snackbar
+          open={snackBarMessage?.isOpen ?? false}
+          autoHideDuration={3000}
+          onClose={() =>
+            setSnackBarMessage((prev) =>
+              prev ? { ...prev, isOpen: false } : null,
+            )
+          }
+          message={
+            snackBarMessage && (
+              <Typography
+                variant="body1"
+                sx={{
+                  color: (theme) =>
+                    snackBarMessage.isError
+                      ? theme.palette.error.main
+                      : theme.palette.background.s0,
+                }}
+              >
+                {snackBarMessage.text}
+              </Typography>
+            )
+          }
+        />
+      </Slide>
     </>
   );
 };

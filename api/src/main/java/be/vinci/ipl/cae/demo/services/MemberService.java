@@ -212,6 +212,7 @@ public class MemberService {
       var unavailabilities = StreamSupport.stream(
               unavailabilityRepository.findByMember(requestedMember).spliterator(), false)
           .map(u -> ProfileDto.UnavailabilityDto.builder()
+              .id(u.getIdUnavailability())
               .startDate(u.getStartDate())
               .endDate(u.getEndDate())
               .build())
