@@ -111,4 +111,18 @@ public class TeamController {
 
     return updatedTeam;
   }
+
+  /**
+   * Quit the current team.
+   *
+   * @param currentMember the authenticated member
+   */
+  @PostMapping("/quit")
+  @PreAuthorize("isAuthenticated()")
+  public void quitTeam(@AuthenticationPrincipal Member currentMember) {
+    Team team = teamService.quitTeam(currentMember);
+    if (team == null) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member is not in a team");
+    }
+  }
 }

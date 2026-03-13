@@ -203,4 +203,36 @@ public class TeamService {
 
     return teamRepository.save(team);
   }
+
+  /**
+   * Remove the current member from their team.
+   * Promotes manager2 to manager1 if manager1 leaves, 
+   * or deactivates the team if it's the last manager.
+   *
+   * @param currentMember the member leaving the team
+   * @return the updated team, or null if member is not in a team
+   */
+  @Transactional
+  public Team quitTeam(Member currentMember) {
+    if (currentMember.getTeam() == null) {
+      return null;
+    }
+
+    Team team = currentMember.getTeam();
+
+    if (team.getManager1() != null && team.getManager1().getIdMember().equals(currentMember.getIdMember())) {
+      team.setManager1(null);
+    } else if (team.getManager2() != null && team.getManager2().getIdMember().equals(currentMember.getIdMember())) {
+      team.setManager2(null);
+    }
+
+    if (team.getManager1() == null && team.getManager2() == null) {
+      team.setIsActive(false);
+    }
+
+    currentMember.setTeam(null);
+    memberRepository.save(currentMember);
+    
+    return teamRepository.save(team);
+  }
 }
