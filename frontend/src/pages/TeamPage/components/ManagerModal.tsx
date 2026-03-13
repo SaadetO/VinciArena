@@ -82,10 +82,12 @@ export const ManagerModal = ({
       </Typography>
       <DialogContent>
         <Autocomplete
-          options={team?.members.filter(
-            (user: ProfileInfoDto) =>
-              !team?.managers.find((manager) => manager.id === user.id),
-          ) ?? []}
+          options={
+            team?.members.filter(
+              (user: ProfileInfoDto) =>
+                !team?.managers.find((manager) => manager.id === user.id),
+            ) ?? []
+          }
           fullWidth
           value={selectedUser}
           getOptionLabel={(user) => user.tag}

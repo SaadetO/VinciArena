@@ -99,7 +99,11 @@ export const TeamPage = () => {
           </Grid2>
           <Grid2 size={{ xs: 12, lg: 5 }}>
             <Stack spacing="1.5rem">
-              <ManagerCard team={team} setTeam={setTeam} setSnackBarMessage={setSnackBarMessage} />
+              <ManagerCard
+                team={team}
+                setTeam={setTeam}
+                setSnackBarMessage={setSnackBarMessage}
+              />
               <MembersCard isLoading={isLoading} team={team} />
               {team?.managers.find((e) => e.id === authenticatedUser?.id) && (
                 <JoinRequestsCard
