@@ -41,3 +41,13 @@ export const formatRelativeTime = (date: Date | string | number): string => {
 
   return result;
 };
+
+/**
+ * Formats a date into a readable string like "25 oct. 2026".
+ *
+ * @param {Date | string | number} date The date to format
+ * @return {string} A formatted date string
+ */
+export const formatDate = (date: Date | string | number): string => {
+  return dayjs(date).format('D MMM YYYY');
+};
