@@ -5,6 +5,7 @@ import { SyntheticEvent, useContext } from 'react';
 import { NotificationMenu } from './components/NotificationMenu';
 import { UserContext } from '../../contexts/UserContext';
 import { UserMenu } from './components/UserMenu';
+import { AdminMenu } from './components/AdminMenu';
 export const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -52,9 +53,7 @@ export const Header = () => {
           {authenticatedUser?.admin && (
             <Stack direction="row" spacing="1rem">
               <Button variant="contained">Créer un tournoi</Button>
-              <Button variant="contained" color="secondary">
-                Créer un admin
-              </Button>
+              <AdminMenu />
             </Stack>
           )}
           {authenticatedUser ? (
