@@ -131,6 +131,24 @@ export const ProfilePage = () => {
                   user={user}
                   setOpen={setOpenCreate}
                   setOpenJoin={setOpenJoin}
+                  onQuitSuccess={() => {
+                    setSnackBarMessage({
+                      text: "Vous avez quitté l'équipe avec succès.",
+                      isError: false,
+                      isOpen: true,
+                    });
+                    setUser((prev) => {
+                      if (!prev) return prev;
+                      return { ...prev, team: null };
+                    });
+                  }}
+                  onError={(errorMessage: string) => {
+                    setSnackBarMessage({
+                      text: errorMessage,
+                      isError: true,
+                      isOpen: true,
+                    });
+                  }}
                 />
                 <UnavailabilitiesCard
                   user={user}

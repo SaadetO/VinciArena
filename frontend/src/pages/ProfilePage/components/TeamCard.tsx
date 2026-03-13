@@ -1,16 +1,50 @@
 import { Button, Skeleton, Stack, Typography } from '@mui/material';
 import { ProfileInfoDto } from '../../../types';
-import { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { UserContext } from '../../../contexts/UserContext';
 
 interface TeamCardProps {
   setOpen: Dispatch<SetStateAction<boolean>>;
   setOpenJoin: Dispatch<SetStateAction<boolean>>;
   user?: ProfileInfoDto;
+  onQuitSuccess?: () => void;
+  onError?: (errorMessage: string) => void;
 }
 
-export const TeamCard = ({ setOpen, setOpenJoin, user }: TeamCardProps) => {
+export const TeamCard = ({
+  setOpen,
+  setOpenJoin,
+  user,
+  onQuitSuccess,
+  onError,
+}: TeamCardProps) => {
   const navigate = useNavigate();
+  const { authenticatedUser } = useContext(UserContext);
+
+  const handleQuit = async () => {
+    try {
+      const response = await fetch('/api/teams/quit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: authenticatedUser?.token ?? '',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to quit team');
+      }
+
+      if (onQuitSuccess) {
+        onQuitSuccess();
+      }
+    } catch (err) {
+      if (onError) {
+        onError('Une erreur est survenue en quittant la team.');
+      }
+    }
+  };
 
   return (
     <Stack
@@ -43,7 +77,7 @@ export const TeamCard = ({ setOpen, setOpenJoin, user }: TeamCardProps) => {
               variant="contained"
               color="secondary"
               fullWidth
-              disabled={true} // future issue
+              onClick={() => handleQuit()}
             >
               quitter {user.team.name}
             </Button>
@@ -70,20 +104,6 @@ export const TeamCard = ({ setOpen, setOpenJoin, user }: TeamCardProps) => {
           </>
         )}
       </Stack>
-
-      {user?.team?.isManager && (
-        <Stack spacing="0.75rem">
-          {/* Future itération : ajouter bouton "renoncer à son rôle" */}
-          <Button
-            variant="contained"
-            color="secondary"
-            fullWidth
-            disabled={true} // future issue
-          >
-            désigner un responsable
-          </Button>
-        </Stack>
-      )}
     </Stack>
   );
 };
