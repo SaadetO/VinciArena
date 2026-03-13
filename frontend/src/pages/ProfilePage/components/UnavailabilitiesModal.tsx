@@ -14,7 +14,8 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import { Theme } from '@mui/material/styles';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
+import { UserContext } from '../../../contexts/UserContext';
 
 const datePickerSx: SxProps<Theme> = {
   '& .MuiPickersSectionList-root': {
@@ -40,16 +41,37 @@ const datePickerSx: SxProps<Theme> = {
 interface UnavailabilitiesModalProps {
   open: boolean;
   onClose: () => void;
+  onSuccess: (dates: { startDate: string; endDate: string }) => void;
+  onError: (errorMessage: string) => void;
+  unavailabilities: { startDate: string; endDate: string }[] | null;
 }
 
 export const UnavailabilitiesModal = ({
   open,
   onClose,
+  onSuccess,
+  onError,
+  unavailabilities,
 }: UnavailabilitiesModalProps) => {
+  const { authenticatedUser } = useContext(UserContext);
   const [dates, setDates] = useState({
     startDate: dayjs(Date.now()),
     endDate: dayjs(Date.now()).add(7, 'day'),
   });
+  const [overlapError, setOverlapError] = useState<string | null>(null);
+
+  const checkOverlap = (start: dayjs.Dayjs, end: dayjs.Dayjs) => {
+    const hasOverlap = (unavailabilities ?? []).some((u) => {
+      const existingStart = dayjs(u.startDate);
+      const existingEnd = dayjs(u.endDate);
+      return start.isBefore(existingEnd) && end.isAfter(existingStart);
+    });
+    setOverlapError(
+      hasOverlap
+        ? 'Les dates sélectionnées chevauchent une indisponibilité existante.'
+        : null,
+    );
+  };
 
   const handleDateChange = (
     date: dayjs.Dayjs | null,
@@ -65,6 +87,7 @@ export const UnavailabilitiesModal = ({
       else if (field === 'endDate' && date.isBefore(prevDates.startDate))
         newDates.startDate = date.subtract(7, 'day');
 
+      checkOverlap(newDates.startDate, newDates.endDate);
       return newDates;
     });
   };
@@ -86,20 +109,42 @@ export const UnavailabilitiesModal = ({
     onClose();
   };
 
-  const handleSubmit = () => {
-    console.log({
+  const handleSubmit = async () => {
+    const submittedDates = {
       startDate: dates.startDate.toISOString(),
       endDate: dates.endDate.toISOString(),
-    });
+    };
+
+    // Optimistic: close and notify success immediately
+    onSuccess(submittedDates);
     handleClose();
+
+    // Fire API call in the background
+    try {
+      const response = await fetch('/api/unavailabilities/me', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: authenticatedUser?.token ?? '',
+        },
+        body: JSON.stringify(submittedDates),
+      });
+
+      if (!response.ok) {
+        throw new Error("Erreur lors de l'ajout de l'indisponibilité.");
+      }
+    } catch (err: unknown) {
+      onError(err instanceof Error ? err.message : 'Une erreur est survenue.');
+    }
   };
 
   useEffect(() => {
-    open &&
-      setDates({
-        startDate: dayjs(Date.now()),
-        endDate: dayjs(Date.now()).add(7, 'day'),
-      });
+    if (open) {
+      const start = dayjs(Date.now());
+      const end = dayjs(Date.now()).add(7, 'day');
+      setDates({ startDate: start, endDate: end });
+      checkOverlap(start, end);
+    }
   }, [open]);
   return (
     <Dialog
@@ -140,6 +185,16 @@ export const UnavailabilitiesModal = ({
             />
           </LocalizationProvider>
         </Stack>
+        {overlapError && (
+          <Typography
+            color="error"
+            variant="body2"
+            textAlign="center"
+            padding="0.5rem 1rem 0"
+          >
+            {overlapError}
+          </Typography>
+        )}
       </DialogContent>
       <DialogActions>
         <Button
@@ -150,7 +205,7 @@ export const UnavailabilitiesModal = ({
         >
           Annuler
         </Button>
-        <Button variant="contained" onClick={handleSubmit} fullWidth>
+        <Button variant="contained" onClick={handleSubmit} fullWidth disabled={!!overlapError}>
           Confirmer
         </Button>
       </DialogActions>
