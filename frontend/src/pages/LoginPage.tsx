@@ -90,6 +90,7 @@ export const LoginPage = () => {
               fullWidth
               id="password"
               name="password"
+              type="password"
               placeholder="Mot de passe"
               variant="outlined"
               value={formData.password}

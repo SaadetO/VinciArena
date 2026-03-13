@@ -2,10 +2,12 @@ package be.vinci.ipl.cae.demo;
 
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Notification;
+import be.vinci.ipl.cae.demo.models.entities.ProfileImage;
 import be.vinci.ipl.cae.demo.models.entities.Specialty;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.NotificationRepository;
+import be.vinci.ipl.cae.demo.repositories.ProfileImageRepository;
 import be.vinci.ipl.cae.demo.repositories.SpecialtyRepository;
 import be.vinci.ipl.cae.demo.repositories.TeamRepository;
 import java.util.HashMap;
@@ -40,7 +42,7 @@ public class DemoApplication {
       MemberRepository memberRepo,
       NotificationRepository notifsRepo,
       TeamRepository teamRepo,
-      SpecialtyRepository specRepo) {
+      SpecialtyRepository specRepo, ProfileImageRepository imageRepo) {
     return args -> {
       // Create Specialities
       String[] specialities = {
@@ -110,6 +112,12 @@ public class DemoApplication {
       notif2.setContent("Your match result has been confirmed, Barry.");
       notif2.setRead(false);
       notifsRepo.save(notif2);
+      //insert profile image paths into database
+      for (int i = 1; i <= 20; i++) {
+        ProfileImage image = new ProfileImage();
+        image.setPath("profile-" + i + ".png");
+        imageRepo.save(image);
+      }
     };
   }
 
