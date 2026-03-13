@@ -16,7 +16,6 @@ import { ProfilePage } from './pages/ProfilePage/index.tsx';
 import { NotificationsPage } from './pages/NotificationsPage.tsx';
 import { TeamPage } from './pages/TeamPage/index.tsx';
 
-
 const router = createBrowserRouter([
   {
     path: '/',
