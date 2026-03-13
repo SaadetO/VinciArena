@@ -55,7 +55,7 @@ public class NotificationService {
    * @param content the text message of the notification
    */
   public void notifyAllMembers(String content) {
-    Member[] activeMembers = memberRepository.getAllByIsDeleted(false);
+    Member[] activeMembers = memberRepository.findAllByIsDeleted(false);
     for (Member activeMember : activeMembers) {
       saveNotification(activeMember, content);
     }

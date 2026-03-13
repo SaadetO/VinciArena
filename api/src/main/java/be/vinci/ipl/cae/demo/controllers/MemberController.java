@@ -32,6 +32,11 @@ public class MemberController {
     this.memberService = memberService;
   }
 
+  @GetMapping({"", "/"})
+  public Member[] getAllMembers() {
+    return memberService.getAllMembers();
+  }
+
   /**
    * Read one member's profile.
    *
@@ -70,6 +75,20 @@ public class MemberController {
     }
 
     boolean updated = memberService.updatePassword(currentMember, passwordDto.getPassword());
+    if (!updated) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+  }
+
+  @PutMapping("/toggle-admin/{id}")
+  public void toggleAdmin(@PathVariable Long id, @AuthenticationPrincipal Member currentMember) {
+    if (currentMember == null || !currentMember.isAdmin()) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+    }
+    if (currentMember.getIdMember().equals(id)) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You cannot change your own admin status");
+    }
+    boolean updated = memberService.toggleAdmin(id, currentMember);
     if (!updated) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }

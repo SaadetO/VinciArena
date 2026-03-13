@@ -229,4 +229,16 @@ public class MemberService {
 
     return builder.build();
   }
+
+  public boolean toggleAdmin(Long idMember, Member currentMember) {
+    Member member = memberRepository.findById(idMember).orElse(null);
+    if (member == null) return false;
+    member.setAdmin(!member.isAdmin());
+    memberRepository.save(member);
+    return true;
+  }
+
+  public Member[] getAllMembers() {
+    return memberRepository.findAllByIsDeleted(false);
+  }
 }
