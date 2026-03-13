@@ -6,6 +6,7 @@ import {
   Box,
   Button,
   Container,
+  IconButton,
   Stack,
   TextField,
   Typography,
@@ -14,7 +15,7 @@ import { SpecialtyDto, ProfileImage, UserContextType } from '../types';
 import { UserContext } from '../contexts/UserContext';
 import logo from '../assets/images/logo.svg';
 import authBackground from '../assets/images/auth_background.jpg';
-import { ArrowBack } from '@mui/icons-material';
+import { ArrowBack, Visibility, VisibilityOff } from '@mui/icons-material';
 import { ProfileImageMenu } from '../components/ProfileImageMenu';
 
 interface FormData {
@@ -40,6 +41,7 @@ export const RegisterPage = () => {
   });
   const [specialties, setSpecialties] = useState<SpecialtyDto[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
@@ -152,12 +154,23 @@ export const RegisterPage = () => {
                 fullWidth
                 id="password"
                 name="password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 placeholder="Mot de passe"
                 variant="outlined"
                 value={formData.password}
                 onChange={handleChange}
                 required
+                slotProps={{
+                  input: {
+                    endAdornment: formData.password.trim().length > 0 && (
+                      <IconButton
+                        onClick={() => setShowPassword((prev) => !prev)}
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    ),
+                  },
+                }}
               />
               <TextField
                 fullWidth

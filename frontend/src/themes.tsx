@@ -435,6 +435,12 @@ export const theme = createTheme({
       },
       styleOverrides: {
         root: {
+          '& .MuiButtonBase-root': {
+            color: '#8C8C8C',
+            height: '2rem',
+            width: '2rem',
+            marginRight: '-0.375rem',
+          },
           '& .MuiInputBase-root': {
             borderRadius: '0.5rem',
           },
@@ -541,6 +547,7 @@ export const theme = createTheme({
           '& .MuiButtonBase-root': {
             width: '2rem',
             height: '2rem',
+            marginRight: '0',
           },
           '& .MuiButtonBase-root:last-child': {
             color: '#8C8C8C',

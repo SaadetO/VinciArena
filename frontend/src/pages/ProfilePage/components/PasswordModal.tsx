@@ -4,12 +4,14 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  IconButton,
   Stack,
   TextField,
   Typography,
 } from '@mui/material';
 import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../../contexts/UserContext';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 interface PasswordData {
   password: string;
@@ -42,6 +44,10 @@ export const PasswordModal = ({
 }: PasswordModalProps) => {
   const [password, setPassword] = useState<PasswordData>(initPasswordData());
   const [error, setError] = useState<PasswordData>(initPasswordData());
+  const [showPassword, setShowPassword] = useState({
+    password: false,
+    confirmPassword: false,
+  });
   const { authenticatedUser } = useContext(UserContext);
 
   const handleClose = () => {
@@ -153,20 +159,62 @@ export const PasswordModal = ({
           <TextField
             id="password"
             name="password"
+            type={showPassword.password ? 'text' : 'password'}
             placeholder="Mot de passe"
             onChange={handleChange}
             variant="outlined"
             error={!!error.password}
             helperText={error.password}
+            slotProps={{
+              input: {
+                endAdornment: password.password.trim().length > 0 && (
+                  <IconButton
+                    onClick={() =>
+                      setShowPassword((prev) => ({
+                        ...prev,
+                        password: !prev.password,
+                      }))
+                    }
+                  >
+                    {showPassword.password ? (
+                      <VisibilityOff />
+                    ) : (
+                      <Visibility />
+                    )}
+                  </IconButton>
+                ),
+              },
+            }}
           />
           <TextField
             id="confirmPassword"
             name="confirmPassword"
+            type={showPassword.confirmPassword ? 'text' : 'password'}
             placeholder="Confirmez votre mot de passe"
             onChange={handleChange}
             variant="outlined"
             error={!!error.confirmPassword}
             helperText={error.confirmPassword}
+            slotProps={{
+              input: {
+                endAdornment: password.confirmPassword.trim().length > 0 && (
+                  <IconButton
+                    onClick={() =>
+                      setShowPassword((prev) => ({
+                        ...prev,
+                        confirmPassword: !prev.confirmPassword,
+                      }))
+                    }
+                  >
+                    {showPassword.confirmPassword ? (
+                      <VisibilityOff />
+                    ) : (
+                      <Visibility />
+                    )}
+                  </IconButton>
+                ),
+              },
+            }}
           />
         </Stack>
       </DialogContent>
