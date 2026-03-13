@@ -1,6 +1,7 @@
 import { useState, SyntheticEvent, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
+  Alert,
   Box,
   Button,
   Checkbox,
@@ -16,6 +17,7 @@ import { UserContext } from '../contexts/UserContext';
 import logo from '../assets/images/logo.svg';
 import authBackground from '../assets/images/auth_background.jpg';
 import { ArrowBack, Visibility, VisibilityOff } from '@mui/icons-material';
+import { LoadingIcon } from '../components/LoadingIcon';
 
 export const LoginPage = () => {
   const { loginUser }: UserContextType = useContext(UserContext);
@@ -23,6 +25,8 @@ export const LoginPage = () => {
   // REMEMBER ME
   const [rememberMe, setRememberMe] = useState(false);
 
+  const [showError, setShowError] = useState(false);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
@@ -33,17 +37,23 @@ export const LoginPage = () => {
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
     try {
+      setLoading(true);
       await loginUser({ ...formData, rememberMe });
       navigate('/');
     } catch (err) {
       console.error('LoginPage::error: ', err);
+      setShowError(true);
     }
+    setLoading(false);
   };
 
   const handleChange = (e: SyntheticEvent) => {
     const input = e.target as HTMLInputElement;
     setFormData((prev) => ({ ...prev, [input.name]: input.value }));
   };
+  if (loading) {
+    return <LoadingIcon></LoadingIcon>;
+  }
 
   return (
     <Stack direction="row" flex="1">
@@ -123,6 +133,11 @@ export const LoginPage = () => {
               color: 'text.secondary',
             }}
           />
+          {showError && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              Identifiants invalides !
+            </Alert>
+          )}
           <Stack spacing="1.5rem" paddingTop="1.5rem">
             <Button type="submit" variant="contained">
               Se Connecter
