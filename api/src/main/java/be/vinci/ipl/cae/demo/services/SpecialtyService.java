@@ -23,9 +23,9 @@ public class SpecialtyService {
   }
 
   /**
-   * Gets all specialties.
+   * Read all specialties.
    *
-   * @return an Iterable of all Specialties as SpecialtyDto
+   * @return all specialties as DTOs
    */
   public Iterable<SpecialtyDto> readAllSpecialties() {
     Iterable<Specialty> iter = specialtyRepository.findAll();

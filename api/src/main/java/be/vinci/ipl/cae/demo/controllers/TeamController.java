@@ -80,7 +80,6 @@ public class TeamController {
    * @return the team details
    */
   @GetMapping("/{id}/details")
-  @PreAuthorize("isAuthenticated()")
   public TeamDetailsDto getTeamDetails(@PathVariable Long id,
       @AuthenticationPrincipal Member currentMember) {
     TeamDetailsDto teamDetails = teamService.getTeamDetails(id, currentMember);

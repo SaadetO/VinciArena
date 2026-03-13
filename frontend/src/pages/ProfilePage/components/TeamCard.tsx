@@ -1,6 +1,7 @@
 import { Button, Skeleton, Stack, Typography } from '@mui/material';
 import { ProfileInfoDto } from '../../../types';
 import { Dispatch, SetStateAction } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface TeamCardProps {
   setOpen: Dispatch<SetStateAction<boolean>>;
@@ -9,6 +10,8 @@ interface TeamCardProps {
 }
 
 export const TeamCard = ({ setOpen, setOpenJoin, user }: TeamCardProps) => {
+  const navigate = useNavigate();
+
   return (
     <Stack
       sx={{ background: (theme) => theme.palette.background.s1 }}
@@ -28,7 +31,14 @@ export const TeamCard = ({ setOpen, setOpenJoin, user }: TeamCardProps) => {
       <Stack spacing="0.75rem" direction="row">
         {user?.team ? (
           <>
-            {/* future itération : ajouter bouton "voir page de team" */}
+            <Button
+              onClick={() => navigate(`/teams/${user.team?.id}`)}
+              variant="contained"
+              color="secondary"
+              fullWidth
+            >
+              voir {user.team.name}
+            </Button>
             <Button
               variant="contained"
               color="secondary"

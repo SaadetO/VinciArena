@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Team service.
@@ -109,6 +110,7 @@ public class TeamService {
    * @return the created team, or null if the name is already taken or the creator already belongs
    *     to a team
    */
+  @Transactional
   public Team createTeam(String teamName, Member creator) {
     if (teamRepository.existsByName(teamName)) {
       return null;
@@ -127,6 +129,9 @@ public class TeamService {
 
     creator.setTeam(team);
     memberRepository.save(creator);
+
+    // Invalidate pending join requests as the creator is now in a team
+    joinRequestRepository.deleteAllByMemberAndStatus(creator, RequestStatus.PENDING);
 
     return team;
   }

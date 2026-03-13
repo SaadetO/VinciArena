@@ -62,6 +62,24 @@ interface Team {
   isActive: boolean;
 }
 
+interface JoinRequestDto {
+  idJoinRequest: number;
+  idTeam: number;
+  teamName: string;
+  status: 'PENDING' | 'ACCEPTED' | 'REJECTED';
+  expirationDate: string;
+  requester: ProfileInfoDto;
+}
+
+interface TeamDetailsInfoDto {
+  idTeam: number;
+  name: string;
+  isActive: boolean;
+  managers: ProfileInfoDto[];
+  members: ProfileInfoDto[];
+  joinRequests: JoinRequestDto[] | null;
+}
+
 interface NotificationDto {
   idNotification: number;
   content: string;
@@ -88,6 +106,8 @@ export type {
   UserContextType,
   ProfileInfoDto,
   Team,
+  JoinRequestDto,
+  TeamDetailsInfoDto,
   NotificationDto,
   StoredUser,
   Member,

@@ -10,14 +10,19 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SpecialtyRepository extends CrudRepository<Specialty, Long> {
 
+  /**
+   * Get all specialties.
+   *
+   * @return all specialties
+   */
   @Override
   Iterable<Specialty> findAll();
 
   /**
-   * Gets a specialty by id.
+   * Get a specialty by its id.
    *
-   * @param idSpecialty the target specialty
-   * @return a Specialty
+   * @param idSpecialty id of the specialty
+   * @return the specialty
    */
   Specialty getByIdSpecialty(Long idSpecialty);
 }

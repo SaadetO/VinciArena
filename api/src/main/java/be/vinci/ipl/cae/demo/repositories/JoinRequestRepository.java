@@ -5,8 +5,10 @@ import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.RequestStatus;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import java.util.List;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * JoinRequest Repository.
@@ -42,5 +44,7 @@ public interface JoinRequestRepository extends CrudRepository<JoinRequest, Long>
    * @param member the member
    * @param status the request status
    */
+  @Modifying
+  @Transactional
   void deleteAllByMemberAndStatus(Member member, RequestStatus status);
 }
