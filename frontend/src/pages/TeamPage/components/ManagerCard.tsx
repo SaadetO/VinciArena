@@ -24,6 +24,7 @@ export const ManagerCard = ({ team }: { team?: TeamDetailsInfoDto }) => {
                   background: (theme) => theme.palette.background.s4,
                 },
                 textTransform: 'none',
+                key: manager.id,
               }}
               component={Link}
               to={`/users/${manager.id}`}

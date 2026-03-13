@@ -1,6 +1,7 @@
 import { Box, Chip, Stack, Typography, Skeleton } from '@mui/material';
 import profileHeroHeader from '../../../assets/images/profile_hero_header.jpg';
 import { ProfileInfoDto } from '../../../types';
+import { Link } from 'react-router-dom';
 
 export const ProfileBanner = ({ user }: { user?: ProfileInfoDto }) => {
   return (
@@ -39,9 +40,22 @@ export const ProfileBanner = ({ user }: { user?: ProfileInfoDto }) => {
           <>
             {user.team && (
               <Chip
+                component={Link}
+                to={`/teams/${user.team.id}`}
                 size="small"
                 color="inverse"
-                label={`team ${user.team.name}`}
+                label={`TEAM ${user.team.name}`}
+                clickable
+                sx={{
+                  textTransform: 'none',
+                  '& .MuiChip-label': {
+                    color: (theme) => theme.palette.background.s0,
+                  },
+                  '&:hover': {
+                    background: (theme) =>
+                      `color-mix(in srgb, ${theme.palette.background.s1}, white 88%)`,
+                  },
+                }}
               />
             )}
             <Chip

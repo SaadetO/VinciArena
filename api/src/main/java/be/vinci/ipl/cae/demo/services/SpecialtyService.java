@@ -16,9 +16,7 @@ public class SpecialtyService {
   private final SpecialtyRepository specialtyRepository;
 
   /**
-   * Constructor.
-   *
-   * @param specialtyRepository injected repository
+   * Specialty Constructor.
    */
   public SpecialtyService(SpecialtyRepository specialtyRepository) {
     this.specialtyRepository = specialtyRepository;

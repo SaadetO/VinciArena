@@ -149,7 +149,6 @@ public class DemoApplication {
       notif2.setContent("Your match result has been confirmed, " + member2.getTag() + ".");
       notif2.setRead(false);
       notifsRepo.save(notif2);
-
       // insert profile image paths into database
       for (int i = 1; i <= 20; i++) {
         ProfileImage image = new ProfileImage();

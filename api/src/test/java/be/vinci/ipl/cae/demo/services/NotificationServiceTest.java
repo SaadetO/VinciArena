@@ -52,7 +52,8 @@ class NotificationServiceTest {
     return n;
   }
 
-  private void assertSavedNotification(Notification captured, Member expectedMember, String expectedContent) {
+  private void assertSavedNotification(Notification captured, Member expectedMember,
+      String expectedContent) {
     assertEquals(expectedMember, captured.getMember());
     assertEquals(expectedContent, captured.getContent());
   }
@@ -80,7 +81,8 @@ class NotificationServiceTest {
   @DisplayName("Should throw IllegalArgumentException when member ID does not exist")
   void notifyMember_MemberNotFound() {
     when(memberRepository.findById(999L)).thenReturn(Optional.empty());
-    assertThrows(IllegalArgumentException.class, () -> notificationService.notifyMember(999L, "hi"));
+    assertThrows(IllegalArgumentException.class,
+        () -> notificationService.notifyMember(999L, "hi"));
   }
 
   @Test
@@ -88,7 +90,7 @@ class NotificationServiceTest {
   void notifyAllMembers_Success() {
     Member m1 = createMember(1L);
     Member m2 = createMember(2L);
-    when(memberRepository.getAllByIsDeleted(false)).thenReturn(new Member[]{m1, m2});
+    when(memberRepository.findAllByIsDeleted(false)).thenReturn(new Member[]{m1, m2});
 
     notificationService.notifyAllMembers("hi everyone");
 
@@ -100,7 +102,7 @@ class NotificationServiceTest {
   @Test
   @DisplayName("Should not call save when there are no active members")
   void notifyAllMembers_EmptyList() {
-    when(memberRepository.getAllByIsDeleted(false)).thenReturn(new Member[0]);
+    when(memberRepository.findAllByIsDeleted(false)).thenReturn(new Member[0]);
     notificationService.notifyAllMembers("Hi");
     verify(notificationRepository, never()).save(any());
   }
@@ -145,7 +147,8 @@ class NotificationServiceTest {
     when(notificationRepository.findByMemberIdMemberOrderByIsReadAscDateTimeDesc(memberId))
         .thenReturn(List.of(n1, n2));
 
-    Iterable<NotificationDto> result = notificationService.getNotificationsByIdMember(memberId, false);
+    Iterable<NotificationDto> result = notificationService.getNotificationsByIdMember(memberId,
+        false);
     List<NotificationDto> dtoList = new ArrayList<>();
     result.forEach(dtoList::add);
 

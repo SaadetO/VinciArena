@@ -1,6 +1,7 @@
 import { Chip, Stack, Typography, Skeleton } from '@mui/material';
 import profileHeroHeader from '../../../assets/images/profile_hero_header.jpg';
 import { TeamDetailsInfoDto } from '../../../types';
+import { PersonOutline } from '@mui/icons-material';
 
 export const TeamBanner = ({ team }: { team?: TeamDetailsInfoDto }) => {
   return (
@@ -15,18 +16,29 @@ export const TeamBanner = ({ team }: { team?: TeamDetailsInfoDto }) => {
     >
       <Stack spacing="0.75rem" alignItems="center" direction="row">
         <Typography variant="h1">
-          {team ? team.name : <Skeleton width="15rem" />}
+          {team ? team.name : <Skeleton variant="rounded" width="15rem" />}
         </Typography>
       </Stack>
       <Stack direction="row" spacing="0.25rem" alignItems="center">
         {team ? (
-          <Chip
-            size="small"
-            color={team.isActive ? 'primary' : 'default'}
-            label={team.isActive ? 'Équipe active' : 'Équipe inactive'}
-          />
+          <>
+            <Chip
+              size="small"
+              color="inverse"
+              label={team.isActive ? 'Équipe active' : 'Équipe inactive'}
+            />
+            <Chip
+              variant="text"
+              sx={{ height: '1.5rem', '& .MuiSvgIcon-root': { mr: '0.25rem' } }}
+              icon={<PersonOutline sx={{ height: '1rem', width: '1rem' }} />}
+              label={team.members.length}
+            />
+          </>
         ) : (
-          <Skeleton variant="rounded" width="6rem" height="1.5rem" />
+          <>
+            <Skeleton variant="rounded" width="6rem" height="1.5rem" />
+            <Skeleton variant="rounded" width="2rem" height="1.5rem" />
+          </>
         )}
       </Stack>
     </Stack>

@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Controller for specialties.
+ * Specialty controller.
  */
 @RestController
 @RequestMapping("/specialties")

@@ -17,6 +17,15 @@ interface User {
   rememberMe?: boolean;
 }
 
+interface Member {
+  id: number;
+  tag: string;
+  email: string;
+  admin: boolean;
+  specialty: string;
+  avatar: string;
+}
+
 interface ProfileInfoDto {
   id: number;
   email: string | null;
@@ -101,6 +110,7 @@ export type {
   TeamDetailsInfoDto,
   NotificationDto,
   StoredUser,
+  Member,
   SpecialtyDto,
   ProfileImage,
 };

@@ -32,5 +32,5 @@ public interface MemberRepository extends CrudRepository<Member, Long> {
    * @param isDeleted deleted status
    * @return an array of members
    */
-  Member[] getAllByIsDeleted(boolean isDeleted);
+  Member[] findAllByIsDeleted(boolean isDeleted);
 }
