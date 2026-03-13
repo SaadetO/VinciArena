@@ -208,7 +208,7 @@ export const RegisterPage = () => {
                 onClick={() => setIsMenuOpen(true)}
                 src={
                   chosenImage
-                    ? `/src/assets/images/profilePictures/${chosenImage.path}`
+                    ? `/assets/avatars/${chosenImage.path}`
                     : ''
                 }
                 sx={{
