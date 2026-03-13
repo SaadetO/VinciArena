@@ -13,7 +13,11 @@ export const AdminMenu = () => {
     open: false,
     promote: false,
   });
-  const [snackBarMessage, setSnackBarMessage] = useState<{ isOpen: boolean; text: string; isError: boolean } | null>(null);
+  const [snackBarMessage, setSnackBarMessage] = useState<{
+    isOpen: boolean;
+    text: string;
+    isError: boolean;
+  } | null>(null);
   const isOpen = menuPosition != null;
   const handleMenuClick = (event: MouseEvent<HTMLElement>) => {
     setMenuPosition(event.currentTarget);
@@ -29,7 +33,7 @@ export const AdminMenu = () => {
       open: true,
       promote: true,
     });
-  }
+  };
 
   const handleDemote = () => {
     handleClose();
@@ -37,7 +41,7 @@ export const AdminMenu = () => {
       open: true,
       promote: false,
     });
-  }
+  };
   return (
     <>
       <Button

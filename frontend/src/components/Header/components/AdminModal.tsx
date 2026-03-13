@@ -99,14 +99,14 @@ export const AdminModal = ({
         setIsLoading(false);
       }
     })();
-  }, [open]);
+  }, [open, authenticatedUser, users]);
 
   useEffect(() => {
     if (open) {
       setError(null);
       setSelectedUser(null);
     }
-  }, [users, promote, open]);
+  }, [open]);
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
       <DialogTitle variant="h2">
