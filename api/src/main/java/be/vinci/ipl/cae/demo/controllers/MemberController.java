@@ -80,15 +80,24 @@ public class MemberController {
     }
   }
 
+  /**
+   * Toggles the isAdmin property.
+   *
+   * @param id id of the target member
+   * @param currentMember authenticated member
+   */
   @PutMapping("/toggle-admin/{id}")
   public void toggleAdmin(@PathVariable Long id, @AuthenticationPrincipal Member currentMember) {
     if (currentMember == null || !currentMember.isAdmin()) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
     }
     if (currentMember.getIdMember().equals(id)) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You cannot change your own admin status");
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST,
+          "You cannot change your own admin status"
+      );
     }
-    boolean updated = memberService.toggleAdmin(id, currentMember);
+    boolean updated = memberService.toggleAdmin(id);
     if (!updated) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }

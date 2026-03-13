@@ -13,5 +13,11 @@ public interface SpecialtyRepository extends CrudRepository<Specialty, Long> {
   @Override
   Iterable<Specialty> findAll();
 
+  /**
+   * Gets a specialty by id.
+   *
+   * @param idSpecialty the target specialty
+   * @return a Specialty
+   */
   Specialty getByIdSpecialty(Long idSpecialty);
 }

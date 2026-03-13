@@ -13,7 +13,7 @@ public class ProfileImageService {
   private final ProfileImageRepository profileImageRepository;
 
   /**
-   * constructs profile image service
+   * Constructs profile image service.
    *
    * @param profileImageRepository profileImageRepo
    */
@@ -22,7 +22,7 @@ public class ProfileImageService {
   }
 
   /**
-   *Reads all profile images from db via un repository.
+   * Reads all profile images from db via un repository.
    *
    * @return profile images
    */
