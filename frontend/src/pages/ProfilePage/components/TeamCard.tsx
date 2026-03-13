@@ -104,20 +104,6 @@ export const TeamCard = ({
           </>
         )}
       </Stack>
-
-      {user?.team?.isManager && (
-        <Stack spacing="0.75rem">
-          {/* Future itération : ajouter bouton "renoncer à son rôle" */}
-          <Button
-            variant="contained"
-            color="secondary"
-            fullWidth
-            disabled={true} // future issue
-          >
-            désigner un responsable
-          </Button>
-        </Stack>
-      )}
     </Stack>
   );
 };
