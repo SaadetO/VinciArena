@@ -10,6 +10,7 @@ import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.TeamRepository;
 import java.time.LocalDateTime;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * JoinRequest Service.
@@ -91,6 +92,7 @@ public class JoinRequestService {
    * @throws IllegalArgumentException if the request doesn't exist
    * @throws IllegalStateException    if the action is unauthorized or the request is not pending
    */
+  @Transactional
   public JoinRequestDto updateJoinRequestStatus(Long requestId, RequestStatus newStatus,
       Member manager) {
     JoinRequest joinRequest = joinRequestRepository.findById(requestId).orElse(null);

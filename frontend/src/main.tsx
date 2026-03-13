@@ -14,6 +14,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import { theme } from './themes.tsx';
 import { ProfilePage } from './pages/ProfilePage/index.tsx';
 import { NotificationsPage } from './pages/NotificationsPage.tsx';
+import { TeamPage } from './pages/TeamPage/index.tsx';
 
 const router = createBrowserRouter([
   {
@@ -26,7 +27,16 @@ const router = createBrowserRouter([
       },
       {
         path: 'teams',
-        element: 'Teams',
+        children: [
+          {
+            path: '',
+            element: 'teams',
+          },
+          {
+            path: ':id',
+            element: <TeamPage />,
+          },
+        ],
       },
       {
         path: 'users/:id',

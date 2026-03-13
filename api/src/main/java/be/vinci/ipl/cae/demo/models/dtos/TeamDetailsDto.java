@@ -13,7 +13,7 @@ public class TeamDetailsDto {
 
   private Long idTeam;
   private String name;
-  private boolean isActive;
+  private Boolean isActive;
   private List<ProfileDto> managers;
   private List<ProfileDto> members;
   private List<JoinRequestDto> joinRequests;
