@@ -16,7 +16,7 @@ import { UserContext } from '../contexts/UserContext';
 import logo from '../assets/images/logo.svg';
 import authBackground from '../assets/images/auth_background.jpg';
 import { ArrowBack, Visibility, VisibilityOff } from '@mui/icons-material';
-import { ProfileImageMenu } from '../components/ProfileImageMenu';
+import { ProfileImageModal } from '../components/ProfileImageModal';
 
 interface FormData {
   email: string;
@@ -240,7 +240,7 @@ export const RegisterPage = () => {
           </Stack>
         </form>
       </Container>
-      <ProfileImageMenu
+      <ProfileImageModal
         open={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}
         onSelect={handleSelectImage}

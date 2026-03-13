@@ -5,6 +5,7 @@ import { SyntheticEvent, useContext } from 'react';
 import { NotificationMenu } from './components/NotificationMenu';
 import { UserContext } from '../../contexts/UserContext';
 import { UserMenu } from './components/UserMenu';
+import { AdminMenu } from './components/AdminMenu';
 export const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -47,24 +48,32 @@ export const Header = () => {
         <Tab label="tournois" value="/" />
         <Tab label="teams" value="/teams" />
       </Tabs>
-      <Stack direction="row" spacing="1rem">
-        {authenticatedUser ? (
-          <>
-            <NotificationMenu />
-            <UserMenu />
-          </>
-        ) : (
-          <>
-            <Link to="/auth/register">
-              <Button variant="contained" color="secondary">
-                s'inscrire
-              </Button>
-            </Link>
-            <Link to="/auth/login">
-              <Button variant="contained">se connecter</Button>
-            </Link>
-          </>
-        )}
+      <Stack direction="row" spacing="1.5rem">
+        <Stack direction="row" spacing="1rem">
+          {authenticatedUser?.admin && (
+            <Stack direction="row" spacing="1rem">
+              <Button variant="contained">Créer un tournoi</Button>
+              <AdminMenu />
+            </Stack>
+          )}
+          {authenticatedUser ? (
+            <>
+              <NotificationMenu />
+              <UserMenu />
+            </>
+          ) : (
+            <>
+              <Link to="/auth/register">
+                <Button variant="contained" color="secondary">
+                  s'inscrire
+                </Button>
+              </Link>
+              <Link to="/auth/login">
+                <Button variant="contained">se connecter</Button>
+              </Link>
+            </>
+          )}
+        </Stack>
       </Stack>
     </Stack>
   );

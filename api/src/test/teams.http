@@ -57,3 +57,6 @@ Authorization: {{auth_token}}
 {
   "name": "  "
 }
+
+### 7: Get Team details as a visitor
+GET {{baseUrl}}/teams/1/details

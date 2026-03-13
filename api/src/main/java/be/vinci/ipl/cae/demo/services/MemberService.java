@@ -4,6 +4,7 @@ import be.vinci.ipl.cae.demo.models.dtos.AuthenticatedUser;
 import be.vinci.ipl.cae.demo.models.dtos.NewMember;
 import be.vinci.ipl.cae.demo.models.dtos.ProfileDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
+import be.vinci.ipl.cae.demo.models.entities.ProfileImage;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.ProfileImageRepository;
@@ -73,6 +74,7 @@ public class MemberService {
     authenticatedUser.setEmail(email);
     authenticatedUser.setTag(member.getTag());
     authenticatedUser.setToken(token);
+    authenticatedUser.setAdmin(member.isAdmin());
 
     return authenticatedUser;
   }
@@ -165,6 +167,27 @@ public class MemberService {
   }
 
   /**
+   * Update a member's profile image.
+   *
+   * @param member       the member
+   * @param profileImage the new profile image
+   * @return true if updated, false if the image is invalid
+   */
+  public boolean updateAvatar(Member member, ProfileImage profileImage) {
+    if (profileImage == null || profileImage.getIdImage() == null) {
+      return false;
+    }
+    ProfileImage existingImage =
+        profileImageRepository.getProfileImageByIdImage(profileImage.getIdImage());
+    if (existingImage == null) {
+      return false;
+    }
+    member.setProfileImage(existingImage);
+    memberRepository.save(member);
+    return true;
+  }
+
+  /**
    * Get member profile DTO with privacy rules.
    *
    * @param requestedId        the requested member ID
@@ -227,5 +250,25 @@ public class MemberService {
     }
 
     return builder.build();
+  }
+
+  /**
+   * Toggles the isAdmin property of a member.
+   *
+   * @param idMember id of the target member
+   * @return true if it succeeded and false otherwise
+   */
+  public boolean toggleAdmin(Long idMember) {
+    Member member = memberRepository.findById(idMember).orElse(null);
+    if (member == null) {
+      return false;
+    }
+    member.setAdmin(!member.isAdmin());
+    memberRepository.save(member);
+    return true;
+  }
+
+  public Member[] getAllMembers() {
+    return memberRepository.findAllByIsDeleted(false);
   }
 }

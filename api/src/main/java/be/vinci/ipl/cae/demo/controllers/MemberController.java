@@ -3,6 +3,7 @@ package be.vinci.ipl.cae.demo.controllers;
 import be.vinci.ipl.cae.demo.models.dtos.PasswordUpdateDto;
 import be.vinci.ipl.cae.demo.models.dtos.ProfileDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
+import be.vinci.ipl.cae.demo.models.entities.ProfileImage;
 import be.vinci.ipl.cae.demo.services.MemberService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -30,6 +31,11 @@ public class MemberController {
    */
   public MemberController(MemberService memberService) {
     this.memberService = memberService;
+  }
+
+  @GetMapping({"", "/"})
+  public Member[] getAllMembers() {
+    return memberService.getAllMembers();
   }
 
   /**
@@ -70,6 +76,52 @@ public class MemberController {
     }
 
     boolean updated = memberService.updatePassword(currentMember, passwordDto.getPassword());
+    if (!updated) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+  }
+
+  /**
+   * Update a member's profile image.
+   *
+   * @param id            the ID of the member profile to update
+   * @param profileImage  the new profile image entity
+   * @param currentMember the currently authenticated member
+   */
+  @PutMapping("/{id}/avatar")
+  public void updateAvatar(
+      @PathVariable Long id,
+      @RequestBody ProfileImage profileImage,
+      @AuthenticationPrincipal Member currentMember) {
+
+    if (currentMember == null || !currentMember.getIdMember().equals(id)) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+    }
+
+    boolean updated = memberService.updateAvatar(currentMember, profileImage);
+    if (!updated) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid profile image");
+    }
+  }
+
+  /**
+   * Toggles the isAdmin property.
+   *
+   * @param id id of the target member
+   * @param currentMember authenticated member
+   */
+  @PutMapping("/toggle-admin/{id}")
+  public void toggleAdmin(@PathVariable Long id, @AuthenticationPrincipal Member currentMember) {
+    if (currentMember == null || !currentMember.isAdmin()) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+    }
+    if (currentMember.getIdMember().equals(id)) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST,
+          "You cannot change your own admin status"
+      );
+    }
+    boolean updated = memberService.toggleAdmin(id);
     if (!updated) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }

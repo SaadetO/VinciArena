@@ -17,6 +17,15 @@ interface User {
   rememberMe?: boolean;
 }
 
+interface Member {
+  id: number;
+  tag: string;
+  email: string;
+  admin: boolean;
+  specialty: string;
+  avatar: string;
+}
+
 interface ProfileInfoDto {
   id: number;
   email: string | null;
@@ -24,7 +33,7 @@ interface ProfileInfoDto {
   specialty: string | null;
   creationDate: string | null;
   avatar: string | null;
-  isAdmin: boolean | null;
+  admin: boolean | null;
   isSelf: boolean; // Indicates if this profile belongs to the currently logged in user
   team: {
     id: number;
@@ -42,7 +51,7 @@ interface ProfileInfoDto {
 
 interface AuthenticatedUser {
   id: number;
-  isAdmin: boolean;
+  admin: boolean;
   tag: string;
   token: string;
 }
@@ -51,6 +60,24 @@ interface Team {
   idTeam: number;
   name: string;
   isActive: boolean;
+}
+
+interface JoinRequestDto {
+  idJoinRequest: number;
+  idTeam: number;
+  teamName: string;
+  status: 'PENDING' | 'ACCEPTED' | 'REJECTED';
+  expirationDate: string;
+  requester: ProfileInfoDto;
+}
+
+interface TeamDetailsInfoDto {
+  idTeam: number;
+  name: string;
+  isActive: boolean;
+  managers: ProfileInfoDto[];
+  members: ProfileInfoDto[];
+  joinRequests: JoinRequestDto[] | null;
 }
 
 interface NotificationDto {
@@ -79,8 +106,11 @@ export type {
   UserContextType,
   ProfileInfoDto,
   Team,
+  JoinRequestDto,
+  TeamDetailsInfoDto,
   NotificationDto,
   StoredUser,
+  Member,
   SpecialtyDto,
   ProfileImage,
 };

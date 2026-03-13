@@ -15,10 +15,18 @@ public class SpecialtyService {
 
   private final SpecialtyRepository specialtyRepository;
 
+  /**
+   * Specialty Constructor.
+   */
   public SpecialtyService(SpecialtyRepository specialtyRepository) {
     this.specialtyRepository = specialtyRepository;
   }
 
+  /**
+   * Read all specialties.
+   *
+   * @return all specialties as DTOs
+   */
   public Iterable<SpecialtyDto> readAllSpecialties() {
     Iterable<Specialty> iter = specialtyRepository.findAll();
     return StreamSupport.stream(iter.spliterator(), false)
