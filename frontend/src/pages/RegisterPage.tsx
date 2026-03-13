@@ -57,6 +57,8 @@ export const RegisterPage = () => {
       return;
     }
 
+    if (!formData.profileImageId) return;
+
     try {
       await registerUser(formData);
       navigate('/auth/login');

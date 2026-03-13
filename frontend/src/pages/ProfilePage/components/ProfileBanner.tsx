@@ -22,11 +22,7 @@ export const ProfileBanner = ({ user }: { user?: ProfileInfoDto }) => {
             width="2.5rem"
           >
             <img
-              src={
-                !user.avatar
-                  ? `https://api.dicebear.com/9.x/initials/svg?seed=${user.tag}`
-                  : `/src/assets/images/profilePictures/${user.avatar}`
-              }
+              src={user.avatar ? `/assets/avatars/${user.avatar}` : ''}
               width="100%"
               height="100%"
             />
