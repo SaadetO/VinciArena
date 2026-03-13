@@ -176,11 +176,7 @@ export const PasswordModal = ({
                       }))
                     }
                   >
-                    {showPassword.password ? (
-                      <VisibilityOff />
-                    ) : (
-                      <Visibility />
-                    )}
+                    {showPassword.password ? <VisibilityOff /> : <Visibility />}
                   </IconButton>
                 ),
               },
