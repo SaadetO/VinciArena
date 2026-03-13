@@ -436,12 +436,11 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           '& .MuiInputBase-root': {
-            paddingLeft: '1rem',
             borderRadius: '0.5rem',
           },
           '& .MuiInputBase-input': {
             height: '3rem',
-            padding: '0 1rem 0 0',
+            padding: '0 1rem',
             fontWeight: 'Medium',
             fontSize: '1rem',
             color: '#FFFFFF',
@@ -451,6 +450,20 @@ export const theme = createTheme({
           },
           '& input::placeholder': {
             color: '#8C8C8C',
+          },
+          '& input[type="password"]': {
+            fontFamily: 'monospace',
+            letterSpacing: '0.25rem',
+            '&::placeholder': {
+              letterSpacing: '0.25%',
+              fontFamily: [
+                '"Google Sans"',
+                'Roboto',
+                '"Helvetica Neue"',
+                'Arial',
+                'sans-serif',
+              ].join(','),
+            },
           },
         },
       },

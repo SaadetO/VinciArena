@@ -165,6 +165,7 @@ export const NotificationMenu = () => {
               isLast={index === unreadNotifications.length - 1}
               onRefresh={() => {
                 fetchUnreadNotifications();
+                setUnreadCount(unreadCount - 1);
               }}
             />
           ))

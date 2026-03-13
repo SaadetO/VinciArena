@@ -1,13 +1,11 @@
 import { useState, SyntheticEvent, useContext, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  Alert,
   Autocomplete,
   Avatar,
   Box,
   Button,
   Container,
-  Divider,
   Stack,
   TextField,
   Typography,
@@ -31,8 +29,8 @@ export const RegisterPage = () => {
   const { registerUser }: UserContextType = useContext(UserContext);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [chosenImage, setChosenImage] = useState<ProfileImage | null>(null);
-  const [showError, setShowError] = useState(false);
   const navigate = useNavigate();
+  const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<FormData>({
     email: '',
     password: '',
@@ -45,9 +43,15 @@ export const RegisterPage = () => {
 
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
-    console.log(formData.specialtyId);
-    if (!formData.profileImageId || !formData.specialtyId) {
-      setShowError(true);
+    if (step === 1) {
+      if (
+        !formData.email ||
+        !formData.password ||
+        !formData.tag ||
+        !formData.specialtyId
+      )
+        return;
+      setStep(2);
       return;
     }
 
@@ -93,10 +97,6 @@ export const RegisterPage = () => {
     setFormData((prev) => ({ ...prev, profileImageId: image.idImage }));
   };
 
-  useEffect(() => {
-    console.log(formData);
-  }, [formData]);
-
   return (
     <Stack direction="row" flex="1">
       <Link to="/" style={{ padding: '1rem', position: 'fixed' }}>
@@ -120,32 +120,14 @@ export const RegisterPage = () => {
           <img src={logo} width="44" height="44" />
           <Stack spacing="0.5rem">
             <Typography variant="h3" textAlign="center">
-              Bienvenue
+              {step === 1 ? 'Bienvenue' : 'Un avatar ?'}
             </Typography>
             <Typography variant="body1" color="secondary" textAlign="center">
-              Inscrivez vous et commencez votre expérience.
+              {step === 1
+                ? 'Inscrivez vous et commencez votre expérience.'
+                : 'Choisissez une photo de profil si vous le souhaitez.'}
             </Typography>
           </Stack>
-        </Stack>
-        <Stack alignItems="center" spacing={1}>
-          <Avatar
-            onClick={() => setIsMenuOpen(true)}
-            src={chosenImage ? `/src/assets/images/${chosenImage.path}` : ''}
-            sx={{
-              width: 70,
-              height: 70,
-              border: '2px solid #ccc',
-              cursor: 'pointer',
-            }}
-          />
-          <Typography
-            variant="caption"
-            sx={{
-              color: 'text.secondary',
-            }}
-          >
-            Sélectionnez une image de profil
-          </Typography>
         </Stack>
         <form
           onSubmit={handleSubmit}
@@ -153,65 +135,92 @@ export const RegisterPage = () => {
             width: '100%',
           }}
         >
-          <Stack spacing="0.75rem">
-            <TextField
-              fullWidth
-              id="email"
-              name="email"
-              type="email"
-              placeholder="Email"
-              variant="outlined"
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
-            <TextField
-              fullWidth
-              id="password"
-              name="password"
-              type="password"
-              placeholder="Mot de passe"
-              variant="outlined"
-              value={formData.password}
-              onChange={handleChange}
-              required
-            />
-            <TextField
-              fullWidth
-              id="tag"
-              name="tag"
-              placeholder="Tag"
-              variant="outlined"
-              value={formData.tag}
-              onChange={handleChange}
-              required
-            />
-            <Autocomplete
-              options={specialties}
-              loading={loading}
-              fullWidth
-              getOptionLabel={(e) =>
-                e.label.charAt(0).toUpperCase() + e.label.slice(1)
-              }
-              autoHighlight
-              renderInput={(params) => (
-                <TextField {...params} placeholder="Spécialité" />
-              )}
-              onChange={(_, e) =>
-                setFormData((prev) => ({ ...prev, specialtyId: e?.id ?? null }))
-              }
-            />
-          </Stack>
-          <Divider sx={{ my: 1 }}></Divider>
-          {showError && (
-            <Alert severity="error" variant="filled">
-              Tous les champs sont requis !
-            </Alert>
+          {step === 1 ? (
+            <Stack spacing="0.75rem">
+              <TextField
+                fullWidth
+                id="email"
+                name="email"
+                type="email"
+                placeholder="Email"
+                variant="outlined"
+                value={formData.email}
+                onChange={handleChange}
+                required
+              />
+              <TextField
+                fullWidth
+                id="password"
+                name="password"
+                type="password"
+                placeholder="Mot de passe"
+                variant="outlined"
+                value={formData.password}
+                onChange={handleChange}
+                required
+              />
+              <TextField
+                fullWidth
+                id="tag"
+                name="tag"
+                placeholder="Tag"
+                variant="outlined"
+                value={formData.tag}
+                onChange={handleChange}
+                required
+              />
+              <Autocomplete
+                options={specialties}
+                loading={loading}
+                fullWidth
+                value={specialties.find((e) => e.id === formData.specialtyId)}
+                getOptionLabel={(e) =>
+                  e.label.charAt(0).toUpperCase() + e.label.slice(1)
+                }
+                autoHighlight
+                renderInput={(params) => (
+                  <TextField {...params} placeholder="Spécialité" />
+                )}
+                onChange={(_, e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    specialtyId: e?.id ?? null,
+                  }))
+                }
+              />
+            </Stack>
+          ) : (
+            <Stack alignItems="center">
+              <Avatar
+                onClick={() => setIsMenuOpen(true)}
+                src={
+                  chosenImage ? `/src/assets/images/${chosenImage.path}` : ''
+                }
+                sx={{
+                  width: 100,
+                  height: 100,
+                  cursor: 'pointer',
+                }}
+                className="profile-picture-placeholder"
+              />
+            </Stack>
           )}
           <Stack spacing="1.5rem" paddingTop="1.5rem">
-            <Button type="submit" variant="contained">
-              S'inscrire
-            </Button>
+            <Stack spacing="0.5rem">
+              {step === 2 && (
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  onClick={() => setStep(1)}
+                  startIcon={<ArrowBack />}
+                >
+                  Retour
+                </Button>
+              )}
+              <Button type="submit" variant="contained">
+                {step === 1 ? 'Continuer' : "S'inscrire"}
+              </Button>
+            </Stack>
             <Typography textAlign="center" variant="body2" color="secondary">
               Déjà inscrit? <Link to="/auth/login">Se connecter</Link>
             </Typography>
