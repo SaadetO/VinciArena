@@ -1,0 +1,139 @@
+@baseUrl = http://localhost:3000
+
+### --- Setup: Create Manager, Team, and Member ---
+
+### 1: Register Manager
+POST {{baseUrl}}/auths/register
+Content-Type: application/json
+
+{
+  "email": "manager_dm@test.com",
+  "password": "password123",
+  "tag": "ManagerDM"
+}
+
+### 2: Login Manager
+POST {{baseUrl}}/auths/login
+Content-Type: application/json
+
+{
+  "email": "manager_dm@test.com",
+  "password": "password123"
+}
+
+> {% client.global.set("auth_token", response.body.token); %}
+
+### 3: Create Team
+POST {{baseUrl}}/teams/
+Content-Type: application/json
+Authorization: {{auth_token}}
+
+{
+  "name": "Designate Team"
+}
+
+> {% client.global.set("team_id", response.body.idTeam); %}
+
+### 4: Register Prospective Second Manager
+POST {{baseUrl}}/auths/register
+Content-Type: application/json
+
+{
+  "email": "member_dm@test.com",
+  "password": "password123",
+  "tag": "MemberDM"
+}
+
+### 5: Login Member
+POST {{baseUrl}}/auths/login
+Content-Type: application/json
+
+{
+  "email": "member_dm@test.com",
+  "password": "password123"
+}
+
+> {% 
+  client.global.set("member_token", response.body.token); 
+  client.global.set("member_id", response.body.id);
+%}
+
+### 6: Member requests to join Team
+POST {{baseUrl}}/teams/{{team_id}}/join-requests
+Content-Type: application/json
+Authorization: {{member_token}}
+
+> {% client.global.set("request_id", response.body.idJoinRequest); %}
+
+### 7: Manager accepts Member
+PATCH {{baseUrl}}/teams/join-requests/{{request_id}}
+Content-Type: application/json
+Authorization: {{auth_token}}
+
+"ACCEPTED"
+
+
+### --- Testing Phase: Designate Second Manager ---
+
+### 8: Manager designates Member as Second Manager (Success - 200)
+PUT {{baseUrl}}/teams/{{team_id}}/manager/{{member_id}}
+Authorization: {{auth_token}}
+
+### 9: Verify Team details (should have 2 managers)
+GET {{baseUrl}}/teams/{{team_id}}/details
+Authorization: {{auth_token}}
+
+
+### --- Error Cases ---
+
+### 10: Non-manager attempts to designate (Expect 403)
+# Register THIRD user who is NOT a manager.
+POST {{baseUrl}}/auths/register
+Content-Type: application/json
+
+{
+  "email": "intruder@test.com",
+  "password": "password123",
+  "tag": "Intruder"
+}
+
+### 11: Login Intruder
+POST {{baseUrl}}/auths/login
+Content-Type: application/json
+
+{
+  "email": "intruder@test.com",
+  "password": "password123"
+}
+
+> {% client.global.set("intruder_token", response.body.token); %}
+
+### 12: Intruder tries to designate (Expect 403)
+PUT {{baseUrl}}/teams/{{team_id}}/manager/{{member_id}}
+Authorization: {{intruder_token}}
+
+### 13: Designate member who is NOT in the team (Expect 403)
+# Register somebody else
+POST {{baseUrl}}/auths/register
+Content-Type: application/json
+
+{
+  "email": "outsider@test.com",
+  "password": "password123",
+  "tag": "Outsider"
+}
+
+### 14: Login Outsider
+POST {{baseUrl}}/auths/login
+Content-Type: application/json
+
+{
+  "email": "outsider@test.com",
+  "password": "password123"
+}
+
+> {% client.global.set("outsider_id", response.body.id); %}
+
+### 15: Manager tries to designate Outsider (Expect 403)
+PUT {{baseUrl}}/teams/{{team_id}}/manager/{{outsider_id}}
+Authorization: {{auth_token}}

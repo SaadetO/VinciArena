@@ -11,6 +11,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -87,5 +88,27 @@ public class TeamController {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
     return teamDetails;
+  }
+
+  /**
+   * Designate a member as a manager of a team.
+   *
+   * @param id            the team ID
+   * @param idMember      the member ID to designate
+   * @param currentMember the authenticated member
+   * @return the updated team
+   */
+  @PutMapping("/{id}/manager/{idMember}")
+  @PreAuthorize("isAuthenticated()")
+  public Team designateSecondManager(@PathVariable Long id, @PathVariable Long idMember,
+      @AuthenticationPrincipal Member currentMember) {
+    Team updatedTeam = teamService.designateSecondManager(id, idMember, currentMember);
+
+    if (updatedTeam == null) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+          "Team/Member not found, unauthorized, or no manager spots left");
+    }
+
+    return updatedTeam;
   }
 }
