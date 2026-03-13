@@ -6,6 +6,7 @@ import {
   Checkbox,
   Container,
   FormControlLabel,
+  IconButton,
   Stack,
   TextField,
   Typography,
@@ -14,7 +15,7 @@ import { UserContextType } from '../types';
 import { UserContext } from '../contexts/UserContext';
 import logo from '../assets/images/logo.svg';
 import authBackground from '../assets/images/auth_background.jpg';
-import { ArrowBack } from '@mui/icons-material';
+import { ArrowBack, Visibility, VisibilityOff } from '@mui/icons-material';
 
 export const LoginPage = () => {
   const { loginUser }: UserContextType = useContext(UserContext);
@@ -27,6 +28,7 @@ export const LoginPage = () => {
     email: '',
     password: '',
   });
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
@@ -90,23 +92,38 @@ export const LoginPage = () => {
               fullWidth
               id="password"
               name="password"
+              type={showPassword ? 'text' : 'password'}
               placeholder="Mot de passe"
               variant="outlined"
               value={formData.password}
               onChange={handleChange}
               required
+              slotProps={{
+                input: {
+                  endAdornment: formData.password.trim().length > 0 && (
+                    <IconButton
+                      onClick={() => setShowPassword((prev) => !prev)}
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  ),
+                },
+              }}
             />
           </Stack>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+              />
+            }
+            label="Se souvenir de moi"
+            sx={{
+              color: 'text.secondary',
+            }}
+          />
           <Stack spacing="1.5rem" paddingTop="1.5rem">
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                />
-              }
-              label="Se souvenir de moi"
-            />
             <Button type="submit" variant="contained">
               Se Connecter
             </Button>

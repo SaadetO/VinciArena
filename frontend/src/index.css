@@ -9,3 +9,66 @@
 a {
   color: currentColor !important;
 }
+
+.profile-picture-placeholder {
+  background: radial-gradient(
+      100% 100% at var(--6-x-position) var(--6-y-position),
+      #3599e3 0%,
+      transparent
+    ),
+    radial-gradient(
+      100% 100% at var(--7-x-position) var(--7-y-position),
+      #d2f7e2 0%,
+      transparent
+    ),
+    #1b253b;
+  animation-name: main;
+  animation-iteration-count: infinite;
+  animation-duration: 20s;
+  transition-timing-function: ease-in;
+}
+
+@property --6-x-position {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 18.6328125%;
+}
+
+@property --6-y-position {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 69.2578125%;
+}
+
+@property --7-x-position {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 80%;
+}
+
+@property --7-y-position {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 20%;
+}
+
+:root {
+  --4-x-position: 20% --4-y-position: 80% --5-x-position: 80%
+    --5-y-position: 20% --6-x-position: 18.6328125% --6-y-position: 69.2578125%
+    --7-x-position: 80% --7-y-position: 20%;
+}
+
+@keyframes main {
+  25% {
+    --6-x-position: 15%;
+    --6-y-position: 15%;
+    --7-x-position: 85%;
+    --7-y-position: 80%;
+  }
+  50% {
+    --6-x-position: 80%;
+    --6-y-position: 15%;
+    --7-x-position: 15%;
+    --7-y-position: 85%;
+  }
+}

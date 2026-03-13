@@ -7,6 +7,7 @@ import be.vinci.ipl.cae.demo.models.dtos.AuthenticatedUser;
 import be.vinci.ipl.cae.demo.models.dtos.NewMember;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
+import be.vinci.ipl.cae.demo.repositories.ProfileImageRepository;
 import be.vinci.ipl.cae.demo.repositories.SpecialtyRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,6 +31,9 @@ class MemberServiceTest {
   @Mock
   private SpecialtyRepository specialtyRepository;
 
+  @Mock
+  private ProfileImageRepository profileImageRepository;
+
   @Test
   void registerMemberWithValidEmail() {
 
@@ -42,6 +46,8 @@ class MemberServiceTest {
     Member member = new Member();
     member.setEmail("test@mail.com");
 
+    when(profileImageRepository.getProfileImageByIdImage(org.mockito.ArgumentMatchers.any()))
+        .thenReturn(null);
     when(memberRepository.existsByEmail("test@mail.com")).thenReturn(false);
     when(passwordEncoder.encode("123")).thenReturn("encodedPassword");
     when(memberRepository.save(org.mockito.ArgumentMatchers.any(Member.class))).thenReturn(member);

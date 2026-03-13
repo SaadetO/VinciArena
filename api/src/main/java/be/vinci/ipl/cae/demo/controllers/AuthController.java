@@ -6,6 +6,10 @@ import be.vinci.ipl.cae.demo.models.dtos.NewMember;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.services.MemberService;
 import org.springframework.http.HttpStatus;
+<<<<<<< HEAD
+=======
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+>>>>>>> 46a8032207aa43f161462b62489dc4df6f311ca2
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -94,6 +98,7 @@ public class AuthController {
     return user;
   }
 
+<<<<<<< HEAD
 
   /**
    * Returns the authenticated user based on the JWT token.
@@ -124,5 +129,21 @@ public class AuthController {
     user.setToken(token);
 
     return user;
+=======
+  /**
+   * Login a member.
+   *
+   * @param currentMember the logged user
+   * @return the authenticated user
+   */
+  @GetMapping("/login/me")
+  public AuthenticatedUser relog(@AuthenticationPrincipal Member currentMember) {
+
+    if (currentMember == null) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+    }
+
+    return memberService.createJwtToken(currentMember.getEmail());
+>>>>>>> 46a8032207aa43f161462b62489dc4df6f311ca2
   }
 }

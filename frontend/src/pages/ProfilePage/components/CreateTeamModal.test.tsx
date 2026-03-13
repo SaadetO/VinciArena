@@ -1,24 +1,45 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { CreateTeamModal } from './CreateTeamModal';
-import { getAuthenticatedUser } from '../../../utils/session';
-
-vi.mock('../../../utils/session', () => ({
-  getAuthenticatedUser: vi.fn(),
-}));
+import { UserContext } from '../../../contexts/UserContext';
+import { AuthenticatedUser, UserContextType } from '../../../types';
 
 describe('CreateTeamModal', () => {
   const fetchMock = vi.fn();
+  const mockAuthenticatedUser: AuthenticatedUser = {
+    id: 1,
+    token: 'fake-token',
+    admin: false,
+    tag: 'test-tag',
+  };
 
-  // Resets all mocks in between tests
+  const renderWithContext = (
+    ui: React.ReactElement,
+    user: AuthenticatedUser | null = null,
+  ) => {
+    return render(
+      <UserContext.Provider
+        value={
+          {
+            authenticatedUser: user ?? undefined,
+            loginUser: vi.fn(),
+            registerUser: vi.fn(),
+            clearUser: vi.fn(),
+          } as UserContextType
+        }
+      >
+        {ui}
+      </UserContext.Provider>,
+    );
+  };
+
   beforeEach(() => {
     vi.resetAllMocks();
-    vi.stubGlobal('fetch', fetchMock); // Replace global variable "fetch" by fetchMock in our tests
+    vi.stubGlobal('fetch', fetchMock);
   });
 
-  // 1.
   test('renders a form with team name input and buttons', () => {
-    render(
+    renderWithContext(
       <CreateTeamModal open={true} onClose={() => {}} onSuccess={() => {}} />,
     );
 
@@ -28,58 +49,46 @@ describe('CreateTeamModal', () => {
     expect(screen.getByRole('button', { name: /annuler/i })).toBeTruthy();
   });
 
-  // 2.
   test('shows error when creating team with empty name', async () => {
-    render(
+    renderWithContext(
       <CreateTeamModal open={true} onClose={() => {}} onSuccess={() => {}} />,
     );
 
     const createButton = screen.getByRole('button', { name: /créer/i });
     fireEvent.click(createButton);
 
-    // Checks that error message is displayed for an empty team name
     expect(
       screen.getByText("Le nom de l'équipe ne peut pas être vide."),
     ).toBeTruthy();
 
-    // Checks that fetch hasn't been called
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  // 3.
   test('calls fetch and onClose on successful team creation', async () => {
     const mockOnClose = vi.fn();
+    const mockOnSuccess = vi.fn();
 
-    // Mocks authenticated user
-    vi.mocked(getAuthenticatedUser).mockReturnValue({
-      token: 'fake-token',
-    });
-
-    // Mocks successfull api request
     fetchMock.mockResolvedValue({
       ok: true,
       status: 201,
-      json: async () => ({ id: 10, name: 'My Team' }),
+      json: async () => ({ idTeam: 10, name: 'My Team' }),
     });
 
-    const mockOnSuccess = vi.fn();
-    render(
+    renderWithContext(
       <CreateTeamModal
         open={true}
         onClose={mockOnClose}
         onSuccess={mockOnSuccess}
       />,
+      mockAuthenticatedUser,
     );
 
-    // Filling the field
     const input = screen.getByPlaceholderText('Nom de Team');
     fireEvent.change(input, { target: { value: 'My Team' } });
 
-    // Simulate button being clicked
     const createButton = screen.getByRole('button', { name: /créer/i });
     fireEvent.click(createButton);
 
-    // Checks API request has been made
     expect(fetchMock).toHaveBeenCalledWith('/api/teams/', {
       method: 'POST',
       headers: {
@@ -89,26 +98,25 @@ describe('CreateTeamModal', () => {
       body: JSON.stringify({ name: 'My Team' }),
     });
 
-    // Wait for API promise and checks that Dialog has closed
     await waitFor(() => {
+      expect(mockOnSuccess).toHaveBeenCalledWith({
+        id: 10,
+        name: 'My Team',
+        isManager: true,
+      });
       expect(mockOnClose).toHaveBeenCalled();
     });
   });
 
-  // 4.
   test('shows error message on 409 conflict', async () => {
-    vi.mocked(getAuthenticatedUser).mockReturnValue({
-      token: 'fake-token',
-    });
-
-    // Mocks API request creating a conflict
     fetchMock.mockResolvedValue({
       ok: false,
       status: 409,
     });
 
-    render(
+    renderWithContext(
       <CreateTeamModal open={true} onClose={() => {}} onSuccess={() => {}} />,
+      mockAuthenticatedUser,
     );
 
     const input = screen.getByPlaceholderText('Nom de Team');
@@ -117,7 +125,6 @@ describe('CreateTeamModal', () => {
     const createButton = screen.getByRole('button', { name: /créer/i });
     fireEvent.click(createButton);
 
-    // Wait for error to be displayed
     await waitFor(() => {
       expect(
         screen.getByText('Une équipe avec ce nom existe déjà'),
@@ -125,20 +132,15 @@ describe('CreateTeamModal', () => {
     });
   });
 
-  // 5.
   test('shows generic error message on other errors (e.g. 500)', async () => {
-    vi.mocked(getAuthenticatedUser).mockReturnValue({
-      token: 'fake-token',
-    });
-
-    // Mocks API error 500
     fetchMock.mockResolvedValue({
       ok: false,
       status: 500,
     });
 
-    render(
+    renderWithContext(
       <CreateTeamModal open={true} onClose={() => {}} onSuccess={() => {}} />,
+      mockAuthenticatedUser,
     );
 
     const input = screen.getByPlaceholderText('Nom de Team');

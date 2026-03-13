@@ -6,6 +6,10 @@ interface UserContextType {
   loginUser: (user: User) => Promise<void>;
   clearUser: () => void;
 }
+interface ProfileImage {
+  idImage: number;
+  path: string;
+}
 
 interface User {
   email: string;
@@ -20,7 +24,7 @@ interface ProfileInfoDto {
   specialty: string | null;
   creationDate: string | null;
   avatar: string | null;
-  isAdmin: boolean | null;
+  admin: boolean | null;
   isSelf: boolean; // Indicates if this profile belongs to the currently logged in user
   team: {
     id: number;
@@ -29,6 +33,7 @@ interface ProfileInfoDto {
   } | null; // User might not have a team yet
   unavailabilities:
     | {
+        id: number;
         startDate: string;
         endDate: string;
       }[]
@@ -37,7 +42,7 @@ interface ProfileInfoDto {
 
 interface AuthenticatedUser {
   id: number;
-  isAdmin: boolean;
+  admin: boolean;
   tag: string;
   token: string;
 }
@@ -59,6 +64,11 @@ interface StoredUser {
   token: string;
 }
 
+interface SpecialtyDto {
+  id: number;
+  label: string;
+}
+
 type MaybeAuthenticatedUser = AuthenticatedUser | undefined;
 
 export type {
@@ -71,4 +81,6 @@ export type {
   Team,
   NotificationDto,
   StoredUser,
+  SpecialtyDto,
+  ProfileImage,
 };

@@ -4,10 +4,14 @@ import { Header } from './components/Header';
 import { MainContext, UserContextType } from './types';
 import { UserContext } from './contexts/UserContext';
 import { Box } from '@mui/material';
+import { useEffect } from 'react';
 
 export const App = () => {
   const { authenticatedUser } = useContext<UserContextType>(UserContext);
-  console.log('TOKEN: ' + authenticatedUser?.token);
+
+  useEffect(() => {
+    console.log('USER: ' + JSON.stringify(authenticatedUser));
+  }, [authenticatedUser]);
 
   const mainContext: MainContext = {};
 

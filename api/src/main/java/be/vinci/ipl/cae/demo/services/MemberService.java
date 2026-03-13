@@ -6,6 +6,7 @@ import be.vinci.ipl.cae.demo.models.dtos.ProfileDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
+import be.vinci.ipl.cae.demo.repositories.ProfileImageRepository;
 import be.vinci.ipl.cae.demo.repositories.SpecialtyRepository;
 import be.vinci.ipl.cae.demo.repositories.UnavailabilityRepository;
 import com.auth0.jwt.JWT;
@@ -31,6 +32,7 @@ public class MemberService {
   private final MemberRepository memberRepository;
   private final UnavailabilityRepository unavailabilityRepository;
   private final SpecialtyRepository specialtyRepository;
+  private final ProfileImageRepository profileImageRepository;
 
   /**
    * Constructor.
@@ -41,11 +43,13 @@ public class MemberService {
    */
   public MemberService(BCryptPasswordEncoder passwordEncoder,
       MemberRepository memberRepository,
-      UnavailabilityRepository unavailabilityRepository, SpecialtyRepository specialityRepository) {
+      UnavailabilityRepository unavailabilityRepository, SpecialtyRepository specialityRepository,
+      ProfileImageRepository profileImageRepository) {
     this.passwordEncoder = passwordEncoder;
     this.memberRepository = memberRepository;
     this.unavailabilityRepository = unavailabilityRepository;
     this.specialtyRepository = specialityRepository;
+    this.profileImageRepository = profileImageRepository;
   }
 
   /**
@@ -69,6 +73,7 @@ public class MemberService {
     authenticatedUser.setEmail(email);
     authenticatedUser.setTag(member.getTag());
     authenticatedUser.setToken(token);
+    authenticatedUser.setAdmin(member.isAdmin());
 
     return authenticatedUser;
   }
@@ -133,6 +138,8 @@ public class MemberService {
     member.setAdmin(false);
     member.setDeleted(false);
     member.setSpecialty(specialtyRepository.getByIdSpecialty(newMember.getSpecialtyId()));
+    member.setProfileImage(
+        profileImageRepository.getProfileImageByIdImage(newMember.getProfileImageId()));
     return memberRepository.save(member);
   }
 
@@ -212,6 +219,7 @@ public class MemberService {
       var unavailabilities = StreamSupport.stream(
               unavailabilityRepository.findByMember(requestedMember).spliterator(), false)
           .map(u -> ProfileDto.UnavailabilityDto.builder()
+              .id(u.getIdUnavailability())
               .startDate(u.getStartDate())
               .endDate(u.getEndDate())
               .build())
