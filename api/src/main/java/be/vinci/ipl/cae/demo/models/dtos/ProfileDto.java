@@ -38,6 +38,7 @@ public class ProfileDto {
   @Data
   @Builder
   public static class UnavailabilityDto {
+    private Long id;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
   }
