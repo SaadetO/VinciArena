@@ -150,7 +150,7 @@ public class DemoApplication {
       notif2.setRead(false);
       notifsRepo.save(notif2);
 
-      //insert profile image paths into database
+      // insert profile image paths into database
       for (int i = 1; i <= 20; i++) {
         ProfileImage image = new ProfileImage();
         image.setPath("profile-" + i + ".png");
