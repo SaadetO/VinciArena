@@ -6,10 +6,7 @@ import be.vinci.ipl.cae.demo.models.dtos.NewMember;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.services.MemberService;
 import org.springframework.http.HttpStatus;
-<<<<<<< HEAD
-=======
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
->>>>>>> 46a8032207aa43f161462b62489dc4df6f311ca2
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -98,8 +95,6 @@ public class AuthController {
     return user;
   }
 
-<<<<<<< HEAD
-
   /**
    * Returns the authenticated user based on the JWT token.
    *
@@ -112,16 +107,20 @@ public class AuthController {
     if (authorization == null || !authorization.startsWith("Bearer ")) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
     }
+
     String token = authorization.substring(7);
     String email = memberService.verifyJwtToken(token);
+
     if (email == null) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
     }
 
     Member member = memberService.readOneFromEmail(email);
+
     if (member == null) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
     }
+
     AuthenticatedUser user = new AuthenticatedUser();
     user.setId(member.getIdMember());
     user.setEmail(member.getEmail());
@@ -129,9 +128,10 @@ public class AuthController {
     user.setToken(token);
 
     return user;
-=======
+  }
+
   /**
-   * Login a member.
+   * Relog the authenticated user.
    *
    * @param currentMember the logged user
    * @return the authenticated user
@@ -144,6 +144,5 @@ public class AuthController {
     }
 
     return memberService.createJwtToken(currentMember.getEmail());
->>>>>>> 46a8032207aa43f161462b62489dc4df6f311ca2
   }
 }
