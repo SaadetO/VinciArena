@@ -4,6 +4,7 @@ import be.vinci.ipl.cae.demo.models.dtos.AuthenticatedUser;
 import be.vinci.ipl.cae.demo.models.dtos.NewMember;
 import be.vinci.ipl.cae.demo.models.dtos.ProfileDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
+import be.vinci.ipl.cae.demo.models.entities.ProfileImage;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.ProfileImageRepository;
@@ -161,6 +162,27 @@ public class MemberService {
    */
   public boolean updatePassword(Member member, String newPassword) {
     member.setPassword(passwordEncoder.encode(newPassword));
+    memberRepository.save(member);
+    return true;
+  }
+
+  /**
+   * Update a member's profile image.
+   *
+   * @param member       the member
+   * @param profileImage the new profile image
+   * @return true if updated, false if the image is invalid
+   */
+  public boolean updateAvatar(Member member, ProfileImage profileImage) {
+    if (profileImage == null || profileImage.getIdImage() == null) {
+      return false;
+    }
+    ProfileImage existingImage =
+        profileImageRepository.getProfileImageByIdImage(profileImage.getIdImage());
+    if (existingImage == null) {
+      return false;
+    }
+    member.setProfileImage(existingImage);
     memberRepository.save(member);
     return true;
   }

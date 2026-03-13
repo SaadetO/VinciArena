@@ -38,6 +38,10 @@ export const ProfileImageModal = ({ open, onClose, onSelect }: Props) => {
     fetchProfileImages();
   }, []);
 
+  useEffect(() => {
+    if (open) setTempSelection(null);
+  }, [open]);
+
   const handleConfirm = () => {
     if (tempSelection) {
       onSelect(tempSelection); // Send choice to parent

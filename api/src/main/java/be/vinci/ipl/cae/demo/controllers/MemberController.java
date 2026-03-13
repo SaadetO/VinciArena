@@ -3,6 +3,7 @@ package be.vinci.ipl.cae.demo.controllers;
 import be.vinci.ipl.cae.demo.models.dtos.PasswordUpdateDto;
 import be.vinci.ipl.cae.demo.models.dtos.ProfileDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
+import be.vinci.ipl.cae.demo.models.entities.ProfileImage;
 import be.vinci.ipl.cae.demo.services.MemberService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -77,6 +78,29 @@ public class MemberController {
     boolean updated = memberService.updatePassword(currentMember, passwordDto.getPassword());
     if (!updated) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+  }
+
+  /**
+   * Update a member's profile image.
+   *
+   * @param id            the ID of the member profile to update
+   * @param profileImage  the new profile image entity
+   * @param currentMember the currently authenticated member
+   */
+  @PutMapping("/{id}/avatar")
+  public void updateAvatar(
+      @PathVariable Long id,
+      @RequestBody ProfileImage profileImage,
+      @AuthenticationPrincipal Member currentMember) {
+
+    if (currentMember == null || !currentMember.getIdMember().equals(id)) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+    }
+
+    boolean updated = memberService.updateAvatar(currentMember, profileImage);
+    if (!updated) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid profile image");
     }
   }
 
