@@ -51,9 +51,7 @@ export const Header = () => {
         <Stack direction="row" spacing="1rem">
           {authenticatedUser?.admin && (
             <Stack direction="row" spacing="1rem">
-              <Button variant="contained">
-                Créer un tournoi
-              </Button>
+              <Button variant="contained">Créer un tournoi</Button>
               <Button variant="contained" color="secondary">
                 Créer un admin
               </Button>
