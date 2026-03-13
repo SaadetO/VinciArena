@@ -229,4 +229,24 @@ public class MemberService {
 
     return builder.build();
   }
+
+  /**
+   * Toggles the isAdmin property of a member.
+   *
+   * @param idMember id of the target member
+   * @return true if it succeeded and false otherwise
+   */
+  public boolean toggleAdmin(Long idMember) {
+    Member member = memberRepository.findById(idMember).orElse(null);
+    if (member == null) {
+      return false;
+    }
+    member.setAdmin(!member.isAdmin());
+    memberRepository.save(member);
+    return true;
+  }
+
+  public Member[] getAllMembers() {
+    return memberRepository.findAllByIsDeleted(false);
+  }
 }

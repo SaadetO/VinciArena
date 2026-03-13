@@ -1,5 +1,6 @@
 package be.vinci.ipl.cae.demo.models.entities;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -31,6 +32,7 @@ public class Member {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @JsonProperty("id")
   private Long idMember;
 
   @Column(unique = true)
@@ -44,6 +46,7 @@ public class Member {
   @JoinColumn(name = "id_specialty")
   private Specialty specialty;
 
+  @JsonProperty("admin")
   private boolean isAdmin;
 
   @ManyToOne
