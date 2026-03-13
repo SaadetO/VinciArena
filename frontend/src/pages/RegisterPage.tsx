@@ -207,7 +207,9 @@ export const RegisterPage = () => {
               <Avatar
                 onClick={() => setIsMenuOpen(true)}
                 src={
-                  chosenImage ? `/src/assets/images/${chosenImage.path}` : ''
+                  chosenImage
+                    ? `/src/assets/images/profilePictures/${chosenImage.path}`
+                    : ''
                 }
                 sx={{
                   width: 100,

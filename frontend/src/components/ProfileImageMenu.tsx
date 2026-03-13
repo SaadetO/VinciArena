@@ -60,7 +60,10 @@ export const ProfileImageMenu = ({ open, onClose, onSelect }: Props) => {
                     : '4px solid transparent',
               }}
             >
-              <img src={`/src/assets/images/${icon.path}`} alt="avatar" />
+              <img
+                src={`/src/assets/images/profilePictures/${icon.path}`}
+                alt="avatar"
+              />
             </ImageListItem>
           ))}
         </ImageList>
