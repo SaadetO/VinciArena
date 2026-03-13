@@ -16,7 +16,7 @@ import dayjs from 'dayjs';
 import { Theme } from '@mui/material/styles';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { UserContext } from '../../../contexts/UserContext';
-import { getDurationString } from '../../../utils/date';
+import { checkOverlap, getDurationString } from '../../../utils/date';
 
 const datePickerSx: SxProps<Theme> = {
   '& .MuiPickersSectionList-root': {
@@ -70,19 +70,6 @@ export const UnavailabilitiesModal = ({
   onIdResolvedRef.current = onIdResolved;
   const [overlapError, setOverlapError] = useState<string | null>(null);
 
-  const checkOverlap = (start: dayjs.Dayjs, end: dayjs.Dayjs) => {
-    const hasOverlap = (unavailabilities ?? []).some((u) => {
-      const existingStart = dayjs(u.startDate);
-      const existingEnd = dayjs(u.endDate);
-      return start.isBefore(existingEnd) && end.isAfter(existingStart);
-    });
-    setOverlapError(
-      hasOverlap
-        ? 'Les dates sélectionnées chevauchent une indisponibilité existante.'
-        : null,
-    );
-  };
-
   const handleDateChange = (
     date: dayjs.Dayjs | null,
     field: 'startDate' | 'endDate',
@@ -109,7 +96,12 @@ export const UnavailabilitiesModal = ({
       )
         newDates.startDate = newDates.endDate.subtract(7, 'day');
 
-      checkOverlap(newDates.startDate, newDates.endDate);
+      const error = checkOverlap(
+        newDates.startDate,
+        newDates.endDate,
+        unavailabilities,
+      );
+      setOverlapError(error);
       return newDates;
     });
   };
@@ -154,9 +146,10 @@ export const UnavailabilitiesModal = ({
       const start = dayjs(Date.now());
       const end = dayjs(Date.now()).add(7, 'day');
       setDates({ startDate: start, endDate: end });
-      checkOverlap(start, end);
+      const error = checkOverlap(start, end, unavailabilities);
+      setOverlapError(error);
     }
-  }, [open]);
+  }, [open, unavailabilities]);
   return (
     <Dialog
       open={open}

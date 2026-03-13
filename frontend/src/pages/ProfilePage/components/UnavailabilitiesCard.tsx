@@ -21,9 +21,7 @@ export const UnavailabilitiesCard = ({
       spacing="1rem"
     >
       <Typography variant="h4">Mes indisponibilités</Typography>
-      <Stack
-        spacing="0.24rem"
-      >
+      <Stack spacing="0.24rem">
         {user?.unavailabilities?.length === 0 ? (
           <Typography variant="h5" color="secondary">
             Aucune indisponibilité pour le moment

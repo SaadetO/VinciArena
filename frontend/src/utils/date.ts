@@ -54,9 +54,9 @@ export const formatDate = (date: Date | string | number): string => {
 
 /**
  * Returns a string representing the duration between two dates.
- * 
- * @param dates An object containing the start and end dates.
- * @returns A string representing the duration between the start and end dates.
+ *
+ * @param {Object} dates An object containing the start and end dates.
+ * @return {string} A string representing the duration between the start and end dates.
  */
 export const getDurationString = (dates: {
   startDate: dayjs.Dayjs;
@@ -72,4 +72,27 @@ export const getDurationString = (dates: {
   if (days > 0) parts.push(`${days} jour${days > 1 ? 's' : ''}`);
 
   return parts.length > 0 ? parts.join(', ') : '0 jours';
+};
+
+/**
+ * Checks if the given dates overlap with any existing unavailability.
+ *
+ * @param {Object} start The start date.
+ * @param {Object} end The end date.
+ * @param {Array} unavailabilities An array of existing unavailabilities.
+ * @return {string} A string representing the duration between the start and end dates.
+ */
+export const checkOverlap = (
+  start: dayjs.Dayjs,
+  end: dayjs.Dayjs,
+  unavailabilities: { id: number; startDate: string; endDate: string }[] | null,
+) => {
+  const hasOverlap = (unavailabilities ?? []).some((u) => {
+    const existingStart = dayjs(u.startDate);
+    const existingEnd = dayjs(u.endDate);
+    return start.isBefore(existingEnd) && end.isAfter(existingStart);
+  });
+  return hasOverlap
+    ? 'Les dates sélectionnées chevauchent une indisponibilité existante.'
+    : null;
 };

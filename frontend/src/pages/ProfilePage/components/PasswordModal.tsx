@@ -34,7 +34,12 @@ const errorMsgs = [
   'Les mots de passe ne correspondent pas.',
 ];
 
-export const PasswordModal = ({ open, onClose, onSuccess, onError }: PasswordModalProps) => {
+export const PasswordModal = ({
+  open,
+  onClose,
+  onSuccess,
+  onError,
+}: PasswordModalProps) => {
   const [password, setPassword] = useState<PasswordData>(initPasswordData());
   const [error, setError] = useState<PasswordData>(initPasswordData());
   const { authenticatedUser } = useContext(UserContext);
@@ -88,7 +93,8 @@ export const PasswordModal = ({ open, onClose, onSuccess, onError }: PasswordMod
         body: JSON.stringify({ password: password.password }),
       });
 
-      if (!response.ok) throw new Error('Erreur lors de la mise à jour du mot de passe.');
+      if (!response.ok)
+        throw new Error('Erreur lors de la mise à jour du mot de passe.');
     } catch (err: unknown) {
       onError(err instanceof Error ? err.message : 'Une erreur est survenue.');
     }
@@ -173,11 +179,7 @@ export const PasswordModal = ({ open, onClose, onSuccess, onError }: PasswordMod
         >
           Annuler
         </Button>
-        <Button
-          variant="contained"
-          onClick={handleSubmit}
-          fullWidth
-        >
+        <Button variant="contained" onClick={handleSubmit} fullWidth>
           confirmer
         </Button>
       </DialogActions>
