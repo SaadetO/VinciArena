@@ -73,6 +73,10 @@ export const ProfilePage = () => {
     })();
   }, [idNbr, authenticatedUser]);
 
+  useEffect(() => {
+    console.log(user);
+  }, [user]);
+
   if (error) return <NotFoundPage error={error} />;
   return (
     <>
@@ -114,6 +118,29 @@ export const ProfilePage = () => {
                 <UnavailabilitiesCard
                   user={user}
                   setUnavailabilitiesModal={setUnavailabilitiesModal}
+                  onError={(errorMessage: string) => {
+                    setSnackBarMessage({
+                      text: errorMessage,
+                      isError: true,
+                      isOpen: true,
+                    });
+                  }}
+                  onSuccessDelete={(id: number) => {
+                    setSnackBarMessage({
+                      text: 'Indisponibilité supprimée avec succès !',
+                      isError: false,
+                      isOpen: true,
+                    });
+                    setUser((prev) => {
+                      if (!prev) return prev;
+                      return {
+                        ...prev,
+                        unavailabilities: (prev.unavailabilities ?? []).filter(
+                          (u) => u.id !== id,
+                        ),
+                      };
+                    });
+                  }}
                 />
               </Stack>
             </Grid2>
@@ -154,20 +181,34 @@ export const ProfilePage = () => {
         open={unavailabilitiesModal}
         onClose={() => setUnavailabilitiesModal(false)}
         unavailabilities={user?.unavailabilities ?? null}
-        onSuccess={(dates: { startDate: string; endDate: string }) => {
+        onSuccess={({ tempId, startDate, endDate }) => {
           setSnackBarMessage({
             text: 'Indisponibilité ajoutée avec succès !',
             isError: false,
             isOpen: true,
           });
           if (user)
-            setUser({
-              ...user,
-              unavailabilities: [
-                ...(user.unavailabilities ?? []),
-                { startDate: dates.startDate, endDate: dates.endDate },
-              ],
+            setUser((prev) => {
+              if (!prev) return prev;
+              return {
+                ...prev,
+                unavailabilities: [
+                  ...(prev.unavailabilities ?? []),
+                  { id: tempId, startDate, endDate },
+                ],
+              };
             });
+        }}
+        onIdResolved={(tempId, realId) => {
+          setUser((prev) => {
+            if (!prev) return prev;
+            return {
+              ...prev,
+              unavailabilities: (prev.unavailabilities ?? []).map((u) =>
+                u.id === tempId ? { ...u, id: realId } : u,
+              ),
+            };
+          });
         }}
         onError={(errorMessage: string) => {
           setSnackBarMessage({
