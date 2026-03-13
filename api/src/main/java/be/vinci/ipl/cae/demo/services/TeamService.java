@@ -69,12 +69,7 @@ public class TeamService {
         .map(m -> memberService.getProfile(m.getIdMember(), authEmail))
         .collect(Collectors.toList());
 
-    boolean isManager = currentMember != null && (
-        (team.getManager1() != null && team.getManager1().getIdMember()
-            .equals(currentMember.getIdMember()))
-            || (team.getManager2() != null && team.getManager2().getIdMember()
-            .equals(currentMember.getIdMember()))
-    );
+    boolean isManager = isManager(team, currentMember);
 
     List<JoinRequestDto> joinRequests = null;
     if (isManager) {
@@ -137,6 +132,20 @@ public class TeamService {
   }
 
   /**
+   * Check if member is a manager of a given team.
+   *
+   * @param team the given team
+   * @param member the member to check for manager status
+   * @return true is member is a manager; false otherwise
+   */
+  public boolean isManager(Team team, Member member) {
+    return team.getManager1() != null && team.getManager1().getIdMember()
+        .equals(member.getIdMember())
+        || (team.getManager2() != null && team.getManager2().getIdMember()
+        .equals(member.getIdMember()));
+  }
+
+  /**
    * Get all active teams.
    *
    * @return an iterable containing all active teams
@@ -161,11 +170,7 @@ public class TeamService {
     }
 
     // Check if currentMember is a manager
-    boolean isManager = (team.getManager1() != null && team.getManager1().getIdMember()
-        .equals(currentMember.getIdMember()))
-        || (team.getManager2() != null && team.getManager2().getIdMember()
-        .equals(currentMember.getIdMember()));
-
+    boolean isManager = isManager(team, currentMember);
     if (!isManager) {
       return null;
     }
