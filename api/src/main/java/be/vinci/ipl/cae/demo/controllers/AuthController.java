@@ -6,8 +6,10 @@ import be.vinci.ipl.cae.demo.models.dtos.NewMember;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.services.MemberService;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -88,6 +90,38 @@ public class AuthController {
     if (user == null) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
     }
+
+    return user;
+  }
+
+
+  /**
+   * Returns the authenticated user based on the JWT token.
+   *
+   * @param authorization the Authorization header containing the JWT token
+   * @return the authenticated user
+   */
+  @GetMapping("/me")
+  public AuthenticatedUser getMe(@RequestHeader("Authorization") String authorization) {
+
+    if (authorization == null || !authorization.startsWith("Bearer ")) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+    }
+    String token = authorization.substring(7);
+    String email = memberService.verifyJwtToken(token);
+    if (email == null) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+    }
+
+    Member member = memberService.readOneFromEmail(email);
+    if (member == null) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+    }
+    AuthenticatedUser user = new AuthenticatedUser();
+    user.setId(member.getIdMember());
+    user.setEmail(member.getEmail());
+    user.setTag(member.getTag());
+    user.setToken(token);
 
     return user;
   }

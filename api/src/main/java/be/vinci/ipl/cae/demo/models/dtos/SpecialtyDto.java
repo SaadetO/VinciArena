@@ -1,4 +1,5 @@
 package be.vinci.ipl.cae.demo.models.dtos;
+
 import lombok.Builder;
 import lombok.Data;
 

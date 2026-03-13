@@ -102,7 +102,8 @@ public class NotificationController {
   public void insertTestData(@PathVariable long id) {
     notificationService.notifyMember(id, "Notification 1");
     notificationService.notifyMember(id, "Notification 2");
-    notificationService.notifyMember(id, "Notification 3 longgggggggggggggggggggggggggggggggggggggggggggggggg"
+    notificationService.notifyMember(id, "Notification 3 "
+        + "longgggggggggggggggggggggggggggggggggggggggggggggggg"
         + "messageeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
     notificationService.notifyAllMembers("Hello everyone");
 
