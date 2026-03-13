@@ -51,3 +51,25 @@ export const formatRelativeTime = (date: Date | string | number): string => {
 export const formatDate = (date: Date | string | number): string => {
   return dayjs(date).format('D MMM YYYY');
 };
+
+/**
+ * Returns a string representing the duration between two dates.
+ * 
+ * @param dates An object containing the start and end dates.
+ * @returns A string representing the duration between the start and end dates.
+ */
+export const getDurationString = (dates: {
+  startDate: dayjs.Dayjs;
+  endDate: dayjs.Dayjs;
+}) => {
+  const diffInDays = dates.endDate.diff(dates.startDate, 'day');
+  if (diffInDays < 0) return '';
+  const weeks = Math.floor(diffInDays / 7);
+  const days = diffInDays % 7;
+
+  const parts = [];
+  if (weeks > 0) parts.push(`${weeks} semaine${weeks > 1 ? 's' : ''}`);
+  if (days > 0) parts.push(`${days} jour${days > 1 ? 's' : ''}`);
+
+  return parts.length > 0 ? parts.join(', ') : '0 jours';
+};
