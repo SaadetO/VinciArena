@@ -54,13 +54,15 @@ export const ProfileImageMenu = ({ open, onClose, onSelect }: Props) => {
               onClick={() => setTempSelection(icon)}
               sx={{
                 cursor: 'pointer',
-                border:
+                border: (theme) =>
                   tempSelection?.idImage === icon.idImage
-                    ? '4px solid #00C8FF'
+                    ? `4px solid ${theme.palette.primary.main}`
                     : '4px solid transparent',
+                borderRadius: '100rem',
+                overflow: 'hidden',
               }}
             >
-              <img src={`/src/assets/images/${icon.path}`} alt="avatar" />
+              <img src={`/assets/avatars/${icon.path}`} alt="avatar" />
             </ImageListItem>
           ))}
         </ImageList>
