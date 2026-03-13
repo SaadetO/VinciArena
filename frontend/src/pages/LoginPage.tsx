@@ -119,6 +119,9 @@ export const LoginPage = () => {
               />
             }
             label="Se souvenir de moi"
+            sx={{
+              color: 'text.secondary',
+            }}
           />
           <Stack spacing="1.5rem" paddingTop="1.5rem">
             <Button type="submit" variant="contained">

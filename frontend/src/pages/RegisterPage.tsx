@@ -124,12 +124,12 @@ export const RegisterPage = () => {
           <img src={logo} width="44" height="44" />
           <Stack spacing="0.5rem">
             <Typography variant="h3" textAlign="center">
-              {step === 1 ? 'Bienvenue' : 'Un avatar ?'}
+              {step === 1 ? 'Bienvenue' : 'Choisissez votre avatar'}
             </Typography>
             <Typography variant="body1" color="secondary" textAlign="center">
               {step === 1
                 ? 'Inscrivez vous et commencez votre expérience.'
-                : 'Choisissez une photo de profil si vous le souhaitez.'}
+                : 'Choisissez une photo de profil parmi les images proposées.'}
             </Typography>
           </Stack>
         </Stack>
