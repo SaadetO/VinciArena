@@ -77,7 +77,7 @@ export const ManagerCard = ({
             color="secondary"
             onClick={() => setOpen(true)}
           >
-            Désigner un manager
+            Désigner un responsable
           </Button>
         )}
       </Stack>
