@@ -29,6 +29,7 @@ interface ProfileInfoDto {
   } | null; // User might not have a team yet
   unavailabilities:
     | {
+        id: number;
         startDate: string;
         endDate: string;
       }[]
