@@ -206,11 +206,7 @@ export const RegisterPage = () => {
             <Stack alignItems="center">
               <Avatar
                 onClick={() => setIsMenuOpen(true)}
-                src={
-                  chosenImage
-                    ? `/assets/avatars/${chosenImage.path}`
-                    : ''
-                }
+                src={chosenImage ? `/assets/avatars/${chosenImage.path}` : ''}
                 sx={{
                   width: 100,
                   height: 100,
