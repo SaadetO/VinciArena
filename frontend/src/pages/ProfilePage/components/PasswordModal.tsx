@@ -24,6 +24,8 @@ const initPasswordData = (): PasswordData => ({
 interface PasswordModalProps {
   open: boolean;
   onClose: () => void;
+  onSuccess: () => void;
+  onError: (errorMessage: string) => void;
 }
 
 const errorMsgs = [
@@ -32,9 +34,8 @@ const errorMsgs = [
   'Les mots de passe ne correspondent pas.',
 ];
 
-export const PasswordModal = ({ open, onClose }: PasswordModalProps) => {
+export const PasswordModal = ({ open, onClose, onSuccess, onError }: PasswordModalProps) => {
   const [password, setPassword] = useState<PasswordData>(initPasswordData());
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<PasswordData>(initPasswordData());
   const { authenticatedUser } = useContext(UserContext);
 
@@ -51,8 +52,6 @@ export const PasswordModal = ({ open, onClose }: PasswordModalProps) => {
   };
 
   const handleSubmit = async () => {
-    setIsLoading(true);
-
     const isPasswordEmpty = !password.password?.trim();
     const isConfirmEmpty = !password.confirmPassword?.trim();
 
@@ -74,7 +73,10 @@ export const PasswordModal = ({ open, onClose }: PasswordModalProps) => {
       error.password ||
       error.confirmPassword
     )
-      return setIsLoading(false);
+      return;
+
+    onSuccess();
+    onClose();
 
     try {
       const response = await fetch('/api/members/me/password', {
@@ -86,15 +88,10 @@ export const PasswordModal = ({ open, onClose }: PasswordModalProps) => {
         body: JSON.stringify({ password: password.password }),
       });
 
-      if (!response.ok) throw new Error('Failed to update password');
-      // TODO : Success message
+      if (!response.ok) throw new Error('Erreur lors de la mise à jour du mot de passe.');
     } catch (err: unknown) {
-      // TODO : Error message
-    } finally {
-      setIsLoading(false);
+      onError(err instanceof Error ? err.message : 'Une erreur est survenue.');
     }
-
-    onClose(); // TODO : Optimistic close next
   };
 
   useEffect(() => {
@@ -134,7 +131,6 @@ export const PasswordModal = ({ open, onClose }: PasswordModalProps) => {
   useEffect(() => {
     setPassword(initPasswordData());
     setError(initPasswordData());
-    setIsLoading(false);
   }, [open]);
   return (
     <Dialog
@@ -179,7 +175,6 @@ export const PasswordModal = ({ open, onClose }: PasswordModalProps) => {
         </Button>
         <Button
           variant="contained"
-          disabled={isLoading}
           onClick={handleSubmit}
           fullWidth
         >

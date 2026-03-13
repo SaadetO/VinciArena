@@ -176,6 +176,20 @@ export const ProfilePage = () => {
       <PasswordModal
         open={passwordModal}
         onClose={() => setPasswordModal(false)}
+        onSuccess={() =>
+          setSnackBarMessage({
+            text: 'Mot de passe modifié avec succès !',
+            isError: false,
+            isOpen: true,
+          })
+        }
+        onError={(errorMessage: string) =>
+          setSnackBarMessage({
+            text: errorMessage,
+            isError: true,
+            isOpen: true,
+          })
+        }
       />
       <UnavailabilitiesModal
         open={unavailabilitiesModal}
