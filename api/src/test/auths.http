@@ -1,47 +1,144 @@
 @baseUrl = http://localhost:3000
 
-### Try to login an unknow user
-POST {{baseUrl}}/auths/login
-Content-Type: application/json
-
-{
-  "username":"unknown",
-  "password":"admin"
-}
-
-### Create the default admin
+### Register a new member
 POST {{baseUrl}}/auths/register
 Content-Type: application/json
 
 {
-  "username":"admin",
-  "password":"admin"
+  "email":"player1@mail.com",
+  "password":"123",
+  "tag":"Vector",
+  "specialityId":1,
+  "profileImageId":1
 }
 
-### Login the default admin
-POST {{baseUrl}}/auths/login
-Content-Type: application/json
-
-{
-  "username":"admin",
-  "password":"admin"
-}
-
-
-### Create the manager user
+### Register a second member
 POST {{baseUrl}}/auths/register
 Content-Type: application/json
 
 {
-  "username":"manager",
-  "password":"manager"
+  "email":"player2@mail.com",
+  "password":"123",
+  "tag":"Rogue",
+  "specialityId":2,
+  "profileImageId":1
 }
 
-### Login the manager user
+### Try to register with an existing email
+POST {{baseUrl}}/auths/register
+Content-Type: application/json
+
+{
+  "email":"player1@mail.com",
+  "password":"123",
+  "tag":"Duplicate",
+  "specialityId":1,
+  "profileImageId":1
+}
+
+### Try to register without email
+POST {{baseUrl}}/auths/register
+Content-Type: application/json
+
+{
+  "password":"123",
+  "tag":"NoEmail",
+  "specialityId":1,
+  "profileImageId":1
+}
+
+### Try to register without password
+POST {{baseUrl}}/auths/register
+Content-Type: application/json
+
+{
+  "email":"player3@mail.com",
+  "tag":"NoPassword",
+  "specialityId":1,
+  "profileImageId":1
+}
+
+### Try to register without tag
+POST {{baseUrl}}/auths/register
+Content-Type: application/json
+
+{
+  "email":"player4@mail.com",
+  "password":"123",
+  "specialityId":1,
+  "profileImageId":1
+}
+
+### Try to register with empty body
+POST {{baseUrl}}/auths/register
+Content-Type: application/json
+
+{
+}
+
+### Try to register with empty request
+POST {{baseUrl}}/auths/register
+Content-Type: application/json
+
+### Login an existing member
 POST {{baseUrl}}/auths/login
 Content-Type: application/json
 
 {
-  "username":"manager",
-  "password":"manager"
+  "email":"player1@mail.com",
+  "password":"123"
 }
+
+### Login another existing member
+POST {{baseUrl}}/auths/login
+Content-Type: application/json
+
+{
+  "email":"player2@mail.com",
+  "password":"123"
+}
+
+### Try to login with wrong password
+POST {{baseUrl}}/auths/login
+Content-Type: application/json
+
+{
+  "email":"player1@mail.com",
+  "password":"123"
+}
+
+### Try to login an unexisting member
+POST {{baseUrl}}/auths/login
+Content-Type: application/json
+
+{
+  "email":"unexisting@mail.com",
+  "password":"123"
+}
+
+### Try to login without email
+POST {{baseUrl}}/auths/login
+Content-Type: application/json
+
+{
+  "password":"123"
+}
+
+### Try to login without password
+POST {{baseUrl}}/auths/login
+Content-Type: application/json
+
+{
+  "email":"player1@mail.com"
+}
+
+### Try to login with empty body
+POST {{baseUrl}}/auths/login
+Content-Type: application/json
+
+{
+}
+
+### Try to login with empty request
+POST {{baseUrl}}/auths/login
+Content-Type: application/json

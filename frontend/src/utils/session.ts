@@ -1,19 +1,25 @@
-import { AuthenticatedUser, MaybeAuthenticatedUser } from '../types';
+import { StoredUser, AuthenticatedUser } from '../types';
 
-const storeAuthenticatedUser = (authenticatedUser: AuthenticatedUser) => {
-  localStorage.setItem('authenticatedUser', JSON.stringify(authenticatedUser));
+const storeAuthenticatedUser = (
+  authenticatedUser: AuthenticatedUser,
+  rememberMe: boolean,
+) => {
+  if (rememberMe) localStorage.setItem('token', authenticatedUser.token);
+  else sessionStorage.setItem('token', authenticatedUser.token);
 };
 
-const getAuthenticatedUser = (): MaybeAuthenticatedUser => {
-  const authenticatedUser = localStorage.getItem('authenticatedUser');
+const getAuthenticatedUser = (): StoredUser | undefined => {
+  const token =
+    localStorage.getItem('token') || sessionStorage.getItem('token');
 
-  if (!authenticatedUser) return undefined;
+  if (!token) return undefined;
 
-  return JSON.parse(authenticatedUser);
+  return { token };
 };
 
 const clearAuthenticatedUser = () => {
-  localStorage.removeItem('authenticatedUser');
+  localStorage.removeItem('token');
+  sessionStorage.removeItem('token');
 };
 
 export { storeAuthenticatedUser, getAuthenticatedUser, clearAuthenticatedUser };

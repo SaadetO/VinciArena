@@ -1,4 +1,4 @@
-import { createContext, useState, ReactNode } from 'react';
+import { createContext, useState, ReactNode, useEffect } from 'react';
 import {
   MaybeAuthenticatedUser,
   UserContextType,
@@ -8,6 +8,7 @@ import {
 
 import {
   clearAuthenticatedUser,
+  getAuthenticatedUser,
   storeAuthenticatedUser,
 } from '../utils/session';
 
@@ -24,45 +25,62 @@ const UserContextProvider = ({ children }: { children: ReactNode }) => {
   const [authenticatedUser, setAuthenticatedUser] =
     useState<MaybeAuthenticatedUser>(undefined);
 
+  useEffect(() => {
+    const storedUser = getAuthenticatedUser();
+    if (!storedUser) return;
+
+    (async () => {
+      try {
+        const response = await fetch('/api/auths/login/me', {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: storedUser.token,
+          },
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch user');
+
+        const authenticatedUser: AuthenticatedUser = await response.json();
+
+        setAuthenticatedUser({
+          ...authenticatedUser,
+        });
+      } catch (err) {
+        console.error('Failed to fetch user: ', err);
+        clearUser();
+      }
+    })();
+  }, []);
+
   const registerUser = async (newUser: User) => {
     try {
-      const options = {
+      const response = await fetch('/api/auths/register', {
         method: 'POST',
         body: JSON.stringify(newUser),
         headers: {
           'Content-Type': 'application/json',
         },
-      };
-
-      const response = await fetch('/api/auths/register', options);
+      });
 
       if (!response.ok)
         throw new Error(
           `fetch error : ${response.status} : ${response.statusText}`,
         );
-
-      const createdUser: AuthenticatedUser = await response.json();
-
-      setAuthenticatedUser(createdUser);
-      storeAuthenticatedUser(createdUser);
-      console.log('createdUser: ', createdUser);
     } catch (err) {
       console.error('registerUser::error: ', err);
       throw err;
     }
   };
 
-  const loginUser = async (user: User) => {
+  const loginUser = async ({ email, password, rememberMe }: User) => {
     try {
-      const options = {
+      const response = await fetch('/api/auths/login', {
         method: 'POST',
-        body: JSON.stringify(user),
+        body: JSON.stringify({ email, password }),
         headers: {
           'Content-Type': 'application/json',
         },
-      };
-
-      const response = await fetch('/api/auths/login', options);
+      });
 
       if (!response.ok)
         throw new Error(
@@ -70,10 +88,10 @@ const UserContextProvider = ({ children }: { children: ReactNode }) => {
         );
 
       const authenticatedUser: AuthenticatedUser = await response.json();
-      console.log('authenticatedUser: ', authenticatedUser);
+
+      storeAuthenticatedUser(authenticatedUser, rememberMe ?? false);
 
       setAuthenticatedUser(authenticatedUser);
-      storeAuthenticatedUser(authenticatedUser);
     } catch (err) {
       console.error('loginUser::error: ', err);
       throw err;

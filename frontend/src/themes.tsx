@@ -1,5 +1,6 @@
 import { CloseRounded } from '@mui/icons-material';
 import { createTheme } from '@mui/material/styles';
+import { ZoomTransition } from './components/ZoomTransition';
 
 declare module '@mui/material/styles' {
   interface TypeBackground {
@@ -59,7 +60,7 @@ export const theme = createTheme({
     background: {
       ...surfaceLevels,
       default: surfaceLevels.s0,
-      paper: surfaceLevels.s4,
+      paper: surfaceLevels.s1,
     },
     text: {
       primary: '#FFFFFF',
@@ -74,8 +75,79 @@ export const theme = createTheme({
       'Arial',
       'sans-serif',
     ].join(','),
+    h1: {
+      fontSize: '2.8125rem',
+      lineHeight: '3.375rem',
+      fontWeight: 'bold',
+    },
+    h2: {
+      fontSize: '1.5rem',
+      lineHeight: '2rem',
+      letterSpacing: '0',
+      fontWeight: 'bold',
+    },
+    h3: {
+      fontSize: '1.375rem',
+      lineHeight: '1.75rem',
+      letterSpacing: '0',
+      fontWeight: 'bold',
+    },
+    h4: {
+      fontSize: '1.125rem',
+      lineHeight: '1.5rem',
+      letterSpacing: '0.15%',
+      fontWeight: 'bold',
+    },
+    h5: {
+      fontSize: '0.875rem',
+      lineHeight: '1.25rem',
+      letterSpacing: '0.1%',
+      fontWeight: 'bold',
+    },
+    h6: {
+      fontSize: '0.6875rem',
+      lineHeight: '1rem',
+      letterSpacing: '0.5%',
+      fontWeight: 'bold',
+    },
+    body1: {
+      fontSize: '0.875rem',
+      lineHeight: '1.25rem',
+      letterSpacing: '0.25%',
+      fontWeight: 'normal',
+    },
+    body2: {
+      fontSize: '0.75rem',
+      lineHeight: '1rem',
+      letterSpacing: '0.25%',
+      fontWeight: 'normal',
+    },
   },
   components: {
+    MuiTypography: {
+      styleOverrides: {},
+      variants: [
+        {
+          props: { color: 'primary' },
+          style: {
+            color: '#FFFFFF',
+          },
+        },
+        {
+          props: { color: 'secondary' },
+          style: {
+            color: '#8C8C8C',
+          },
+        },
+      ],
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          borderRadius: '8px',
+        },
+      },
+    },
     MuiButtonBase: {
       defaultProps: {
         disableRipple: true,
@@ -143,6 +215,7 @@ export const theme = createTheme({
       },
       styleOverrides: {
         root: {
+          width: 'fit-content',
           textTransform: 'uppercase',
           fontWeight: 'Bold',
           fontSize: '0.875rem',
@@ -168,6 +241,7 @@ export const theme = createTheme({
           borderRadius: '100rem',
           padding: '0 0.5rem',
           fontSize: '0.5625rem',
+          letterSpacing: '0.5%',
           lineHeight: '0.625rem',
           fontWeight: 'Bold',
           '& .MuiSvgIcon-root': {
@@ -212,7 +286,7 @@ export const theme = createTheme({
         {
           props: { variant: 'active' },
           style: {
-            border: '1px solid #00C8FF',
+            border: '2px solid #00C8FF',
             color: '#00C8FF',
           },
         },
@@ -244,6 +318,9 @@ export const theme = createTheme({
         root: {
           height: '100%',
           '& .MuiTabs-list': {
+            height: '100%',
+          },
+          '& .MuiTabs-flexContainer': {
             height: '100%',
           },
         },
@@ -286,7 +363,22 @@ export const theme = createTheme({
           height: '2.75rem',
           borderRadius: '0.25rem',
         },
+        sizeSmall: {
+          width: '2rem',
+          height: '2rem',
+          borderRadius: '0.75rem',
+        },
         colorPrimary: {
+          color: '#FFFFFF',
+          background: '#262626',
+          '&:hover': {
+            background: 'color-mix(in srgb, #262626 92%, #FFFFFF 8%)',
+          },
+          '&:active': {
+            background: 'color-mix(in srgb, #262626 88%, #FFFFFF 12%)',
+          },
+        },
+        colorSecondary: {
           color: '#FFFFFF',
           background: '#262626',
           '&:hover': {
@@ -326,22 +418,58 @@ export const theme = createTheme({
         },
       ],
     },
+    MuiSelect: {
+      styleOverrides: {
+        root: {
+          borderRadius: '0.5rem',
+          border: '1px solid #303030 !important',
+          '& .MuiSvgIcon-root': {
+            color: '#8C8C8C',
+          },
+        },
+      },
+    },
     MuiTextField: {
       defaultProps: {
         variant: 'outlined',
       },
       styleOverrides: {
         root: {
-          '& .MuiInputBase-root': {
-            background: '#262626',
-            border: '1px solid #303030',
-            paddingLeft: '0.75rem',
+          '& .MuiButtonBase-root': {
+            color: '#8C8C8C',
+            height: '2rem',
+            width: '2rem',
+            marginRight: '-0.375rem',
           },
-          '& input': {
-            height: '2.75rem',
-            padding: '0 0.75rem 0 0',
+          '& .MuiInputBase-root': {
+            borderRadius: '0.5rem',
+          },
+          '& .MuiInputBase-input': {
+            height: '3rem',
+            padding: '0 1rem',
             fontWeight: 'Medium',
             fontSize: '1rem',
+            color: '#FFFFFF',
+          },
+          '& .MuiOutlinedInput-notchedOutline': {
+            border: '1px solid #303030',
+          },
+          '& input::placeholder': {
+            color: '#8C8C8C',
+          },
+          '& input[type="password"]': {
+            fontFamily: 'monospace',
+            letterSpacing: '0.25rem',
+            '&::placeholder': {
+              letterSpacing: '0.25%',
+              fontFamily: [
+                '"Google Sans"',
+                'Roboto',
+                '"Helvetica Neue"',
+                'Arial',
+                'sans-serif',
+              ].join(','),
+            },
           },
         },
       },
@@ -350,6 +478,122 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           color: '#8C8C8C',
+        },
+      },
+    },
+    MuiSkeleton: {
+      defaultProps: {
+        animation: 'wave',
+      },
+      styleOverrides: {
+        root: {
+          backgroundColor: surfaceLevels.s3,
+        },
+        wave: {
+          '&::after': {
+            background:
+              'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent)',
+            animationTimingFunction: 'cubic-bezier(0.4, 0, 0.5, 1)',
+          },
+        },
+      },
+    },
+    MuiDialog: {
+      defaultProps: {
+        TransitionComponent: ZoomTransition,
+      },
+      styleOverrides: {
+        root: {
+          '& .MuiDialog-paper': {
+            borderRadius: '0.5rem',
+            background: surfaceLevels.s1,
+            backgroundImage: 'none',
+            width: '25rem',
+          },
+        },
+      },
+    },
+    MuiDialogTitle: {
+      styleOverrides: {
+        root: {
+          padding: '2rem 1rem 0.25rem',
+          textAlign: 'center',
+        },
+      },
+    },
+    MuiDialogContent: {
+      styleOverrides: {
+        root: {
+          padding: '1rem',
+        },
+      },
+    },
+    MuiDialogActions: {
+      styleOverrides: {
+        root: {
+          padding: '1rem',
+        },
+      },
+    },
+    MuiAutocomplete: {
+      styleOverrides: {
+        root: {
+          '& .MuiOutlinedInput-root': {
+            padding: '0 0 0 1rem',
+            '& .MuiAutocomplete-input': {
+              padding: '0',
+            },
+          },
+          '& .MuiButtonBase-root': {
+            width: '2rem',
+            height: '2rem',
+            marginRight: '0',
+          },
+          '& .MuiButtonBase-root:last-child': {
+            color: '#8C8C8C',
+          },
+        },
+      },
+    },
+    MuiMenu: {
+      styleOverrides: {
+        root: {
+          '& .MuiMenu-paper': {
+            borderRadius: '0.75rem',
+            background: surfaceLevels.s2,
+            backgroundImage: 'none',
+            width: '25rem',
+            marginTop: '0.375rem',
+          },
+        },
+      },
+    },
+    MuiListItem: {
+      styleOverrides: {
+        root: {
+          padding: '0.5rem 4.25rem 0.5rem 1.5rem',
+        },
+      },
+    },
+    MuiListItemSecondaryAction: {
+      styleOverrides: {
+        root: {
+          right: '1.5rem',
+          color: '#FFFFFF',
+        },
+      },
+    },
+    MuiBadge: {
+      styleOverrides: {
+        badge: {
+          padding: '0 0.25rem',
+          width: 'fit-content',
+          height: 'fit-content',
+          minWidth: '0.875rem',
+          minHeight: '0.875rem',
+          lineHeight: '0.875rem',
+          fontSize: '0.6875rem',
+          fontWeight: 'bold',
         },
       },
     },

@@ -1,0 +1,62 @@
+@baseUrl = http://localhost:3000
+
+# ----------- Team Creation Tests -----------
+
+### 1: Register a new member
+POST {{baseUrl}}/auths/register
+Content-Type: application/json
+
+{
+  "email": "player@test.com",
+  "password": "password123",
+  "tag": "PlayerOne"
+}
+
+### 2: Login to get JWT token (stored in auth_token)
+POST {{baseUrl}}/auths/login
+Content-Type: application/json
+
+{
+  "username": "player@test.com",
+  "password": "password123"
+}
+
+> {% client.global.set("auth_token", response.body.token); %}
+
+### 3: Create a team (expect 201)
+POST {{baseUrl}}/teams/
+Content-Type: application/json
+Authorization: {{auth_token}}
+
+{
+  "name": "My Team"
+}
+
+### 4: Create a team with duplicate name (expect 409)
+POST {{baseUrl}}/teams/
+Content-Type: application/json
+Authorization: {{auth_token}}
+
+{
+  "name": "My Team"
+}
+
+### 5: Create a team without auth (expect 403)
+POST {{baseUrl}}/teams/
+Content-Type: application/json
+
+{
+  "name": "No Auth Team"
+}
+
+### 6: Create a team with blank name (expect 400)
+POST {{baseUrl}}/teams/
+Content-Type: application/json
+Authorization: {{auth_token}}
+
+{
+  "name": "  "
+}
+
+### 7: Get Team details as a visitor
+GET {{baseUrl}}/teams/1/details

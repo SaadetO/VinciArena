@@ -5,7 +5,6 @@ import './index.css';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { App } from './App.tsx';
 import { HomePage } from './pages/HomePage.tsx';
-import { AddPizzaPage } from './pages/AddPizzaPage.tsx';
 import { RegisterPage } from './pages/RegisterPage.tsx';
 import { LoginPage } from './pages/LoginPage.tsx';
 import { UserContextProvider } from './contexts/UserContext.tsx';
@@ -13,6 +12,9 @@ import '@fontsource/roboto/700.css';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
 import { theme } from './themes.tsx';
+import { ProfilePage } from './pages/ProfilePage/index.tsx';
+import { NotificationsPage } from './pages/NotificationsPage.tsx';
+import { TeamPage } from './pages/TeamPage/index.tsx';
 
 const router = createBrowserRouter([
   {
@@ -24,9 +26,31 @@ const router = createBrowserRouter([
         element: <HomePage />,
       },
       {
-        path: 'add-pizza',
-        element: <AddPizzaPage />,
+        path: 'teams',
+        children: [
+          {
+            path: '',
+            element: 'teams',
+          },
+          {
+            path: ':id',
+            element: <TeamPage />,
+          },
+        ],
       },
+      {
+        path: 'users/:id',
+        element: <ProfilePage />,
+      },
+      {
+        path: 'notifications',
+        element: <NotificationsPage></NotificationsPage>,
+      },
+    ],
+  },
+  {
+    path: '/auth',
+    children: [
       {
         path: 'register',
         element: <RegisterPage />,
