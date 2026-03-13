@@ -144,4 +144,58 @@ public class TeamService {
   public Iterable<Team> getAllActiveTeams() {
     return teamRepository.findByIsActiveTrue();
   }
+
+  /**
+   * Designate a member as a manager of a team.
+   *
+   * @param teamId        the team ID
+   * @param memberId      the member ID to designate
+   * @param currentMember the authenticated member
+   * @return the updated team, or null if unauthorized, team/member not found, or no spots left
+   */
+  @Transactional
+  public Team designateSecondManager(Long teamId, Long memberId, Member currentMember) {
+    Team team = teamRepository.findById(teamId).orElse(null);
+    if (team == null) {
+      return null;
+    }
+
+    // Check if currentMember is a manager
+    boolean isManager = (team.getManager1() != null && team.getManager1().getIdMember()
+        .equals(currentMember.getIdMember()))
+        || (team.getManager2() != null && team.getManager2().getIdMember()
+        .equals(currentMember.getIdMember()));
+
+    if (!isManager) {
+      return null;
+    }
+
+    Member memberToDesignate = memberRepository.findById(memberId).orElse(null);
+    if (memberToDesignate == null) {
+      return null;
+    }
+
+    // Check if member belongs to the team
+    if (memberToDesignate.getTeam() == null || !memberToDesignate.getTeam().getIdTeam()
+        .equals(teamId)) {
+      return null;
+    }
+
+    // Check if member is already a manager
+    if ((team.getManager1() != null && team.getManager1().getIdMember().equals(memberId))
+        || (team.getManager2() != null && team.getManager2().getIdMember().equals(memberId))) {
+      return team; // Already a manager
+    }
+
+    // Check for open spots
+    if (team.getManager1() == null) {
+      team.setManager1(memberToDesignate);
+    } else if (team.getManager2() == null) {
+      team.setManager2(memberToDesignate);
+    } else {
+      return null; // Both spots taken
+    }
+
+    return teamRepository.save(team);
+  }
 }
