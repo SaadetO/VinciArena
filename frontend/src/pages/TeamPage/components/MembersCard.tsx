@@ -36,8 +36,8 @@ export const MembersCard = ({ team, isLoading }: MembersCardProps) => {
                     background: (theme) => theme.palette.background.s4,
                   },
                   textTransform: 'none',
-                  key: member.id,
                 }}
+                key={member.id}
                 component={Link}
                 to={`/users/${member.id}`}
                 label={member.tag}
