@@ -2,7 +2,7 @@ import { Button, Stack, Tab, Tabs, Typography } from '@mui/material';
 import logo from '../../assets/images/Logo.svg';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { SyntheticEvent, useContext } from 'react';
-import NotificationMenu from './components/NotificationMenu';
+import { NotificationMenu } from './components/NotificationMenu';
 import { UserContext } from '../../contexts/UserContext';
 import { UserMenu } from './components/UserMenu';
 export const Header = () => {

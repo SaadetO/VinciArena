@@ -21,7 +21,7 @@ import { NotificationDto } from '../../../types';
 import { NotificationItem } from '../../NotificationItem';
 import { NotificationsOutlined } from '@mui/icons-material';
 
-const NotificationMenu = () => {
+export const NotificationMenu = () => {
   const [menuPosition, setMenuPosition] = useState<null | HTMLElement>(null);
   const [unreadNotifications, setUnreadNotifications] = useState<
     NotificationDto[]
@@ -173,5 +173,3 @@ const NotificationMenu = () => {
     </>
   );
 };
-
-export default NotificationMenu;
