@@ -70,7 +70,7 @@ public class JoinRequestService {
     joinRequest = joinRequestRepository.save(joinRequest);
 
     notificationService.notifyTeamManagers(requestedTeam,
-        "Demande d'adhésion: " + requester.getTag() + " souhaite rejoindre "
+         requester.getTag() + " souhaite rejoindre "
             + requestedTeam.getName());
 
     return JoinRequestDto.builder()
