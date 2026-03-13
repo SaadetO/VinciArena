@@ -73,6 +73,7 @@ public class MemberService {
     authenticatedUser.setEmail(email);
     authenticatedUser.setTag(member.getTag());
     authenticatedUser.setToken(token);
+    authenticatedUser.setAdmin(member.isAdmin());
 
     return authenticatedUser;
   }

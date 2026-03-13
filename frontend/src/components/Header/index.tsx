@@ -47,24 +47,36 @@ export const Header = () => {
         <Tab label="tournois" value="/" />
         <Tab label="teams" value="/teams" />
       </Tabs>
-      <Stack direction="row" spacing="1rem">
-        {authenticatedUser ? (
-          <>
-            <NotificationMenu />
-            <UserMenu />
-          </>
-        ) : (
-          <>
-            <Link to="/auth/register">
-              <Button variant="contained" color="secondary">
-                s'inscrire
+      <Stack direction="row" spacing="1.5rem">
+        <Stack direction="row" spacing="1rem">
+          {authenticatedUser?.admin && (
+            <Stack direction="row" spacing="1rem">
+              <Button variant="contained">
+                Créer un tournoi
               </Button>
-            </Link>
-            <Link to="/auth/login">
-              <Button variant="contained">se connecter</Button>
-            </Link>
-          </>
-        )}
+              <Button variant="contained" color="secondary">
+                Créer un admin
+              </Button>
+            </Stack>
+          )}
+          {authenticatedUser ? (
+            <>
+              <NotificationMenu />
+              <UserMenu />
+            </>
+          ) : (
+            <>
+              <Link to="/auth/register">
+                <Button variant="contained" color="secondary">
+                  s'inscrire
+                </Button>
+              </Link>
+              <Link to="/auth/login">
+                <Button variant="contained">se connecter</Button>
+              </Link>
+            </>
+          )}
+        </Stack>
       </Stack>
     </Stack>
   );

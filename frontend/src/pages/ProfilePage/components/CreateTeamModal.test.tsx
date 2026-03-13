@@ -9,7 +9,7 @@ describe('CreateTeamModal', () => {
   const mockAuthenticatedUser: AuthenticatedUser = {
     id: 1,
     token: 'fake-token',
-    isAdmin: false,
+    admin: false,
     tag: 'test-tag',
   };
 

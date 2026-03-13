@@ -24,7 +24,7 @@ interface ProfileInfoDto {
   specialty: string | null;
   creationDate: string | null;
   avatar: string | null;
-  isAdmin: boolean | null;
+  admin: boolean | null;
   isSelf: boolean; // Indicates if this profile belongs to the currently logged in user
   team: {
     id: number;
@@ -42,7 +42,7 @@ interface ProfileInfoDto {
 
 interface AuthenticatedUser {
   id: number;
-  isAdmin: boolean;
+  admin: boolean;
   tag: string;
   token: string;
 }
