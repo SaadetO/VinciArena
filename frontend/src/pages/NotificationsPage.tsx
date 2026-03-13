@@ -32,7 +32,7 @@ export const NotificationsPage = () => {
   };
   useEffect(() => {
     fetchAllNotifications();
-    const id = setInterval(fetchAllNotifications, 3000);
+    const id = setInterval(fetchAllNotifications, 10000);
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authenticatedUser]);
