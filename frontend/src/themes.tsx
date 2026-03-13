@@ -286,7 +286,7 @@ export const theme = createTheme({
         {
           props: { variant: 'active' },
           style: {
-            border: '1px solid #00C8FF',
+            border: '2px solid #00C8FF',
             color: '#00C8FF',
           },
         },

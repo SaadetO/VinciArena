@@ -18,6 +18,7 @@ export const UserMenu = () => {
   return (
     <>
       <Button
+        sx={{ textTransform: 'none' }}
         variant="contained"
         color="secondary"
         onClick={handleMenuClick}
