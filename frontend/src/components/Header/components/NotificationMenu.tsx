@@ -21,11 +21,12 @@ import { NotificationDto } from '../../../types';
 import { NotificationItem } from '../../NotificationItem';
 import { NotificationsOutlined } from '@mui/icons-material';
 
-const NotificationMenu = () => {
+export const NotificationMenu = () => {
   const [menuPosition, setMenuPosition] = useState<null | HTMLElement>(null);
   const [unreadNotifications, setUnreadNotifications] = useState<
     NotificationDto[]
   >([]);
+  const [unreadCount, setUnreadCount] = useState(0);
   const { authenticatedUser } = useContext(UserContext);
   const navigate = useNavigate();
 
@@ -45,7 +46,7 @@ const NotificationMenu = () => {
     setMenuPosition(null);
   };
 
-  const fetchUnreadNotifications = useCallback(async () => {
+  const fetchUnreadNotifications = async () => {
     if (!authenticatedUser?.token) return;
     try {
       const response = await fetch(
@@ -60,19 +61,33 @@ const NotificationMenu = () => {
       console.error('Failed to fetch unreadNotifications', err);
       setUnreadNotifications([]);
     }
+  };
+
+  const fetchUnreadCount = useCallback(async () => {
+    if (!authenticatedUser?.token) return;
+    try {
+      const response = await fetch(
+        `/api/notifications/member/${authenticatedUser.id}/unread-count`,
+        { headers: { Authorization: authenticatedUser.token } },
+      );
+      if (response.ok) {
+        const data = await response.text();
+        setUnreadCount(parseInt(data));
+      }
+    } catch (err) {
+      console.error('Failed to fetch unread count', err);
+    }
   }, [authenticatedUser]);
 
   useEffect(() => {
     if (!authenticatedUser) {
-      setUnreadNotifications([]);
+      setUnreadCount(0);
       return;
     }
-
-    fetchUnreadNotifications();
-
-    const intervalId = setInterval(fetchUnreadNotifications, 30000);
+    fetchUnreadCount();
+    const intervalId = setInterval(fetchUnreadCount, 10000);
     return () => clearInterval(intervalId);
-  }, [authenticatedUser, fetchUnreadNotifications]);
+  }, [authenticatedUser, fetchUnreadCount]);
   return (
     <>
       <IconButton
@@ -83,7 +98,7 @@ const NotificationMenu = () => {
             isOpen ? theme.palette.background.s4 : 'transparent',
         }}
       >
-        <Badge badgeContent={unreadNotifications.length} color="primary">
+        <Badge badgeContent={unreadCount} color="primary">
           <NotificationsOutlined />
         </Badge>
       </IconButton>
@@ -158,5 +173,3 @@ const NotificationMenu = () => {
     </>
   );
 };
-
-export default NotificationMenu;
