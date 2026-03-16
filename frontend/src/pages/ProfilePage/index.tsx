@@ -80,24 +80,7 @@ export const ProfilePage = () => {
   if (error) return <NotFoundPage error={error} />;
   return (
     <>
-      <ProfileBanner
-        onError={(errorMessage: string) => {
-          setSnackBarMessage({
-            text: errorMessage,
-            isError: true,
-            isOpen: true,
-          });
-        }}
-        onSuccess={(message: string) => {
-          setSnackBarMessage({
-            text: message,
-            isError: false,
-            isOpen: true,
-          });
-        }}
-        user={user}
-        setUser={setUser}
-      />
+      <ProfileBanner user={user} setUser={setUser} />
       <Container maxWidth="lg">
         <Grid2
           container

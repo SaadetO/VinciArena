@@ -1,15 +1,21 @@
 import { ImageList, ImageListItem, Skeleton } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { ProfileImage } from '../types';
+import { useModalController } from '../hooks/useModalController';
 
 interface Props {
   onSelect: (image: ProfileImage) => void;
 }
 
 export const ProfileImageModalContent = ({ onSelect }: Props) => {
+  const { setConfirmDisabled } = useModalController();
   const [defaultImages, setDefaultImages] = useState<ProfileImage[]>([]);
   const [avatar, setAvatar] = useState<ProfileImage | null>(null);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setConfirmDisabled(!avatar);
+  }, [avatar]);
 
   useEffect(() => {
     (async () => {

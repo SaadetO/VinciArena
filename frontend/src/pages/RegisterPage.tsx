@@ -1,4 +1,4 @@
-import { useState, SyntheticEvent, useContext, useEffect } from 'react';
+import { useState, SyntheticEvent, useContext, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Autocomplete,
@@ -16,7 +16,9 @@ import { UserContext } from '../contexts/UserContext';
 import logo from '../assets/images/logo.svg';
 import authBackground from '../assets/images/auth_background.jpg';
 import { ArrowBack, Visibility, VisibilityOff } from '@mui/icons-material';
-import { ProfileImageModal } from '../components/ProfileImageModal';
+import { profileImageModal } from '../modals/profileImageModal';
+import { useModal } from '../hooks/useModal';
+import { useSnackbar } from '../hooks/useSnackbar';
 
 interface FormData {
   email: string;
@@ -28,8 +30,10 @@ interface FormData {
 
 export const RegisterPage = () => {
   const { registerUser }: UserContextType = useContext(UserContext);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [chosenImage, setChosenImage] = useState<ProfileImage | null>(null);
+  const [selectedSpecialty, setSelectedSpecialty] =
+    useState<SpecialtyDto | null>(null);
+  const selectedImageRef = useRef<ProfileImage | null>(null);
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<FormData>({
@@ -42,6 +46,8 @@ export const RegisterPage = () => {
   const [specialties, setSpecialties] = useState<SpecialtyDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
+  const { openModal } = useModal();
+  const { showSnackbar } = useSnackbar();
 
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
@@ -96,9 +102,18 @@ export const RegisterPage = () => {
     })();
   }, []);
 
-  const handleSelectImage = (image: ProfileImage) => {
-    setChosenImage(image);
-    setFormData((prev) => ({ ...prev, profileImageId: image.idImage }));
+  const handleConfirmImage = (close: () => void) => {
+    if (!selectedImageRef.current) return;
+    setChosenImage(selectedImageRef.current);
+    setFormData((prev) => ({
+      ...prev,
+      profileImageId: selectedImageRef.current!.idImage,
+    }));
+    close();
+    showSnackbar({
+      message: 'Image de profil choisie',
+      severity: 'success',
+    });
   };
 
   return (
@@ -188,7 +203,7 @@ export const RegisterPage = () => {
                 options={specialties}
                 loading={loading}
                 fullWidth
-                value={specialties.find((e) => e.id === formData.specialtyId)}
+                value={selectedSpecialty}
                 getOptionLabel={(e) =>
                   e.label.charAt(0).toUpperCase() + e.label.slice(1)
                 }
@@ -196,18 +211,27 @@ export const RegisterPage = () => {
                 renderInput={(params) => (
                   <TextField {...params} placeholder="Spécialité" />
                 )}
-                onChange={(_, e) =>
+                onChange={(_, e) => {
+                  setSelectedSpecialty(e);
                   setFormData((prev) => ({
                     ...prev,
                     specialtyId: e?.id ?? null,
-                  }))
-                }
+                  }));
+                }}
               />
             </Stack>
           ) : (
             <Stack alignItems="center">
               <Avatar
-                onClick={() => setIsMenuOpen(true)}
+                onClick={() => {
+                  selectedImageRef.current = null;
+                  openModal(
+                    profileImageModal({
+                      onSelect: (image) => (selectedImageRef.current = image),
+                      onConfirm: handleConfirmImage,
+                    }),
+                  );
+                }}
                 src={chosenImage ? `/assets/avatars/${chosenImage.path}` : ''}
                 sx={{
                   width: 100,
@@ -240,11 +264,6 @@ export const RegisterPage = () => {
           </Stack>
         </form>
       </Container>
-      <ProfileImageModal
-        open={isMenuOpen}
-        onClose={() => setIsMenuOpen(false)}
-        onSelect={handleSelectImage}
-      />
       <Box
         width={1 / 3}
         minHeight="100%"
