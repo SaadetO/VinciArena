@@ -9,10 +9,11 @@ import {
 import { PersonalInfoCard } from './components/PersonalInfoCard';
 import { ProfileBanner } from './components/ProfileBanner';
 import { TeamCard } from './components/TeamCard';
-import { CreateTeamModal } from './components/CreateTeamModal';
 import { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { UserContext } from '../../contexts/UserContext';
+import { useModal } from '../../hooks/useModal';
+import { createTeamModal } from './modals/createTeamModal';
 import { ProfileInfoDto, Team } from '../../types';
 import { NotFoundPage } from '../NotFoundPage';
 import { UnavailabilitiesCard } from './components/UnavailabilitiesCard';
@@ -27,10 +28,10 @@ export const ProfilePage = () => {
   } | null>(null);
   const [teams, setTeams] = useState<Team[]>([]);
   const [openJoin, setOpenJoin] = useState(false);
-  const [openCreate, setOpenCreate] = useState(false);
   const { id } = useParams();
   const idNbr = Number(id);
   const { authenticatedUser } = useContext(UserContext);
+  const { openModal } = useModal();
   const [unavailabilitiesModal, setUnavailabilitiesModal] = useState(false);
   const [user, setUser] = useState<ProfileInfoDto | undefined>(undefined);
   const [error, setError] = useState<
@@ -109,7 +110,15 @@ export const ProfilePage = () => {
                 />
                 <TeamCard
                   user={user}
-                  setOpen={setOpenCreate}
+                  setOpen={() => {
+                    openModal(
+                      createTeamModal({
+                        onSuccess: (team) => {
+                          if (user) setUser({ ...user, team });
+                        },
+                      })
+                    );
+                  }}
                   setOpenJoin={setOpenJoin}
                   onQuitSuccess={() => {
                     setSnackBarMessage({
@@ -162,19 +171,6 @@ export const ProfilePage = () => {
           )}
         </Grid2>
       </Container>
-      <CreateTeamModal
-        open={openCreate}
-        onClose={() => setOpenCreate(false)}
-        onSuccess={(team) => {
-          setSnackBarMessage({
-            text: 'Team créée avec succès !',
-            isError: false,
-            isOpen: true,
-          });
-          setOpenCreate(false);
-          if (user) setUser({ ...user, team });
-        }}
-      />
       <JoinTeamModal
         teams={teams}
         setTeams={setTeams}
