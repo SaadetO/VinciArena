@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { UserContext } from '../contexts/UserContext';
 import { LoadingIcon } from '../components/LoadingIcon';
 import { Box, Container, List, Typography } from '@mui/material';
@@ -12,7 +12,7 @@ export const NotificationsPage = () => {
   const [loading, setLoading] = useState(true);
   const { authenticatedUser } = useContext(UserContext);
 
-  const fetchAllNotifications = async () => {
+  const fetchAllNotifications = useCallback(async () => {
     if (!authenticatedUser?.token) return;
     try {
       const response = await fetch(
@@ -29,13 +29,13 @@ export const NotificationsPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [authenticatedUser]);
+
   useEffect(() => {
     fetchAllNotifications();
     const id = setInterval(fetchAllNotifications, 10000);
     return () => clearInterval(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authenticatedUser]);
+  }, [fetchAllNotifications]);
   if (loading) return <LoadingIcon></LoadingIcon>;
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
