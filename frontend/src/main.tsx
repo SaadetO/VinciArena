@@ -15,6 +15,7 @@ import { theme } from './themes.tsx';
 import { ProfilePage } from './pages/ProfilePage/index.tsx';
 import { NotificationsPage } from './pages/NotificationsPage.tsx';
 import { TeamPage } from './pages/TeamPage/index.tsx';
+import { ModalContextProvider } from './contexts/ModalContext.tsx';
 
 const router = createBrowserRouter([
   {
@@ -68,7 +69,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <ThemeProvider theme={theme}>
       <CssBaseline /> {/* Global CSS reset from Material-UI */}
       <UserContextProvider>
-        <RouterProvider router={router} />
+        <ModalContextProvider>
+          <RouterProvider router={router} />
+        </ModalContextProvider>
       </UserContextProvider>
     </ThemeProvider>
   </React.StrictMode>,
