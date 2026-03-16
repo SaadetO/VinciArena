@@ -14,11 +14,11 @@ import { useParams } from 'react-router-dom';
 import { UserContext } from '../../contexts/UserContext';
 import { useModal } from '../../hooks/useModal';
 import { createTeamModal } from './modals/createTeamModal';
+import { joinTeamModal } from './modals/joinTeamModal';
 import { ProfileInfoDto, Team } from '../../types';
 import { NotFoundPage } from '../NotFoundPage';
 import { UnavailabilitiesCard } from './components/UnavailabilitiesCard';
 import { UnavailabilitiesModal } from './components/UnavailabilitiesModal';
-import { JoinTeamModal } from './components/JoinTeamModal';
 
 export const ProfilePage = () => {
   const [snackBarMessage, setSnackBarMessage] = useState<{
@@ -27,7 +27,6 @@ export const ProfilePage = () => {
     isOpen: boolean;
   } | null>(null);
   const [teams, setTeams] = useState<Team[]>([]);
-  const [openJoin, setOpenJoin] = useState(false);
   const { id } = useParams();
   const idNbr = Number(id);
   const { authenticatedUser } = useContext(UserContext);
@@ -119,7 +118,15 @@ export const ProfilePage = () => {
                       })
                     );
                   }}
-                  setOpenJoin={setOpenJoin}
+                  setOpenJoin={() => {
+                    openModal(
+                      joinTeamModal({
+                        teams,
+                        setTeams,
+                        onSuccess: () => {},
+                      })
+                    );
+                  }}
                   onQuitSuccess={() => {
                     setSnackBarMessage({
                       text: "Vous avez quitté l'équipe avec succès.",
@@ -171,19 +178,6 @@ export const ProfilePage = () => {
           )}
         </Grid2>
       </Container>
-      <JoinTeamModal
-        teams={teams}
-        setTeams={setTeams}
-        open={openJoin}
-        onClose={() => setOpenJoin(false)}
-        onSuccess={() =>
-          setSnackBarMessage({
-            text: 'Demande effectuée avec succès !',
-            isError: false,
-            isOpen: true,
-          })
-        }
-      />
       <UnavailabilitiesModal
         open={unavailabilitiesModal}
         onClose={() => setUnavailabilitiesModal(false)}
