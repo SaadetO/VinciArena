@@ -8,23 +8,20 @@ import {
 } from '@mui/material';
 import { ProfileInfoDto, TeamDetailsInfoDto } from '../../../types';
 import { Link } from 'react-router-dom';
-import { Dispatch, SetStateAction, useContext, useState } from 'react';
+import { useContext } from 'react';
 import { UserContext } from '../../../contexts/UserContext';
-import { ManagerModal } from './ManagerModal';
+import { useModal } from '../../../hooks/useModal';
+import { managerModal } from '../modals/managerModal';
 
 export const ManagerCard = ({
   team,
   setTeam,
-  setSnackBarMessage,
 }: {
   team?: TeamDetailsInfoDto;
-  setTeam: Dispatch<SetStateAction<TeamDetailsInfoDto | undefined>>;
-  setSnackBarMessage: Dispatch<
-    SetStateAction<{ text: string; isError: boolean; isOpen: boolean } | null>
-  >;
+  setTeam: React.Dispatch<React.SetStateAction<TeamDetailsInfoDto | undefined>>;
 }) => {
   const { authenticatedUser } = useContext(UserContext);
-  const [open, setOpen] = useState(false);
+  const { openModal } = useModal();
   return (
     <>
       <Stack
@@ -79,38 +76,30 @@ export const ManagerCard = ({
             <Button
               variant="contained"
               color="secondary"
-              onClick={() => setOpen(true)}
+              onClick={() => {
+                openModal(
+                  managerModal({
+                    team,
+                    onSuccess: (_msg: string, promotedUser?: ProfileInfoDto) => {
+                      if (promotedUser) {
+                        setTeam((prev) =>
+                          prev
+                            ? {
+                                ...prev,
+                                managers: [...prev.managers, promotedUser],
+                              }
+                            : undefined,
+                        );
+                      }
+                    },
+                  })
+                );
+              }}
             >
               Désigner un responsable
             </Button>
           )}
       </Stack>
-      <ManagerModal
-        open={open}
-        onClose={() => setOpen(false)}
-        onSuccess={(successMessage: string, promotedUser?: ProfileInfoDto) => {
-          setSnackBarMessage({
-            text: successMessage,
-            isError: false,
-            isOpen: true,
-          });
-          if (promotedUser) {
-            setTeam((prev) =>
-              prev
-                ? { ...prev, managers: [...prev.managers, promotedUser] }
-                : undefined,
-            );
-          }
-        }}
-        onError={(errorMessage: string) => {
-          setSnackBarMessage({
-            text: errorMessage,
-            isError: true,
-            isOpen: true,
-          });
-        }}
-        team={team}
-      />
     </>
   );
 };
