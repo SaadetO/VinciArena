@@ -106,6 +106,7 @@ interface ModalConfig {
   children?: ReactNode;
   confirmLabel?: string;
   cancelLabel?: string;
+  confirmDisabled?: boolean;
   onConfirm?: (close: () => void) => void;
   onCancel?: (close: () => void) => void;
 }
