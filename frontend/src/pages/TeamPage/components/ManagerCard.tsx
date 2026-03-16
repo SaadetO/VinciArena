@@ -71,15 +71,19 @@ export const ManagerCard = ({
             </>
           )}
         </Stack>
-        {team?.managers?.length && team.managers.length < 2 && (
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={() => setOpen(true)}
-          >
-            Désigner un responsable
-          </Button>
-        )}
+        {team?.managers?.length &&
+          team.managers.length < 2 &&
+          team.managers.some(
+            (manager) => manager.id === authenticatedUser?.id,
+          ) && (
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={() => setOpen(true)}
+            >
+              Désigner un responsable
+            </Button>
+          )}
       </Stack>
       <ManagerModal
         open={open}
