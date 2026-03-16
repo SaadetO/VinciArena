@@ -1,0 +1,19 @@
+import { ModalConfig } from '../../../types';
+import { ChangePasswordModalContent } from './ChangePasswordModalContent';
+
+export const changePasswordModal = ({
+  onSelect,
+  onConfirm,
+}: {
+  onSelect: (password: string | null) => void;
+  onConfirm: (close: () => void) => void;
+}): ModalConfig => ({
+  title: 'Modifier mon mot de passe',
+  subtitle: 'Creez votre nouveau mot de passe en complétant les champs ci-dessous',
+  confirmLabel: 'Confirmer',
+  cancelLabel: 'Annuler',
+  confirmDisabled: true,
+  children: <ChangePasswordModalContent onSelect={onSelect} />,
+  onConfirm: (close) => onConfirm(close),
+  onCancel: (close) => close(),
+});

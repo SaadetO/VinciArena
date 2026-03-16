@@ -1,18 +1,58 @@
 import { Button, Skeleton, Stack, Typography } from '@mui/material';
 import { ProfileInfoDto } from '../../../types';
 import { AlternateEmail, Person } from '@mui/icons-material';
-import { ReactNode } from 'react';
+import { ReactNode, useContext, useRef } from 'react';
+import { useModal } from '../../../hooks/useModal';
+import { useSnackbar } from '../../../hooks/useSnackbar';
+import { UserContext } from '../../../contexts/UserContext';
+import { changePasswordModal } from '../modals/changePasswordModal';
 
 interface PersonalInfoCardProps {
   user?: ProfileInfoDto;
-  setPasswordModal: (value: boolean) => void;
 }
 
 export const PersonalInfoCard = ({
   user,
-  setPasswordModal,
 }: PersonalInfoCardProps) => {
   const iconSx = { width: '1rem', height: '1rem' };
+  const { openModal } = useModal();
+  const { showSnackbar } = useSnackbar();
+  const { authenticatedUser } = useContext(UserContext);
+  const selectedPasswordRef = useRef<string | null>(null);
+
+  const handleConfirmPassword = async (close: () => void) => {
+    const pwd = selectedPasswordRef.current;
+    if (!pwd) return;
+
+    try {
+      const response = await fetch('/api/members/me/password', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: authenticatedUser?.token ?? '',
+        },
+        body: JSON.stringify({ password: pwd }),
+      });
+
+      if (!response.ok)
+        throw new Error('Erreur lors de la mise à jour du mot de passe.');
+
+      showSnackbar({
+        message: 'Mot de passe modifié avec succès !',
+        severity: 'success',
+      });
+      close();
+    } catch (err: unknown) {
+      showSnackbar({
+        message: err instanceof Error ? err.message : 'Une erreur est survenue.',
+        severity: 'error',
+      });
+      // Not closing on error so user can correct it if needed, 
+      // but if we want to mimic standard behavior we could close it or use `useModalController().setError`
+      // Wait, inside here we do NOT have useModalController since we are in PersonalInfoCard.
+      // We could close it on error, or just show snackbar. We will just show snackbar.
+    }
+  };
   return (
     <Stack
       sx={{ background: (theme) => theme.palette.background.s1 }}
@@ -33,7 +73,15 @@ export const PersonalInfoCard = ({
         variant="contained"
         color="secondary"
         disabled={!user}
-        onClick={() => setPasswordModal(true)}
+        onClick={() => {
+          selectedPasswordRef.current = null;
+          openModal(
+            changePasswordModal({
+              onSelect: (pwd) => (selectedPasswordRef.current = pwd),
+              onConfirm: handleConfirmPassword,
+            }),
+          );
+        }}
       >
         modifier mon mot de passe
       </Button>

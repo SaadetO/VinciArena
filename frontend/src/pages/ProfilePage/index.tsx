@@ -15,7 +15,6 @@ import { useParams } from 'react-router-dom';
 import { UserContext } from '../../contexts/UserContext';
 import { ProfileInfoDto, Team } from '../../types';
 import { NotFoundPage } from '../NotFoundPage';
-import { PasswordModal } from './components/PasswordModal';
 import { UnavailabilitiesCard } from './components/UnavailabilitiesCard';
 import { UnavailabilitiesModal } from './components/UnavailabilitiesModal';
 import { JoinTeamModal } from './components/JoinTeamModal';
@@ -32,7 +31,6 @@ export const ProfilePage = () => {
   const { id } = useParams();
   const idNbr = Number(id);
   const { authenticatedUser } = useContext(UserContext);
-  const [passwordModal, setPasswordModal] = useState(false);
   const [unavailabilitiesModal, setUnavailabilitiesModal] = useState(false);
   const [user, setUser] = useState<ProfileInfoDto | undefined>(undefined);
   const [error, setError] = useState<
@@ -108,7 +106,6 @@ export const ProfilePage = () => {
               <Stack spacing="1.5rem">
                 <PersonalInfoCard
                   user={user}
-                  setPasswordModal={setPasswordModal}
                 />
                 <TeamCard
                   user={user}
@@ -187,24 +184,6 @@ export const ProfilePage = () => {
           setSnackBarMessage({
             text: 'Demande effectuée avec succès !',
             isError: false,
-            isOpen: true,
-          })
-        }
-      />
-      <PasswordModal
-        open={passwordModal}
-        onClose={() => setPasswordModal(false)}
-        onSuccess={() =>
-          setSnackBarMessage({
-            text: 'Mot de passe modifié avec succès !',
-            isError: false,
-            isOpen: true,
-          })
-        }
-        onError={(errorMessage: string) =>
-          setSnackBarMessage({
-            text: errorMessage,
-            isError: true,
             isOpen: true,
           })
         }
