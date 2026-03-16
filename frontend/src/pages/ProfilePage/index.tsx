@@ -18,7 +18,8 @@ import { joinTeamModal } from './modals/joinTeamModal';
 import { ProfileInfoDto, Team } from '../../types';
 import { NotFoundPage } from '../NotFoundPage';
 import { UnavailabilitiesCard } from './components/UnavailabilitiesCard';
-import { UnavailabilitiesModal } from './components/UnavailabilitiesModal';
+import { unavailabilitiesModal } from './modals/unavailabilitiesModal';
+import { useSnackbar } from '../../hooks/useSnackbar';
 
 export const ProfilePage = () => {
   const [snackBarMessage, setSnackBarMessage] = useState<{
@@ -31,7 +32,7 @@ export const ProfilePage = () => {
   const idNbr = Number(id);
   const { authenticatedUser } = useContext(UserContext);
   const { openModal } = useModal();
-  const [unavailabilitiesModal, setUnavailabilitiesModal] = useState(false);
+  const { showSnackbar } = useSnackbar();
   const [user, setUser] = useState<ProfileInfoDto | undefined>(undefined);
   const [error, setError] = useState<
     { code: number; message: string; subtitle?: string } | undefined
@@ -148,7 +149,87 @@ export const ProfilePage = () => {
                 />
                 <UnavailabilitiesCard
                   user={user}
-                  setUnavailabilitiesModal={setUnavailabilitiesModal}
+                  setUnavailabilitiesModal={() => {
+                    openModal(
+                      unavailabilitiesModal({
+                        unavailabilities: user?.unavailabilities ?? [],
+                        onSelect: ({ tempId, startDate, endDate }) => {
+                          // Update UI optimistically
+                          setUser((prev) => {
+                            if (!prev) return prev;
+                            return {
+                              ...prev,
+                              unavailabilities: [
+                                ...(prev.unavailabilities ?? []),
+                                { id: tempId, startDate, endDate },
+                              ],
+                            };
+                          });
+                        },
+                        onConfirm: async (close) => {
+                          const lastAdded = user?.unavailabilities?.find(
+                            (u) => u.id < 0
+                          );
+                          if (!lastAdded) {
+                            close();
+                            return;
+                          }
+
+                          try {
+                            const response = await fetch('/api/unavailabilities/me', {
+                              method: 'POST',
+                              headers: {
+                                'Content-Type': 'application/json',
+                                Authorization: authenticatedUser?.token ?? '',
+                              },
+                              body: JSON.stringify({
+                                startDate: lastAdded.startDate,
+                                endDate: lastAdded.endDate,
+                              }),
+                            });
+
+                            if (!response.ok) {
+                              throw new Error("Erreur lors de l'ajout de l'indisponibilité.");
+                            }
+
+                            const created = await response.json();
+                            
+                            // Resolve the ID
+                            setUser((prev) => {
+                              if (!prev) return prev;
+                              return {
+                                ...prev,
+                                unavailabilities: (prev.unavailabilities ?? []).map((u) =>
+                                  u.id === lastAdded.id ? { ...u, id: created.idUnavailability } : u,
+                                ),
+                              };
+                            });
+
+                            showSnackbar({
+                              message: 'Indisponibilité ajoutée avec succès !',
+                              severity: 'success',
+                            });
+                            close();
+                          } catch (err: unknown) {
+                            showSnackbar({
+                              message: err instanceof Error ? err.message : 'Une erreur est survenue.',
+                              severity: 'error',
+                            });
+                            // Rollback
+                            setUser((prev) => {
+                              if (!prev) return prev;
+                              return {
+                                ...prev,
+                                unavailabilities: (prev.unavailabilities ?? []).filter(
+                                  (u) => u.id !== lastAdded.id,
+                                ),
+                              };
+                            });
+                          }
+                        },
+                      })
+                    );
+                  }}
                   onError={(errorMessage: string) => {
                     setSnackBarMessage({
                       text: errorMessage,
@@ -178,47 +259,6 @@ export const ProfilePage = () => {
           )}
         </Grid2>
       </Container>
-      <UnavailabilitiesModal
-        open={unavailabilitiesModal}
-        onClose={() => setUnavailabilitiesModal(false)}
-        unavailabilities={user?.unavailabilities ?? null}
-        onSuccess={({ tempId, startDate, endDate }) => {
-          setSnackBarMessage({
-            text: 'Indisponibilité ajoutée avec succès !',
-            isError: false,
-            isOpen: true,
-          });
-          if (user)
-            setUser((prev) => {
-              if (!prev) return prev;
-              return {
-                ...prev,
-                unavailabilities: [
-                  ...(prev.unavailabilities ?? []),
-                  { id: tempId, startDate, endDate },
-                ],
-              };
-            });
-        }}
-        onIdResolved={(tempId, realId) => {
-          setUser((prev) => {
-            if (!prev) return prev;
-            return {
-              ...prev,
-              unavailabilities: (prev.unavailabilities ?? []).map((u) =>
-                u.id === tempId ? { ...u, id: realId } : u,
-              ),
-            };
-          });
-        }}
-        onError={(errorMessage: string) => {
-          setSnackBarMessage({
-            text: errorMessage,
-            isError: true,
-            isOpen: true,
-          });
-        }}
-      />
       <Slide direction="up" in={snackBarMessage?.isOpen ?? false}>
         <Snackbar
           open={snackBarMessage?.isOpen ?? false}
