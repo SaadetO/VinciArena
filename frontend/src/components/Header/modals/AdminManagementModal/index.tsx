@@ -47,6 +47,8 @@ export const AdminManagementModal = ({
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollTop, setCanScrollTop] = useState(false);
   const [canScrollBottom, setCanScrollBottom] = useState(false);
+  const usersRef = useRef(users);
+  usersRef.current = users;
 
   const handleScroll = useCallback(() => {
     if (!scrollRef.current) return;
@@ -79,8 +81,9 @@ export const AdminManagementModal = ({
   }, [open, authenticatedUser?.token, handleScroll]);
 
   useLayoutEffect(() => {
-    // Only update the list membership when search, filter, or total count changes
-    let result = users;
+    // Only update the list membership when search, filter, filterVersion or length changes.
+    // Using a ref to not have to put users in the dependency array which would cause the effect we're looking to avoid.
+    let result = usersRef.current;
 
     if (filter === 'members') {
       result = result.filter((user) => !user.admin);
@@ -98,7 +101,7 @@ export const AdminManagementModal = ({
     }
 
     setDisplayedUserIds(result.map((u) => u.id));
-  }, [users, searchQuery, filter, filterVersion]);
+  }, [searchQuery, filter, filterVersion, users.length]);
 
   const filteredUsers = useMemo(() => {
     return displayedUserIds
@@ -179,7 +182,7 @@ export const AdminManagementModal = ({
   }, [filteredUsers.length, loading, open, searchQuery]);
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog open={open} onClose={onClose} fullWidth>
       <DialogTitle variant="h2">Gérer les Membres</DialogTitle>
       <Typography textAlign="center" color="secondary" sx={{ mb: 2 }}>
         Recherchez et gérez les privilèges d'administrateur
@@ -286,7 +289,7 @@ export const AdminManagementModal = ({
           ref={scrollRef}
           onScroll={handleScroll}
           sx={{
-            maxHeight: '20rem',
+            maxHeight: '22rem',
             height: contentHeight,
             overflowY: 'auto',
             padding: 0,
