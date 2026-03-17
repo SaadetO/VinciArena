@@ -131,9 +131,8 @@ export const ManagerCard = ({
       </Stack>
       {team?.managers?.length &&
         team.managers.length < 2 &&
-        team.managers.some(
-          (manager) => manager.id === authenticatedUser?.id,
-        ) && (
+        team.managers.some((manager) => manager.id === authenticatedUser?.id) &&
+        team.members.length > 1 && (
           <Button variant="contained" color="secondary" onClick={handlePromote}>
             Désigner un responsable
           </Button>

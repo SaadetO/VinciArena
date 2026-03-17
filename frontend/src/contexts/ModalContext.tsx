@@ -14,6 +14,8 @@ import {
   useState,
   useCallback,
   useMemo,
+  useRef,
+  useEffect,
 } from 'react';
 import { ModalConfig } from '../types';
 import { ModalControllerContext } from './ModalControllerContext';
@@ -64,6 +66,26 @@ const ModalContextProvider = ({ children }: { children: ReactNode }) => {
     [],
   );
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollTop, setCanScrollTop] = useState(false);
+  const [canScrollBottom, setCanScrollBottom] = useState(false);
+
+  const handleScroll = useCallback(() => {
+    if (!scrollRef.current) return;
+    const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
+
+    setCanScrollTop(scrollTop > 5);
+    setCanScrollBottom(scrollHeight - scrollTop > clientHeight + 5);
+  }, []);
+
+  useEffect(() => {
+    if (open) {
+      // Small delay to ensure content is rendered and measurements are accurate
+      const timeout = setTimeout(handleScroll, 100);
+      return () => clearTimeout(timeout);
+    }
+  }, [open, config, handleScroll]);
+
   return (
     <ModalContext.Provider value={modalContextValue}>
       <ModalControllerContext.Provider value={modalControllerContextValue}>
@@ -95,6 +117,9 @@ const ModalContextProvider = ({ children }: { children: ReactNode }) => {
                 background: (theme) =>
                   `linear-gradient(to bottom, ${theme.palette.background.s1}, ${theme.palette.background.s1} 25%, transparent)`,
                 width: '100%',
+                opacity: canScrollTop ? 1 : 0,
+                pointerEvents: 'none',
+                transition: 'opacity 0.2s',
               },
               '&::after': {
                 content: '""',
@@ -107,11 +132,23 @@ const ModalContextProvider = ({ children }: { children: ReactNode }) => {
                 background: (theme) =>
                   `linear-gradient(to top, ${theme.palette.background.s1}, ${theme.palette.background.s1} 25%, transparent)`,
                 width: '100%',
+                opacity: canScrollBottom ? 1 : 0,
+                pointerEvents: 'none',
+                transition: 'opacity 0.2s',
               },
             }}
           >
             {config?.children && (
-              <DialogContent>{config.children}</DialogContent>
+              <DialogContent
+                ref={scrollRef}
+                onScroll={handleScroll}
+                sx={{
+                  maxHeight: '25rem',
+                  overflowY: 'auto',
+                }}
+              >
+                {config.children}
+              </DialogContent>
             )}
           </Stack>
           {error && (
