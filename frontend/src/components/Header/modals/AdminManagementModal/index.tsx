@@ -98,7 +98,7 @@ export const AdminManagementModal = ({
     }
 
     setDisplayedUserIds(result.map((u) => u.id));
-  }, [users.length, searchQuery, filter, filterVersion]);
+  }, [users, searchQuery, filter, filterVersion]);
 
   const filteredUsers = useMemo(() => {
     return displayedUserIds
