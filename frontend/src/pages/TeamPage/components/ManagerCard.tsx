@@ -8,105 +8,135 @@ import {
 } from '@mui/material';
 import { ProfileInfoDto, TeamDetailsInfoDto } from '../../../types';
 import { Link } from 'react-router-dom';
-import { Dispatch, SetStateAction, useContext, useState } from 'react';
+import { useContext } from 'react';
 import { UserContext } from '../../../contexts/UserContext';
-import { ManagerModal } from './ManagerModal';
+import { useModal } from '../../../hooks/useModal';
+import { useSnackbar } from '../../../hooks/useSnackbar';
+import { managerModal } from '../modals/managerModal';
 
 export const ManagerCard = ({
   team,
   setTeam,
-  setSnackBarMessage,
 }: {
   team?: TeamDetailsInfoDto;
-  setTeam: Dispatch<SetStateAction<TeamDetailsInfoDto | undefined>>;
-  setSnackBarMessage: Dispatch<
-    SetStateAction<{ text: string; isError: boolean; isOpen: boolean } | null>
-  >;
+  setTeam: React.Dispatch<React.SetStateAction<TeamDetailsInfoDto | undefined>>;
 }) => {
   const { authenticatedUser } = useContext(UserContext);
-  const [open, setOpen] = useState(false);
+  const { openModal } = useModal();
+  const { showSnackbar } = useSnackbar();
+
+  const handlePromote = () => {
+    let selectedManager: ProfileInfoDto | null = null;
+
+    const onSelect = (user: ProfileInfoDto | null) => {
+      selectedManager = user;
+    };
+
+    const onConfirm = async (close: () => void) => {
+      if (!selectedManager) return;
+      close();
+
+      const previousManagers = team?.managers ?? [];
+
+      // Optimistic update
+      setTeam((prev) =>
+        prev
+          ? {
+              ...prev,
+              managers: [...prev.managers, selectedManager!],
+            }
+          : undefined,
+      );
+
+      try {
+        const response = await fetch(
+          `/api/teams/${team?.idTeam}/manager/${selectedManager.id}`,
+          {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: authenticatedUser?.token ?? '',
+            },
+          },
+        );
+
+        if (!response.ok) {
+          throw new Error('Failed to promote user');
+        }
+
+        showSnackbar({
+          message: 'Utilisateur promu manager avec succès !',
+          severity: 'success',
+        });
+      } catch (err: unknown) {
+        // Rollback
+        setTeam((prev) =>
+          prev ? { ...prev, managers: previousManagers } : undefined,
+        );
+        const errMsg =
+          err instanceof Error ? err.message : 'Une erreur est survenue';
+        showSnackbar({
+          message: errMsg,
+          severity: 'error',
+        });
+      }
+    };
+
+    openModal(managerModal({ team, onSelect, onConfirm }));
+  };
   return (
-    <>
-      <Stack
-        sx={{ background: (theme) => theme.palette.background.s1 }}
-        padding="1.25rem 1rem 1rem"
-        borderRadius="0.5rem"
-        spacing="1rem"
-      >
-        <Typography variant="h4">Responsables</Typography>
-        <Stack spacing="0.75rem" direction="row" flexWrap="wrap">
-          {team ? (
-            team.managers.map((manager) => (
-              <Chip
-                sx={{
-                  cursor: 'pointer',
-                  '&:hover': {
-                    background: (theme) => theme.palette.background.s4,
-                  },
-                  textTransform: 'none',
-                }}
-                key={manager.id}
-                component={Link}
-                to={`/users/${manager.id}`}
-                label={manager.tag}
-                avatar={<Avatar src={`/assets/avatars/${manager.avatar}`} />}
-                variant={
-                  manager.id === authenticatedUser?.id ? 'active' : 'filled'
-                }
-              />
-            ))
-          ) : (
-            <>
-              {[1, 2].map((i) => (
-                <Stack
-                  key={i}
-                  direction="row"
-                  spacing="0.75rem"
-                  alignItems="center"
-                >
-                  <Skeleton variant="circular" width="2rem" height="2rem" />
-                  <Skeleton width="8rem" />
-                </Stack>
-              ))}
-            </>
-          )}
-        </Stack>
-        {team?.managers?.length && team.managers.length < 2 && (
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={() => setOpen(true)}
-          >
+    <Stack
+      sx={{ background: (theme) => theme.palette.background.s1 }}
+      padding="1.25rem 1rem 1rem"
+      borderRadius="0.5rem"
+      spacing="1rem"
+    >
+      <Typography variant="h4">Responsables</Typography>
+      <Stack spacing="0.75rem" direction="row" flexWrap="wrap">
+        {team ? (
+          team.managers.map((manager) => (
+            <Chip
+              sx={{
+                cursor: 'pointer',
+                '&:hover': {
+                  background: (theme) => theme.palette.background.s4,
+                },
+                textTransform: 'none',
+              }}
+              key={manager.id}
+              component={Link}
+              to={`/users/${manager.id}`}
+              label={manager.tag}
+              avatar={<Avatar src={`/assets/avatars/${manager.avatar}`} />}
+              variant={
+                manager.id === authenticatedUser?.id ? 'active' : 'filled'
+              }
+            />
+          ))
+        ) : (
+          <>
+            {[1, 2].map((i) => (
+              <Stack
+                key={i}
+                direction="row"
+                spacing="0.75rem"
+                alignItems="center"
+              >
+                <Skeleton variant="circular" width="2rem" height="2rem" />
+                <Skeleton width="8rem" />
+              </Stack>
+            ))}
+          </>
+        )}
+      </Stack>
+      {team?.managers?.length &&
+        team.managers.length < 2 &&
+        team.managers.some((manager) => manager.id === authenticatedUser?.id) &&
+        team.members.length > 1 && (
+          <Button variant="contained" color="secondary" onClick={handlePromote}>
             Désigner un responsable
           </Button>
         )}
-      </Stack>
-      <ManagerModal
-        open={open}
-        onClose={() => setOpen(false)}
-        onSuccess={(successMessage: string, promotedUser?: ProfileInfoDto) => {
-          setSnackBarMessage({
-            text: successMessage,
-            isError: false,
-            isOpen: true,
-          });
-          if (promotedUser) {
-            setTeam((prev) =>
-              prev
-                ? { ...prev, managers: [...prev.managers, promotedUser] }
-                : undefined,
-            );
-          }
-        }}
-        onError={(errorMessage: string) => {
-          setSnackBarMessage({
-            text: errorMessage,
-            isError: true,
-            isOpen: true,
-          });
-        }}
-        team={team}
-      />
-    </>
+    </Stack>
   );
 };

@@ -1,28 +1,155 @@
-import { Button, Skeleton, Stack, Typography } from '@mui/material';
-import { ProfileInfoDto } from '../../../types';
+import { ProfileInfoDto, Team } from '../../../types';
 import { Dispatch, SetStateAction, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../../../contexts/UserContext';
+import { useModal } from '../../../hooks/useModal';
+import { useSnackbar } from '../../../hooks/useSnackbar';
+import { createTeamModal } from '../modals/createTeamModal';
+import { joinTeamModal } from '../modals/joinTeamModal';
+import { Button, Skeleton, Stack, Typography } from '@mui/material';
 
 interface TeamCardProps {
-  setOpen: Dispatch<SetStateAction<boolean>>;
-  setOpenJoin: Dispatch<SetStateAction<boolean>>;
+  setUser: Dispatch<SetStateAction<ProfileInfoDto | undefined>>;
   user?: ProfileInfoDto;
-  onQuitSuccess?: () => void;
-  onError?: (errorMessage: string) => void;
 }
 
-export const TeamCard = ({
-  setOpen,
-  setOpenJoin,
-  user,
-  onQuitSuccess,
-  onError,
-}: TeamCardProps) => {
+export const TeamCard = ({ user, setUser }: TeamCardProps) => {
+  const handleJoin = () => {
+    let selectedTeam: Team | null = null;
+
+    const onSelect = (team: Team | null) => {
+      selectedTeam = team;
+    };
+
+    const onConfirm = async (close: () => void) => {
+      const idTeam = selectedTeam?.idTeam;
+      if (!idTeam) return;
+
+      close();
+
+      try {
+        const response = await fetch(`/api/teams/${idTeam}/join-requests`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: authenticatedUser?.token ?? '',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(
+            'Vous avez déjà une demande en attente pour cette équipe.',
+          );
+        }
+
+        showSnackbar({
+          message: 'Demande effectuée avec succès !',
+          severity: 'success',
+        });
+      } catch (err: unknown) {
+        showSnackbar({
+          message:
+            err instanceof Error ? err.message : 'Une erreur est survenue.',
+          severity: 'error',
+        });
+      }
+    };
+
+    openModal(joinTeamModal({ onSelect, onConfirm }));
+  };
+
+  const handleCreate = () => {
+    let selectedName: string | null = null;
+
+    const onSelect = (name: string | null) => {
+      selectedName = name;
+    };
+
+    const onConfirm = async (close: () => void) => {
+      if (!selectedName) return;
+      close();
+
+      // Backup (know it's null or we wouldn't see the button)
+      const previousTeam = user?.team;
+
+      // Optimistic Update with temp data
+      setUser((prev) =>
+        prev
+          ? {
+              ...prev,
+              team: {
+                id: -1,
+                name: selectedName!,
+                isManager: true,
+              },
+            }
+          : prev,
+      );
+
+      try {
+        const response = await fetch('/api/teams/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: authenticatedUser?.token ?? '',
+          },
+          body: JSON.stringify({ name: selectedName }),
+        });
+
+        if (!response.ok) {
+          if (response.status === 409) {
+            throw new Error('Une équipe avec ce nom existe déjà');
+          }
+          throw new Error('Erreur lors de la création de la team.');
+        }
+
+        const createdTeam = await response.json();
+        const team = {
+          id: createdTeam.idTeam,
+          name: createdTeam.name,
+          isManager: true,
+        };
+
+        setUser((prev) => (prev ? { ...prev, team } : prev));
+
+        showSnackbar({
+          message: 'Team créée avec succès !',
+          severity: 'success',
+        });
+      } catch (err: unknown) {
+        // Rollback
+        setUser((prev) =>
+          prev ? { ...prev, team: previousTeam ?? null } : prev,
+        );
+        showSnackbar({
+          message:
+            err instanceof Error ? err.message : 'Une erreur est survenue.',
+          severity: 'error',
+        });
+      }
+    };
+
+    openModal(createTeamModal({ onSelect, onConfirm }));
+  };
+
   const navigate = useNavigate();
   const { authenticatedUser } = useContext(UserContext);
+  const { openModal } = useModal();
+  const { showSnackbar } = useSnackbar();
+
+  const handleViewTeam = () => {
+    if (user?.team) {
+      navigate(`/teams/${user.team.id}`);
+    }
+  };
 
   const handleQuit = async () => {
+    if (!user?.team) return;
+    const previousTeam = user.team;
+
+    // Optimistic update
+    setUser((prev) => (prev ? { ...prev, team: null } : prev));
+
     try {
       const response = await fetch('/api/teams/quit', {
         method: 'POST',
@@ -33,16 +160,23 @@ export const TeamCard = ({
       });
 
       if (!response.ok) {
-        throw new Error('Failed to quit team');
+        throw new Error('Erreur lors du départ de la team.');
       }
 
-      if (onQuitSuccess) {
-        onQuitSuccess();
-      }
+      showSnackbar({
+        message: "Vous avez quitté l'équipe avec succès.",
+        severity: 'success',
+      });
     } catch (err) {
-      if (onError) {
-        onError('Une erreur est survenue en quittant la team.');
-      }
+      // Rollback
+      setUser((prev) => (prev ? { ...prev, team: previousTeam } : prev));
+      showSnackbar({
+        message:
+          err instanceof Error
+            ? err.message
+            : 'Une erreur est survenue en quittant la team.',
+        severity: 'error',
+      });
     }
   };
 
@@ -66,7 +200,7 @@ export const TeamCard = ({
         {user?.team ? (
           <>
             <Button
-              onClick={() => navigate(`/teams/${user.team?.id}`)}
+              onClick={handleViewTeam}
               variant="contained"
               color="secondary"
               fullWidth
@@ -77,7 +211,7 @@ export const TeamCard = ({
               variant="contained"
               color="secondary"
               fullWidth
-              onClick={() => handleQuit()}
+              onClick={handleQuit}
             >
               quitter {user.team.name}
             </Button>
@@ -85,7 +219,7 @@ export const TeamCard = ({
         ) : (
           <>
             <Button
-              onClick={() => setOpenJoin(true)}
+              onClick={handleJoin}
               variant="contained"
               color="secondary"
               fullWidth
@@ -93,10 +227,9 @@ export const TeamCard = ({
               rejoindre une team
             </Button>
             <Button
-              onClick={() => setOpen(true)}
+              onClick={handleCreate}
               variant="contained"
               color="secondary"
-              disabled={!user}
               fullWidth
             >
               créer une team

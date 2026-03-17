@@ -1,4 +1,4 @@
-import { CloseRounded } from '@mui/icons-material';
+import { Check, CloseRounded } from '@mui/icons-material';
 import { createTheme } from '@mui/material/styles';
 import { ZoomTransition } from './components/ZoomTransition';
 
@@ -29,6 +29,19 @@ declare module '@mui/material/IconButton' {
   interface IconButtonPropsColorOverrides {
     text: true;
     'text-alt': true;
+  }
+}
+
+declare module '@mui/material/Alert' {
+  interface AlertPropsSizeOverrides {
+    small: true;
+  }
+}
+
+declare module '@mui/material/Alert' {
+  interface AlertProps {
+    size?: 'small' | 'medium' | 'large' | string;
+    align?: 'left' | 'center' | 'right' | string;
   }
 }
 
@@ -596,6 +609,44 @@ export const theme = createTheme({
           fontWeight: 'bold',
         },
       },
+    },
+    MuiAlert: {
+      defaultProps: {
+        iconMapping: {
+          success: <Check />,
+        },
+      },
+      styleOverrides: {
+        root: {
+          borderRadius: '0.5rem',
+          alignItems: 'center',
+          fontSize: '0.75rem',
+          lineHeight: '1.15rem',
+          letterSpacing: '0.1%',
+          fontWeight: 'medium',
+        },
+        action: {
+          padding: '0 0 0 1rem',
+        },
+      },
+      variants: [
+        {
+          props: { size: 'small' },
+          style: {
+            padding: '0 1rem',
+            marginBottom: '-1rem',
+          },
+        },
+        {
+          props: { align: 'center' },
+          style: {
+            justifyContent: 'center',
+            '& .MuiAlert-message': {
+              textAlign: 'center',
+            },
+          },
+        },
+      ],
     },
   },
 });

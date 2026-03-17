@@ -1,39 +1,18 @@
-import {
-  Container,
-  Grid2,
-  Slide,
-  Snackbar,
-  Stack,
-  Typography,
-} from '@mui/material';
+import { Container, Grid2, Stack, Typography } from '@mui/material';
 import { PersonalInfoCard } from './components/PersonalInfoCard';
 import { ProfileBanner } from './components/ProfileBanner';
 import { TeamCard } from './components/TeamCard';
-import { CreateTeamModal } from './components/CreateTeamModal';
 import { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { UserContext } from '../../contexts/UserContext';
-import { ProfileInfoDto, Team } from '../../types';
+import { ProfileInfoDto } from '../../types';
 import { NotFoundPage } from '../NotFoundPage';
-import { PasswordModal } from './components/PasswordModal';
 import { UnavailabilitiesCard } from './components/UnavailabilitiesCard';
-import { UnavailabilitiesModal } from './components/UnavailabilitiesModal';
-import { JoinTeamModal } from './components/JoinTeamModal';
 
 export const ProfilePage = () => {
-  const [snackBarMessage, setSnackBarMessage] = useState<{
-    text: string;
-    isError: boolean;
-    isOpen: boolean;
-  } | null>(null);
-  const [teams, setTeams] = useState<Team[]>([]);
-  const [openJoin, setOpenJoin] = useState(false);
-  const [openCreate, setOpenCreate] = useState(false);
   const { id } = useParams();
   const idNbr = Number(id);
   const { authenticatedUser } = useContext(UserContext);
-  const [passwordModal, setPasswordModal] = useState(false);
-  const [unavailabilitiesModal, setUnavailabilitiesModal] = useState(false);
   const [user, setUser] = useState<ProfileInfoDto | undefined>(undefined);
   const [error, setError] = useState<
     { code: number; message: string; subtitle?: string } | undefined
@@ -73,31 +52,10 @@ export const ProfilePage = () => {
     })();
   }, [idNbr, authenticatedUser]);
 
-  useEffect(() => {
-    console.log(user);
-  }, [user]);
-
   if (error) return <NotFoundPage error={error} />;
   return (
     <>
-      <ProfileBanner
-        onError={(errorMessage: string) => {
-          setSnackBarMessage({
-            text: errorMessage,
-            isError: true,
-            isOpen: true,
-          });
-        }}
-        onSuccess={(message: string) => {
-          setSnackBarMessage({
-            text: message,
-            isError: false,
-            isOpen: true,
-          });
-        }}
-        user={user}
-        setUser={setUser}
-      />
+      <ProfileBanner user={user} setUser={setUser} />
       <Container maxWidth="lg">
         <Grid2
           container
@@ -123,176 +81,14 @@ export const ProfilePage = () => {
           {authenticatedUser?.id === idNbr && (
             <Grid2 size={{ xs: 12, lg: 5 }}>
               <Stack spacing="1.5rem">
-                <PersonalInfoCard
-                  user={user}
-                  setPasswordModal={setPasswordModal}
-                />
-                <TeamCard
-                  user={user}
-                  setOpen={setOpenCreate}
-                  setOpenJoin={setOpenJoin}
-                  onQuitSuccess={() => {
-                    setSnackBarMessage({
-                      text: "Vous avez quitté l'équipe avec succès.",
-                      isError: false,
-                      isOpen: true,
-                    });
-                    setUser((prev) => {
-                      if (!prev) return prev;
-                      return { ...prev, team: null };
-                    });
-                  }}
-                  onError={(errorMessage: string) => {
-                    setSnackBarMessage({
-                      text: errorMessage,
-                      isError: true,
-                      isOpen: true,
-                    });
-                  }}
-                />
-                <UnavailabilitiesCard
-                  user={user}
-                  setUnavailabilitiesModal={setUnavailabilitiesModal}
-                  onError={(errorMessage: string) => {
-                    setSnackBarMessage({
-                      text: errorMessage,
-                      isError: true,
-                      isOpen: true,
-                    });
-                  }}
-                  onSuccessDelete={(id: number) => {
-                    setSnackBarMessage({
-                      text: 'Indisponibilité supprimée avec succès !',
-                      isError: false,
-                      isOpen: true,
-                    });
-                    setUser((prev) => {
-                      if (!prev) return prev;
-                      return {
-                        ...prev,
-                        unavailabilities: (prev.unavailabilities ?? []).filter(
-                          (u) => u.id !== id,
-                        ),
-                      };
-                    });
-                  }}
-                />
+                <PersonalInfoCard user={user} />
+                <TeamCard user={user} setUser={setUser} />
+                <UnavailabilitiesCard user={user} setUser={setUser} />
               </Stack>
             </Grid2>
           )}
         </Grid2>
       </Container>
-      <CreateTeamModal
-        open={openCreate}
-        onClose={() => setOpenCreate(false)}
-        onSuccess={(team) => {
-          setSnackBarMessage({
-            text: 'Team créée avec succès !',
-            isError: false,
-            isOpen: true,
-          });
-          setOpenCreate(false);
-          if (user) setUser({ ...user, team });
-        }}
-      />
-      <JoinTeamModal
-        teams={teams}
-        setTeams={setTeams}
-        open={openJoin}
-        onClose={() => setOpenJoin(false)}
-        onSuccess={() =>
-          setSnackBarMessage({
-            text: 'Demande effectuée avec succès !',
-            isError: false,
-            isOpen: true,
-          })
-        }
-      />
-      <PasswordModal
-        open={passwordModal}
-        onClose={() => setPasswordModal(false)}
-        onSuccess={() =>
-          setSnackBarMessage({
-            text: 'Mot de passe modifié avec succès !',
-            isError: false,
-            isOpen: true,
-          })
-        }
-        onError={(errorMessage: string) =>
-          setSnackBarMessage({
-            text: errorMessage,
-            isError: true,
-            isOpen: true,
-          })
-        }
-      />
-      <UnavailabilitiesModal
-        open={unavailabilitiesModal}
-        onClose={() => setUnavailabilitiesModal(false)}
-        unavailabilities={user?.unavailabilities ?? null}
-        onSuccess={({ tempId, startDate, endDate }) => {
-          setSnackBarMessage({
-            text: 'Indisponibilité ajoutée avec succès !',
-            isError: false,
-            isOpen: true,
-          });
-          if (user)
-            setUser((prev) => {
-              if (!prev) return prev;
-              return {
-                ...prev,
-                unavailabilities: [
-                  ...(prev.unavailabilities ?? []),
-                  { id: tempId, startDate, endDate },
-                ],
-              };
-            });
-        }}
-        onIdResolved={(tempId, realId) => {
-          setUser((prev) => {
-            if (!prev) return prev;
-            return {
-              ...prev,
-              unavailabilities: (prev.unavailabilities ?? []).map((u) =>
-                u.id === tempId ? { ...u, id: realId } : u,
-              ),
-            };
-          });
-        }}
-        onError={(errorMessage: string) => {
-          setSnackBarMessage({
-            text: errorMessage,
-            isError: true,
-            isOpen: true,
-          });
-        }}
-      />
-      <Slide direction="up" in={snackBarMessage?.isOpen ?? false}>
-        <Snackbar
-          open={snackBarMessage?.isOpen ?? false}
-          autoHideDuration={3000}
-          onClose={() =>
-            setSnackBarMessage((prev) =>
-              prev ? { ...prev, isOpen: false } : null,
-            )
-          }
-          message={
-            snackBarMessage && (
-              <Typography
-                variant="body1"
-                sx={{
-                  color: (theme) =>
-                    snackBarMessage.isError
-                      ? theme.palette.error.main
-                      : theme.palette.background.s0,
-                }}
-              >
-                {snackBarMessage.text}
-              </Typography>
-            )
-          }
-        />
-      </Slide>
     </>
   );
 };

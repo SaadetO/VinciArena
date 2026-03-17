@@ -4,21 +4,39 @@ import { ArrowForward, DeleteOutlined } from '@mui/icons-material';
 import { useContext, useState } from 'react';
 import { UserContext } from '../../../contexts/UserContext';
 import dayjs from 'dayjs';
+import { ProfileInfoDto } from '../../../types';
+import { useSnackbar } from '../../../hooks/useSnackbar';
 
 export const UnavailabilityItem = ({
   unavailability,
-  onError,
-  onSuccessDelete,
+  setUser,
 }: {
   unavailability: { id: number; startDate: string; endDate: string };
-  onError: (errorMessage: string) => void;
-  onSuccessDelete: (id: number) => void;
+  setUser: React.Dispatch<React.SetStateAction<ProfileInfoDto | undefined>>;
 }) => {
+  const { showSnackbar } = useSnackbar();
   const { authenticatedUser } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
   const handleDelete = async () => {
+    // Backup current state for rollback
+    let previousUnavailabilities: {
+      id: number;
+      startDate: string;
+      endDate: string;
+    }[] = [];
+
+    setUser((prev) => {
+      if (!prev) return prev;
+      previousUnavailabilities = prev.unavailabilities ?? [];
+      return {
+        ...prev,
+        unavailabilities: (prev.unavailabilities ?? []).filter(
+          (u) => u.id !== unavailability.id,
+        ),
+      };
+    });
+
     try {
-      console.log(unavailability);
       setLoading(true);
       const response = await fetch(
         `/api/unavailabilities/${unavailability.id}`,
@@ -34,9 +52,21 @@ export const UnavailabilityItem = ({
       if (!response.ok) {
         throw new Error("Erreur lors de la suppression de l'indisponibilité.");
       }
-      onSuccessDelete(unavailability.id);
+
+      showSnackbar({
+        message: 'Indisponibilité supprimée avec succès !',
+        severity: 'success',
+      });
     } catch (err: unknown) {
-      onError(err instanceof Error ? err.message : 'Une erreur est survenue.');
+      // Rollback
+      setUser((prev) =>
+        prev ? { ...prev, unavailabilities: previousUnavailabilities } : prev,
+      );
+      showSnackbar({
+        message:
+          err instanceof Error ? err.message : 'Une erreur est survenue.',
+        severity: 'error',
+      });
     } finally {
       setLoading(false);
     }

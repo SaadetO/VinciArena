@@ -1,3 +1,5 @@
+import { ReactNode } from 'react';
+
 interface MainContext {}
 
 interface UserContextType {
@@ -98,6 +100,17 @@ interface SpecialtyDto {
 
 type MaybeAuthenticatedUser = AuthenticatedUser | undefined;
 
+interface ModalConfig {
+  title: string;
+  subtitle?: string;
+  children?: ReactNode;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  confirmDisabled?: boolean;
+  onConfirm?: (close: () => void) => void;
+  onCancel?: (close: () => void) => void;
+}
+
 export type {
   MainContext,
   User,
@@ -113,4 +126,5 @@ export type {
   Member,
   SpecialtyDto,
   ProfileImage,
+  ModalConfig,
 };

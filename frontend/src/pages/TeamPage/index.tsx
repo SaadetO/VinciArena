@@ -1,11 +1,4 @@
-import {
-  Container,
-  Grid2,
-  Slide,
-  Snackbar,
-  Stack,
-  Typography,
-} from '@mui/material';
+import { Container, Grid2, Stack, Typography } from '@mui/material';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { UserContext } from '../../contexts/UserContext';
@@ -17,11 +10,6 @@ import { MembersCard } from './components/MembersCard';
 import { JoinRequestsCard } from './components/JoinRequestsCard';
 
 export const TeamPage = () => {
-  const [snackBarMessage, setSnackBarMessage] = useState<{
-    text: string;
-    isError: boolean;
-    isOpen: boolean;
-  } | null>(null);
   const { id } = useParams();
   const [isLoading, setIsloading] = useState(false);
   const idNbr = Number(id);
@@ -99,56 +87,19 @@ export const TeamPage = () => {
           </Grid2>
           <Grid2 size={{ xs: 12, lg: 5 }}>
             <Stack spacing="1.5rem">
-              <ManagerCard
-                team={team}
-                setTeam={setTeam}
-                setSnackBarMessage={setSnackBarMessage}
-              />
+              <ManagerCard team={team} setTeam={setTeam} />
               <MembersCard isLoading={isLoading} team={team} />
               {team?.managers.find((e) => e.id === authenticatedUser?.id) && (
                 <JoinRequestsCard
                   isLoading={isLoading}
                   team={team}
-                  showNotification={(msg) =>
-                    setSnackBarMessage({
-                      text: msg,
-                      isError: false,
-                      isOpen: true,
-                    })
-                  }
-                  onActionSuccess={fetchTeam}
+                  setTeam={setTeam}
                 />
               )}
             </Stack>
           </Grid2>
         </Grid2>
       </Container>
-      <Slide direction="up" in={snackBarMessage?.isOpen ?? false}>
-        <Snackbar
-          open={snackBarMessage?.isOpen ?? false}
-          autoHideDuration={3000}
-          onClose={() =>
-            setSnackBarMessage((prev) =>
-              prev ? { ...prev, isOpen: false } : null,
-            )
-          }
-          message={
-            snackBarMessage && (
-              <Typography
-                variant="body1"
-                sx={{
-                  color: (theme) =>
-                    snackBarMessage.isError
-                      ? theme.palette.error.main
-                      : theme.palette.background.s0,
-                }}
-              >
-                {snackBarMessage.text}
-              </Typography>
-            )
-          }
-        />
-      </Slide>
     </>
   );
 };

@@ -1,19 +1,17 @@
 import { Avatar, Button, Stack, Typography } from '@mui/material';
-import { JoinRequestDto } from '../../../types';
+import { TeamDetailsInfoDto, JoinRequestDto } from '../../../types';
 import { useContext, useState } from 'react';
 import { UserContext } from '../../../contexts/UserContext';
-
-interface JoinRequestItemProps {
-  joinRequest: JoinRequestDto;
-  showNotification: (msg: string) => void;
-  onActionSuccess: () => void;
-}
+import { useSnackbar } from '../../../hooks/useSnackbar';
 
 export const JoinRequestItem = ({
   joinRequest,
-  showNotification,
-  onActionSuccess,
-}: JoinRequestItemProps) => {
+  setTeam,
+}: {
+  joinRequest: JoinRequestDto;
+  setTeam: React.Dispatch<React.SetStateAction<TeamDetailsInfoDto | undefined>>;
+}) => {
+  const { showSnackbar } = useSnackbar();
   const { authenticatedUser } = useContext(UserContext);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -22,8 +20,34 @@ export const JoinRequestItem = ({
     successMsg: string,
   ) => {
     setIsLoading(true);
+
+    // Backup for rollback
+    let previousTeam: TeamDetailsInfoDto | undefined;
+
+    setTeam((prev) => {
+      if (!prev) return prev;
+      previousTeam = { ...prev };
+
+      const updatedRequests = (prev.joinRequests ?? []).filter(
+        (jr) => jr.idJoinRequest !== joinRequest.idJoinRequest,
+      );
+
+      const updatedMembers =
+        status === 'ACCEPTED'
+          ? [
+              ...(prev.members ?? []),
+              { ...joinRequest.requester, role: 'MEMBER' },
+            ]
+          : (prev.members ?? []);
+
+      return {
+        ...prev,
+        joinRequests: updatedRequests,
+        members: updatedMembers,
+      };
+    });
+
     try {
-      let errorData;
       const response = await fetch(
         `/api/teams/join-requests/${joinRequest.idJoinRequest}`,
         {
@@ -35,21 +59,20 @@ export const JoinRequestItem = ({
           body: JSON.stringify(status),
         },
       );
+
       if (!response.ok) {
-        let errorMsg = 'Une erreur est survenue.';
-        try {
-          errorData = await response.json();
-        } catch (e) {
-          if (errorData.message) errorMsg = errorData.message;
-        }
-        throw new Error(errorMsg);
+        throw new Error('Une erreur est survenue.');
       }
-      showNotification(successMsg);
-      await onActionSuccess();
+
+      showSnackbar({ message: successMsg, severity: 'success' });
     } catch (err: unknown) {
-      showNotification(
-        err instanceof Error ? err.message : 'Une erreur est survenue.',
-      );
+      // Rollback
+      setTeam(previousTeam);
+      showSnackbar({
+        message:
+          err instanceof Error ? err.message : 'Une erreur est survenue.',
+        severity: 'error',
+      });
     } finally {
       setIsLoading(false);
     }

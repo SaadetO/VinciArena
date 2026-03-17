@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, memo } from 'react';
 import { TeamDetailsInfoDto } from '../../../types';
 import { UserContext } from '../../../contexts/UserContext';
 import { Avatar, Chip, Skeleton, Stack, Typography } from '@mui/material';
@@ -9,7 +9,7 @@ interface MembersCardProps {
   team: TeamDetailsInfoDto | undefined;
 }
 
-export const MembersCard = ({ team, isLoading }: MembersCardProps) => {
+export const MembersCard = memo(({ team, isLoading }: MembersCardProps) => {
   const { authenticatedUser } = useContext(UserContext);
 
   return (
@@ -32,7 +32,7 @@ export const MembersCard = ({ team, isLoading }: MembersCardProps) => {
               <Chip
                 sx={{
                   cursor: 'pointer',
-                  '&hover': {
+                  '&:hover': {
                     background: (theme) => theme.palette.background.s4,
                   },
                   textTransform: 'none',
@@ -49,7 +49,7 @@ export const MembersCard = ({ team, isLoading }: MembersCardProps) => {
             ))
           ) : (
             <Stack
-              padding="rem 1.5rem"
+              padding="1rem 1.5rem"
               spacing="0.25rem"
               alignItems="center"
               width="100%"
@@ -71,4 +71,4 @@ export const MembersCard = ({ team, isLoading }: MembersCardProps) => {
       </Stack>
     </>
   );
-};
+});

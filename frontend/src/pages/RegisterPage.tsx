@@ -16,7 +16,9 @@ import { UserContext } from '../contexts/UserContext';
 import logo from '../assets/images/logo.svg';
 import authBackground from '../assets/images/auth_background.jpg';
 import { ArrowBack, Visibility, VisibilityOff } from '@mui/icons-material';
-import { ProfileImageModal } from '../components/ProfileImageModal';
+import { profileImageModal } from '../modals/profileImageModal';
+import { useModal } from '../hooks/useModal';
+import { useSnackbar } from '../hooks/useSnackbar';
 
 interface FormData {
   email: string;
@@ -28,8 +30,9 @@ interface FormData {
 
 export const RegisterPage = () => {
   const { registerUser }: UserContextType = useContext(UserContext);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [chosenImage, setChosenImage] = useState<ProfileImage | null>(null);
+  const [selectedSpecialty, setSelectedSpecialty] =
+    useState<SpecialtyDto | null>(null);
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<FormData>({
@@ -42,6 +45,8 @@ export const RegisterPage = () => {
   const [specialties, setSpecialties] = useState<SpecialtyDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
+  const { openModal } = useModal();
+  const { showSnackbar } = useSnackbar();
 
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
@@ -69,7 +74,23 @@ export const RegisterPage = () => {
 
   const handleChange = (e: SyntheticEvent) => {
     const input = e.target as HTMLInputElement;
-    setFormData({ ...formData, [input.name]: input.value });
+    setFormData((prev) => ({ ...prev, [input.name]: input.value }));
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
+
+  const handleSpecialtyChange = (_: SyntheticEvent, e: SpecialtyDto | null) => {
+    setSelectedSpecialty(e);
+    setFormData((prev) => ({
+      ...prev,
+      specialtyId: e?.id ?? null,
+    }));
+  };
+
+  const handleBack = () => {
+    setStep(1);
   };
 
   useEffect(() => {
@@ -88,17 +109,44 @@ export const RegisterPage = () => {
 
         setSpecialties(specialties);
       } catch (err) {
-        console.log('getAllSpecialties::error: ', err);
+        showSnackbar({
+          message: 'Erreur lors de la récupération des spécialités',
+          severity: 'error',
+        });
         setSpecialties([]);
       } finally {
         setLoading(false);
       }
     })();
-  }, []);
+  }, [showSnackbar]);
 
-  const handleSelectImage = (image: ProfileImage) => {
-    setChosenImage(image);
-    setFormData((prev) => ({ ...prev, profileImageId: image.idImage }));
+  const handleAvatarClick = () => {
+    let selectedImage: ProfileImage | null = null;
+
+    const onSelect = (image: ProfileImage | null) => {
+      selectedImage = image;
+    };
+
+    const onConfirm = (close: () => void) => {
+      if (!selectedImage) return;
+      setChosenImage(selectedImage);
+      setFormData((prev) => ({
+        ...prev,
+        profileImageId: selectedImage!.idImage,
+      }));
+      close();
+      showSnackbar({
+        message: 'Image de profil choisie',
+        severity: 'success',
+      });
+    };
+
+    openModal(
+      profileImageModal({
+        onSelect,
+        onConfirm,
+      }),
+    );
   };
 
   return (
@@ -165,9 +213,7 @@ export const RegisterPage = () => {
                 slotProps={{
                   input: {
                     endAdornment: formData.password.trim().length > 0 && (
-                      <IconButton
-                        onClick={() => setShowPassword((prev) => !prev)}
-                      >
+                      <IconButton onClick={togglePasswordVisibility}>
                         {showPassword ? <VisibilityOff /> : <Visibility />}
                       </IconButton>
                     ),
@@ -188,7 +234,7 @@ export const RegisterPage = () => {
                 options={specialties}
                 loading={loading}
                 fullWidth
-                value={specialties.find((e) => e.id === formData.specialtyId)}
+                value={selectedSpecialty}
                 getOptionLabel={(e) =>
                   e.label.charAt(0).toUpperCase() + e.label.slice(1)
                 }
@@ -196,18 +242,13 @@ export const RegisterPage = () => {
                 renderInput={(params) => (
                   <TextField {...params} placeholder="Spécialité" />
                 )}
-                onChange={(_, e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    specialtyId: e?.id ?? null,
-                  }))
-                }
+                onChange={handleSpecialtyChange}
               />
             </Stack>
           ) : (
             <Stack alignItems="center">
               <Avatar
-                onClick={() => setIsMenuOpen(true)}
+                onClick={handleAvatarClick}
                 src={chosenImage ? `/assets/avatars/${chosenImage.path}` : ''}
                 sx={{
                   width: 100,
@@ -224,7 +265,7 @@ export const RegisterPage = () => {
                 <Button
                   variant="contained"
                   color="secondary"
-                  onClick={() => setStep(1)}
+                  onClick={handleBack}
                   startIcon={<ArrowBack />}
                 >
                   Retour
@@ -240,11 +281,6 @@ export const RegisterPage = () => {
           </Stack>
         </form>
       </Container>
-      <ProfileImageModal
-        open={isMenuOpen}
-        onClose={() => setIsMenuOpen(false)}
-        onSelect={handleSelectImage}
-      />
       <Box
         width={1 / 3}
         minHeight="100%"
