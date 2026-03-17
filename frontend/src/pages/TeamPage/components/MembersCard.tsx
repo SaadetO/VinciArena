@@ -21,9 +21,9 @@ export const MembersCard = memo(({ team, isLoading }: MembersCardProps) => {
         spacing="1rem"
       >
         <Typography variant="h4">Membres</Typography>
-        <Stack spacing="0.75rem" direction="row" flexWrap="wrap">
+        <Stack gap="0.75rem" direction="row" flexWrap="wrap">
           {isLoading ? (
-            <Stack direction="row" spacing="0.75rem" alignItems="center">
+            <Stack direction="row" gap="0.75rem" alignItems="center">
               <Skeleton variant="circular" width="2rem" height="2rem" />
               <Skeleton width="8rem" />
             </Stack>

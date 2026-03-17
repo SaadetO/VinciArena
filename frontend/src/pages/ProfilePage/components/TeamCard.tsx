@@ -196,7 +196,7 @@ export const TeamCard = ({ user, setUser }: TeamCardProps) => {
         )}
       </Typography>
 
-      <Stack spacing="0.75rem" direction="row">
+      <Stack spacing="0.75rem"direction={{xs: "column", sm: "row"}}>
         {user?.team ? (
           <>
             <Button
