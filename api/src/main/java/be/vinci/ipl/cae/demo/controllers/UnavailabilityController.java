@@ -4,6 +4,7 @@ import be.vinci.ipl.cae.demo.models.dtos.NewUnavailabilityDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Unavailability;
 import be.vinci.ipl.cae.demo.services.UnavailabilityService;
+import java.time.LocalDate;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -77,7 +78,7 @@ public class UnavailabilityController {
           "Start date must be before end date");
     }
 
-    if (dto.getStartDate().isBefore(LocalDate.now())) {
+    if (dto.getStartDate().isBefore(LocalDate.now().atStartOfDay())) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
           "Start date must be in the future");
     }
