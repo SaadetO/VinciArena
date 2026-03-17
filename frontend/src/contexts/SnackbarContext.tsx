@@ -5,7 +5,10 @@ type SnackbarConfig = {
   message: string;
   severity?: AlertColor;
   duration?: number;
-  position?: { vertical: 'bottom' | 'top'; horizontal: 'left' | 'right' | 'center' };
+  position?: {
+    vertical: 'bottom' | 'top';
+    horizontal: 'left' | 'right' | 'center';
+  };
 };
 
 type SnackbarContextType = {

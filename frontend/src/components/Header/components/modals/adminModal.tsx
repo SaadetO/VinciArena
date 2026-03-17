@@ -13,16 +13,14 @@ export const adminModal = ({
   onConfirm: (close: () => void) => void;
 }): ModalConfig => ({
   title: promote ? 'Désigner un Admin' : 'Supprimer un Admin',
-  subtitle: promote 
+  subtitle: promote
     ? 'Choisissez un utilisateur à désigner comme admin.'
     : 'Choisissez un utilisateur à rétrograder.',
   confirmLabel: promote ? 'Désigner' : 'Supprimer',
   cancelLabel: 'Annuler',
   confirmDisabled: true,
-  children: <AdminModalContent 
-    promote={promote} 
-    users={users} 
-    onSelect={onSelect} 
-  />,
+  children: (
+    <AdminModalContent promote={promote} users={users} onSelect={onSelect} />
+  ),
   onConfirm: (close) => onConfirm(close),
 });

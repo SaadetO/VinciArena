@@ -11,9 +11,7 @@ interface PersonalInfoCardProps {
   user?: ProfileInfoDto;
 }
 
-export const PersonalInfoCard = ({
-  user,
-}: PersonalInfoCardProps) => {
+export const PersonalInfoCard = ({ user }: PersonalInfoCardProps) => {
   const iconSx = { width: '1rem', height: '1rem' };
   const { openModal } = useModal();
   const { showSnackbar } = useSnackbar();
@@ -45,7 +43,8 @@ export const PersonalInfoCard = ({
       });
     } catch (err: unknown) {
       showSnackbar({
-        message: err instanceof Error ? err.message : 'Une erreur est survenue.',
+        message:
+          err instanceof Error ? err.message : 'Une erreur est survenue.',
         severity: 'error',
       });
     }

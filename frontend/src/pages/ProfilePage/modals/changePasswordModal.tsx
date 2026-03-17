@@ -9,7 +9,8 @@ export const changePasswordModal = ({
   onConfirm: (close: () => void) => void;
 }): ModalConfig => ({
   title: 'Modifier mon mot de passe',
-  subtitle: 'Creez votre nouveau mot de passe en complétant les champs ci-dessous',
+  subtitle:
+    'Creez votre nouveau mot de passe en complétant les champs ci-dessous',
   confirmLabel: 'Confirmer',
   cancelLabel: 'Annuler',
   confirmDisabled: true,

@@ -45,9 +45,7 @@ export const AdminModalContent = ({
           <TextField
             {...params}
             placeholder={
-              promote
-                ? 'Utilisateur à promouvoir'
-                : 'Utilisateur à rétrograder'
+              promote ? 'Utilisateur à promouvoir' : 'Utilisateur à rétrograder'
             }
             autoFocus
           />

@@ -30,7 +30,7 @@ export const AdminMenu = () => {
           setUsers(await response.json());
         }
       } catch (err) {
-        console.error("Failed to fetch users", err);
+        console.error('Failed to fetch users', err);
       }
     })();
   }, [authenticatedUser, users.length]);
@@ -45,7 +45,7 @@ export const AdminMenu = () => {
   const handleAction = (promote: boolean) => {
     handleClose();
     let selectedUser: Member | null = null;
-    
+
     openModal(
       adminModal({
         promote,
@@ -62,7 +62,9 @@ export const AdminMenu = () => {
           // Optimistic update
           setUsers((prev) =>
             prev.map((user) =>
-              user.id === selectedUser!.id ? { ...user, admin: !user.admin } : user,
+              user.id === selectedUser!.id
+                ? { ...user, admin: !user.admin }
+                : user,
             ),
           );
 
@@ -79,9 +81,11 @@ export const AdminMenu = () => {
             );
 
             if (!response.ok) {
-              throw new Error(`Failed to ${promote ? 'promote' : 'demote'} admin`);
+              throw new Error(
+                `Failed to ${promote ? 'promote' : 'demote'} admin`,
+              );
             }
-            
+
             showSnackbar({
               message: promote
                 ? 'Utilisateur promu admin avec succès !'
@@ -92,12 +96,13 @@ export const AdminMenu = () => {
             // Rollback
             setUsers(previousUsers);
             showSnackbar({
-              message: err instanceof Error ? err.message : 'Une erreur est survenue',
+              message:
+                err instanceof Error ? err.message : 'Une erreur est survenue',
               severity: 'error',
             });
           }
         },
-      })
+      }),
     );
   };
 

@@ -113,26 +113,33 @@ export const ManagerCard = ({
                             },
                           },
                         );
-                  
+
                         if (!response.ok) {
                           throw new Error('Failed to promote user');
                         }
-                  
+
                         showSnackbar({
                           message: 'Utilisateur promu manager avec succès !',
                           severity: 'success',
                         });
                       } catch (err: unknown) {
                         // Rollback
-                        setTeam((prev) => (prev ? { ...prev, managers: previousManagers } : undefined));
-                        const errMsg = err instanceof Error ? err.message : 'Une erreur est survenue';
+                        setTeam((prev) =>
+                          prev
+                            ? { ...prev, managers: previousManagers }
+                            : undefined,
+                        );
+                        const errMsg =
+                          err instanceof Error
+                            ? err.message
+                            : 'Une erreur est survenue';
                         showSnackbar({
                           message: errMsg,
                           severity: 'error',
                         });
                       }
                     },
-                  })
+                  }),
                 );
               }}
             >

@@ -1,8 +1,4 @@
-import {
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Team } from '../../../types';
 import { UserContext } from '../../../contexts/UserContext';
 import { useModalController } from '../../../hooks/useModalController';
@@ -18,7 +14,7 @@ export const JoinTeamModalContent = ({
   const [teams, setTeams] = useState<Team[]>([]);
   const [localError, setLocalError] = useState<string | null>(null);
   const [requestedTeam, setRequestedTeam] = useState<Team | null>(null);
-  
+
   const { authenticatedUser } = useContext(UserContext);
   const { setError, setConfirmDisabled } = useModalController();
 
@@ -43,7 +39,8 @@ export const JoinTeamModalContent = ({
         const fetchedTeams = await response.json();
         setTeams(fetchedTeams);
       } catch (err: unknown) {
-        const errorMsg = err instanceof Error ? err.message : 'Une erreur est survenue.';
+        const errorMsg =
+          err instanceof Error ? err.message : 'Une erreur est survenue.';
         setError(errorMsg);
         setLocalError(errorMsg);
       }
@@ -60,8 +57,8 @@ export const JoinTeamModalContent = ({
         onChange={(_, value) => {
           setRequestedTeam(value);
           if (localError) {
-             setLocalError(null);
-             setError(null);
+            setLocalError(null);
+            setError(null);
           }
         }}
         renderInput={(params) => (

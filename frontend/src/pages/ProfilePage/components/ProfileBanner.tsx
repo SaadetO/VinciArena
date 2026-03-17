@@ -36,7 +36,8 @@ export const ProfileBanner = ({
     if (!avatar) return;
 
     const previousAvatar = user.avatar;
-    if (previousAvatar === avatar.path) return setError('Image déjà sélectionnée');
+    if (previousAvatar === avatar.path)
+      return setError('Image déjà sélectionnée');
 
     close();
 
@@ -68,8 +69,7 @@ export const ProfileBanner = ({
         return { ...prev, avatar: previousAvatar };
       });
       showSnackbar({
-        message:
-          err instanceof Error ? err.message : 'Une erreur est survenue',
+        message: err instanceof Error ? err.message : 'Une erreur est survenue',
         severity: 'error',
       });
     }

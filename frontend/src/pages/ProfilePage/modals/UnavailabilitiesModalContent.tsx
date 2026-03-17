@@ -31,7 +31,11 @@ const datePickerSx: SxProps<Theme> = {
 
 interface UnavailabilitiesModalContentProps {
   unavailabilities: { id: number; startDate: string; endDate: string }[] | null;
-  onSelect: (dates: { tempId: number; startDate: string; endDate: string }) => void;
+  onSelect: (dates: {
+    tempId: number;
+    startDate: string;
+    endDate: string;
+  }) => void;
 }
 
 export const UnavailabilitiesModalContent = ({

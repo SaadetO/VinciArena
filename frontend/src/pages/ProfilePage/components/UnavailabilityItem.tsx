@@ -19,8 +19,12 @@ export const UnavailabilityItem = ({
   const [loading, setLoading] = useState(false);
   const handleDelete = async () => {
     // Backup current state for rollback
-    let previousUnavailabilities: { id: number; startDate: string; endDate: string }[] = [];
-    
+    let previousUnavailabilities: {
+      id: number;
+      startDate: string;
+      endDate: string;
+    }[] = [];
+
     setUser((prev) => {
       if (!prev) return prev;
       previousUnavailabilities = prev.unavailabilities ?? [];
@@ -55,9 +59,12 @@ export const UnavailabilityItem = ({
       });
     } catch (err: unknown) {
       // Rollback
-      setUser((prev) => (prev ? { ...prev, unavailabilities: previousUnavailabilities } : prev));
+      setUser((prev) =>
+        prev ? { ...prev, unavailabilities: previousUnavailabilities } : prev,
+      );
       showSnackbar({
-        message: err instanceof Error ? err.message : 'Une erreur est survenue.',
+        message:
+          err instanceof Error ? err.message : 'Une erreur est survenue.',
         severity: 'error',
       });
     } finally {

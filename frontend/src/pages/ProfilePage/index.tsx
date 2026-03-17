@@ -102,19 +102,18 @@ export const ProfilePage = () => {
           {authenticatedUser?.id === idNbr && (
             <Grid2 size={{ xs: 12, lg: 5 }}>
               <Stack spacing="1.5rem">
-                <PersonalInfoCard
-                  user={user}
-                />
-                <TeamCard
-                  user={user}
-                  setUser={setUser}
-                />
+                <PersonalInfoCard user={user} />
+                <TeamCard user={user} setUser={setUser} />
                 <UnavailabilitiesCard
                   user={user}
                   setUser={setUser}
                   setUnavailabilitiesModal={() => {
-                    let selectedDates: { tempId: number; startDate: string; endDate: string } | null = null;
-                    
+                    let selectedDates: {
+                      tempId: number;
+                      startDate: string;
+                      endDate: string;
+                    } | null = null;
+
                     openModal(
                       unavailabilitiesModal({
                         unavailabilities: user?.unavailabilities ?? [],
@@ -124,7 +123,7 @@ export const ProfilePage = () => {
                         onConfirm: async (close) => {
                           if (!selectedDates) return;
                           close();
-                          
+
                           const { tempId, startDate, endDate } = selectedDates;
 
                           // Update UI optimistically
@@ -140,31 +139,40 @@ export const ProfilePage = () => {
                           });
 
                           try {
-                            const response = await fetch('/api/unavailabilities/me', {
-                              method: 'POST',
-                              headers: {
-                                'Content-Type': 'application/json',
-                                Authorization: authenticatedUser?.token ?? '',
+                            const response = await fetch(
+                              '/api/unavailabilities/me',
+                              {
+                                method: 'POST',
+                                headers: {
+                                  'Content-Type': 'application/json',
+                                  Authorization: authenticatedUser?.token ?? '',
+                                },
+                                body: JSON.stringify({
+                                  startDate,
+                                  endDate,
+                                }),
                               },
-                              body: JSON.stringify({
-                                startDate,
-                                endDate,
-                              }),
-                            });
+                            );
 
                             if (!response.ok) {
-                              throw new Error("Erreur lors de l'ajout de l'indisponibilité.");
+                              throw new Error(
+                                "Erreur lors de l'ajout de l'indisponibilité.",
+                              );
                             }
 
                             const created = await response.json();
-                            
+
                             // Resolve the ID
                             setUser((prev) => {
                               if (!prev) return prev;
                               return {
                                 ...prev,
-                                unavailabilities: (prev.unavailabilities ?? []).map((u) =>
-                                  u.id === tempId ? { ...u, id: created.idUnavailability } : u,
+                                unavailabilities: (
+                                  prev.unavailabilities ?? []
+                                ).map((u) =>
+                                  u.id === tempId
+                                    ? { ...u, id: created.idUnavailability }
+                                    : u,
                                 ),
                               };
                             });
@@ -175,7 +183,10 @@ export const ProfilePage = () => {
                             });
                           } catch (err: unknown) {
                             showSnackbar({
-                              message: err instanceof Error ? err.message : 'Une erreur est survenue.',
+                              message:
+                                err instanceof Error
+                                  ? err.message
+                                  : 'Une erreur est survenue.',
                               severity: 'error',
                             });
                             // Rollback
@@ -183,14 +194,14 @@ export const ProfilePage = () => {
                               if (!prev) return prev;
                               return {
                                 ...prev,
-                                unavailabilities: (prev.unavailabilities ?? []).filter(
-                                  (u) => u.id !== tempId,
-                                ),
+                                unavailabilities: (
+                                  prev.unavailabilities ?? []
+                                ).filter((u) => u.id !== tempId),
                               };
                             });
                           }
                         },
-                      })
+                      }),
                     );
                   }}
                 />

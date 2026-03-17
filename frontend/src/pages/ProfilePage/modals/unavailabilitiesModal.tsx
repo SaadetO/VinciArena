@@ -13,7 +13,11 @@ export const unavailabilitiesModal = ({
   onConfirm,
 }: {
   unavailabilities: UnavailabilitiesData[] | null;
-  onSelect: (dates: { tempId: number; startDate: string; endDate: string }) => void;
+  onSelect: (dates: {
+    tempId: number;
+    startDate: string;
+    endDate: string;
+  }) => void;
   onConfirm: (close: () => void) => void;
 }): ModalConfig => ({
   title: 'Ajouter une indisponibilité',
@@ -21,10 +25,12 @@ export const unavailabilitiesModal = ({
   confirmLabel: 'Confirmer',
   cancelLabel: 'Annuler',
   confirmDisabled: false,
-  children: <UnavailabilitiesModalContent 
-    unavailabilities={unavailabilities} 
-    onSelect={onSelect}
-  />,
+  children: (
+    <UnavailabilitiesModalContent
+      unavailabilities={unavailabilities}
+      onSelect={onSelect}
+    />
+  ),
   onConfirm: (close) => onConfirm(close),
   onCancel: (close) => close(),
 });

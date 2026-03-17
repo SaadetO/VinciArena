@@ -15,7 +15,7 @@ export const CreateTeamModalContent = ({
 
   useEffect(() => {
     if (localError) return;
-    
+
     if (teamName.trim().length > 0) {
       setConfirmDisabled(false);
       setError(null);
@@ -29,7 +29,7 @@ export const CreateTeamModalContent = ({
   const handleChange = (e: SyntheticEvent) => {
     const input = e.target as HTMLInputElement;
     setTeamName(input.value);
-    
+
     // Clear validation errors on typing
     if (localError) setLocalError(null);
   };

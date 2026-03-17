@@ -9,9 +9,14 @@ describe('CreateTeamModalContent', () => {
 
   const renderWithContext = (ui: React.ReactElement) => {
     return render(
-      <ModalControllerContext.Provider value={{ setConfirmDisabled: setConfirmDisabledMock, setError: setErrorMock }}>
+      <ModalControllerContext.Provider
+        value={{
+          setConfirmDisabled: setConfirmDisabledMock,
+          setError: setErrorMock,
+        }}
+      >
         {ui}
-      </ModalControllerContext.Provider>
+      </ModalControllerContext.Provider>,
     );
   };
 
@@ -42,7 +47,7 @@ describe('CreateTeamModalContent', () => {
     renderWithContext(<CreateTeamModalContent onSelect={onSelectMock} />);
 
     const input = screen.getByPlaceholderText('Nom de Team');
-    
+
     // Test whitespace
     fireEvent.change(input, { target: { value: '   ' } });
 

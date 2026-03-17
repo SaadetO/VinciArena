@@ -20,21 +20,25 @@ export const JoinRequestItem = ({
     successMsg: string,
   ) => {
     setIsLoading(true);
-    
+
     // Backup for rollback
     let previousTeam: TeamDetailsInfoDto | undefined;
-    
+
     setTeam((prev) => {
       if (!prev) return prev;
       previousTeam = { ...prev };
-      
+
       const updatedRequests = (prev.joinRequests ?? []).filter(
         (jr) => jr.idJoinRequest !== joinRequest.idJoinRequest,
       );
-      
-      const updatedMembers = status === 'ACCEPTED' 
-        ? [...(prev.members ?? []), { ...joinRequest.requester, role: 'MEMBER' }]
-        : (prev.members ?? []);
+
+      const updatedMembers =
+        status === 'ACCEPTED'
+          ? [
+              ...(prev.members ?? []),
+              { ...joinRequest.requester, role: 'MEMBER' },
+            ]
+          : (prev.members ?? []);
 
       return {
         ...prev,
@@ -55,17 +59,18 @@ export const JoinRequestItem = ({
           body: JSON.stringify(status),
         },
       );
-      
+
       if (!response.ok) {
         throw new Error('Une erreur est survenue.');
       }
-      
+
       showSnackbar({ message: successMsg, severity: 'success' });
     } catch (err: unknown) {
       // Rollback
       setTeam(previousTeam);
       showSnackbar({
-        message: err instanceof Error ? err.message : 'Une erreur est survenue.',
+        message:
+          err instanceof Error ? err.message : 'Une erreur est survenue.',
         severity: 'error',
       });
     } finally {

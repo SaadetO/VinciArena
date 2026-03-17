@@ -13,10 +13,7 @@ interface TeamCardProps {
   user?: ProfileInfoDto;
 }
 
-export const TeamCard = ({
-  user,
-  setUser,
-}: TeamCardProps) => {
+export const TeamCard = ({ user, setUser }: TeamCardProps) => {
   const navigate = useNavigate();
   const { authenticatedUser } = useContext(UserContext);
   const { openModal } = useModal();
@@ -50,7 +47,10 @@ export const TeamCard = ({
       // Rollback
       setUser((prev) => (prev ? { ...prev, team: previousTeam } : prev));
       showSnackbar({
-        message: err instanceof Error ? err.message : 'Une erreur est survenue en quittant la team.',
+        message:
+          err instanceof Error
+            ? err.message
+            : 'Une erreur est survenue en quittant la team.',
         severity: 'error',
       });
     }
@@ -109,13 +109,16 @@ export const TeamCard = ({
                       close();
 
                       try {
-                        const response = await fetch(`/api/teams/${idTeam}/join-requests`, {
-                          method: 'POST',
-                          headers: {
-                            'Content-Type': 'application/json',
-                            Authorization: authenticatedUser?.token ?? '',
+                        const response = await fetch(
+                          `/api/teams/${idTeam}/join-requests`,
+                          {
+                            method: 'POST',
+                            headers: {
+                              'Content-Type': 'application/json',
+                              Authorization: authenticatedUser?.token ?? '',
+                            },
                           },
-                        });
+                        );
 
                         if (!response.ok) {
                           throw new Error(
@@ -129,12 +132,15 @@ export const TeamCard = ({
                         });
                       } catch (err: unknown) {
                         showSnackbar({
-                          message: err instanceof Error ? err.message : 'Une erreur est survenue.',
+                          message:
+                            err instanceof Error
+                              ? err.message
+                              : 'Une erreur est survenue.',
                           severity: 'error',
                         });
                       }
                     },
-                  })
+                  }),
                 );
               }}
               variant="contained"
@@ -163,7 +169,11 @@ export const TeamCard = ({
                         prev
                           ? {
                               ...prev,
-                              team: { id: -1, name: selectedName!, isManager: true },
+                              team: {
+                                id: -1,
+                                name: selectedName!,
+                                isManager: true,
+                              },
                             }
                           : prev,
                       );
@@ -180,9 +190,13 @@ export const TeamCard = ({
 
                         if (!response.ok) {
                           if (response.status === 409) {
-                            throw new Error('Une équipe avec ce nom existe déjà');
+                            throw new Error(
+                              'Une équipe avec ce nom existe déjà',
+                            );
                           }
-                          throw new Error('Erreur lors de la création de la team.');
+                          throw new Error(
+                            'Erreur lors de la création de la team.',
+                          );
                         }
 
                         const createdTeam = await response.json();
@@ -200,14 +214,19 @@ export const TeamCard = ({
                         });
                       } catch (err: unknown) {
                         // Rollback
-                        setUser((prev) => (prev ? { ...prev, team: previousTeam ?? null } : prev));
+                        setUser((prev) =>
+                          prev ? { ...prev, team: previousTeam ?? null } : prev,
+                        );
                         showSnackbar({
-                          message: err instanceof Error ? err.message : 'Une erreur est survenue.',
+                          message:
+                            err instanceof Error
+                              ? err.message
+                              : 'Une erreur est survenue.',
                           severity: 'error',
                         });
                       }
                     },
-                  })
+                  }),
                 );
               }}
               variant="contained"

@@ -14,7 +14,7 @@ export const ManagerModalContent = ({
 }: ManagerModalContentProps) => {
   const [localError, setLocalError] = useState<string | null>(null);
   const [selectedUser, setSelectedUser] = useState<ProfileInfoDto | null>(null);
-  
+
   const { setError, setConfirmDisabled } = useModalController();
 
   useEffect(() => {
@@ -38,8 +38,8 @@ export const ManagerModalContent = ({
         onChange={(_, value) => {
           setSelectedUser(value);
           if (localError) {
-             setLocalError(null);
-             setError(null);
+            setLocalError(null);
+            setError(null);
           }
         }}
         renderInput={(params) => (

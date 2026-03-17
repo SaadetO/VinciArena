@@ -13,8 +13,6 @@ export const createTeamModal = ({
   confirmLabel: 'Créer',
   cancelLabel: 'Annuler',
   confirmDisabled: true,
-  children: <CreateTeamModalContent 
-    onSelect={onSelect} 
-  />,
+  children: <CreateTeamModalContent onSelect={onSelect} />,
   onConfirm: (close) => onConfirm(close),
 });

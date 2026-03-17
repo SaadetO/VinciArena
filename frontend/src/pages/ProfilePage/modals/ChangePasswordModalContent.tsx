@@ -30,7 +30,7 @@ export const ChangePasswordModalContent = ({
     password: false,
     confirmPassword: false,
   });
-  
+
   const { setConfirmDisabled, setError } = useModalController();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -70,14 +70,12 @@ export const ChangePasswordModalContent = ({
 
     setErrorObj({
       password: !password.password.trim() ? errorMsgs[0] : '',
-      confirmPassword: 
-        !password.confirmPassword.trim() 
-          ? errorMsgs[1] 
-          : password.password !== password.confirmPassword 
-            ? errorMsgs[2] 
-            : '',
+      confirmPassword: !password.confirmPassword.trim()
+        ? errorMsgs[1]
+        : password.password !== password.confirmPassword
+          ? errorMsgs[2]
+          : '',
     });
-
   }, [password, setConfirmDisabled, setError, onSelect]);
 
   return (
@@ -114,7 +112,9 @@ export const ChangePasswordModalContent = ({
         placeholder="Confirmez votre mot de passe"
         onChange={handleChange}
         variant="outlined"
-        error={!!errorObj.confirmPassword && password.confirmPassword.length > 0}
+        error={
+          !!errorObj.confirmPassword && password.confirmPassword.length > 0
+        }
         slotProps={{
           input: {
             endAdornment: password.confirmPassword.trim().length > 0 && (
