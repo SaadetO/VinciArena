@@ -27,6 +27,7 @@ const SnackbarContext = createContext<SnackbarContextType | null>(null);
 
 const SnackbarProvider = ({ children }: { children: ReactNode }) => {
   const [open, setOpen] = useState(false);
+  const openRef = useRef(false);
   const [config, setConfig] = useState<SnackbarConfig | null>(null);
   const timeoutRef = useRef<number | null>(null);
 
@@ -43,23 +44,27 @@ const SnackbarProvider = ({ children }: { children: ReactNode }) => {
   const showSnackbar = useCallback(
     (cfg: SnackbarConfig) => {
       clearExistingTimeout();
-      if (open) {
+      if (openRef.current) {
         setOpen(false);
+        openRef.current = false;
         timeoutRef.current = window.setTimeout(() => {
           setConfig(cfg);
           setOpen(true);
+          openRef.current = true;
         }, 150);
       } else {
         setConfig(cfg);
         setOpen(true);
+        openRef.current = true;
       }
     },
-    [clearExistingTimeout, open],
+    [clearExistingTimeout],
   );
 
   const handleClose = (_: unknown, reason?: string) => {
     if (reason === 'clickaway') return;
     setOpen(false);
+    openRef.current = false;
   };
 
   /**
