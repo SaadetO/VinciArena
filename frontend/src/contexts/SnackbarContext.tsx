@@ -83,7 +83,7 @@ const SnackbarProvider = ({ children }: { children: ReactNode }) => {
       <Slide direction="up" in={open}>
         <Snackbar
           open={open}
-          autoHideDuration={config?.duration ?? null}
+          autoHideDuration={config?.duration ?? 5000}
           onClose={handleClose}
           anchorOrigin={{
             vertical: config?.position?.vertical ?? 'bottom',

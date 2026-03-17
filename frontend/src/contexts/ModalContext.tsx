@@ -91,7 +91,7 @@ const ModalContextProvider = ({ children }: { children: ReactNode }) => {
       <ModalControllerContext.Provider value={modalControllerContextValue}>
         {children}
 
-        <Dialog open={open} onClose={closeModal} maxWidth="sm" fullWidth>
+        <Dialog open={open} onClose={closeModal} fullWidth>
           <DialogTitle variant="h2">{config?.title}</DialogTitle>
           {config?.subtitle && (
             <Typography
