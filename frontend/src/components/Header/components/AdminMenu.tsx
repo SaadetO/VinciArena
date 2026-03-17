@@ -4,7 +4,7 @@ import { UserContext } from '../../../contexts/UserContext';
 import { useModal } from '../../../hooks/useModal';
 import { useSnackbar } from '../../../hooks/useSnackbar';
 import { ArrowDropDown } from '@mui/icons-material';
-import { adminModal } from './modals/adminModal';
+import { adminModal } from '../modals/adminModal';
 import { Member } from '../../../types';
 
 export const AdminMenu = () => {
@@ -33,7 +33,7 @@ export const AdminMenu = () => {
         console.error('Failed to fetch users', err);
       }
     })();
-  }, [authenticatedUser, users.length]);
+  }, [authenticatedUser, isOpen, users.length]);
   const handleMenuClick = (event: MouseEvent<HTMLElement>) => {
     setMenuPosition(event.currentTarget);
   };

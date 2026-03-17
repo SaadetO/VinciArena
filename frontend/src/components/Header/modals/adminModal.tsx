@@ -1,4 +1,4 @@
-import { ModalConfig, Member } from '../../../../types';
+import { ModalConfig, Member } from '../../../types';
 import { AdminModalContent } from './AdminModalContent';
 
 export const adminModal = ({

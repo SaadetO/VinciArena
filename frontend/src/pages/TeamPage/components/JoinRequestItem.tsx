@@ -43,7 +43,7 @@ export const JoinRequestItem = ({
       return {
         ...prev,
         joinRequests: updatedRequests,
-        members: updatedMembers as any,
+        members: updatedMembers,
       };
     });
 

@@ -15,7 +15,7 @@ export const ProfileImageModalContent = ({ onSelect }: Props) => {
 
   useEffect(() => {
     setConfirmDisabled(!avatar);
-  }, [avatar]);
+  }, [avatar, setConfirmDisabled]);
 
   useEffect(() => {
     (async () => {

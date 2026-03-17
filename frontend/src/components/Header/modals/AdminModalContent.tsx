@@ -1,8 +1,8 @@
 import { Autocomplete, TextField } from '@mui/material';
 import { useContext, useEffect, useState } from 'react';
-import { UserContext } from '../../../../contexts/UserContext';
-import { Member } from '../../../../types';
-import { useModalController } from '../../../../hooks/useModalController';
+import { UserContext } from '../../../contexts/UserContext';
+import { Member } from '../../../types';
+import { useModalController } from '../../../hooks/useModalController';
 
 interface AdminModalContentProps {
   promote: boolean;
