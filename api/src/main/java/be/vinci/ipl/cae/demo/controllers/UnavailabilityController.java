@@ -77,6 +77,11 @@ public class UnavailabilityController {
           "Start date must be before end date");
     }
 
+    if (dto.getStartDate().isBefore(LocalDate.now())) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+          "Start date must be in the future");
+    }
+
     return unavailabilityService.create(currentMember, dto);
   }
 

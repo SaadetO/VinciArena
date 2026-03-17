@@ -50,21 +50,24 @@ export const UnavailabilitiesModalContent = ({
   const { setConfirmDisabled, setError } = useModalController();
 
   useEffect(() => {
-    const error = checkOverlap(
-      dates.startDate,
-      dates.endDate,
-      unavailabilities,
-    );
+    let error = checkOverlap(dates.startDate, dates.endDate, unavailabilities);
+
+    if (!dates.startDate.isValid() || !dates.endDate.isValid())
+      error = 'Les dates doivent être valides.';
+
+    if (dates.startDate.isBefore(dayjs(Date.now()).startOf('day')))
+      error = 'La date de début doit être dans le futur.';
+
     setError(error);
     setConfirmDisabled(!!error);
 
-    if (!error) {
-      onSelect({
-        tempId: -Date.now(),
-        startDate: dates.startDate.toISOString(),
-        endDate: dates.endDate.toISOString(),
-      });
-    }
+    if (error) return;
+
+    onSelect({
+      tempId: -Date.now(),
+      startDate: dates.startDate.toISOString(),
+      endDate: dates.endDate.toISOString(),
+    });
   }, [dates, unavailabilities, setError, setConfirmDisabled, onSelect]);
 
   const handleDateChange = (

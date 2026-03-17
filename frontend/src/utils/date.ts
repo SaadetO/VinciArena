@@ -92,7 +92,5 @@ export const checkOverlap = (
     const existingEnd = dayjs(u.endDate);
     return start.isBefore(existingEnd) && end.isAfter(existingStart);
   });
-  return hasOverlap
-    ? 'Les dates sélectionnées chevauchent une indisponibilité existante.'
-    : null;
+  return hasOverlap ? 'Ces dates chevauchent une indisponibilité.' : null;
 };
