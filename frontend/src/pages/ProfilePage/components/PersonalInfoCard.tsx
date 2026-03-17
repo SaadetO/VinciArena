@@ -6,6 +6,7 @@ import { useModal } from '../../../hooks/useModal';
 import { useSnackbar } from '../../../hooks/useSnackbar';
 import { UserContext } from '../../../contexts/UserContext';
 import { changePasswordModal } from '../modals/changePasswordModal';
+import { formatDate } from '../../../utils/date';
 
 interface PersonalInfoCardProps {
   user?: ProfileInfoDto;
@@ -72,7 +73,7 @@ export const PersonalInfoCard = ({ user }: PersonalInfoCardProps) => {
       <Stack spacing="0.75rem">
         <DataField data={user?.email} icon={<AlternateEmail sx={iconSx} />} />
         <DataField
-          data={user?.creationDate}
+          data={formatDate(user?.creationDate ?? '')}
           skeletonWidth="15rem"
           icon={<Person sx={iconSx} />}
         />
