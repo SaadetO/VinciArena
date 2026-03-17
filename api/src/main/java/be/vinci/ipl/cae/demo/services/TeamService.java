@@ -102,8 +102,7 @@ public class TeamService {
    *
    * @param teamName the name for the new team
    * @param creator  the member creating the team
-   * @return the created team, or null if the name is already taken or the creator already belongs
-   *     to a team
+   * @return the created team, or null
    */
   @Transactional
   public Team createTeam(String teamName, Member creator) {
@@ -134,7 +133,7 @@ public class TeamService {
   /**
    * Check if member is a manager of a given team.
    *
-   * @param team the given team
+   * @param team   the given team
    * @param member the member to check for manager status
    * @return true is member is a manager; false otherwise
    */
@@ -205,9 +204,8 @@ public class TeamService {
   }
 
   /**
-   * Remove the current member from their team.
-   * Promotes manager2 to manager1 if manager1 leaves, 
-   * or deactivates the team if it's the last manager.
+   * Remove the current member from their team. Promotes manager2 to manager1 if manager1 leaves, or
+   * deactivates the team if it's the last manager.
    *
    * @param currentMember the member leaving the team
    * @return the updated team, or null if member is not in a team
@@ -220,9 +218,13 @@ public class TeamService {
 
     Team team = currentMember.getTeam();
 
-    if (team.getManager1() != null && team.getManager1().getIdMember().equals(currentMember.getIdMember())) {
+    if (
+        team.getManager1() != null
+            && team.getManager1().getIdMember().equals(currentMember.getIdMember())
+    ) {
       team.setManager1(null);
-    } else if (team.getManager2() != null && team.getManager2().getIdMember().equals(currentMember.getIdMember())) {
+    } else if (team.getManager2() != null && team.getManager2().getIdMember()
+        .equals(currentMember.getIdMember())) {
       team.setManager2(null);
     }
 
@@ -232,7 +234,7 @@ public class TeamService {
 
     currentMember.setTeam(null);
     memberRepository.save(currentMember);
-    
+
     return teamRepository.save(team);
   }
 }
