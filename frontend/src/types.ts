@@ -24,8 +24,13 @@ interface Member {
   tag: string;
   email: string;
   admin: boolean;
-  specialty: string;
-  avatar: string;
+  specialty: Specialty;
+  profileImage: ProfileImage;
+}
+
+interface Specialty {
+  idSpecialty: number;
+  label: string;
 }
 
 interface ProfileInfoDto {

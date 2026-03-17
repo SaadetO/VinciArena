@@ -15,6 +15,7 @@ declare module '@mui/material/styles' {
 declare module '@mui/material/Chip' {
   interface ChipPropsSizeOverrides {
     large: true;
+    'extra-large': true;
   }
   interface ChipPropsVariantOverrides {
     active: true;
@@ -232,7 +233,7 @@ export const theme = createTheme({
           textTransform: 'uppercase',
           fontWeight: 'Bold',
           fontSize: '0.875rem',
-          borderRadius: '0.25rem',
+          borderRadius: '0.5rem',
           '& .MuiChip-label': {
             padding: '0',
           },
@@ -292,7 +293,15 @@ export const theme = createTheme({
           props: { size: 'large' },
           style: {
             height: '2.75rem',
-            borderRadius: '0.25rem',
+            borderRadius: '0.5rem',
+            padding: '0 1rem',
+          },
+        },
+        {
+          props: { size: 'extra-large' },
+          style: {
+            height: '3rem',
+            borderRadius: '0.5rem',
             padding: '0 1rem',
           },
         },
@@ -518,7 +527,7 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           '& .MuiDialog-paper': {
-            borderRadius: '0.5rem',
+            borderRadius: '1.5rem',
             background: surfaceLevels.s1,
             backgroundImage: 'none',
             width: '25rem',
@@ -647,6 +656,16 @@ export const theme = createTheme({
           },
         },
       ],
+    },
+    MuiSwitch: {
+      styleOverrides: {
+        root: {
+          padding: '0.375rem',
+          '& .MuiSwitch-track': {
+            borderRadius: '100rem',
+          },
+        },
+      },
     },
   },
 });
