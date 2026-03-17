@@ -55,6 +55,17 @@ export const AdminMenu = () => {
         },
         onConfirm: async (close) => {
           if (!selectedUser) return;
+          close();
+
+          const previousUsers = [...users];
+
+          // Optimistic update
+          setUsers((prev) =>
+            prev.map((user) =>
+              user.id === selectedUser!.id ? { ...user, admin: !user.admin } : user,
+            ),
+          );
+
           try {
             const response = await fetch(
               `/api/members/toggle-admin/${selectedUser.id}`,
@@ -77,14 +88,9 @@ export const AdminMenu = () => {
                 : 'Utilisateur rétrogradé avec succès !',
               severity: 'success',
             });
-            
-            setUsers((prev) =>
-              prev.map((user) =>
-                user.id === selectedUser!.id ? { ...user, admin: !user.admin } : user,
-              ),
-            );
-            close();
           } catch (err: unknown) {
+            // Rollback
+            setUsers(previousUsers);
             showSnackbar({
               message: err instanceof Error ? err.message : 'Une erreur est survenue',
               severity: 'error',

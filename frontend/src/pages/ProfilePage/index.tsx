@@ -108,27 +108,10 @@ export const ProfilePage = () => {
                 <TeamCard
                   user={user}
                   setUser={setUser}
-                  onQuitSuccess={() => {
-                    setSnackBarMessage({
-                      text: "Vous avez quitté l'équipe avec succès.",
-                      isError: false,
-                      isOpen: true,
-                    });
-                    setUser((prev) => {
-                      if (!prev) return prev;
-                      return { ...prev, team: null };
-                    });
-                  }}
-                  onError={(errorMessage: string) => {
-                    setSnackBarMessage({
-                      text: errorMessage,
-                      isError: true,
-                      isOpen: true,
-                    });
-                  }}
                 />
                 <UnavailabilitiesCard
                   user={user}
+                  setUser={setUser}
                   setUnavailabilitiesModal={() => {
                     let selectedDates: { tempId: number; startDate: string; endDate: string } | null = null;
                     
@@ -209,29 +192,6 @@ export const ProfilePage = () => {
                         },
                       })
                     );
-                  }}
-                  onError={(errorMessage: string) => {
-                    setSnackBarMessage({
-                      text: errorMessage,
-                      isError: true,
-                      isOpen: true,
-                    });
-                  }}
-                  onSuccessDelete={(id: number) => {
-                    setSnackBarMessage({
-                      text: 'Indisponibilité supprimée avec succès !',
-                      isError: false,
-                      isOpen: true,
-                    });
-                    setUser((prev) => {
-                      if (!prev) return prev;
-                      return {
-                        ...prev,
-                        unavailabilities: (prev.unavailabilities ?? []).filter(
-                          (u) => u.id !== id,
-                        ),
-                      };
-                    });
                   }}
                 />
               </Stack>

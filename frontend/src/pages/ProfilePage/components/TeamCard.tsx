@@ -11,15 +11,11 @@ import { Button, Skeleton, Stack, Typography } from '@mui/material';
 interface TeamCardProps {
   setUser: Dispatch<SetStateAction<ProfileInfoDto | undefined>>;
   user?: ProfileInfoDto;
-  onQuitSuccess?: () => void;
-  onError?: (errorMessage: string) => void;
 }
 
 export const TeamCard = ({
   user,
   setUser,
-  onQuitSuccess,
-  onError,
 }: TeamCardProps) => {
   const navigate = useNavigate();
   const { authenticatedUser } = useContext(UserContext);
@@ -27,6 +23,12 @@ export const TeamCard = ({
   const { showSnackbar } = useSnackbar();
 
   const handleQuit = async () => {
+    if (!user?.team) return;
+    const previousTeam = user.team;
+
+    // Optimistic update
+    setUser((prev) => (prev ? { ...prev, team: null } : prev));
+
     try {
       const response = await fetch('/api/teams/quit', {
         method: 'POST',
@@ -37,16 +39,20 @@ export const TeamCard = ({
       });
 
       if (!response.ok) {
-        throw new Error('Failed to quit team');
+        throw new Error('Erreur lors du départ de la team.');
       }
 
-      if (onQuitSuccess) {
-        onQuitSuccess();
-      }
+      showSnackbar({
+        message: "Vous avez quitté l'équipe avec succès.",
+        severity: 'success',
+      });
     } catch (err) {
-      if (onError) {
-        onError('Une erreur est survenue en quittant la team.');
-      }
+      // Rollback
+      setUser((prev) => (prev ? { ...prev, team: previousTeam } : prev));
+      showSnackbar({
+        message: err instanceof Error ? err.message : 'Une erreur est survenue en quittant la team.',
+        severity: 'error',
+      });
     }
   };
 
@@ -149,6 +155,19 @@ export const TeamCard = ({
                       if (!selectedName) return;
                       close();
 
+                      // Backup (know it's null or we wouldn't see the button)
+                      const previousTeam = user?.team;
+
+                      // Optimistic Update with temp data
+                      setUser((prev) =>
+                        prev
+                          ? {
+                              ...prev,
+                              team: { id: -1, name: selectedName!, isManager: true },
+                            }
+                          : prev,
+                      );
+
                       try {
                         const response = await fetch('/api/teams/', {
                           method: 'POST',
@@ -173,13 +192,15 @@ export const TeamCard = ({
                           isManager: true,
                         };
 
-                        if (user) setUser({ ...user, team });
+                        setUser((prev) => (prev ? { ...prev, team } : prev));
 
                         showSnackbar({
                           message: 'Team créée avec succès !',
                           severity: 'success',
                         });
                       } catch (err: unknown) {
+                        // Rollback
+                        setUser((prev) => (prev ? { ...prev, team: previousTeam ?? null } : prev));
                         showSnackbar({
                           message: err instanceof Error ? err.message : 'Une erreur est survenue.',
                           severity: 'error',

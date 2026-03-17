@@ -5,13 +5,11 @@ import { UnavailabilityItem } from './UnavailabilityItem';
 export const UnavailabilitiesCard = ({
   user,
   setUnavailabilitiesModal,
-  onError,
-  onSuccessDelete,
+  setUser,
 }: {
   user?: ProfileInfoDto;
   setUnavailabilitiesModal: (value: boolean) => void;
-  onError: (errorMessage: string) => void;
-  onSuccessDelete: (id: number) => void;
+  setUser: React.Dispatch<React.SetStateAction<ProfileInfoDto | undefined>>;
 }) => {
   return (
     <Stack
@@ -30,8 +28,7 @@ export const UnavailabilitiesCard = ({
           user?.unavailabilities?.map((unavailability, id) => (
             <UnavailabilityItem
               unavailability={unavailability}
-              onError={onError}
-              onSuccessDelete={onSuccessDelete}
+              setUser={setUser}
               key={id}
             />
           ))

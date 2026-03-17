@@ -24,6 +24,8 @@ export const PersonalInfoCard = ({
     const pwd = selectedPasswordRef.current;
     if (!pwd) return;
 
+    close();
+
     try {
       const response = await fetch('/api/members/me/password', {
         method: 'PUT',
@@ -41,16 +43,11 @@ export const PersonalInfoCard = ({
         message: 'Mot de passe modifié avec succès !',
         severity: 'success',
       });
-      close();
     } catch (err: unknown) {
       showSnackbar({
         message: err instanceof Error ? err.message : 'Une erreur est survenue.',
         severity: 'error',
       });
-      // Not closing on error so user can correct it if needed, 
-      // but if we want to mimic standard behavior we could close it or use `useModalController().setError`
-      // Wait, inside here we do NOT have useModalController since we are in PersonalInfoCard.
-      // We could close it on error, or just show snackbar. We will just show snackbar.
     }
   };
   return (

@@ -2,18 +2,14 @@ import { Stack, Typography } from '@mui/material';
 import { TeamDetailsInfoDto } from '../../../types';
 import { JoinRequestItem } from './JoinRequestItem';
 
-interface JoinRequestsCardProps {
-  team: TeamDetailsInfoDto;
-  isLoading: boolean;
-  showNotification: (msg: string) => void;
-  onActionSuccess: () => void;
-}
-
 export const JoinRequestsCard = ({
   team,
-  showNotification,
-  onActionSuccess,
-}: JoinRequestsCardProps) => {
+  setTeam,
+}: {
+  team: TeamDetailsInfoDto;
+  isLoading: boolean;
+  setTeam: React.Dispatch<React.SetStateAction<TeamDetailsInfoDto | undefined>>;
+}) => {
   return (
     <>
       <Stack
@@ -33,8 +29,7 @@ export const JoinRequestsCard = ({
                 <JoinRequestItem
                   key={jr.idJoinRequest}
                   joinRequest={jr}
-                  showNotification={showNotification}
-                  onActionSuccess={onActionSuccess}
+                  setTeam={setTeam}
                 />
               ))
           ) : (

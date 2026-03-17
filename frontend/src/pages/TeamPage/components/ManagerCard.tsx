@@ -90,6 +90,18 @@ export const ManagerCard = ({
                       if (!selectedManager) return;
                       close();
 
+                      const previousManagers = team?.managers ?? [];
+
+                      // Optimistic update
+                      setTeam((prev) =>
+                        prev
+                          ? {
+                              ...prev,
+                              managers: [...prev.managers, selectedManager!],
+                            }
+                          : undefined,
+                      );
+
                       try {
                         const response = await fetch(
                           `/api/teams/${team?.idTeam}/manager/${selectedManager.id}`,
@@ -106,20 +118,13 @@ export const ManagerCard = ({
                           throw new Error('Failed to promote user');
                         }
                   
-                        setTeam((prev) =>
-                          prev
-                            ? {
-                                ...prev,
-                                managers: [...prev.managers, selectedManager!],
-                              }
-                            : undefined,
-                        );
-                        
                         showSnackbar({
                           message: 'Utilisateur promu manager avec succès !',
                           severity: 'success',
                         });
                       } catch (err: unknown) {
+                        // Rollback
+                        setTeam((prev) => (prev ? { ...prev, managers: previousManagers } : undefined));
                         const errMsg = err instanceof Error ? err.message : 'Une erreur est survenue';
                         showSnackbar({
                           message: errMsg,

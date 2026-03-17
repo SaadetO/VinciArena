@@ -108,14 +108,7 @@ export const TeamPage = () => {
                 <JoinRequestsCard
                   isLoading={isLoading}
                   team={team}
-                  showNotification={(msg) =>
-                    setSnackBarMessage({
-                      text: msg,
-                      isError: false,
-                      isOpen: true,
-                    })
-                  }
-                  onActionSuccess={fetchTeam}
+                  setTeam={setTeam}
                 />
               )}
             </Stack>
