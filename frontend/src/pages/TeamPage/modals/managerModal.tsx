@@ -14,8 +14,8 @@ export const managerModal = ({
   onSelect: (user: ProfileInfoDto | null) => void;
   onConfirm: (close: () => void) => void;
 }): ModalConfig => ({
-  title: 'Désigner un Manager',
-  subtitle: 'Choisissez un utilisateur à désigner comme manager.',
+  title: 'Désigner un Responsable',
+  subtitle: 'Choisissez un utilisateur à désigner comme responsable.',
   confirmLabel: 'Désigner',
   cancelLabel: 'Annuler',
   confirmDisabled: true,
