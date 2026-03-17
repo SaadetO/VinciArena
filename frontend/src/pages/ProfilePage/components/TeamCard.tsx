@@ -14,10 +14,134 @@ interface TeamCardProps {
 }
 
 export const TeamCard = ({ user, setUser }: TeamCardProps) => {
+  const handleJoin = () => {
+    let selectedTeam: Team | null = null;
+
+    const onSelect = (team: Team | null) => {
+      selectedTeam = team;
+    };
+
+    const onConfirm = async (close: () => void) => {
+      const idTeam = selectedTeam?.idTeam;
+      if (!idTeam) return;
+
+      close();
+
+      try {
+        const response = await fetch(`/api/teams/${idTeam}/join-requests`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: authenticatedUser?.token ?? '',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(
+            'Vous avez déjà une demande en attente pour cette équipe.',
+          );
+        }
+
+        showSnackbar({
+          message: 'Demande effectuée avec succès !',
+          severity: 'success',
+        });
+      } catch (err: unknown) {
+        showSnackbar({
+          message:
+            err instanceof Error ? err.message : 'Une erreur est survenue.',
+          severity: 'error',
+        });
+      }
+    };
+
+    openModal(joinTeamModal({ onSelect, onConfirm }));
+  };
+
+  const handleCreate = () => {
+    let selectedName: string | null = null;
+
+    const onSelect = (name: string | null) => {
+      selectedName = name;
+    };
+
+    const onConfirm = async (close: () => void) => {
+      if (!selectedName) return;
+      close();
+
+      // Backup (know it's null or we wouldn't see the button)
+      const previousTeam = user?.team;
+
+      // Optimistic Update with temp data
+      setUser((prev) =>
+        prev
+          ? {
+              ...prev,
+              team: {
+                id: -1,
+                name: selectedName!,
+                isManager: true,
+              },
+            }
+          : prev,
+      );
+
+      try {
+        const response = await fetch('/api/teams/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: authenticatedUser?.token ?? '',
+          },
+          body: JSON.stringify({ name: selectedName }),
+        });
+
+        if (!response.ok) {
+          if (response.status === 409) {
+            throw new Error('Une équipe avec ce nom existe déjà');
+          }
+          throw new Error('Erreur lors de la création de la team.');
+        }
+
+        const createdTeam = await response.json();
+        const team = {
+          id: createdTeam.idTeam,
+          name: createdTeam.name,
+          isManager: true,
+        };
+
+        setUser((prev) => (prev ? { ...prev, team } : prev));
+
+        showSnackbar({
+          message: 'Team créée avec succès !',
+          severity: 'success',
+        });
+      } catch (err: unknown) {
+        // Rollback
+        setUser((prev) =>
+          prev ? { ...prev, team: previousTeam ?? null } : prev,
+        );
+        showSnackbar({
+          message:
+            err instanceof Error ? err.message : 'Une erreur est survenue.',
+          severity: 'error',
+        });
+      }
+    };
+
+    openModal(createTeamModal({ onSelect, onConfirm }));
+  };
+
   const navigate = useNavigate();
   const { authenticatedUser } = useContext(UserContext);
   const { openModal } = useModal();
   const { showSnackbar } = useSnackbar();
+
+  const handleViewTeam = () => {
+    if (user?.team) {
+      navigate(`/teams/${user.team.id}`);
+    }
+  };
 
   const handleQuit = async () => {
     if (!user?.team) return;
@@ -76,7 +200,7 @@ export const TeamCard = ({ user, setUser }: TeamCardProps) => {
         {user?.team ? (
           <>
             <Button
-              onClick={() => navigate(`/teams/${user.team?.id}`)}
+              onClick={handleViewTeam}
               variant="contained"
               color="secondary"
               fullWidth
@@ -87,7 +211,7 @@ export const TeamCard = ({ user, setUser }: TeamCardProps) => {
               variant="contained"
               color="secondary"
               fullWidth
-              onClick={() => handleQuit()}
+              onClick={handleQuit}
             >
               quitter {user.team.name}
             </Button>
@@ -95,54 +219,7 @@ export const TeamCard = ({ user, setUser }: TeamCardProps) => {
         ) : (
           <>
             <Button
-              onClick={() => {
-                let selectedTeam: Team | null = null;
-                openModal(
-                  joinTeamModal({
-                    onSelect: (team) => {
-                      selectedTeam = team;
-                    },
-                    onConfirm: async (close) => {
-                      const idTeam = selectedTeam?.idTeam;
-                      if (!idTeam) return;
-
-                      close();
-
-                      try {
-                        const response = await fetch(
-                          `/api/teams/${idTeam}/join-requests`,
-                          {
-                            method: 'POST',
-                            headers: {
-                              'Content-Type': 'application/json',
-                              Authorization: authenticatedUser?.token ?? '',
-                            },
-                          },
-                        );
-
-                        if (!response.ok) {
-                          throw new Error(
-                            'Vous avez déjà une demande en attente pour cette équipe.',
-                          );
-                        }
-
-                        showSnackbar({
-                          message: 'Demande effectuée avec succès !',
-                          severity: 'success',
-                        });
-                      } catch (err: unknown) {
-                        showSnackbar({
-                          message:
-                            err instanceof Error
-                              ? err.message
-                              : 'Une erreur est survenue.',
-                          severity: 'error',
-                        });
-                      }
-                    },
-                  }),
-                );
-              }}
+              onClick={handleJoin}
               variant="contained"
               color="secondary"
               fullWidth
@@ -150,88 +227,9 @@ export const TeamCard = ({ user, setUser }: TeamCardProps) => {
               rejoindre une team
             </Button>
             <Button
-              onClick={() => {
-                let selectedName: string | null = null;
-                openModal(
-                  createTeamModal({
-                    onSelect: (name) => {
-                      selectedName = name;
-                    },
-                    onConfirm: async (close) => {
-                      if (!selectedName) return;
-                      close();
-
-                      // Backup (know it's null or we wouldn't see the button)
-                      const previousTeam = user?.team;
-
-                      // Optimistic Update with temp data
-                      setUser((prev) =>
-                        prev
-                          ? {
-                              ...prev,
-                              team: {
-                                id: -1,
-                                name: selectedName!,
-                                isManager: true,
-                              },
-                            }
-                          : prev,
-                      );
-
-                      try {
-                        const response = await fetch('/api/teams/', {
-                          method: 'POST',
-                          headers: {
-                            'Content-Type': 'application/json',
-                            Authorization: authenticatedUser?.token ?? '',
-                          },
-                          body: JSON.stringify({ name: selectedName }),
-                        });
-
-                        if (!response.ok) {
-                          if (response.status === 409) {
-                            throw new Error(
-                              'Une équipe avec ce nom existe déjà',
-                            );
-                          }
-                          throw new Error(
-                            'Erreur lors de la création de la team.',
-                          );
-                        }
-
-                        const createdTeam = await response.json();
-                        const team = {
-                          id: createdTeam.idTeam,
-                          name: createdTeam.name,
-                          isManager: true,
-                        };
-
-                        setUser((prev) => (prev ? { ...prev, team } : prev));
-
-                        showSnackbar({
-                          message: 'Team créée avec succès !',
-                          severity: 'success',
-                        });
-                      } catch (err: unknown) {
-                        // Rollback
-                        setUser((prev) =>
-                          prev ? { ...prev, team: previousTeam ?? null } : prev,
-                        );
-                        showSnackbar({
-                          message:
-                            err instanceof Error
-                              ? err.message
-                              : 'Une erreur est survenue.',
-                          severity: 'error',
-                        });
-                      }
-                    },
-                  }),
-                );
-              }}
+              onClick={handleCreate}
               variant="contained"
               color="secondary"
-              disabled={!user}
               fullWidth
             >
               créer une team

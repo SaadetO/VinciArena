@@ -1,7 +1,7 @@
 import { Button, Skeleton, Stack, Typography } from '@mui/material';
 import { ProfileInfoDto } from '../../../types';
 import { AlternateEmail, Person } from '@mui/icons-material';
-import { ReactNode, useContext, useRef } from 'react';
+import { ReactNode, useContext } from 'react';
 import { useModal } from '../../../hooks/useModal';
 import { useSnackbar } from '../../../hooks/useSnackbar';
 import { UserContext } from '../../../contexts/UserContext';
@@ -16,38 +16,50 @@ export const PersonalInfoCard = ({ user }: PersonalInfoCardProps) => {
   const { openModal } = useModal();
   const { showSnackbar } = useSnackbar();
   const { authenticatedUser } = useContext(UserContext);
-  const selectedPasswordRef = useRef<string | null>(null);
 
-  const handleConfirmPassword = async (close: () => void) => {
-    const pwd = selectedPasswordRef.current;
-    if (!pwd) return;
+  const handlePasswordChange = () => {
+    let selectedPassword: string | null = null;
 
-    close();
+    const onSelect = (pwd: string | null) => {
+      selectedPassword = pwd;
+    };
 
-    try {
-      const response = await fetch('/api/members/me/password', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: authenticatedUser?.token ?? '',
-        },
-        body: JSON.stringify({ password: pwd }),
-      });
+    const onConfirm = async (close: () => void) => {
+      if (!selectedPassword) return;
+      close();
 
-      if (!response.ok)
-        throw new Error('Erreur lors de la mise à jour du mot de passe.');
+      try {
+        const response = await fetch('/api/members/me/password', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: authenticatedUser?.token ?? '',
+          },
+          body: JSON.stringify({ password: selectedPassword }),
+        });
 
-      showSnackbar({
-        message: 'Mot de passe modifié avec succès !',
-        severity: 'success',
-      });
-    } catch (err: unknown) {
-      showSnackbar({
-        message:
-          err instanceof Error ? err.message : 'Une erreur est survenue.',
-        severity: 'error',
-      });
-    }
+        if (!response.ok)
+          throw new Error('Erreur lors de la mise à jour du mot de passe.');
+
+        showSnackbar({
+          message: 'Mot de passe modifié avec succès !',
+          severity: 'success',
+        });
+      } catch (err: unknown) {
+        showSnackbar({
+          message:
+            err instanceof Error ? err.message : 'Une erreur est survenue.',
+          severity: 'error',
+        });
+      }
+    };
+
+    openModal(
+      changePasswordModal({
+        onSelect,
+        onConfirm,
+      }),
+    );
   };
   return (
     <Stack
@@ -69,15 +81,7 @@ export const PersonalInfoCard = ({ user }: PersonalInfoCardProps) => {
         variant="contained"
         color="secondary"
         disabled={!user}
-        onClick={() => {
-          selectedPasswordRef.current = null;
-          openModal(
-            changePasswordModal({
-              onSelect: (pwd) => (selectedPasswordRef.current = pwd),
-              onConfirm: handleConfirmPassword,
-            }),
-          );
-        }}
+        onClick={handlePasswordChange}
       >
         modifier mon mot de passe
       </Button>

@@ -21,7 +21,6 @@ export const NotificationsPage = () => {
       );
       if (response.ok) {
         const data = await response.json();
-        console.log('Data from server:', data[0]);
         setAllNotifications(data);
       }
     } catch (err) {

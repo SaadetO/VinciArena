@@ -9,7 +9,6 @@ import { Member } from '../../../types';
 
 export const AdminMenu = () => {
   const { authenticatedUser } = useContext(UserContext);
-  console.log(authenticatedUser);
 
   const [menuPosition, setMenuPosition] = useState<null | HTMLElement>(null);
   const { openModal } = useModal();
@@ -46,64 +45,57 @@ export const AdminMenu = () => {
     handleClose();
     let selectedUser: Member | null = null;
 
-    openModal(
-      adminModal({
-        promote,
-        users,
-        onSelect: (user) => {
-          selectedUser = user;
-        },
-        onConfirm: async (close) => {
-          if (!selectedUser) return;
-          close();
+    const onSelect = (user: Member | null) => {
+      selectedUser = user;
+    };
 
-          const previousUsers = [...users];
+    const onConfirm = async (close: () => void) => {
+      if (!selectedUser) return;
+      close();
 
-          // Optimistic update
-          setUsers((prev) =>
-            prev.map((user) =>
-              user.id === selectedUser!.id
-                ? { ...user, admin: !user.admin }
-                : user,
-            ),
-          );
+      const previousUsers = [...users];
 
-          try {
-            const response = await fetch(
-              `/api/members/toggle-admin/${selectedUser.id}`,
-              {
-                method: 'PUT',
-                headers: {
-                  'Content-Type': 'application/json',
-                  Authorization: authenticatedUser?.token ?? '',
-                },
-              },
-            );
+      // Optimistic update
+      setUsers((prev) =>
+        prev.map((user) =>
+          user.id === selectedUser!.id ? { ...user, admin: !user.admin } : user,
+        ),
+      );
 
-            if (!response.ok) {
-              throw new Error(
-                `Failed to ${promote ? 'promote' : 'demote'} admin`,
-              );
-            }
+      try {
+        const response = await fetch(
+          `/api/members/toggle-admin/${selectedUser.id}`,
+          {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: authenticatedUser?.token ?? '',
+            },
+          },
+        );
 
-            showSnackbar({
-              message: promote
-                ? 'Utilisateur promu admin avec succès !'
-                : 'Utilisateur rétrogradé avec succès !',
-              severity: 'success',
-            });
-          } catch (err: unknown) {
-            // Rollback
-            setUsers(previousUsers);
-            showSnackbar({
-              message:
-                err instanceof Error ? err.message : 'Une erreur est survenue',
-              severity: 'error',
-            });
-          }
-        },
-      }),
-    );
+        if (!response.ok) {
+          throw new Error(`Failed to ${promote ? 'promote' : 'demote'} admin`);
+        }
+
+        showSnackbar({
+          message: promote
+            ? 'Utilisateur promu admin avec succès !'
+            : 'Utilisateur rétrogradé avec succès !',
+          severity: 'success',
+        });
+      } catch (err: unknown) {
+        // Rollback
+        setUsers(previousUsers);
+        showSnackbar({
+          message:
+            err instanceof Error ? err.message : 'Une erreur est survenue',
+          severity: 'error',
+        });
+      }
+    };
+
+    openModal(adminModal({ promote, users, onSelect, onConfirm }));
   };
 
   const handlePromote = () => handleAction(true);

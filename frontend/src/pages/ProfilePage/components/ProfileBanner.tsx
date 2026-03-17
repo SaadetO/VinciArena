@@ -11,7 +11,7 @@ import { ProfileImage, ProfileInfoDto } from '../../../types';
 import { Link } from 'react-router-dom';
 import { EditOutlined } from '@mui/icons-material';
 import { UserContext } from '../../../contexts/UserContext';
-import { useContext, Dispatch, SetStateAction, useRef } from 'react';
+import { useContext, Dispatch, SetStateAction } from 'react';
 import { profileImageModal } from '../../../modals/profileImageModal';
 import { useModal } from '../../../hooks/useModal';
 import { useSnackbar } from '../../../hooks/useSnackbar';
@@ -28,51 +28,66 @@ export const ProfileBanner = ({
   const { showSnackbar } = useSnackbar();
   const { setError } = useModalController();
   const { authenticatedUser } = useContext(UserContext);
-  const selectedImageRef = useRef<ProfileImage | null>(null);
 
-  const handleAvatarSelect = async (close: () => void) => {
-    if (!user) return;
-    const avatar = selectedImageRef.current;
-    if (!avatar) return;
+  const handleAvatarChange = () => {
+    let selectedImage: ProfileImage | null = null;
 
-    const previousAvatar = user.avatar;
-    if (previousAvatar === avatar.path)
-      return setError('Image déjà sélectionnée');
+    const onSelect = (image: ProfileImage | null) => {
+      selectedImage = image;
+    };
 
-    close();
+    const onConfirm = async (close: () => void) => {
+      if (!user) return;
+      const avatar = selectedImage;
+      if (!avatar) return;
 
-    // Optimistic update
-    setUser((prev) => {
-      if (!prev) return prev;
-      return { ...prev, avatar: avatar.path };
-    });
+      const previousAvatar = user.avatar;
+      if (previousAvatar === avatar.path)
+        return setError('Image déjà sélectionnée');
 
-    try {
-      const response = await fetch(`/api/members/${user.id}/avatar`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: authenticatedUser?.token ?? '',
-        },
-        body: JSON.stringify(avatar),
-      });
-      if (!response.ok)
-        throw new Error("Échec de la mise à jour de l'image de profil");
-      showSnackbar({
-        message: 'Image de profil mise à jour',
-        severity: 'success',
-      });
-    } catch (err: unknown) {
-      // Rollback
+      close();
+
+      // Optimistic update
       setUser((prev) => {
         if (!prev) return prev;
-        return { ...prev, avatar: previousAvatar };
+        return { ...prev, avatar: avatar.path };
       });
-      showSnackbar({
-        message: err instanceof Error ? err.message : 'Une erreur est survenue',
-        severity: 'error',
-      });
-    }
+
+      try {
+        const response = await fetch(`/api/members/${user.id}/avatar`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: authenticatedUser?.token ?? '',
+          },
+          body: JSON.stringify(avatar),
+        });
+        if (!response.ok)
+          throw new Error("Échec de la mise à jour de l'image de profil");
+        showSnackbar({
+          message: 'Image de profil mise à jour',
+          severity: 'success',
+        });
+      } catch (err: unknown) {
+        // Rollback
+        setUser((prev) => {
+          if (!prev) return prev;
+          return { ...prev, avatar: previousAvatar };
+        });
+        showSnackbar({
+          message:
+            err instanceof Error ? err.message : 'Une erreur est survenue',
+          severity: 'error',
+        });
+      }
+    };
+
+    openModal(
+      profileImageModal({
+        onSelect,
+        onConfirm,
+      }),
+    );
   };
 
   return (
@@ -108,14 +123,7 @@ export const ProfileBanner = ({
             {user.id === authenticatedUser?.id && (
               <Tooltip title="Changer l'avatar" arrow>
                 <IconButton
-                  onClick={() =>
-                    openModal(
-                      profileImageModal({
-                        onSelect: (image) => (selectedImageRef.current = image),
-                        onConfirm: handleAvatarSelect,
-                      }),
-                    )
-                  }
+                  onClick={handleAvatarChange}
                   sx={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}
                 >
                   <EditOutlined

@@ -1,4 +1,12 @@
-import { createContext, useState, ReactNode, useRef, useEffect } from 'react';
+import {
+  createContext,
+  useState,
+  ReactNode,
+  useRef,
+  useEffect,
+  useCallback,
+  useMemo,
+} from 'react';
 import { Snackbar, Alert, AlertColor, Slide } from '@mui/material';
 
 type SnackbarConfig = {
@@ -22,37 +30,49 @@ const SnackbarProvider = ({ children }: { children: ReactNode }) => {
   const [config, setConfig] = useState<SnackbarConfig | null>(null);
   const timeoutRef = useRef<number | null>(null);
 
-  const clearExistingTimeout = () => {
+  const clearExistingTimeout = useCallback(() => {
     if (timeoutRef.current === null) return;
     clearTimeout(timeoutRef.current);
     timeoutRef.current = null;
-  };
+  }, []);
 
   useEffect(() => {
     return () => clearExistingTimeout();
-  }, []);
+  }, [clearExistingTimeout]);
 
-  const showSnackbar = (cfg: SnackbarConfig) => {
-    clearExistingTimeout();
-    if (open) {
-      setOpen(false);
-      timeoutRef.current = window.setTimeout(() => {
+  const showSnackbar = useCallback(
+    (cfg: SnackbarConfig) => {
+      clearExistingTimeout();
+      if (open) {
+        setOpen(false);
+        timeoutRef.current = window.setTimeout(() => {
+          setConfig(cfg);
+          setOpen(true);
+        }, 150);
+      } else {
         setConfig(cfg);
         setOpen(true);
-      }, 150);
-    } else {
-      setConfig(cfg);
-      setOpen(true);
-    }
-  };
+      }
+    },
+    [clearExistingTimeout, open],
+  );
 
   const handleClose = (_: unknown, reason?: string) => {
     if (reason === 'clickaway') return;
     setOpen(false);
   };
 
+  /**
+   * make sure that the snackbarContextValue is memoized
+   * to prevent unnecessary re-renders of components that use it
+   */
+  const snackbarContextValue = useMemo(
+    () => ({ showSnackbar }),
+    [showSnackbar],
+  );
+
   return (
-    <SnackbarContext.Provider value={{ showSnackbar }}>
+    <SnackbarContext.Provider value={snackbarContextValue}>
       {children}
 
       <Slide direction="up" in={open}>

@@ -1,4 +1,4 @@
-import { useState, SyntheticEvent, useContext, useEffect, useRef } from 'react';
+import { useState, SyntheticEvent, useContext, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Autocomplete,
@@ -33,7 +33,6 @@ export const RegisterPage = () => {
   const [chosenImage, setChosenImage] = useState<ProfileImage | null>(null);
   const [selectedSpecialty, setSelectedSpecialty] =
     useState<SpecialtyDto | null>(null);
-  const selectedImageRef = useRef<ProfileImage | null>(null);
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<FormData>({
@@ -75,7 +74,23 @@ export const RegisterPage = () => {
 
   const handleChange = (e: SyntheticEvent) => {
     const input = e.target as HTMLInputElement;
-    setFormData({ ...formData, [input.name]: input.value });
+    setFormData((prev) => ({ ...prev, [input.name]: input.value }));
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
+
+  const handleSpecialtyChange = (_: SyntheticEvent, e: SpecialtyDto | null) => {
+    setSelectedSpecialty(e);
+    setFormData((prev) => ({
+      ...prev,
+      specialtyId: e?.id ?? null,
+    }));
+  };
+
+  const handleBack = () => {
+    setStep(1);
   };
 
   useEffect(() => {
@@ -94,26 +109,44 @@ export const RegisterPage = () => {
 
         setSpecialties(specialties);
       } catch (err) {
-        console.log('getAllSpecialties::error: ', err);
+        showSnackbar({
+          message: 'Erreur lors de la récupération des spécialités',
+          severity: 'error',
+        });
         setSpecialties([]);
       } finally {
         setLoading(false);
       }
     })();
-  }, []);
+  }, [showSnackbar]);
 
-  const handleConfirmImage = (close: () => void) => {
-    if (!selectedImageRef.current) return;
-    setChosenImage(selectedImageRef.current);
-    setFormData((prev) => ({
-      ...prev,
-      profileImageId: selectedImageRef.current!.idImage,
-    }));
-    close();
-    showSnackbar({
-      message: 'Image de profil choisie',
-      severity: 'success',
-    });
+  const handleAvatarClick = () => {
+    let selectedImage: ProfileImage | null = null;
+
+    const onSelect = (image: ProfileImage | null) => {
+      selectedImage = image;
+    };
+
+    const onConfirm = (close: () => void) => {
+      if (!selectedImage) return;
+      setChosenImage(selectedImage);
+      setFormData((prev) => ({
+        ...prev,
+        profileImageId: selectedImage!.idImage,
+      }));
+      close();
+      showSnackbar({
+        message: 'Image de profil choisie',
+        severity: 'success',
+      });
+    };
+
+    openModal(
+      profileImageModal({
+        onSelect,
+        onConfirm,
+      }),
+    );
   };
 
   return (
@@ -180,9 +213,7 @@ export const RegisterPage = () => {
                 slotProps={{
                   input: {
                     endAdornment: formData.password.trim().length > 0 && (
-                      <IconButton
-                        onClick={() => setShowPassword((prev) => !prev)}
-                      >
+                      <IconButton onClick={togglePasswordVisibility}>
                         {showPassword ? <VisibilityOff /> : <Visibility />}
                       </IconButton>
                     ),
@@ -211,27 +242,13 @@ export const RegisterPage = () => {
                 renderInput={(params) => (
                   <TextField {...params} placeholder="Spécialité" />
                 )}
-                onChange={(_, e) => {
-                  setSelectedSpecialty(e);
-                  setFormData((prev) => ({
-                    ...prev,
-                    specialtyId: e?.id ?? null,
-                  }));
-                }}
+                onChange={handleSpecialtyChange}
               />
             </Stack>
           ) : (
             <Stack alignItems="center">
               <Avatar
-                onClick={() => {
-                  selectedImageRef.current = null;
-                  openModal(
-                    profileImageModal({
-                      onSelect: (image) => (selectedImageRef.current = image),
-                      onConfirm: handleConfirmImage,
-                    }),
-                  );
-                }}
+                onClick={handleAvatarClick}
                 src={chosenImage ? `/assets/avatars/${chosenImage.path}` : ''}
                 sx={{
                   width: 100,
@@ -248,7 +265,7 @@ export const RegisterPage = () => {
                 <Button
                   variant="contained"
                   color="secondary"
-                  onClick={() => setStep(1)}
+                  onClick={handleBack}
                   startIcon={<ArrowBack />}
                 >
                   Retour

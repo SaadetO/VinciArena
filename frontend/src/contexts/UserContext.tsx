@@ -1,4 +1,11 @@
-import { createContext, useState, ReactNode, useEffect } from 'react';
+import {
+  createContext,
+  useState,
+  ReactNode,
+  useEffect,
+  useCallback,
+  useMemo,
+} from 'react';
 import {
   MaybeAuthenticatedUser,
   UserContextType,
@@ -25,6 +32,11 @@ const UserContextProvider = ({ children }: { children: ReactNode }) => {
   const [authenticatedUser, setAuthenticatedUser] =
     useState<MaybeAuthenticatedUser>(undefined);
 
+  const clearUser = useCallback(() => {
+    clearAuthenticatedUser();
+    setAuthenticatedUser(undefined);
+  }, []);
+
   useEffect(() => {
     const storedUser = getAuthenticatedUser();
     if (!storedUser) return;
@@ -40,19 +52,19 @@ const UserContextProvider = ({ children }: { children: ReactNode }) => {
 
         if (!response.ok) throw new Error('Failed to fetch user');
 
-        const authenticatedUser: AuthenticatedUser = await response.json();
+        const authenticatedUserData: AuthenticatedUser = await response.json();
 
         setAuthenticatedUser({
-          ...authenticatedUser,
+          ...authenticatedUserData,
         });
       } catch (err) {
         console.error('Failed to fetch user: ', err);
         clearUser();
       }
     })();
-  }, []);
+  }, [clearUser]);
 
-  const registerUser = async (newUser: User) => {
+  const registerUser = useCallback(async (newUser: User) => {
     try {
       const response = await fetch('/api/auths/register', {
         method: 'POST',
@@ -70,45 +82,50 @@ const UserContextProvider = ({ children }: { children: ReactNode }) => {
       console.error('registerUser::error: ', err);
       throw err;
     }
-  };
+  }, []);
 
-  const loginUser = async ({ email, password, rememberMe }: User) => {
-    try {
-      const response = await fetch('/api/auths/login', {
-        method: 'POST',
-        body: JSON.stringify({ email, password }),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+  const loginUser = useCallback(
+    async ({ email, password, rememberMe }: User) => {
+      try {
+        const response = await fetch('/api/auths/login', {
+          method: 'POST',
+          body: JSON.stringify({ email, password }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
 
-      if (!response.ok)
-        throw new Error(
-          `fetch error : ${response.status} : ${response.statusText}`,
-        );
+        if (!response.ok)
+          throw new Error(
+            `fetch error : ${response.status} : ${response.statusText}`,
+          );
 
-      const authenticatedUser: AuthenticatedUser = await response.json();
+        const authenticatedUserData: AuthenticatedUser = await response.json();
 
-      storeAuthenticatedUser(authenticatedUser, rememberMe ?? false);
+        storeAuthenticatedUser(authenticatedUserData, rememberMe ?? false);
 
-      setAuthenticatedUser(authenticatedUser);
-    } catch (err) {
-      console.error('loginUser::error: ', err);
-      throw err;
-    }
-  };
+        setAuthenticatedUser(authenticatedUserData);
+      } catch (err) {
+        console.error('loginUser::error: ', err);
+        throw err;
+      }
+    },
+    [],
+  );
 
-  const clearUser = () => {
-    clearAuthenticatedUser();
-    setAuthenticatedUser(undefined);
-  };
-
-  const myContext: UserContextType = {
-    authenticatedUser,
-    registerUser,
-    loginUser,
-    clearUser,
-  };
+  /**
+   * make sure that the userContextValue is memoized
+   * to prevent unnecessary re-renders of components that use it
+   */
+  const myContext: UserContextType = useMemo(
+    () => ({
+      authenticatedUser,
+      registerUser,
+      loginUser,
+      clearUser,
+    }),
+    [authenticatedUser, registerUser, loginUser, clearUser],
+  );
 
   return (
     <UserContext.Provider value={myContext}>{children}</UserContext.Provider>

@@ -8,7 +8,13 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
-import { createContext, ReactNode, useState } from 'react';
+import {
+  createContext,
+  ReactNode,
+  useState,
+  useCallback,
+  useMemo,
+} from 'react';
 import { ModalConfig } from '../types';
 import { ModalControllerContext } from './ModalControllerContext';
 
@@ -25,30 +31,42 @@ const ModalContextProvider = ({ children }: { children: ReactNode }) => {
   const [confirmDisabled, setConfirmDisabled] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const openModal = (cfg: ModalConfig) => {
+  const openModal = useCallback((cfg: ModalConfig) => {
     setConfirmDisabled(cfg.confirmDisabled ?? false);
     setError(null);
     setConfig(cfg);
     setOpen(true);
-  };
+  }, []);
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setOpen(false);
     // small delay so the dialog animates out before clearing config
     setTimeout(() => setConfig(null), 200);
-  };
+  }, []);
+
+  /**
+   * make sure that the modalContextValue is memoized
+   * to prevent unnecessary re-renders of components that use it
+   */
+  const modalContextValue = useMemo(
+    () => ({ openModal, closeModal }),
+    [openModal, closeModal],
+  );
+
+  const modalControllerContextValue = useMemo(
+    () => ({
+      setConfirmDisabled,
+      setError: (err: string | null) => {
+        setError(err);
+        if (err) setConfirmDisabled(true);
+      },
+    }),
+    [],
+  );
 
   return (
-    <ModalContext.Provider value={{ openModal, closeModal }}>
-      <ModalControllerContext.Provider
-        value={{
-          setConfirmDisabled,
-          setError: (err) => {
-            setError(err);
-            if (err) setConfirmDisabled(true);
-          },
-        }}
-      >
+    <ModalContext.Provider value={modalContextValue}>
+      <ModalControllerContext.Provider value={modalControllerContextValue}>
         {children}
 
         <Dialog open={open} onClose={closeModal} maxWidth="sm" fullWidth>

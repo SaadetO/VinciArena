@@ -33,6 +33,13 @@ export const ChangePasswordModalContent = ({
 
   const { setConfirmDisabled, setError } = useModalController();
 
+  const toggleShowPassword = (field: keyof typeof showPassword) => {
+    setShowPassword((prev) => ({
+      ...prev,
+      [field]: !prev[field],
+    }));
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setPassword((prev) => ({
@@ -91,14 +98,7 @@ export const ChangePasswordModalContent = ({
         slotProps={{
           input: {
             endAdornment: password.password.trim().length > 0 && (
-              <IconButton
-                onClick={() =>
-                  setShowPassword((prev) => ({
-                    ...prev,
-                    password: !prev.password,
-                  }))
-                }
-              >
+              <IconButton onClick={() => toggleShowPassword('password')}>
                 {showPassword.password ? <VisibilityOff /> : <Visibility />}
               </IconButton>
             ),
@@ -118,14 +118,7 @@ export const ChangePasswordModalContent = ({
         slotProps={{
           input: {
             endAdornment: password.confirmPassword.trim().length > 0 && (
-              <IconButton
-                onClick={() =>
-                  setShowPassword((prev) => ({
-                    ...prev,
-                    confirmPassword: !prev.confirmPassword,
-                  }))
-                }
-              >
+              <IconButton onClick={() => toggleShowPassword('confirmPassword')}>
                 {showPassword.confirmPassword ? (
                   <VisibilityOff />
                 ) : (

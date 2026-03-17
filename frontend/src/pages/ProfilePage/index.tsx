@@ -1,35 +1,18 @@
-import {
-  Container,
-  Grid2,
-  Slide,
-  Snackbar,
-  Stack,
-  Typography,
-} from '@mui/material';
+import { Container, Grid2, Stack, Typography } from '@mui/material';
 import { PersonalInfoCard } from './components/PersonalInfoCard';
 import { ProfileBanner } from './components/ProfileBanner';
 import { TeamCard } from './components/TeamCard';
 import { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { UserContext } from '../../contexts/UserContext';
-import { useModal } from '../../hooks/useModal';
 import { ProfileInfoDto } from '../../types';
 import { NotFoundPage } from '../NotFoundPage';
 import { UnavailabilitiesCard } from './components/UnavailabilitiesCard';
-import { unavailabilitiesModal } from './modals/unavailabilitiesModal';
-import { useSnackbar } from '../../hooks/useSnackbar';
 
 export const ProfilePage = () => {
-  const [snackBarMessage, setSnackBarMessage] = useState<{
-    text: string;
-    isError: boolean;
-    isOpen: boolean;
-  } | null>(null);
   const { id } = useParams();
   const idNbr = Number(id);
   const { authenticatedUser } = useContext(UserContext);
-  const { openModal } = useModal();
-  const { showSnackbar } = useSnackbar();
   const [user, setUser] = useState<ProfileInfoDto | undefined>(undefined);
   const [error, setError] = useState<
     { code: number; message: string; subtitle?: string } | undefined
@@ -69,10 +52,6 @@ export const ProfilePage = () => {
     })();
   }, [idNbr, authenticatedUser]);
 
-  useEffect(() => {
-    console.log(user);
-  }, [user]);
-
   if (error) return <NotFoundPage error={error} />;
   return (
     <>
@@ -104,138 +83,12 @@ export const ProfilePage = () => {
               <Stack spacing="1.5rem">
                 <PersonalInfoCard user={user} />
                 <TeamCard user={user} setUser={setUser} />
-                <UnavailabilitiesCard
-                  user={user}
-                  setUser={setUser}
-                  setUnavailabilitiesModal={() => {
-                    let selectedDates: {
-                      tempId: number;
-                      startDate: string;
-                      endDate: string;
-                    } | null = null;
-
-                    openModal(
-                      unavailabilitiesModal({
-                        unavailabilities: user?.unavailabilities ?? [],
-                        onSelect: (dates) => {
-                          selectedDates = dates;
-                        },
-                        onConfirm: async (close) => {
-                          if (!selectedDates) return;
-                          close();
-
-                          const { tempId, startDate, endDate } = selectedDates;
-
-                          // Update UI optimistically
-                          setUser((prev) => {
-                            if (!prev) return prev;
-                            return {
-                              ...prev,
-                              unavailabilities: [
-                                ...(prev.unavailabilities ?? []),
-                                { id: tempId, startDate, endDate },
-                              ],
-                            };
-                          });
-
-                          try {
-                            const response = await fetch(
-                              '/api/unavailabilities/me',
-                              {
-                                method: 'POST',
-                                headers: {
-                                  'Content-Type': 'application/json',
-                                  Authorization: authenticatedUser?.token ?? '',
-                                },
-                                body: JSON.stringify({
-                                  startDate,
-                                  endDate,
-                                }),
-                              },
-                            );
-
-                            if (!response.ok) {
-                              throw new Error(
-                                "Erreur lors de l'ajout de l'indisponibilité.",
-                              );
-                            }
-
-                            const created = await response.json();
-
-                            // Resolve the ID
-                            setUser((prev) => {
-                              if (!prev) return prev;
-                              return {
-                                ...prev,
-                                unavailabilities: (
-                                  prev.unavailabilities ?? []
-                                ).map((u) =>
-                                  u.id === tempId
-                                    ? { ...u, id: created.idUnavailability }
-                                    : u,
-                                ),
-                              };
-                            });
-
-                            showSnackbar({
-                              message: 'Indisponibilité ajoutée avec succès !',
-                              severity: 'success',
-                            });
-                          } catch (err: unknown) {
-                            showSnackbar({
-                              message:
-                                err instanceof Error
-                                  ? err.message
-                                  : 'Une erreur est survenue.',
-                              severity: 'error',
-                            });
-                            // Rollback
-                            setUser((prev) => {
-                              if (!prev) return prev;
-                              return {
-                                ...prev,
-                                unavailabilities: (
-                                  prev.unavailabilities ?? []
-                                ).filter((u) => u.id !== tempId),
-                              };
-                            });
-                          }
-                        },
-                      }),
-                    );
-                  }}
-                />
+                <UnavailabilitiesCard user={user} setUser={setUser} />
               </Stack>
             </Grid2>
           )}
         </Grid2>
       </Container>
-      <Slide direction="up" in={snackBarMessage?.isOpen ?? false}>
-        <Snackbar
-          open={snackBarMessage?.isOpen ?? false}
-          autoHideDuration={3000}
-          onClose={() =>
-            setSnackBarMessage((prev) =>
-              prev ? { ...prev, isOpen: false } : null,
-            )
-          }
-          message={
-            snackBarMessage && (
-              <Typography
-                variant="body1"
-                sx={{
-                  color: (theme) =>
-                    snackBarMessage.isError
-                      ? theme.palette.error.main
-                      : theme.palette.background.s0,
-                }}
-              >
-                {snackBarMessage.text}
-              </Typography>
-            )
-          }
-        />
-      </Slide>
     </>
   );
 };
