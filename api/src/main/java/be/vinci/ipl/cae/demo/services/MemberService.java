@@ -269,6 +269,6 @@ public class MemberService {
   }
 
   public Member[] getAllMembers() {
-    return memberRepository.findAllByIsDeleted(false);
+    return memberRepository.findAllByIsDeletedOrderByTagAsc(false);
   }
 }

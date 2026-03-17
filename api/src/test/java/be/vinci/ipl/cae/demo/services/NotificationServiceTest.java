@@ -90,7 +90,7 @@ class NotificationServiceTest {
   void notifyAllMembers_Success() {
     Member m1 = createMember(1L);
     Member m2 = createMember(2L);
-    when(memberRepository.findAllByIsDeleted(false)).thenReturn(new Member[]{m1, m2});
+    when(memberRepository.findAllByIsDeletedOrderByTagAsc(false)).thenReturn(new Member[]{m1, m2});
 
     notificationService.notifyAllMembers("hi everyone");
 
@@ -102,7 +102,7 @@ class NotificationServiceTest {
   @Test
   @DisplayName("Should not call save when there are no active members")
   void notifyAllMembers_EmptyList() {
-    when(memberRepository.findAllByIsDeleted(false)).thenReturn(new Member[0]);
+    when(memberRepository.findAllByIsDeletedOrderByTagAsc(false)).thenReturn(new Member[0]);
     notificationService.notifyAllMembers("Hi");
     verify(notificationRepository, never()).save(any());
   }

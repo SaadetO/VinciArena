@@ -41,9 +41,9 @@ export const AdminManagementModal = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [pendingIds, setPendingIds] = useState<number[]>([]);
   const [filter, setFilter] = useState<'all' | 'members' | 'admins'>('all');
+  const [filterVersion, setFilterVersion] = useState(0);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-
-  // Scroll visibility logic matching ModalContext.tsx
+  const [displayedUserIds, setDisplayedUserIds] = useState<number[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollTop, setCanScrollTop] = useState(false);
   const [canScrollBottom, setCanScrollBottom] = useState(false);
@@ -78,25 +78,33 @@ export const AdminManagementModal = ({
     }
   }, [open, authenticatedUser?.token, handleScroll]);
 
-  const filteredUsers = useMemo(() => {
+  useLayoutEffect(() => {
+    // Only update the list membership when search, filter, or total count changes
     let result = users;
 
-    // Apply filter
     if (filter === 'members') {
       result = result.filter((user) => !user.admin);
     } else if (filter === 'admins') {
       result = result.filter((user) => user.admin);
     }
 
-    // Apply search
-    if (!searchQuery) return result;
-    const query = searchQuery.toLowerCase();
-    return result.filter(
-      (user) =>
-        user.tag.toLowerCase().includes(query) ||
-        user.email.toLowerCase().includes(query),
-    );
-  }, [users, searchQuery, filter]);
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(
+        (user) =>
+          user.tag.toLowerCase().includes(query) ||
+          user.email.toLowerCase().includes(query),
+      );
+    }
+
+    setDisplayedUserIds(result.map((u) => u.id));
+  }, [users.length, searchQuery, filter, filterVersion]);
+
+  const filteredUsers = useMemo(() => {
+    return displayedUserIds
+      .map((id) => users.find((u) => u.id === id))
+      .filter((u): u is Member => !!u);
+  }, [users, displayedUserIds]);
 
   const handleToggleAdmin = async (user: Member) => {
     if (user.id === authenticatedUser?.id) {
@@ -152,6 +160,9 @@ export const AdminManagementModal = ({
   };
 
   const handleFilterSelect = (newFilter: 'all' | 'members' | 'admins') => {
+    if (newFilter === filter) {
+      setFilterVersion((v) => v + 1);
+    }
     setFilter(newFilter);
     handleFilterClose();
   };
@@ -165,7 +176,7 @@ export const AdminManagementModal = ({
       const height = contentRef.current.scrollHeight;
       setContentHeight(height + 2); // 2px buffer for rounding
     }
-  }, [filteredUsers, loading, open, searchQuery]);
+  }, [filteredUsers.length, loading, open, searchQuery]);
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
