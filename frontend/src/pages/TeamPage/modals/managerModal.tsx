@@ -3,10 +3,12 @@ import { ManagerModalContent } from './ManagerModalContent';
 
 export const managerModal = ({
   team,
-  onSuccess,
+  onSelect,
+  onConfirm,
 }: {
   team: TeamDetailsInfoDto | undefined;
-  onSuccess: (successMessage: string, promotedUser?: ProfileInfoDto) => void;
+  onSelect: (user: ProfileInfoDto | null) => void;
+  onConfirm: (close: () => void) => void;
 }): ModalConfig => ({
   title: 'Désigner un Manager',
   subtitle: 'Choisissez un utilisateur à désigner comme manager.',
@@ -15,10 +17,7 @@ export const managerModal = ({
   confirmDisabled: true,
   children: <ManagerModalContent 
     team={team} 
-    onSuccess={onSuccess} 
-    close={() => {}} 
+    onSelect={onSelect} 
   />,
-  onConfirm: () => {
-    document.getElementById('manager-modal-form')?.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
-  },
+  onConfirm: (close) => onConfirm(close),
 });

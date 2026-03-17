@@ -13,9 +13,7 @@ import { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { UserContext } from '../../contexts/UserContext';
 import { useModal } from '../../hooks/useModal';
-import { createTeamModal } from './modals/createTeamModal';
-import { joinTeamModal } from './modals/joinTeamModal';
-import { ProfileInfoDto, Team } from '../../types';
+import { ProfileInfoDto } from '../../types';
 import { NotFoundPage } from '../NotFoundPage';
 import { UnavailabilitiesCard } from './components/UnavailabilitiesCard';
 import { unavailabilitiesModal } from './modals/unavailabilitiesModal';
@@ -27,7 +25,6 @@ export const ProfilePage = () => {
     isError: boolean;
     isOpen: boolean;
   } | null>(null);
-  const [teams, setTeams] = useState<Team[]>([]);
   const { id } = useParams();
   const idNbr = Number(id);
   const { authenticatedUser } = useContext(UserContext);
@@ -110,24 +107,7 @@ export const ProfilePage = () => {
                 />
                 <TeamCard
                   user={user}
-                  setOpen={() => {
-                    openModal(
-                      createTeamModal({
-                        onSuccess: (team) => {
-                          if (user) setUser({ ...user, team });
-                        },
-                      })
-                    );
-                  }}
-                  setOpenJoin={() => {
-                    openModal(
-                      joinTeamModal({
-                        teams,
-                        setTeams,
-                        onSuccess: () => {},
-                      })
-                    );
-                  }}
+                  setUser={setUser}
                   onQuitSuccess={() => {
                     setSnackBarMessage({
                       text: "Vous avez quitté l'équipe avec succès.",
@@ -150,10 +130,20 @@ export const ProfilePage = () => {
                 <UnavailabilitiesCard
                   user={user}
                   setUnavailabilitiesModal={() => {
+                    let selectedDates: { tempId: number; startDate: string; endDate: string } | null = null;
+                    
                     openModal(
                       unavailabilitiesModal({
                         unavailabilities: user?.unavailabilities ?? [],
-                        onSelect: ({ tempId, startDate, endDate }) => {
+                        onSelect: (dates) => {
+                          selectedDates = dates;
+                        },
+                        onConfirm: async (close) => {
+                          if (!selectedDates) return;
+                          close();
+                          
+                          const { tempId, startDate, endDate } = selectedDates;
+
                           // Update UI optimistically
                           setUser((prev) => {
                             if (!prev) return prev;
@@ -165,15 +155,6 @@ export const ProfilePage = () => {
                               ],
                             };
                           });
-                        },
-                        onConfirm: async (close) => {
-                          const lastAdded = user?.unavailabilities?.find(
-                            (u) => u.id < 0
-                          );
-                          if (!lastAdded) {
-                            close();
-                            return;
-                          }
 
                           try {
                             const response = await fetch('/api/unavailabilities/me', {
@@ -183,8 +164,8 @@ export const ProfilePage = () => {
                                 Authorization: authenticatedUser?.token ?? '',
                               },
                               body: JSON.stringify({
-                                startDate: lastAdded.startDate,
-                                endDate: lastAdded.endDate,
+                                startDate,
+                                endDate,
                               }),
                             });
 
@@ -200,7 +181,7 @@ export const ProfilePage = () => {
                               return {
                                 ...prev,
                                 unavailabilities: (prev.unavailabilities ?? []).map((u) =>
-                                  u.id === lastAdded.id ? { ...u, id: created.idUnavailability } : u,
+                                  u.id === tempId ? { ...u, id: created.idUnavailability } : u,
                                 ),
                               };
                             });
@@ -209,7 +190,6 @@ export const ProfilePage = () => {
                               message: 'Indisponibilité ajoutée avec succès !',
                               severity: 'success',
                             });
-                            close();
                           } catch (err: unknown) {
                             showSnackbar({
                               message: err instanceof Error ? err.message : 'Une erreur est survenue.',
@@ -221,7 +201,7 @@ export const ProfilePage = () => {
                               return {
                                 ...prev,
                                 unavailabilities: (prev.unavailabilities ?? []).filter(
-                                  (u) => u.id !== lastAdded.id,
+                                  (u) => u.id !== tempId,
                                 ),
                               };
                             });

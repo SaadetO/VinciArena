@@ -1,6 +1,4 @@
 import {
-  Dispatch,
-  SetStateAction,
   useContext,
   useEffect,
   useState,
@@ -8,77 +6,29 @@ import {
 import { Team } from '../../../types';
 import { UserContext } from '../../../contexts/UserContext';
 import { useModalController } from '../../../hooks/useModalController';
-import { useSnackbar } from '../../../hooks/useSnackbar';
 import { Autocomplete, TextField } from '@mui/material';
 
 interface JoinTeamModalContentProps {
-  teams: Team[];
-  setTeams: Dispatch<SetStateAction<Team[]>>;
-  onSuccess: () => void;
-  close: () => void;
+  onSelect: (team: Team | null) => void;
 }
 
 export const JoinTeamModalContent = ({
-  teams,
-  setTeams,
-  onSuccess,
-  close,
+  onSelect,
 }: JoinTeamModalContentProps) => {
+  const [teams, setTeams] = useState<Team[]>([]);
   const [localError, setLocalError] = useState<string | null>(null);
   const [requestedTeam, setRequestedTeam] = useState<Team | null>(null);
   
   const { authenticatedUser } = useContext(UserContext);
   const { setError, setConfirmDisabled } = useModalController();
-  const { showSnackbar } = useSnackbar();
 
   useEffect(() => {
     // Disable confirm button strictly if no team is selected
     setConfirmDisabled(!requestedTeam);
-  }, [requestedTeam, setConfirmDisabled]);
-
-  const handleJoinRequest = async () => {
-    const idTeam = requestedTeam?.idTeam;
-    if (!idTeam) return;
-
-    setConfirmDisabled(true);
-    setError(null);
-    setLocalError(null);
-
-    try {
-      const response = await fetch(`/api/teams/${idTeam}/join-requests`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: authenticatedUser?.token ?? '',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(
-          'Vous avez déjà une demande en attente pour cette équipe.',
-        );
-      }
-      
-      onSuccess();
-      showSnackbar({
-        message: 'Demande effectuée avec succès !',
-        severity: 'success'
-      });
-      close();
-    } catch (err: unknown) {
-      const errorMsg = err instanceof Error ? err.message : 'Une erreur est survenue.';
-      setError(errorMsg);
-      setLocalError(errorMsg);
-      setConfirmDisabled(false);
-    }
-  };
+    onSelect(requestedTeam);
+  }, [requestedTeam, setConfirmDisabled, onSelect]);
 
   useEffect(() => {
-    if (teams.length) return;
-
-    setConfirmDisabled(true);
-    setError(null);
-    
     (async () => {
       try {
         const response = await fetch('/api/teams', {
@@ -96,21 +46,12 @@ export const JoinTeamModalContent = ({
         const errorMsg = err instanceof Error ? err.message : 'Une erreur est survenue.';
         setError(errorMsg);
         setLocalError(errorMsg);
-      } finally {
-        if (!requestedTeam) setConfirmDisabled(true);
-        else setConfirmDisabled(false);
       }
     })();
-  }, [setTeams, teams, authenticatedUser, setError, setConfirmDisabled, requestedTeam]);
+  }, [authenticatedUser, setError]);
 
   return (
-    <form
-      id="join-team-form"
-      onSubmit={(e) => {
-        e.preventDefault();
-        handleJoinRequest();
-      }}
-    >
+    <>
       <Autocomplete
         options={teams}
         fullWidth
@@ -133,6 +74,6 @@ export const JoinTeamModalContent = ({
           />
         )}
       />
-    </form>
+    </>
   );
 };

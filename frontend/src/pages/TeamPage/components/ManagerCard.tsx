@@ -11,6 +11,7 @@ import { Link } from 'react-router-dom';
 import { useContext } from 'react';
 import { UserContext } from '../../../contexts/UserContext';
 import { useModal } from '../../../hooks/useModal';
+import { useSnackbar } from '../../../hooks/useSnackbar';
 import { managerModal } from '../modals/managerModal';
 
 export const ManagerCard = ({
@@ -22,6 +23,7 @@ export const ManagerCard = ({
 }) => {
   const { authenticatedUser } = useContext(UserContext);
   const { openModal } = useModal();
+  const { showSnackbar } = useSnackbar();
   return (
     <>
       <Stack
@@ -77,19 +79,52 @@ export const ManagerCard = ({
               variant="contained"
               color="secondary"
               onClick={() => {
+                let selectedManager: ProfileInfoDto | null = null;
                 openModal(
                   managerModal({
                     team,
-                    onSuccess: (_msg: string, promotedUser?: ProfileInfoDto) => {
-                      if (promotedUser) {
+                    onSelect: (user) => {
+                      selectedManager = user;
+                    },
+                    onConfirm: async (close) => {
+                      if (!selectedManager) return;
+                      close();
+
+                      try {
+                        const response = await fetch(
+                          `/api/teams/${team?.idTeam}/manager/${selectedManager.id}`,
+                          {
+                            method: 'PUT',
+                            headers: {
+                              'Content-Type': 'application/json',
+                              Authorization: authenticatedUser?.token ?? '',
+                            },
+                          },
+                        );
+                  
+                        if (!response.ok) {
+                          throw new Error('Failed to promote user');
+                        }
+                  
                         setTeam((prev) =>
                           prev
                             ? {
                                 ...prev,
-                                managers: [...prev.managers, promotedUser],
+                                managers: [...prev.managers, selectedManager!],
                               }
                             : undefined,
                         );
+                        
+                        showSnackbar({
+                          message: 'Utilisateur promu manager avec succès !',
+                          severity: 'success',
+                        });
+                      } catch (err: unknown) {
+                        const errMsg = err instanceof Error ? err.message : 'Une erreur est survenue';
+                        showSnackbar({
+                          message: errMsg,
+                          severity: 'error',
+                        });
                       }
                     },
                   })

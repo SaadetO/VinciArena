@@ -46,7 +46,11 @@ export const UnavailabilitiesModalContent = ({
   const { setConfirmDisabled, setError } = useModalController();
 
   useEffect(() => {
-    const error = checkOverlap(dates.startDate, dates.endDate, unavailabilities);
+    const error = checkOverlap(
+      dates.startDate,
+      dates.endDate,
+      unavailabilities,
+    );
     setError(error);
     setConfirmDisabled(!!error);
 
@@ -90,7 +94,12 @@ export const UnavailabilitiesModalContent = ({
   };
 
   return (
-    <Stack spacing="1rem" direction="row" alignItems="center" justifyContent="center">
+    <Stack
+      spacing="1rem"
+      direction="row"
+      alignItems="center"
+      justifyContent="center"
+    >
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <DatePicker
           format="DD/MM/YYYY"

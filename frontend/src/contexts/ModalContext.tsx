@@ -45,7 +45,7 @@ const ModalContextProvider = ({ children }: { children: ReactNode }) => {
           setConfirmDisabled,
           setError: (err) => {
             setError(err);
-            setConfirmDisabled(!!err);
+            if (err) setConfirmDisabled(true);
           },
         }}
       >

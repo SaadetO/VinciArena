@@ -2,9 +2,11 @@ import { ModalConfig } from '../../../types';
 import { CreateTeamModalContent } from './CreateTeamModalContent';
 
 export const createTeamModal = ({
-  onSuccess,
+  onSelect,
+  onConfirm,
 }: {
-  onSuccess: (team: { id: number; name: string; isManager: boolean }) => void;
+  onSelect: (teamName: string | null) => void;
+  onConfirm: (close: () => void) => void;
 }): ModalConfig => ({
   title: 'Créer une Team',
   subtitle: "Comment s'appelle votre Team ?",
@@ -12,11 +14,7 @@ export const createTeamModal = ({
   cancelLabel: 'Annuler',
   confirmDisabled: true,
   children: <CreateTeamModalContent 
-    onSuccess={onSuccess} 
-    close={() => {}} // Will be injected via cloning or we can just trigger submit via DOM
+    onSelect={onSelect} 
   />,
-  onConfirm: () => {
-    // We trigger the form submit so CreateTeamModalContent can handle its own state
-    document.getElementById('create-team-form')?.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
-  },
+  onConfirm: (close) => onConfirm(close),
 });

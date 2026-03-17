@@ -70,11 +70,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <UserContextProvider>
-        <ModalContextProvider>
-          <SnackbarProvider>
+        <SnackbarProvider>
+          <ModalContextProvider>
             <RouterProvider router={router} />
-          </SnackbarProvider>
-        </ModalContextProvider>
+          </ModalContextProvider>
+        </SnackbarProvider>
       </UserContextProvider>
     </ThemeProvider>
   </React.StrictMode>,

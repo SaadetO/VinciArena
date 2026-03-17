@@ -102,7 +102,6 @@ export const TeamPage = () => {
               <ManagerCard
                 team={team}
                 setTeam={setTeam}
-                setSnackBarMessage={setSnackBarMessage}
               />
               <MembersCard isLoading={isLoading} team={team} />
               {team?.managers.find((e) => e.id === authenticatedUser?.id) && (

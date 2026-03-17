@@ -1,26 +1,30 @@
-import { Button, Skeleton, Stack, Typography } from '@mui/material';
-import { ProfileInfoDto } from '../../../types';
+import { ProfileInfoDto, Team } from '../../../types';
 import { Dispatch, SetStateAction, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../../../contexts/UserContext';
+import { useModal } from '../../../hooks/useModal';
+import { useSnackbar } from '../../../hooks/useSnackbar';
+import { createTeamModal } from '../modals/createTeamModal';
+import { joinTeamModal } from '../modals/joinTeamModal';
+import { Button, Skeleton, Stack, Typography } from '@mui/material';
 
 interface TeamCardProps {
-  setOpen: Dispatch<SetStateAction<boolean>>;
-  setOpenJoin: Dispatch<SetStateAction<boolean>>;
+  setUser: Dispatch<SetStateAction<ProfileInfoDto | undefined>>;
   user?: ProfileInfoDto;
   onQuitSuccess?: () => void;
   onError?: (errorMessage: string) => void;
 }
 
 export const TeamCard = ({
-  setOpen,
-  setOpenJoin,
   user,
+  setUser,
   onQuitSuccess,
   onError,
 }: TeamCardProps) => {
   const navigate = useNavigate();
   const { authenticatedUser } = useContext(UserContext);
+  const { openModal } = useModal();
+  const { showSnackbar } = useSnackbar();
 
   const handleQuit = async () => {
     try {
@@ -85,7 +89,48 @@ export const TeamCard = ({
         ) : (
           <>
             <Button
-              onClick={() => setOpenJoin(true)}
+              onClick={() => {
+                let selectedTeam: Team | null = null;
+                openModal(
+                  joinTeamModal({
+                    onSelect: (team) => {
+                      selectedTeam = team;
+                    },
+                    onConfirm: async (close) => {
+                      const idTeam = selectedTeam?.idTeam;
+                      if (!idTeam) return;
+
+                      close();
+
+                      try {
+                        const response = await fetch(`/api/teams/${idTeam}/join-requests`, {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: authenticatedUser?.token ?? '',
+                          },
+                        });
+
+                        if (!response.ok) {
+                          throw new Error(
+                            'Vous avez déjà une demande en attente pour cette équipe.',
+                          );
+                        }
+
+                        showSnackbar({
+                          message: 'Demande effectuée avec succès !',
+                          severity: 'success',
+                        });
+                      } catch (err: unknown) {
+                        showSnackbar({
+                          message: err instanceof Error ? err.message : 'Une erreur est survenue.',
+                          severity: 'error',
+                        });
+                      }
+                    },
+                  })
+                );
+              }}
               variant="contained"
               color="secondary"
               fullWidth
@@ -93,7 +138,57 @@ export const TeamCard = ({
               rejoindre une team
             </Button>
             <Button
-              onClick={() => setOpen(true)}
+              onClick={() => {
+                let selectedName: string | null = null;
+                openModal(
+                  createTeamModal({
+                    onSelect: (name) => {
+                      selectedName = name;
+                    },
+                    onConfirm: async (close) => {
+                      if (!selectedName) return;
+                      close();
+
+                      try {
+                        const response = await fetch('/api/teams/', {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: authenticatedUser?.token ?? '',
+                          },
+                          body: JSON.stringify({ name: selectedName }),
+                        });
+
+                        if (!response.ok) {
+                          if (response.status === 409) {
+                            throw new Error('Une équipe avec ce nom existe déjà');
+                          }
+                          throw new Error('Erreur lors de la création de la team.');
+                        }
+
+                        const createdTeam = await response.json();
+                        const team = {
+                          id: createdTeam.idTeam,
+                          name: createdTeam.name,
+                          isManager: true,
+                        };
+
+                        if (user) setUser({ ...user, team });
+
+                        showSnackbar({
+                          message: 'Team créée avec succès !',
+                          severity: 'success',
+                        });
+                      } catch (err: unknown) {
+                        showSnackbar({
+                          message: err instanceof Error ? err.message : 'Une erreur est survenue.',
+                          severity: 'error',
+                        });
+                      }
+                    },
+                  })
+                );
+              }}
               variant="contained"
               color="secondary"
               disabled={!user}
