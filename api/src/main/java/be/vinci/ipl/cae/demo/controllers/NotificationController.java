@@ -13,7 +13,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -91,25 +90,6 @@ public class NotificationController {
     return notificationService.countUnreadNotifications(id);
   }
 
-  // For tests ONLY: to be deleted before merging to main
-
-  /**
-   * Test notification for a said user id.
-   *
-   * @param id id of the member
-   */
-  @PostMapping("/test-insert/{id}")
-  public void insertTestData(@PathVariable long id) {
-    notificationService.notifyMember(id, "Notification 1");
-    notificationService.notifyMember(id, "Notification 2");
-    notificationService.notifyMember(
-        id,
-        "Notification 3 longgggggggggggggggggggggggggggggggggggggggggggggggg"
-            + "messageeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
-    );
-    notificationService.notifyAllMembers("Hello everyone");
-
-  }
 
   private void verifyAccess(long id, Member currentMember) {
     if (currentMember == null || !Objects.equals(currentMember.getIdMember(), id)) {
