@@ -43,6 +43,3 @@ Authorization: {{token}}
 ### 4. Mark a specific notification as read
 PATCH {{baseUrl}}/notifications/1/read
 Authorization: {{token}}
-
-### insert test notifications
-POST {{baseUrl}}/notifications/test-insert/1
