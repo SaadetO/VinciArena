@@ -103,7 +103,7 @@ interface SpecialtyDto {
   label: string;
 }
 
-type MaybeAuthenticatedUser = AuthenticatedUser | undefined;
+type MaybeAuthenticatedUser = AuthenticatedUser | undefined | null;
 
 interface ModalConfig {
   title: string;

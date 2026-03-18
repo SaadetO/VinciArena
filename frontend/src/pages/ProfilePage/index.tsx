@@ -19,6 +19,7 @@ export const ProfilePage = () => {
   >(undefined);
 
   useEffect(() => {
+    if (authenticatedUser === undefined) return;
     setUser(undefined);
     setError(undefined);
     if (isNaN(idNbr) || idNbr <= 0) return;

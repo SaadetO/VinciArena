@@ -1,4 +1,4 @@
-import { Button, Stack, Typography } from '@mui/material';
+import { Button, Skeleton, Stack, Typography } from '@mui/material';
 import { ProfileInfoDto } from '../../../types';
 import { UnavailabilityItem } from './UnavailabilityItem';
 import { useContext, memo } from 'react';
@@ -125,7 +125,15 @@ export const UnavailabilitiesCard = memo(
       >
         <Typography variant="h4">Mes indisponibilités</Typography>
         <Stack spacing="0.24rem">
-          {user?.unavailabilities?.length === 0 ? (
+          {!user ? (
+            [...Array(3)].map((_, i) => (
+              <UnavailabilityItem
+                key={i}
+                unavailability={null}
+                setUser={() => {}}
+              />
+            ))
+          ) : user?.unavailabilities?.length === 0 ? (
             <Typography variant="h5" color="secondary">
               Aucune indisponibilité pour le moment
             </Typography>
@@ -139,14 +147,22 @@ export const UnavailabilitiesCard = memo(
             ))
           )}
         </Stack>
-        <Button
-          variant="contained"
-          color="secondary"
-          disabled={!user}
-          onClick={handleAddUnavailability}
-        >
-          ajouter une indisponibilité
-        </Button>
+        {!user ? (
+          <Skeleton
+            variant="rounded"
+            sx={{ borderRadius: '0.75rem' }}
+            height="2rem"
+            width="100%"
+          />
+        ) : (
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={handleAddUnavailability}
+          >
+            ajouter une indisponibilité
+          </Button>
+        )}
       </Stack>
     );
   },

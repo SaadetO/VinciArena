@@ -1,4 +1,4 @@
-import { IconButton, Stack, Tooltip, Typography } from '@mui/material';
+import { IconButton, Skeleton, Stack, Tooltip, Typography } from '@mui/material';
 import { formatDate, getDurationString } from '../../../utils/date';
 import { ArrowForward, DeleteOutlined } from '@mui/icons-material';
 import { useContext, useState } from 'react';
@@ -11,9 +11,37 @@ export const UnavailabilityItem = ({
   unavailability,
   setUser,
 }: {
-  unavailability: { id: number; startDate: string; endDate: string };
+  unavailability: { id: number; startDate: string; endDate: string } | null;
   setUser: React.Dispatch<React.SetStateAction<ProfileInfoDto | undefined>>;
 }) => {
+  if (!unavailability) return (
+    <Stack
+      direction="row"
+      spacing="0.375rem"
+      alignItems="center"
+      justifyContent="space-between"
+      sx={{
+        background: (theme) => theme.palette.background.s2,
+        '&:last-of-type': {
+          borderRadius: '0.375rem 0.375rem 0.75rem 0.75rem',
+        },
+        '&:first-of-type': {
+          borderRadius: '0.75rem 0.75rem 0.375rem 0.375rem',
+        },
+        '&:only-of-type': {
+          borderRadius: '0.75rem 0.75rem 0.75rem 0.75rem',
+        },
+      }}
+      padding="0.375rem 0.5rem 0.375rem 1rem"
+    >
+      <Stack direction="row" alignItems="center" spacing="0.5rem">
+        <Skeleton variant="text" width="5rem" height={22} />
+        <Skeleton variant="circular" width="1rem" height="1rem" />
+        <Skeleton variant="text" width="5rem" height={22} />
+      </Stack>
+      <Skeleton variant="rounded" sx={{ borderRadius: '0.375rem' }} width="2rem" height="2rem" />
+    </Stack>
+  );
   const { showSnackbar } = useSnackbar();
   const { authenticatedUser } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
@@ -78,7 +106,7 @@ export const UnavailabilityItem = ({
       alignItems="center"
       justifyContent="space-between"
       sx={{
-        background: (theme) => theme.palette.background.s3,
+        background: (theme) => theme.palette.background.s2,
         '&:last-of-type': {
           borderRadius: '0.375rem 0.375rem 0.75rem 0.75rem',
         },

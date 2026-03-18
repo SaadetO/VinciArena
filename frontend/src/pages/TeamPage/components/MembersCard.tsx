@@ -5,11 +5,10 @@ import { Avatar, Chip, Skeleton, Stack, Typography } from '@mui/material';
 import { Link } from 'react-router-dom';
 
 interface MembersCardProps {
-  isLoading: boolean;
-  team: TeamDetailsInfoDto | undefined;
+  team?: TeamDetailsInfoDto;
 }
 
-export const MembersCard = memo(({ team, isLoading }: MembersCardProps) => {
+export const MembersCard = memo(({ team }: MembersCardProps) => {
   const { authenticatedUser } = useContext(UserContext);
 
   return (
@@ -22,12 +21,31 @@ export const MembersCard = memo(({ team, isLoading }: MembersCardProps) => {
       >
         <Typography variant="h4">Membres</Typography>
         <Stack gap="0.75rem" direction="row" flexWrap="wrap">
-          {isLoading ? (
-            <Stack direction="row" gap="0.75rem" alignItems="center">
-              <Skeleton variant="circular" width="2rem" height="2rem" />
-              <Skeleton width="8rem" />
-            </Stack>
-          ) : team ? (
+          {!team ? (
+            <>
+              {[...Array(4)].map((_, index) => (
+                <Stack
+                  key={index}
+                  direction="row"
+                  gap="0.5rem"
+                  alignItems="center"
+                  height="2.75rem"
+                  padding="0 1rem 0 0.75rem"
+                  sx={{
+                    background: (theme) => theme.palette.background.s2,
+                  }}
+                  borderRadius="0.5rem"
+                >
+                  <Skeleton variant="circular" width="1.5rem" height="1.5rem" />
+                  <Skeleton
+                    variant="text"
+                    width={`${4 + (index % 3) * 1.5}rem`}
+                    height={22}
+                  />
+                </Stack>
+              ))}
+            </>
+          ) : team.members ? (
             team.members.map((member) => (
               <Chip
                 sx={{

@@ -31,6 +31,7 @@ export const NotificationsPage = () => {
   }, [authenticatedUser]);
 
   useEffect(() => {
+    if (authenticatedUser === undefined) return;
     fetchAllNotifications();
     const id = setInterval(fetchAllNotifications, 10000);
     return () => clearInterval(id);

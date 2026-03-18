@@ -34,12 +34,19 @@ const UserContextProvider = ({ children }: { children: ReactNode }) => {
 
   const clearUser = useCallback(() => {
     clearAuthenticatedUser();
-    setAuthenticatedUser(undefined);
+    setAuthenticatedUser(null);
   }, []);
 
   useEffect(() => {
+    // store a mounted state to trigger the effect only when
+    // the component is mounted and prevent the function
+    // from running after the component has unmounted
+    let isMounted = true;
     const storedUser = getAuthenticatedUser();
-    if (!storedUser) return;
+    if (!storedUser) {
+      setAuthenticatedUser(null);
+      return;
+    }
 
     (async () => {
       try {
@@ -54,14 +61,22 @@ const UserContextProvider = ({ children }: { children: ReactNode }) => {
 
         const authenticatedUserData: AuthenticatedUser = await response.json();
 
-        setAuthenticatedUser({
-          ...authenticatedUserData,
-        });
+        // if the component is still mounted, update the state
+        if (isMounted) {
+          setAuthenticatedUser({
+            ...authenticatedUserData,
+          });
+        }
       } catch (err) {
         console.error('Failed to fetch user: ', err);
-        clearUser();
+        // if the component is still mounted, clear the user
+        if (isMounted) clearUser();
       }
     })();
+
+    return () => {
+      isMounted = false;
+    };
   }, [clearUser]);
 
   const registerUser = useCallback(async (newUser: User) => {
