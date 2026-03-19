@@ -1,5 +1,5 @@
 import { useApi } from './useApi';
-import { useContext, useRef } from 'react';
+import { useContext } from 'react';
 import { UserContext } from '../contexts/UserContext';
 import { useSnackbar } from './useSnackbar';
 import { ProfileInfoDto, Unavailability } from '../types';
@@ -78,11 +78,9 @@ export const useUnavailabilities = (
     },
   );
 
-  const previousUnavailabilities = useRef<Unavailability[]>([]);
-
   const { execute: deleteUnavailability } = useApi(
-    async (id: number) => {
-      const response = await fetch(`/api/unavailabilities/${id}`, {
+    async (unavailability: Unavailability) => {
+      const response = await fetch(`/api/unavailabilities/${unavailability.id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -94,24 +92,29 @@ export const useUnavailabilities = (
         throw new Error("Erreur lors de la suppression de l'indisponibilité.");
     },
     {
-      onOptimism: (id) => {
+      onOptimism: (unavailability) => {
         setUser((prev) => {
           if (!prev) return prev;
-          previousUnavailabilities.current = prev.unavailabilities ?? [];
           return {
             ...prev,
             unavailabilities: (prev.unavailabilities ?? []).filter(
-              (u) => u.id !== id,
+              (u) => u.id !== unavailability.id,
             ),
           };
         });
       },
-      onRollback: () => {
+      onRollback: (unavailability) => {
         setUser((prev) => {
           if (!prev) return prev;
+          const updated = [...(prev.unavailabilities ?? []), unavailability];
+          // Keep it sorted
+          updated.sort(
+            (a, b) =>
+              new Date(a.startDate).getTime() - new Date(b.startDate).getTime(),
+          );
           return {
             ...prev,
-            unavailabilities: previousUnavailabilities.current,
+            unavailabilities: updated,
           };
         });
       },

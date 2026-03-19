@@ -113,7 +113,7 @@ export const UnavailabilityItem = ({
           loading={unavailability.id < 0}
           size="small"
           onClick={() =>
-            unavailability.id >= 0 && deleteUnavailability(unavailability.id)
+            unavailability.id >= 0 && deleteUnavailability(unavailability)
           }
         >
           <DeleteOutlined
