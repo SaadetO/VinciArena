@@ -28,7 +28,7 @@ export const useUnavailabilities = (options: UseUnavailabilitiesOptions) => {
       });
 
       if (!response.ok)
-        throw new Error("Erreur lors de l'ajout de l'indisponibilité.");
+        throw new Error("Échec de l'ajout de l'indisponibilité.");
 
       return response.json();
     },
@@ -74,7 +74,10 @@ export const useUnavailabilities = (options: UseUnavailabilitiesOptions) => {
       },
       onError: (err) => {
         showSnackbar({
-          message: err.message,
+          message:
+            err instanceof Error
+              ? err.message
+              : "Une erreur est survenue lors de l'ajout de l'indisponibilité.",
           severity: 'error',
         });
       },
@@ -95,7 +98,7 @@ export const useUnavailabilities = (options: UseUnavailabilitiesOptions) => {
       );
 
       if (!response.ok)
-        throw new Error("Erreur lors de la suppression de l'indisponibilité.");
+        throw new Error("Échec de la suppression de l'indisponibilité.");
     },
     {
       onOptimism: (unavailability) => {
@@ -132,7 +135,7 @@ export const useUnavailabilities = (options: UseUnavailabilitiesOptions) => {
           message:
             err instanceof Error
               ? err.message
-              : "Erreur lors de la suppression de l'indisponibilité.",
+              : "Une erreur est survenue lors de la suppression de l'indisponibilité.",
           severity: 'error',
         });
       },
