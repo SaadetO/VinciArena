@@ -80,7 +80,8 @@ export const NotificationMenu = () => {
   }, [authenticatedUser]);
 
   useEffect(() => {
-    if (!authenticatedUser) {
+    if (authenticatedUser === undefined) return;
+    if (authenticatedUser === null) {
       setUnreadCount(0);
       return;
     }

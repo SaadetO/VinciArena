@@ -1,7 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useModalController } from '../../../hooks/useModalController';
 import { ProfileInfoDto, TeamDetailsInfoDto } from '../../../types';
-import { Autocomplete, TextField } from '@mui/material';
+import {
+  Autocomplete,
+  Avatar,
+  Stack,
+  TextField,
+  Typography,
+} from '@mui/material';
 
 interface ManagerModalContentProps {
   team: TeamDetailsInfoDto | undefined;
@@ -34,6 +40,7 @@ export const ManagerModalContent = ({
         fullWidth
         value={selectedUser}
         getOptionLabel={(user) => user.tag}
+        getOptionKey={(user) => user.id}
         autoHighlight
         onChange={(_, value) => {
           setSelectedUser(value);
@@ -42,6 +49,26 @@ export const ManagerModalContent = ({
             setError(null);
           }
         }}
+        renderOption={(props, option) => (
+          <Stack
+            direction="row"
+            component="li"
+            {...props}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.75rem',
+              p: '0.5rem 1rem !important',
+            }}
+          >
+            <Avatar
+              src={option.avatar ? `/assets/avatars/${option.avatar}` : ''}
+              alt={option.tag}
+              sx={{ width: '1.5rem', height: '1.5rem' }}
+            />
+            <Typography variant="h5">{option.tag}</Typography>
+          </Stack>
+        )}
         renderInput={(params) => (
           <TextField
             {...params}

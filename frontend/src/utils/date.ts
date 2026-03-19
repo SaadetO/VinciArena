@@ -48,7 +48,8 @@ export const formatRelativeTime = (date: Date | string | number): string => {
  * @param {Date | string | number} date The date to format
  * @return {string} A formatted date string
  */
-export const formatDate = (date: Date | string | number): string => {
+export const formatDate = (date: Date | string | number): string | null => {
+  if (!date) return null;
   return dayjs(date).format('D MMM YYYY');
 };
 

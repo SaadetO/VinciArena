@@ -78,14 +78,22 @@ export const PersonalInfoCard = ({ user }: PersonalInfoCardProps) => {
           icon={<Person sx={iconSx} />}
         />
       </Stack>
-      <Button
-        variant="contained"
-        color="secondary"
-        disabled={!user}
-        onClick={handlePasswordChange}
-      >
-        modifier mon mot de passe
-      </Button>
+      {!user ? (
+        <Skeleton
+          variant="rounded"
+          sx={{ borderRadius: '0.75rem' }}
+          height="2rem"
+          width="100%"
+        />
+      ) : (
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={handlePasswordChange}
+        >
+          modifier mon mot de passe
+        </Button>
+      )}
     </Stack>
   );
 };

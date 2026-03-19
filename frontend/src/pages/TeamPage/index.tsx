@@ -11,7 +11,7 @@ import { JoinRequestsCard } from './components/JoinRequestsCard';
 
 export const TeamPage = () => {
   const { id } = useParams();
-  const [isLoading, setIsloading] = useState(false);
+  const [isLoading, setIsloading] = useState(true);
   const idNbr = Number(id);
   const { authenticatedUser } = useContext(UserContext);
   const [team, setTeam] = useState<TeamDetailsInfoDto | undefined>(undefined);
@@ -54,12 +54,13 @@ export const TeamPage = () => {
   }, [idNbr, authenticatedUser]);
 
   useEffect(() => {
+    if (authenticatedUser === undefined) return;
     setTeam(undefined);
     setError(undefined);
     fetchTeam();
   }, [idNbr, authenticatedUser, fetchTeam]);
 
-  if (error) return <NotFoundPage error={error} />;
+  if (error && !isLoading) return <NotFoundPage error={error} />;
 
   return (
     <>
@@ -88,7 +89,7 @@ export const TeamPage = () => {
           <Grid2 size={{ xs: 12, lg: 5 }}>
             <Stack spacing="1.5rem">
               <ManagerCard team={team} setTeam={setTeam} />
-              <MembersCard isLoading={isLoading} team={team} />
+              <MembersCard team={team} />
               {team?.managers.find((e) => e.id === authenticatedUser?.id) && (
                 <JoinRequestsCard
                   isLoading={isLoading}

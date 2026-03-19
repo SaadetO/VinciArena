@@ -197,7 +197,22 @@ export const TeamCard = ({ user, setUser }: TeamCardProps) => {
       </Typography>
 
       <Stack spacing="0.75rem" direction={{ xs: 'column', sm: 'row' }}>
-        {user?.team ? (
+        {!user ? (
+          <>
+            <Skeleton
+              variant="rounded"
+              sx={{ borderRadius: '0.75rem' }}
+              height="2rem"
+              width="100%"
+            />
+            <Skeleton
+              variant="rounded"
+              sx={{ borderRadius: '0.75rem' }}
+              height="2rem"
+              width="100%"
+            />
+          </>
+        ) : user.team ? (
           <>
             <Button
               onClick={handleViewTeam}

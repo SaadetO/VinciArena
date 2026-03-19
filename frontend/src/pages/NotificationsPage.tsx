@@ -31,10 +31,11 @@ export const NotificationsPage = () => {
   }, [authenticatedUser]);
 
   useEffect(() => {
+    if (authenticatedUser === undefined) return;
     fetchAllNotifications();
     const id = setInterval(fetchAllNotifications, 10000);
     return () => clearInterval(id);
-  }, [fetchAllNotifications]);
+  }, [fetchAllNotifications, authenticatedUser]);
   if (loading) return <LoadingIcon></LoadingIcon>;
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>

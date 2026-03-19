@@ -92,7 +92,7 @@ export const ManagerCard = ({
       spacing="1rem"
     >
       <Typography variant="h4">Responsables</Typography>
-      <Stack spacing="0.75rem" direction="row" flexWrap="wrap">
+      <Stack gap="0.75rem" direction="row" flexWrap="wrap">
         {team ? (
           team.managers.map((manager) => (
             <Chip
@@ -115,15 +115,25 @@ export const ManagerCard = ({
           ))
         ) : (
           <>
-            {[1, 2].map((i) => (
+            {[...Array(2)].map((_, index) => (
               <Stack
-                key={i}
+                key={index}
                 direction="row"
-                spacing="0.75rem"
+                gap="0.5rem"
                 alignItems="center"
+                height="2.75rem"
+                padding="0 1rem 0 0.75rem"
+                sx={{
+                  background: (theme) => theme.palette.background.s2,
+                }}
+                borderRadius="0.5rem"
               >
-                <Skeleton variant="circular" width="2rem" height="2rem" />
-                <Skeleton width="8rem" />
+                <Skeleton variant="circular" width="1.5rem" height="1.5rem" />
+                <Skeleton
+                  variant="text"
+                  width={`${4 + (index % 3) * 1.5}rem`}
+                  height={22}
+                />
               </Stack>
             ))}
           </>

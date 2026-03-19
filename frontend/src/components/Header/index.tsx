@@ -5,11 +5,13 @@ import { SyntheticEvent, useContext } from 'react';
 import { NotificationMenu } from './components/NotificationMenu';
 import { UserContext } from '../../contexts/UserContext';
 import { UserMenu } from './components/UserMenu';
-import { AdminMenu } from './components/AdminMenu';
+import { AdminManagementModal } from './modals/AdminManagementModal';
+import { useState } from 'react';
 export const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { authenticatedUser } = useContext(UserContext);
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   return (
     <Stack
       component="header"
@@ -53,7 +55,17 @@ export const Header = () => {
           {authenticatedUser?.admin && (
             <Stack direction="row" spacing="1rem">
               <Button variant="contained">Créer un tournoi</Button>
-              <AdminMenu />
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={() => setIsAdminModalOpen(true)}
+              >
+                Gérer les Membres
+              </Button>
+              <AdminManagementModal
+                open={isAdminModalOpen}
+                onClose={() => setIsAdminModalOpen(false)}
+              />
             </Stack>
           )}
           {authenticatedUser ? (

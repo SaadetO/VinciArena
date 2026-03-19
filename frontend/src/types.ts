@@ -24,8 +24,13 @@ interface Member {
   tag: string;
   email: string;
   admin: boolean;
-  specialty: string;
-  avatar: string;
+  specialty: Specialty;
+  profileImage: ProfileImage;
+}
+
+interface Specialty {
+  idSpecialty: number;
+  label: string;
 }
 
 interface ProfileInfoDto {
@@ -98,7 +103,7 @@ interface SpecialtyDto {
   label: string;
 }
 
-type MaybeAuthenticatedUser = AuthenticatedUser | undefined;
+type MaybeAuthenticatedUser = AuthenticatedUser | undefined | null;
 
 interface ModalConfig {
   title: string;
