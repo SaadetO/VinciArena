@@ -93,7 +93,7 @@ export const useApi = <TData, TArgs extends unknown[] = []>(
         return null;
       }
     },
-    [], //empty dependency array means it's stable and won't be recreated on every render
+    [], // empty dependency array means it's stable and won't be recreated on every render
   );
 
   const reset = useCallback(() => {
