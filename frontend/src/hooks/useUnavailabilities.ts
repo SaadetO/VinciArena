@@ -4,9 +4,12 @@ import { UserContext } from '../contexts/UserContext';
 import { useSnackbar } from './useSnackbar';
 import { ProfileInfoDto, Unavailability } from '../types';
 
-export const useUnavailabilities = (
-  setUser: React.Dispatch<React.SetStateAction<ProfileInfoDto | undefined>>,
-) => {
+interface UseUnavailabilitiesOptions {
+  setUser: React.Dispatch<React.SetStateAction<ProfileInfoDto | undefined>>;
+}
+
+export const useUnavailabilities = (options: UseUnavailabilitiesOptions) => {
+  const { setUser } = options;
   const { authenticatedUser } = useContext(UserContext);
   const { showSnackbar } = useSnackbar();
 
@@ -80,13 +83,16 @@ export const useUnavailabilities = (
 
   const { execute: deleteUnavailability } = useApi(
     async (unavailability: Unavailability) => {
-      const response = await fetch(`/api/unavailabilities/${unavailability.id}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: authenticatedUser?.token ?? '',
+      const response = await fetch(
+        `/api/unavailabilities/${unavailability.id}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: authenticatedUser?.token ?? '',
+          },
         },
-      });
+      );
 
       if (!response.ok)
         throw new Error("Erreur lors de la suppression de l'indisponibilité.");
@@ -106,15 +112,12 @@ export const useUnavailabilities = (
       onRollback: (unavailability) => {
         setUser((prev) => {
           if (!prev) return prev;
-          const updated = [...(prev.unavailabilities ?? []), unavailability];
-          // Keep it sorted
-          updated.sort(
-            (a, b) =>
-              new Date(a.startDate).getTime() - new Date(b.startDate).getTime(),
-          );
           return {
             ...prev,
-            unavailabilities: updated,
+            unavailabilities: [
+              ...(prev.unavailabilities ?? []),
+              unavailability,
+            ],
           };
         });
       },

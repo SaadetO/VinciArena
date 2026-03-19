@@ -24,6 +24,7 @@ import { UserContext } from '../../../../contexts/UserContext';
 import { useSnackbar } from '../../../../hooks/useSnackbar';
 import { Member } from '../../../../types';
 import { UserItem } from './components/UserItem';
+import { useMembers } from '../../../../hooks/useMembers';
 
 interface AdminManagementModalProps {
   open: boolean;
@@ -37,9 +38,12 @@ export const AdminManagementModal = ({
   const { authenticatedUser } = useContext(UserContext);
   const { showSnackbar } = useSnackbar();
   const [users, setUsers] = useState<Member[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const [pendingIds, setPendingIds] = useState<number[]>([]);
+  const { getAll, toggleAdmin, isGettingUsers } = useMembers({
+    setUsers,
+    setPendingIds,
+  });
+  const [searchQuery, setSearchQuery] = useState('');
   const [filter, setFilter] = useState<'all' | 'members' | 'admins'>('all');
   const [filterVersion, setFilterVersion] = useState(0);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -58,27 +62,10 @@ export const AdminManagementModal = ({
   }, []);
 
   useEffect(() => {
-    if (open) {
-      const fetchUsers = async () => {
-        setLoading(true);
-        try {
-          const response = await fetch('/api/members', {
-            headers: { Authorization: authenticatedUser?.token ?? '' },
-          });
-          if (response.ok) {
-            setUsers(await response.json());
-          }
-        } catch (err) {
-          console.error('Failed to fetch users', err);
-        } finally {
-          setLoading(false);
-          // Small delay for content rendering before scroll check
-          setTimeout(handleScroll, 100);
-        }
-      };
-      fetchUsers();
-    }
-  }, [open, authenticatedUser?.token, handleScroll]);
+    if (!open) return;
+    getAll();
+    setTimeout(handleScroll, 0);
+  }, [open, handleScroll, authenticatedUser?.token, getAll]);
 
   useLayoutEffect(() => {
     // Only update the list membership when search, filter, filterVersion or length changes.
@@ -120,38 +107,7 @@ export const AdminManagementModal = ({
 
     if (pendingIds.includes(user.id)) return;
 
-    setPendingIds((prev) => [...prev, user.id]);
-    const previousUsers = [...users];
-    // Optimistic update
-    setUsers((prev) =>
-      prev.map((u) => (u.id === user.id ? { ...u, admin: !u.admin } : u)),
-    );
-
-    try {
-      const response = await fetch(`/api/members/toggle-admin/${user.id}`, {
-        method: 'PUT',
-        headers: {
-          Authorization: authenticatedUser?.token ?? '',
-        },
-      });
-
-      if (!response.ok) throw new Error();
-
-      showSnackbar({
-        message: user.admin
-          ? 'Utilisateur rétrogradé avec succès !'
-          : 'Utilisateur promu admin avec succès !',
-        severity: 'success',
-      });
-    } catch (err) {
-      setUsers(previousUsers);
-      showSnackbar({
-        message: 'Une erreur est survenue.',
-        severity: 'error',
-      });
-    } finally {
-      setPendingIds((prev) => prev.filter((id) => id !== user.id));
-    }
+    toggleAdmin(user.id, user.admin);
   };
 
   const handleFilterClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -179,7 +135,7 @@ export const AdminManagementModal = ({
       const height = contentRef.current.scrollHeight;
       setContentHeight(height + 2); // 2px buffer for rounding
     }
-  }, [filteredUsers.length, loading, open, searchQuery]);
+  }, [filteredUsers.length, isGettingUsers, open, searchQuery]);
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth>
@@ -297,7 +253,7 @@ export const AdminManagementModal = ({
           }}
         >
           <Stack ref={contentRef} sx={{ padding: '1rem' }}>
-            {loading ? (
+            {isGettingUsers ? (
               <List disablePadding sx={{ height: '100%' }}>
                 {[...Array(4)].map((_, index) => (
                   <UserItem
@@ -320,7 +276,7 @@ export const AdminManagementModal = ({
                     isPending={pendingIds.includes(user.id)}
                   />
                 ))}
-                {!loading && filteredUsers.length === 0 && (
+                {!isGettingUsers && filteredUsers.length === 0 && (
                   <Stack
                     padding="2rem 1.5rem"
                     spacing="0.25rem"

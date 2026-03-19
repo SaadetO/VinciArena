@@ -37,7 +37,7 @@
  * );
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 
 type UseApiOptions<TData, TArgs extends unknown[]> = {
   onOptimism?: (...args: TArgs) => void;
@@ -61,7 +61,11 @@ export const useApi = <TData, TArgs extends unknown[] = []>(
   fn: (...args: TArgs) => Promise<TData>,
   options: UseApiOptions<TData, TArgs> = {},
 ): UseApiReturn<TData, TArgs> => {
-  const { onOptimism, onRollback, onSuccess, onError } = options;
+  // Use refs to prevent infinite loops when execute is called in useEffect
+  const fnRef = useRef(fn);
+  fnRef.current = fn;
+  const optionsRef = useRef(options);
+  optionsRef.current = options;
 
   const [state, setState] = useState<UseApiState<TData>>({
     data: null,
@@ -71,11 +75,13 @@ export const useApi = <TData, TArgs extends unknown[] = []>(
 
   const execute = useCallback(
     async (...args: TArgs): Promise<TData | null> => {
+      const { onOptimism, onRollback, onSuccess, onError } = optionsRef.current;
+
       onOptimism?.(...args);
       setState({ data: null, loading: true, error: null });
 
       try {
-        const data = await fn(...args);
+        const data = await fnRef.current(...args);
         setState({ data, loading: false, error: null });
         onSuccess?.(data, ...args);
         return data;
@@ -87,7 +93,7 @@ export const useApi = <TData, TArgs extends unknown[] = []>(
         return null;
       }
     },
-    [fn, onOptimism, onRollback, onSuccess, onError],
+    [], //empty dependency array means it's stable and won't be recreated on every render
   );
 
   const reset = useCallback(() => {

@@ -6,6 +6,7 @@ import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.ProfileImage;
 import be.vinci.ipl.cae.demo.services.MemberService;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,8 +34,12 @@ public class MemberController {
     this.memberService = memberService;
   }
 
-  @GetMapping({"", "/"})
-  public Member[] getAllMembers() {
+  @PreAuthorize("isAuthenticated()")
+  @GetMapping("/full")
+  public Member[] getAllMembers(@AuthenticationPrincipal Member currentMember) {
+    if (!currentMember.isAdmin()) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+    }
     return memberService.getAllMembers();
   }
 
@@ -63,6 +68,7 @@ public class MemberController {
    * @param passwordDto   the new password DTO.
    * @param currentMember the currently authenticated member.
    */
+  @PreAuthorize("isAuthenticated()")
   @PutMapping("/me/password")
   public void updatePassword(
       @RequestBody PasswordUpdateDto passwordDto,
@@ -84,19 +90,14 @@ public class MemberController {
   /**
    * Update a member's profile image.
    *
-   * @param id            the ID of the member profile to update
    * @param profileImage  the new profile image entity
    * @param currentMember the currently authenticated member
    */
-  @PutMapping("/{id}/avatar")
+  @PreAuthorize("isAuthenticated()")
+  @PutMapping("/me/avatar")
   public void updateAvatar(
-      @PathVariable Long id,
       @RequestBody ProfileImage profileImage,
       @AuthenticationPrincipal Member currentMember) {
-
-    if (currentMember == null || !currentMember.getIdMember().equals(id)) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-    }
 
     boolean updated = memberService.updateAvatar(currentMember, profileImage);
     if (!updated) {
@@ -105,14 +106,16 @@ public class MemberController {
   }
 
   /**
-   * Toggles the isAdmin property.
+   * Updates the isAdmin property. (we assume we want to change it so we toggle it since it's a
+   * boolean)
    *
-   * @param id id of the target member
+   * @param id            id of the target member
    * @param currentMember authenticated member
    */
-  @PutMapping("/toggle-admin/{id}")
+  @PreAuthorize("isAuthenticated()")
+  @PutMapping("/{id}/admin")
   public void toggleAdmin(@PathVariable Long id, @AuthenticationPrincipal Member currentMember) {
-    if (currentMember == null || !currentMember.isAdmin()) {
+    if (!currentMember.isAdmin()) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
     }
     if (currentMember.getIdMember().equals(id)) {

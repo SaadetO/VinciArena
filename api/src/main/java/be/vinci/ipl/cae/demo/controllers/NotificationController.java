@@ -90,7 +90,6 @@ public class NotificationController {
     return notificationService.countUnreadNotifications(id);
   }
 
-
   private void verifyAccess(long id, Member currentMember) {
     if (currentMember == null || !Objects.equals(currentMember.getIdMember(), id)) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN);

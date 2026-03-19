@@ -18,7 +18,7 @@ export const UnavailabilityItem = ({
   unavailability: { id: number; startDate: string; endDate: string } | null;
   setUser: React.Dispatch<React.SetStateAction<ProfileInfoDto | undefined>>;
 }) => {
-  const { deleteUnavailability } = useUnavailabilities(setUser);
+  const { deleteUnavailability } = useUnavailabilities({ setUser });
 
   if (!unavailability)
     return (

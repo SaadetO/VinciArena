@@ -15,7 +15,7 @@ export const UnavailabilitiesCard = memo(
     setUser: React.Dispatch<React.SetStateAction<ProfileInfoDto | undefined>>;
   }) => {
     const { openModal } = useModal();
-    const { addUnavailability } = useUnavailabilities(setUser);
+    const { addUnavailability } = useUnavailabilities({ setUser });
 
     const handleAddUnavailability = () => {
       let selectedDates: {
