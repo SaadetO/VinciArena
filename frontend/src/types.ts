@@ -33,6 +33,12 @@ interface Specialty {
   label: string;
 }
 
+interface Unavailability {
+  id: number;
+  startDate: string;
+  endDate: string;
+}
+
 interface ProfileInfoDto {
   id: number;
   email: string | null;
@@ -124,6 +130,7 @@ export type {
   UserContextType,
   ProfileInfoDto,
   Team,
+  Unavailability,
   JoinRequestDto,
   TeamDetailsInfoDto,
   NotificationDto,

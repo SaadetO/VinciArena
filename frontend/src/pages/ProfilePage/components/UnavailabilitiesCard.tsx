@@ -1,11 +1,10 @@
 import { Button, Skeleton, Stack, Typography } from '@mui/material';
 import { ProfileInfoDto } from '../../../types';
 import { UnavailabilityItem } from './UnavailabilityItem';
-import { useContext, memo } from 'react';
-import { UserContext } from '../../../contexts/UserContext';
+import { memo } from 'react';
 import { useModal } from '../../../hooks/useModal';
-import { useSnackbar } from '../../../hooks/useSnackbar';
 import { unavailabilitiesModal } from '../modals/unavailabilitiesModal';
+import { useUnavailabilities } from '../../../hooks/useUnavailabilities';
 
 export const UnavailabilitiesCard = memo(
   ({
@@ -15,9 +14,8 @@ export const UnavailabilitiesCard = memo(
     user?: ProfileInfoDto;
     setUser: React.Dispatch<React.SetStateAction<ProfileInfoDto | undefined>>;
   }) => {
-    const { authenticatedUser } = useContext(UserContext);
     const { openModal } = useModal();
-    const { showSnackbar } = useSnackbar();
+    const { addUnavailability } = useUnavailabilities(setUser);
 
     const handleAddUnavailability = () => {
       let selectedDates: {
@@ -36,75 +34,10 @@ export const UnavailabilitiesCard = memo(
         selectedDates = dates;
       };
 
-      const onConfirm = async (close: () => void) => {
+      const onConfirm = (close: () => void) => {
         if (!selectedDates) return;
         close();
-
-        const { tempId, startDate, endDate } = selectedDates;
-
-        // Update UI optimistically
-        setUser((prev) => {
-          if (!prev) return prev;
-          return {
-            ...prev,
-            unavailabilities: [
-              ...(prev.unavailabilities ?? []),
-              { id: tempId, startDate, endDate },
-            ],
-          };
-        });
-
-        try {
-          const response = await fetch('/api/unavailabilities/me', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: authenticatedUser?.token ?? '',
-            },
-            body: JSON.stringify({
-              startDate,
-              endDate,
-            }),
-          });
-
-          if (!response.ok) {
-            throw new Error("Erreur lors de l'ajout de l'indisponibilité.");
-          }
-
-          const created = await response.json();
-
-          // Resolve the ID
-          setUser((prev) => {
-            if (!prev) return prev;
-            return {
-              ...prev,
-              unavailabilities: (prev.unavailabilities ?? []).map((u) =>
-                u.id === tempId ? { ...u, id: created.idUnavailability } : u,
-              ),
-            };
-          });
-
-          showSnackbar({
-            message: 'Indisponibilité ajoutée avec succès !',
-            severity: 'success',
-          });
-        } catch (err: unknown) {
-          showSnackbar({
-            message:
-              err instanceof Error ? err.message : 'Une erreur est survenue.',
-            severity: 'error',
-          });
-          // Rollback
-          setUser((prev) => {
-            if (!prev) return prev;
-            return {
-              ...prev,
-              unavailabilities: (prev.unavailabilities ?? []).filter(
-                (u) => u.id !== tempId,
-              ),
-            };
-          });
-        }
+        addUnavailability(selectedDates);
       };
 
       openModal(
