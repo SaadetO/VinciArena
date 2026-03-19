@@ -34,6 +34,12 @@ public class MemberController {
     this.memberService = memberService;
   }
 
+  /**
+   * Get all members private data.
+   *
+   * @param currentMember the currently authenticated member (can be null if not logged in).
+   * @return an array of all the users and their private information.
+   */
   @PreAuthorize("isAuthenticated()")
   @GetMapping("/full")
   public Member[] getAllMembers(@AuthenticationPrincipal Member currentMember) {
