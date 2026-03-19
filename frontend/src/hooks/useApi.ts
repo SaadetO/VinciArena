@@ -10,7 +10,7 @@
  *
  * @param fn - The asynchronous function that performs the API call.
  * @param options - onOptimism, onRollback, onSuccess, onError
- * @returns An object containing the current state (data, loading, error), the execute function to trigger the API call, and a reset function to reset the state.
+ * @returns - An object containing the current state (data, loading, error), the execute function to trigger the API call, and a reset function to reset the state.
  *
  * @example
  * // Adding a new item to a list with optimistic UI
@@ -39,23 +39,23 @@
 
 import { useState, useCallback, useRef } from 'react';
 
-type UseApiOptions<TData, TArgs extends unknown[]> = {
+interface UseApiOptions<TData, TArgs extends unknown[]> {
   onOptimism?: (...args: TArgs) => void;
   onRollback?: (...args: TArgs) => void;
   onSuccess?: (data: TData, ...args: TArgs) => void;
   onError?: (err: Error, ...args: TArgs) => void;
 };
 
-type UseApiState<TData> = {
+interface UseApiState<TData> {
   data: TData | null;
   loading: boolean;
   error: Error | null;
 };
 
-type UseApiReturn<TData, TArgs extends unknown[]> = UseApiState<TData> & {
+interface UseApiReturn<TData, TArgs extends unknown[]> extends UseApiState<TData> {
   execute: (...args: TArgs) => Promise<TData | null>;
   reset: () => void;
-};
+}
 
 export const useApi = <TData, TArgs extends unknown[] = []>(
   fn: (...args: TArgs) => Promise<TData>,
