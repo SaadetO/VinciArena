@@ -44,15 +44,16 @@ interface UseApiOptions<TData, TArgs extends unknown[]> {
   onRollback?: (...args: TArgs) => void;
   onSuccess?: (data: TData, ...args: TArgs) => void;
   onError?: (err: Error, ...args: TArgs) => void;
-};
+}
 
 interface UseApiState<TData> {
   data: TData | null;
   loading: boolean;
   error: Error | null;
-};
+}
 
-interface UseApiReturn<TData, TArgs extends unknown[]> extends UseApiState<TData> {
+interface UseApiReturn<TData, TArgs extends unknown[]>
+  extends UseApiState<TData> {
   execute: (...args: TArgs) => Promise<TData | null>;
   reset: () => void;
 }
