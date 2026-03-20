@@ -9,8 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -75,7 +75,7 @@ public class MemberController {
    * @param currentMember the currently authenticated member.
    */
   @PreAuthorize("isAuthenticated()")
-  @PutMapping("/me/password")
+  @PatchMapping("/me/password")
   public void updatePassword(
       @RequestBody PasswordUpdateDto passwordDto,
       @AuthenticationPrincipal Member currentMember) {
@@ -100,7 +100,7 @@ public class MemberController {
    * @param currentMember the currently authenticated member
    */
   @PreAuthorize("isAuthenticated()")
-  @PutMapping("/me/avatar")
+  @PatchMapping("/me/avatar")
   public void updateAvatar(
       @RequestBody ProfileImage profileImage,
       @AuthenticationPrincipal Member currentMember) {
@@ -119,7 +119,7 @@ public class MemberController {
    * @param currentMember authenticated member
    */
   @PreAuthorize("isAuthenticated()")
-  @PutMapping("/{id}/admin")
+  @PatchMapping("/{id}/admin")
   public void toggleAdmin(@PathVariable Long id, @AuthenticationPrincipal Member currentMember) {
     if (!currentMember.isAdmin()) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);

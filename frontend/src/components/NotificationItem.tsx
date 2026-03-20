@@ -1,11 +1,11 @@
-// NotificationItem.tsx
 import {
   ListItem,
   ListItemText,
   Divider,
-  Box,
   IconButton,
   Tooltip,
+  Stack,
+  Skeleton,
 } from '@mui/material';
 import { NotificationDto } from '../types';
 import { useContext } from 'react';
@@ -15,14 +15,14 @@ import { formatRelativeTime } from '../utils/date';
 
 interface Props {
   notification: NotificationDto;
-  isLast: boolean;
-  onRefresh: () => void;
+  loading: boolean;
+  onMarkAsRead: () => void;
 }
 
 export const NotificationItem = ({
   notification,
-  isLast,
-  onRefresh,
+  loading,
+  onMarkAsRead,
 }: Props) => {
   const { authenticatedUser } = useContext(UserContext);
   if (!authenticatedUser) return;
@@ -41,15 +41,32 @@ export const NotificationItem = ({
         },
       );
       if (response.ok) {
-        onRefresh();
+        onMarkAsRead();
       }
     } catch (err) {
       console.error('Failed to update notification status', err);
     }
   };
 
+  if (loading)
+    return (
+      <Stack>
+        <ListItem
+          sx={{ alignItems: 'center' }}
+          secondaryAction={
+            <Skeleton variant="rounded" width={32} height={32} />
+          }
+        >
+          <ListItemText
+            primary={<Skeleton variant="text" width="80%" height={20} />}
+            secondary={<Skeleton variant="text" width="40%" height={16} />}
+          />
+        </ListItem>
+        <Divider component="li" sx={{ '&:last-of-type': { display: 'none' } }} />
+      </Stack>
+    );
   return (
-    <Box>
+    <Stack>
       <ListItem
         sx={{
           backgroundColor: (theme) =>
@@ -94,7 +111,7 @@ export const NotificationItem = ({
           }}
         />
       </ListItem>
-      {!isLast && <Divider component="li" />}
-    </Box>
+      <Divider component="li" sx={{ '&:last-of-type': { display: 'none' } }} />
+    </Stack>
   );
 };

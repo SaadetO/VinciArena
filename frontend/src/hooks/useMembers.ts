@@ -77,7 +77,7 @@ export const useMembers = (options?: UseMembersOptions) => {
   const { execute: updatePassword } = useApi(
     async (newPassword: string) => {
       const response = await fetch(`/api/members/me/password`, {
-        method: 'PUT',
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           Authorization: authenticatedUser?.token ?? '',
@@ -111,7 +111,7 @@ export const useMembers = (options?: UseMembersOptions) => {
     async (avatar: ProfileImage, previousAvatar: string) => {
       void previousAvatar;
       const response = await fetch(`/api/members/me/avatar`, {
-        method: 'PUT',
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           Authorization: authenticatedUser?.token ?? '',
@@ -155,7 +155,7 @@ export const useMembers = (options?: UseMembersOptions) => {
     async (id: number, wasAdmin: boolean) => {
       void wasAdmin;
       const response = await fetch(`/api/members/${id}/admin`, {
-        method: 'PUT',
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           Authorization: authenticatedUser?.token ?? '',

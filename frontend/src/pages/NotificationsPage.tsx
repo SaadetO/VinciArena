@@ -1,42 +1,9 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
-import { UserContext } from '../contexts/UserContext';
-import { LoadingIcon } from '../components/LoadingIcon';
 import { Box, Container, List, Typography } from '@mui/material';
 import { NotificationItem } from '../components/NotificationItem';
-import { NotificationDto } from '../types';
+import { useNotifications } from '../hooks/useNotifications';
 
 export const NotificationsPage = () => {
-  const [allNotifications, setAllNotifications] = useState<NotificationDto[]>(
-    [],
-  );
-  const [loading, setLoading] = useState(true);
-  const { authenticatedUser } = useContext(UserContext);
-
-  const fetchAllNotifications = useCallback(async () => {
-    if (!authenticatedUser?.token) return;
-    try {
-      const response = await fetch(
-        `/api/notifications/member/${authenticatedUser.id}`,
-        { headers: { Authorization: authenticatedUser.token } },
-      );
-      if (response.ok) {
-        const data = await response.json();
-        setAllNotifications(data);
-      }
-    } catch (err) {
-      console.error('Failed to fetch allNotifications', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [authenticatedUser]);
-
-  useEffect(() => {
-    if (authenticatedUser === undefined) return;
-    fetchAllNotifications();
-    const id = setInterval(fetchAllNotifications, 10000);
-    return () => clearInterval(id);
-  }, [fetchAllNotifications, authenticatedUser]);
-  if (loading) return <LoadingIcon></LoadingIcon>;
+  const { notifications, markAsRead, isGettingNotifications } = useNotifications();
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 3, gap: 1.5 }}>
@@ -45,12 +12,14 @@ export const NotificationsPage = () => {
         </Typography>
       </Box>
       <List sx={{ p: 0 }}>
-        {allNotifications.map((notif, index) => (
+        {notifications.map((notif) => (
           <NotificationItem
+            loading={isGettingNotifications && notifications.length === 0}
             key={notif.idNotification}
             notification={notif}
-            isLast={index === allNotifications.length - 1}
-            onRefresh={fetchAllNotifications}
+            onMarkAsRead={() => {
+              markAsRead(notif.idNotification); 
+            }}
           />
         ))}
       </List>

@@ -43,16 +43,14 @@ public class NotificationController {
   /**
    * Route GET /notifications/member/{id}.
    *
-   * @param id = member ID
    * @return list of Notifications that belongs to the User
    */
-  @GetMapping("/member/{id}")
+  @GetMapping("/member/me")
   @PreAuthorize("isAuthenticated()")
-  public Iterable<NotificationDto> listNotifications(@PathVariable long id,
+  public Iterable<NotificationDto> listNotifications(
       @RequestParam(required = false, defaultValue = "false") boolean unreadOnly,
       @AuthenticationPrincipal Member currentMember) {
-    verifyAccess(id, currentMember);
-    return notificationService.getNotificationsByIdMember(id, unreadOnly);
+    return notificationService.getNotificationsByIdMember(currentMember.getIdMember(), unreadOnly);
   }
 
   /**
@@ -79,23 +77,21 @@ public class NotificationController {
   /**
    * Route GET /notifications/member/{id}/unread-count.
    *
-   * @param id member id
    * @return nb of unread notifs
    */
-  @GetMapping("/member/{id}/unread-count")
+  @GetMapping("/member/me/unread-count")
   @PreAuthorize("isAuthenticated()")
-  public long countUnreadNotifications(@PathVariable long id,
+  public long countUnreadNotifications(
       @AuthenticationPrincipal Member currentMember) {
-    verifyAccess(id, currentMember);
-    return notificationService.countUnreadNotifications(id);
+    return notificationService.countUnreadNotifications(currentMember.getIdMember());
   }
 
-  private void verifyAccess(long id, Member currentMember) {
-    if (currentMember == null || !Objects.equals(currentMember.getIdMember(), id)) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-    }
-    if (!memberRepository.existsById(id)) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-    }
-  }
+//  private void verifyAccess(long id, Member currentMember) {
+//    if (currentMember == null || !Objects.equals(currentMember.getIdMember(), id)) {
+//      throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+//    }
+//    if (!memberRepository.existsById(id)) {
+//      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+//    }
+//  }
 }
