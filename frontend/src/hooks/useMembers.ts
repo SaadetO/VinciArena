@@ -183,7 +183,7 @@ export const useMembers = (options?: UseMembersOptions) => {
         showSnackbar({
           message: wasAdmin
             ? 'Administrateur rétrogradé au rang de membre avec succès !'
-            : 'Membre promu au rang d\'administrateur avec succès !',
+            : "Membre promu au rang d'administrateur avec succès !",
           severity: 'success',
         });
       },
