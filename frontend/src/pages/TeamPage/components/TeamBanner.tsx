@@ -12,7 +12,7 @@ export const TeamBanner = ({ team }: { team?: TeamDetailsInfoDto }) => {
       spacing="0.375rem"
       width={1}
       height="fit-content"
-      padding="5rem 5rem"
+      padding="5rem"
     >
       <Stack spacing="0.75rem" alignItems="center" direction="row">
         <Typography variant="h1">
