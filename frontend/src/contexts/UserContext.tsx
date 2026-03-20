@@ -22,8 +22,8 @@ import { useSnackbar } from '../hooks/useSnackbar';
 
 const defaultUserContext: UserContextType = {
   authenticatedUser: undefined,
-  registerUser: async () => {},
-  loginUser: async () => {},
+  register: async () => {},
+  login: async () => {},
   clearUser: () => {},
   isLoggingIn: false,
   isRegistering: false,
@@ -74,7 +74,7 @@ const UserContextProvider = ({ children }: { children: ReactNode }) => {
     relog(storedUser.token);
   }, [relog]);
 
-  const { execute: registerUser, loading: isRegistering } = useApi(
+  const { execute: register, loading: isRegistering } = useApi(
     async (newUser: User, navigate: (path: string) => void) => {
       void navigate;
       const response = await fetch('/api/auths/register', {
@@ -107,7 +107,7 @@ const UserContextProvider = ({ children }: { children: ReactNode }) => {
     },
   );
 
-  const { execute: loginUser, loading: isLoggingIn } = useApi(
+  const { execute: login, loading: isLoggingIn } = useApi(
     async (
       { email, password, rememberMe }: User,
       navigate: (path: string) => void,
@@ -149,16 +149,16 @@ const UserContextProvider = ({ children }: { children: ReactNode }) => {
   const myContext: UserContextType = useMemo(
     () => ({
       authenticatedUser,
-      registerUser,
-      loginUser,
+      register,
+      login,
       clearUser,
       isLoggingIn,
       isRegistering,
     }),
     [
       authenticatedUser,
-      registerUser,
-      loginUser,
+      register,
+      login,
       clearUser,
       isLoggingIn,
       isRegistering,

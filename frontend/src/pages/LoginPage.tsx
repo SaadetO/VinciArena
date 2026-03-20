@@ -19,7 +19,7 @@ import { ArrowBack, Visibility, VisibilityOff } from '@mui/icons-material';
 import { LoadingIcon } from '../components/LoadingIcon';
 
 export const LoginPage = () => {
-  const { loginUser, isLoggingIn } = useUser();
+  const { login, isLoggingIn } = useUser();
 
   // REMEMBER ME
   const [rememberMe, setRememberMe] = useState(false);
@@ -34,7 +34,7 @@ export const LoginPage = () => {
 
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
-    await loginUser({ ...formData, rememberMe }, navigate);
+    login({ ...formData, rememberMe }, navigate);
   };
 
   const handleChange = (e: SyntheticEvent) => {

@@ -11,17 +11,18 @@ export const useSpecialties = () => {
     async () => {
       const response = await fetch('/api/specialties');
       if (!response.ok) {
-        throw new Error(
-          `fetch error : ${response.status} : ${response.statusText}`,
-        );
+        throw new Error('Échec de la récupération des spécialités !');
       }
       return response.json();
     },
     {
       onSuccess: (data) => setSpecialties(data),
-      onError: () => {
+      onError: (err) => {
         showSnackbar({
-          message: 'Erreur lors de la récupération des spécialités',
+          message:
+            err instanceof Error
+              ? err.message
+              : 'Une erreur est survenue lors de la récupération des spécialités !',
           severity: 'error',
         });
         setSpecialties([]);

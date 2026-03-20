@@ -31,7 +31,7 @@ interface FormData {
 }
 
 export const RegisterPage = () => {
-  const { registerUser, isRegistering } = useUser();
+  const { register, isRegistering } = useUser();
   const [chosenImage, setChosenImage] = useState<ProfileImage | null>(null);
   const [selectedSpecialty, setSelectedSpecialty] =
     useState<SpecialtyDto | null>(null);
@@ -44,7 +44,11 @@ export const RegisterPage = () => {
     specialtyId: null,
     profileImageId: null,
   });
-  const { specialties, getAll: getSpecialties, isGettingSpecialties: loading } = useSpecialties();
+  const {
+    specialties,
+    getAll: getSpecialties,
+    isGettingSpecialties: loading,
+  } = useSpecialties();
   const [showPassword, setShowPassword] = useState(false);
   const { openModal } = useModal();
   const { showSnackbar } = useSnackbar();
@@ -65,7 +69,7 @@ export const RegisterPage = () => {
 
     if (!formData.profileImageId) return;
 
-    registerUser(formData, navigate);
+    register(formData, navigate);
   };
 
   const handleChange = (e: SyntheticEvent) => {
@@ -219,6 +223,11 @@ export const RegisterPage = () => {
                 <Autocomplete
                   options={specialties}
                   loading={loading}
+                  noOptionsText={
+                    loading
+                      ? 'Chargement des spécialités...'
+                      : 'Aucune spécialité trouvée'
+                  }
                   fullWidth
                   value={selectedSpecialty}
                   getOptionLabel={(e) =>
