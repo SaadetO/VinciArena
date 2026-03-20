@@ -13,7 +13,6 @@ import { useSnackbar } from '../hooks/useSnackbar';
 interface NotificationContextProps {
   notifications: NotificationDto[];
   unreadCount: number;
-  isGettingNotifications: boolean;
   markAsRead: (idNotification: number) => void;
   getAll: () => void;
   getUnreadCount: () => void;
@@ -22,7 +21,6 @@ interface NotificationContextProps {
 const NotificationContext = createContext<NotificationContextProps>({
   notifications: [],
   unreadCount: 0,
-  isGettingNotifications: false,
   markAsRead: () => {},
   getAll: () => {},
   getUnreadCount: () => {},
@@ -34,7 +32,7 @@ const NotificationProvider = ({ children }: { children: ReactNode }) => {
   const { authenticatedUser } = useContext(UserContext);
   const { showSnackbar } = useSnackbar();
 
-  const { execute: getAll, loading: isGettingNotifications } = useApi(
+  const { execute: getAll } = useApi(
     async () => {
       const response = await fetch(`/api/notifications/member/me`, {
         headers: {
@@ -169,7 +167,6 @@ const NotificationProvider = ({ children }: { children: ReactNode }) => {
       value={{
         notifications,
         unreadCount,
-        isGettingNotifications,
         markAsRead,
         getAll,
         getUnreadCount,

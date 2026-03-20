@@ -15,13 +15,7 @@ import { useNotifications } from '../../../hooks/useNotifications';
 
 export const NotificationMenu = () => {
   const [menuPosition, setMenuPosition] = useState<null | HTMLElement>(null);
-  const {
-    notifications,
-    unreadCount,
-    markAsRead,
-    isGettingNotifications,
-    getAll,
-  } = useNotifications();
+  const { notifications, unreadCount, getAll } = useNotifications();
 
   const unreadNotifications = notifications.filter((notif) => !notif.isRead);
 
@@ -107,14 +101,7 @@ export const NotificationMenu = () => {
           </Stack>
         ) : (
           unreadNotifications.map((notif) => (
-            <NotificationItem
-              key={notif.idNotification}
-              notification={notif}
-              loading={isGettingNotifications}
-              onMarkAsRead={() => {
-                markAsRead(notif.idNotification);
-              }}
-            />
+            <NotificationItem key={notif.idNotification} notification={notif} />
           ))
         )}
       </Menu>
