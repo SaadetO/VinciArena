@@ -19,7 +19,7 @@ interface NotificationContextProps {
   getUnreadCount: () => void;
 }
 
-export const NotificationContext = createContext<NotificationContextProps>({
+const NotificationContext = createContext<NotificationContextProps>({
   notifications: [],
   unreadCount: 0,
   isGettingNotifications: false,
@@ -28,7 +28,7 @@ export const NotificationContext = createContext<NotificationContextProps>({
   getUnreadCount: () => {},
 });
 
-export const NotificationProvider = ({ children }: { children: ReactNode }) => {
+const NotificationProvider = ({ children }: { children: ReactNode }) => {
   const [notifications, setNotifications] = useState<NotificationDto[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const { authenticatedUser } = useContext(UserContext);
@@ -179,3 +179,5 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     </NotificationContext.Provider>
   );
 };
+
+export { NotificationContext, NotificationProvider };

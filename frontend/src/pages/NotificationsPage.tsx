@@ -3,7 +3,8 @@ import { NotificationItem } from '../components/NotificationItem';
 import { useNotifications } from '../hooks/useNotifications';
 
 export const NotificationsPage = () => {
-  const { notifications, markAsRead, isGettingNotifications } = useNotifications();
+  const { notifications, markAsRead, isGettingNotifications } =
+    useNotifications();
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 3, gap: 1.5 }}>
@@ -18,7 +19,7 @@ export const NotificationsPage = () => {
             key={notif.idNotification}
             notification={notif}
             onMarkAsRead={() => {
-              markAsRead(notif.idNotification); 
+              markAsRead(notif.idNotification);
             }}
           />
         ))}

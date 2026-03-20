@@ -62,7 +62,10 @@ export const NotificationItem = ({
             secondary={<Skeleton variant="text" width="40%" height={16} />}
           />
         </ListItem>
-        <Divider component="li" sx={{ '&:last-of-type': { display: 'none' } }} />
+        <Divider
+          component="li"
+          sx={{ '&:last-of-type': { display: 'none' } }}
+        />
       </Stack>
     );
   return (

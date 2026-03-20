@@ -1,7 +1,4 @@
-import {
-  useState,
-  MouseEvent,
-} from 'react';
+import { useState, MouseEvent } from 'react';
 import {
   Badge,
   IconButton,
@@ -18,7 +15,13 @@ import { useNotifications } from '../../../hooks/useNotifications';
 
 export const NotificationMenu = () => {
   const [menuPosition, setMenuPosition] = useState<null | HTMLElement>(null);
-  const { notifications, unreadCount, markAsRead, isGettingNotifications, getAll } = useNotifications();
+  const {
+    notifications,
+    unreadCount,
+    markAsRead,
+    isGettingNotifications,
+    getAll,
+  } = useNotifications();
 
   const unreadNotifications = notifications.filter((notif) => !notif.isRead);
 
@@ -70,7 +73,7 @@ export const NotificationMenu = () => {
           justifyContent="space-between"
           alignItems="center"
           minWidth="15rem"
-          padding="0.5rem 1.5rem 0.75rem 1.5rem"
+          padding="0.5rem 1.5rem 0.875rem 1.5rem"
           sx={{
             outline: 'none',
           }}
@@ -88,7 +91,7 @@ export const NotificationMenu = () => {
           </Button>
         </Stack>
         <Divider />
-        {unreadNotifications.length === 0 && !isGettingNotifications ? (
+        {unreadNotifications.length === 0 ? (
           <Stack padding="2rem 1.5rem" spacing="0.25rem" alignItems="center">
             <Typography variant="h5" textAlign="center">
               Rien à signaler!
