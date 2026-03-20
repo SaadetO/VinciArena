@@ -4,9 +4,11 @@ interface MainContext {}
 
 interface UserContextType {
   authenticatedUser: MaybeAuthenticatedUser;
-  registerUser: (newUser: User) => Promise<void>;
-  loginUser: (user: User) => Promise<void>;
+  registerUser: (newUser: User, navigate: (path: string) => void) => Promise<void | null>;
+  loginUser: (user: User, navigate: (path: string) => void) => Promise<void | null>;
   clearUser: () => void;
+  isLoggingIn: boolean;
+  isRegistering: boolean;
 }
 interface ProfileImage {
   idImage: number;
