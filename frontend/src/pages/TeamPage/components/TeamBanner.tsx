@@ -1,5 +1,5 @@
 import { Chip, Stack, Typography, Skeleton } from '@mui/material';
-import profileHeroHeader from '../../../assets/images/profile_hero_header.jpg';
+import teamHeroHeader from '../../../assets/images/team_hero_header.jpg';
 import { TeamDetailsInfoDto } from '../../../types';
 import { PersonOutline } from '@mui/icons-material';
 
@@ -7,7 +7,7 @@ export const TeamBanner = ({ team }: { team?: TeamDetailsInfoDto }) => {
   return (
     <Stack
       sx={{
-        background: `linear-gradient(0, rgba(0, 0, 0, 0.2)), url("${profileHeroHeader}") no-repeat center/cover`,
+        background: `linear-gradient(0, rgba(0, 0, 0, 0.2)), url("${teamHeroHeader}") no-repeat center/cover`,
       }}
       spacing="0.375rem"
       width={1}
