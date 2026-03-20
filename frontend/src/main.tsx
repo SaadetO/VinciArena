@@ -8,6 +8,7 @@ import { HomePage } from './pages/HomePage.tsx';
 import { RegisterPage } from './pages/RegisterPage.tsx';
 import { LoginPage } from './pages/LoginPage.tsx';
 import { UserContextProvider } from './contexts/UserContext.tsx';
+import { NotificationProvider } from './contexts/NotificationContext.tsx';
 import '@fontsource/roboto/700.css';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
@@ -69,13 +70,15 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <UserContextProvider>
-        <SnackbarProvider>
-          <ModalContextProvider>
-            <RouterProvider router={router} />
-          </ModalContextProvider>
-        </SnackbarProvider>
-      </UserContextProvider>
+      <SnackbarProvider>
+        <ModalContextProvider>
+          <UserContextProvider>
+            <NotificationProvider>
+              <RouterProvider router={router} />
+            </NotificationProvider>
+          </UserContextProvider>
+        </ModalContextProvider>
+      </SnackbarProvider>
     </ThemeProvider>
   </React.StrictMode>,
 );

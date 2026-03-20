@@ -1,9 +1,7 @@
-// NotificationItem.tsx
 import {
   ListItem,
   ListItemText,
   Divider,
-  Box,
   IconButton,
   Tooltip,
 } from '@mui/material';
@@ -12,44 +10,18 @@ import { useContext } from 'react';
 import { UserContext } from '../contexts/UserContext';
 import { MarkEmailReadOutlined } from '@mui/icons-material';
 import { formatRelativeTime } from '../utils/date';
+import { useNotifications } from '../hooks/useNotifications';
 
 interface Props {
   notification: NotificationDto;
-  isLast: boolean;
-  onRefresh: () => void;
 }
 
-export const NotificationItem = ({
-  notification,
-  isLast,
-  onRefresh,
-}: Props) => {
+export const NotificationItem = ({ notification }: Props) => {
   const { authenticatedUser } = useContext(UserContext);
+  const { markAsRead } = useNotifications();
   if (!authenticatedUser) return;
-  const handleMarkAsReadClick = () => {
-    markAsRead(notification.idNotification);
-  };
-  const markAsRead = async (idNotification: number) => {
-    try {
-      const response = await fetch(
-        `/api/notifications/${idNotification}/read`,
-        {
-          method: 'PATCH',
-          headers: {
-            Authorization: authenticatedUser.token,
-          },
-        },
-      );
-      if (response.ok) {
-        onRefresh();
-      }
-    } catch (err) {
-      console.error('Failed to update notification status', err);
-    }
-  };
-
   return (
-    <Box>
+    <>
       <ListItem
         sx={{
           backgroundColor: (theme) =>
@@ -62,7 +34,7 @@ export const NotificationItem = ({
               <IconButton
                 size="small"
                 color="primary"
-                onClick={() => handleMarkAsReadClick()}
+                onClick={() => markAsRead(notification.idNotification)}
               >
                 <MarkEmailReadOutlined />
               </IconButton>
@@ -94,7 +66,7 @@ export const NotificationItem = ({
           }}
         />
       </ListItem>
-      {!isLast && <Divider component="li" />}
-    </Box>
+      <Divider sx={{ '&:last-of-type': { display: 'none' } }} />
+    </>
   );
 };

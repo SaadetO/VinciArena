@@ -1,12 +1,11 @@
 import { Button, Skeleton, Stack, Typography } from '@mui/material';
 import { ProfileInfoDto } from '../../../types';
 import { AlternateEmail, Person } from '@mui/icons-material';
-import { ReactNode, useContext } from 'react';
+import { ReactNode } from 'react';
 import { useModal } from '../../../hooks/useModal';
-import { useSnackbar } from '../../../hooks/useSnackbar';
-import { UserContext } from '../../../contexts/UserContext';
 import { changePasswordModal } from '../modals/changePasswordModal';
 import { formatDate } from '../../../utils/date';
+import { useMembers } from '../../../hooks/useMembers';
 
 interface PersonalInfoCardProps {
   user?: ProfileInfoDto;
@@ -15,8 +14,7 @@ interface PersonalInfoCardProps {
 export const PersonalInfoCard = ({ user }: PersonalInfoCardProps) => {
   const iconSx = { width: '1rem', height: '1rem' };
   const { openModal } = useModal();
-  const { showSnackbar } = useSnackbar();
-  const { authenticatedUser } = useContext(UserContext);
+  const { updatePassword } = useMembers();
 
   const handlePasswordChange = () => {
     let selectedPassword: string | null = null;
@@ -28,31 +26,7 @@ export const PersonalInfoCard = ({ user }: PersonalInfoCardProps) => {
     const onConfirm = async (close: () => void) => {
       if (!selectedPassword) return;
       close();
-
-      try {
-        const response = await fetch('/api/members/me/password', {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: authenticatedUser?.token ?? '',
-          },
-          body: JSON.stringify({ password: selectedPassword }),
-        });
-
-        if (!response.ok)
-          throw new Error('Erreur lors de la mise à jour du mot de passe.');
-
-        showSnackbar({
-          message: 'Mot de passe modifié avec succès !',
-          severity: 'success',
-        });
-      } catch (err: unknown) {
-        showSnackbar({
-          message:
-            err instanceof Error ? err.message : 'Une erreur est survenue.',
-          severity: 'error',
-        });
-      }
+      updatePassword(selectedPassword);
     };
 
     openModal(

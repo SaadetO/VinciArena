@@ -1,7 +1,7 @@
-import { useState, SyntheticEvent, useContext } from 'react';
+import { useState, SyntheticEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  Alert,
+  // Alert,
   Box,
   Button,
   Checkbox,
@@ -12,21 +12,19 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { UserContextType } from '../types';
-import { UserContext } from '../contexts/UserContext';
+import { useUser } from '../hooks/useUser';
 import logo from '../assets/images/logo.svg';
 import authBackground from '../assets/images/auth_background.jpg';
 import { ArrowBack, Visibility, VisibilityOff } from '@mui/icons-material';
 import { LoadingIcon } from '../components/LoadingIcon';
 
 export const LoginPage = () => {
-  const { loginUser }: UserContextType = useContext(UserContext);
+  const { login, isLoggingIn } = useUser();
 
   // REMEMBER ME
   const [rememberMe, setRememberMe] = useState(false);
 
-  const [showError, setShowError] = useState(false);
-  const [loading, setLoading] = useState(false);
+  // const [error, setError] = useState(false);
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
@@ -36,25 +34,13 @@ export const LoginPage = () => {
 
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
-    try {
-      setLoading(true);
-      await loginUser({ ...formData, rememberMe });
-      navigate('/');
-    } catch (err) {
-      console.error('LoginPage::error: ', err);
-      setShowError(true);
-    }
-    setLoading(false);
+    login({ ...formData, rememberMe }, navigate);
   };
 
   const handleChange = (e: SyntheticEvent) => {
     const input = e.target as HTMLInputElement;
     setFormData((prev) => ({ ...prev, [input.name]: input.value }));
   };
-  if (loading) {
-    return <LoadingIcon></LoadingIcon>;
-  }
-
   return (
     <Stack direction="row" flex="1">
       <Link to="/" style={{ padding: '1rem', position: 'fixed' }}>
@@ -75,78 +61,93 @@ export const LoginPage = () => {
         }}
       >
         <Stack spacing="1.5rem" alignItems="center">
-          <img src={logo} width="44" height="44" />
-          <Typography variant="h3" textAlign="center">
-            Bon retour
-          </Typography>
+          {isLoggingIn ? (
+            <Box>
+              <LoadingIcon />
+            </Box>
+          ) : (
+            <img src={logo} width="44" height="44" />
+          )}
+          <Stack spacing="0.5rem">
+            <Typography variant="h3" textAlign="center">
+              {isLoggingIn ? 'Traitement en cours' : 'Bon Retour'}
+            </Typography>
+            <Typography variant="body1" color="secondary" textAlign="center">
+              {isLoggingIn
+                ? 'Votre connexion est en cours de traitement, veuillez patienter.'
+                : 'Connectez vous et continuez votre expérience.'}
+            </Typography>
+          </Stack>
         </Stack>
-        <form
-          onSubmit={handleSubmit}
-          style={{
-            width: '100%',
-          }}
-        >
-          <Stack spacing="0.75rem">
-            <TextField
-              fullWidth
-              id="email"
-              name="email"
-              type="email"
-              placeholder="Email"
-              variant="outlined"
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
-            <TextField
-              fullWidth
-              id="password"
-              name="password"
-              type={showPassword ? 'text' : 'password'}
-              placeholder="Mot de passe"
-              variant="outlined"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              slotProps={{
-                input: {
-                  endAdornment: formData.password.trim().length > 0 && (
-                    <IconButton
-                      onClick={() => setShowPassword((prev) => !prev)}
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  ),
-                },
+        {!isLoggingIn && (
+          <form
+            onSubmit={handleSubmit}
+            style={{
+              width: '100%',
+            }}
+          >
+            <Stack spacing="0.75rem">
+              <TextField
+                fullWidth
+                id="email"
+                name="email"
+                type="email"
+                placeholder="Email"
+                variant="outlined"
+                value={formData.email}
+                onChange={handleChange}
+                required
+              />
+              <TextField
+                fullWidth
+                id="password"
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Mot de passe"
+                variant="outlined"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                slotProps={{
+                  input: {
+                    endAdornment: formData.password.trim().length > 0 && (
+                      <IconButton
+                        onClick={() => setShowPassword((prev) => !prev)}
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    ),
+                  },
+                }}
+              />
+            </Stack>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                />
+              }
+              label="Se souvenir de moi"
+              sx={{
+                color: 'text.secondary',
               }}
             />
-          </Stack>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-              />
-            }
-            label="Se souvenir de moi"
-            sx={{
-              color: 'text.secondary',
-            }}
-          />
-          {showError && (
+            {/* {error && (
             <Alert severity="error" sx={{ mb: 2 }}>
               Identifiants invalides !
             </Alert>
-          )}
-          <Stack spacing="1.5rem" paddingTop="1.5rem">
-            <Button type="submit" variant="contained">
-              Se Connecter
-            </Button>
-            <Typography textAlign="center" variant="body2" color="secondary">
-              Pas de compte? <Link to="/auth/register">S'inscrire</Link>
-            </Typography>
-          </Stack>
-        </form>
+          )} */}
+            <Stack spacing="1.5rem" paddingTop="1.5rem">
+              <Button type="submit" variant="contained">
+                Se Connecter
+              </Button>
+              <Typography textAlign="center" variant="body2" color="secondary">
+                Pas de compte? <Link to="/auth/register">S'inscrire</Link>
+              </Typography>
+            </Stack>
+          </form>
+        )}
       </Container>
       <Box
         width={1 / 3}

@@ -8,6 +8,7 @@ import { UserContext } from '../../contexts/UserContext';
 import { ProfileInfoDto } from '../../types';
 import { NotFoundPage } from '../NotFoundPage';
 import { UnavailabilitiesCard } from './components/UnavailabilitiesCard';
+import { useMembers } from '../../hooks/useMembers';
 
 export const ProfilePage = () => {
   const { id } = useParams();
@@ -17,41 +18,14 @@ export const ProfilePage = () => {
   const [error, setError] = useState<
     { code: number; message: string; subtitle?: string } | undefined
   >(undefined);
+  const { getById } = useMembers({ setUser, setError });
 
   useEffect(() => {
     if (authenticatedUser === undefined) return;
     setUser(undefined);
     setError(undefined);
-    if (isNaN(idNbr) || idNbr <= 0) return;
-    (async () => {
-      let response: Response | undefined = undefined;
-      try {
-        response = await fetch(`/api/members/${idNbr}`, {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: authenticatedUser?.token ?? '',
-          },
-        });
-        if (response.status === 404)
-          return setError({
-            code: 404,
-            message: 'Membre introuvable',
-            subtitle:
-              "Le membre que vous cherchez n'existe pas ou a été surpprimé.",
-          });
-        if (!response.ok) throw new Error('Failed to fetch profile');
-
-        setUser(await response.json());
-      } catch (err) {
-        setError({
-          code: response?.status ?? 500,
-          message: 'Une erreur est survenue',
-          subtitle:
-            'Une erreur est survenue lors de la récupération du profil.',
-        });
-      }
-    })();
-  }, [idNbr, authenticatedUser]);
+    getById(idNbr);
+  }, [idNbr, authenticatedUser, getById]);
 
   if (error) return <NotFoundPage error={error} />;
   return (

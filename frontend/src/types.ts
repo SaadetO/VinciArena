@@ -4,9 +4,14 @@ interface MainContext {}
 
 interface UserContextType {
   authenticatedUser: MaybeAuthenticatedUser;
-  registerUser: (newUser: User) => Promise<void>;
-  loginUser: (user: User) => Promise<void>;
+  register: (
+    newUser: User,
+    navigate: (path: string) => void,
+  ) => Promise<void | null>;
+  login: (user: User, navigate: (path: string) => void) => Promise<void | null>;
   clearUser: () => void;
+  isLoggingIn: boolean;
+  isRegistering: boolean;
 }
 interface ProfileImage {
   idImage: number;
@@ -31,6 +36,12 @@ interface Member {
 interface Specialty {
   idSpecialty: number;
   label: string;
+}
+
+interface Unavailability {
+  id: number;
+  startDate: string;
+  endDate: string;
 }
 
 interface ProfileInfoDto {
@@ -124,6 +135,7 @@ export type {
   UserContextType,
   ProfileInfoDto,
   Team,
+  Unavailability,
   JoinRequestDto,
   TeamDetailsInfoDto,
   NotificationDto,

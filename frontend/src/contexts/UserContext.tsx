@@ -6,29 +6,29 @@ import {
   useCallback,
   useMemo,
 } from 'react';
-import {
-  MaybeAuthenticatedUser,
-  UserContextType,
-  User,
-  AuthenticatedUser,
-} from '../types';
+import { MaybeAuthenticatedUser, User, UserContextType } from '../types';
+import { useApi } from '../hooks/useApi';
 
 import {
   clearAuthenticatedUser,
   getAuthenticatedUser,
   storeAuthenticatedUser,
 } from '../utils/session';
+import { useSnackbar } from '../hooks/useSnackbar';
 
 const defaultUserContext: UserContextType = {
   authenticatedUser: undefined,
-  registerUser: async () => {},
-  loginUser: async () => {},
+  register: async () => {},
+  login: async () => {},
   clearUser: () => {},
+  isLoggingIn: false,
+  isRegistering: false,
 };
 
 const UserContext = createContext<UserContextType>(defaultUserContext);
 
 const UserContextProvider = ({ children }: { children: ReactNode }) => {
+  const { showSnackbar } = useSnackbar();
   const [authenticatedUser, setAuthenticatedUser] =
     useState<MaybeAuthenticatedUser>(undefined);
 
@@ -37,50 +37,42 @@ const UserContextProvider = ({ children }: { children: ReactNode }) => {
     setAuthenticatedUser(null);
   }, []);
 
+  const { execute: relog } = useApi(
+    async (token: string) => {
+      const response = await fetch('/api/auths/login/me', {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token,
+        },
+      });
+
+      if (!response.ok) throw new Error('Failed to fetch user');
+
+      return response.json();
+    },
+    {
+      onSuccess: (data) => {
+        setAuthenticatedUser({ ...data });
+      },
+      onError: () => {
+        clearUser();
+      },
+    },
+  );
+
   useEffect(() => {
-    // store a mounted state to trigger the effect only when
-    // the component is mounted and prevent the function
-    // from running after the component has unmounted
-    let isMounted = true;
     const storedUser = getAuthenticatedUser();
     if (!storedUser) {
       setAuthenticatedUser(null);
       return;
     }
 
-    (async () => {
-      try {
-        const response = await fetch('/api/auths/login/me', {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: storedUser.token,
-          },
-        });
+    relog(storedUser.token);
+  }, [relog]);
 
-        if (!response.ok) throw new Error('Failed to fetch user');
-
-        const authenticatedUserData: AuthenticatedUser = await response.json();
-
-        // if the component is still mounted, update the state
-        if (isMounted) {
-          setAuthenticatedUser({
-            ...authenticatedUserData,
-          });
-        }
-      } catch (err) {
-        console.error('Failed to fetch user: ', err);
-        // if the component is still mounted, clear the user
-        if (isMounted) clearUser();
-      }
-    })();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [clearUser]);
-
-  const registerUser = useCallback(async (newUser: User) => {
-    try {
+  const { execute: register, loading: isRegistering } = useApi(
+    async (newUser: User, navigate: (path: string) => void) => {
+      void navigate;
       const response = await fetch('/api/auths/register', {
         method: 'POST',
         body: JSON.stringify(newUser),
@@ -89,43 +81,61 @@ const UserContextProvider = ({ children }: { children: ReactNode }) => {
         },
       });
 
-      if (!response.ok)
-        throw new Error(
-          `fetch error : ${response.status} : ${response.statusText}`,
-        );
-    } catch (err) {
-      console.error('registerUser::error: ', err);
-      throw err;
-    }
-  }, []);
-
-  const loginUser = useCallback(
-    async ({ email, password, rememberMe }: User) => {
-      try {
-        const response = await fetch('/api/auths/login', {
-          method: 'POST',
-          body: JSON.stringify({ email, password }),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!response.ok)
-          throw new Error(
-            `fetch error : ${response.status} : ${response.statusText}`,
-          );
-
-        const authenticatedUserData: AuthenticatedUser = await response.json();
-
-        storeAuthenticatedUser(authenticatedUserData, rememberMe ?? false);
-
-        setAuthenticatedUser(authenticatedUserData);
-      } catch (err) {
-        console.error('loginUser::error: ', err);
-        throw err;
-      }
+      if (!response.ok) throw new Error('Échec de la création du compte !');
     },
-    [],
+    {
+      onSuccess: (_, __, navigate) => {
+        navigate('/auth/login');
+        showSnackbar({
+          message: 'Compte créé avec succès !',
+          severity: 'success',
+        });
+      },
+      onError: (err) => {
+        showSnackbar({
+          message:
+            err instanceof Error
+              ? err.message
+              : 'Une erreur est survenue lors de la création du compte !',
+          severity: 'error',
+        });
+      },
+    },
+  );
+
+  const { execute: login, loading: isLoggingIn } = useApi(
+    async (
+      { email, password, rememberMe }: User,
+      navigate: (path: string) => void,
+    ) => {
+      void navigate, rememberMe;
+      const response = await fetch('/api/auths/login', {
+        method: 'POST',
+        body: JSON.stringify({ email, password }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) throw new Error('Échec de la connexion !');
+      return response.json();
+    },
+    {
+      onSuccess: (data, { rememberMe }, navigate) => {
+        storeAuthenticatedUser(data, rememberMe ?? false);
+        setAuthenticatedUser(data);
+        navigate('/');
+      },
+      onError: (err) => {
+        showSnackbar({
+          message:
+            err instanceof Error
+              ? err.message
+              : 'Une erreur est survenue lors de la connexion !',
+          severity: 'error',
+        });
+      },
+    },
   );
 
   /**
@@ -135,11 +145,13 @@ const UserContextProvider = ({ children }: { children: ReactNode }) => {
   const myContext: UserContextType = useMemo(
     () => ({
       authenticatedUser,
-      registerUser,
-      loginUser,
+      register,
+      login,
       clearUser,
+      isLoggingIn,
+      isRegistering,
     }),
-    [authenticatedUser, registerUser, loginUser, clearUser],
+    [authenticatedUser, register, login, clearUser, isLoggingIn, isRegistering],
   );
 
   return (

@@ -14,8 +14,8 @@ import { UserContext } from '../../../contexts/UserContext';
 import { useContext, Dispatch, SetStateAction } from 'react';
 import { profileImageModal } from '../../../modals/profileImageModal';
 import { useModal } from '../../../hooks/useModal';
-import { useSnackbar } from '../../../hooks/useSnackbar';
 import { useModalController } from '../../../hooks/useModalController';
+import { useMembers } from '../../../hooks/useMembers';
 
 export const ProfileBanner = ({
   user,
@@ -25,9 +25,10 @@ export const ProfileBanner = ({
   setUser: Dispatch<SetStateAction<ProfileInfoDto | undefined>>;
 }) => {
   const { openModal } = useModal();
-  const { showSnackbar } = useSnackbar();
   const { setError } = useModalController();
   const { authenticatedUser } = useContext(UserContext);
+
+  const { updateAvatar } = useMembers({ setUser });
 
   const handleAvatarChange = () => {
     let selectedImage: ProfileImage | null = null;
@@ -47,39 +48,7 @@ export const ProfileBanner = ({
 
       close();
 
-      // Optimistic update
-      setUser((prev) => {
-        if (!prev) return prev;
-        return { ...prev, avatar: avatar.path };
-      });
-
-      try {
-        const response = await fetch(`/api/members/${user.id}/avatar`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: authenticatedUser?.token ?? '',
-          },
-          body: JSON.stringify(avatar),
-        });
-        if (!response.ok)
-          throw new Error("Échec de la mise à jour de l'image de profil");
-        showSnackbar({
-          message: 'Image de profil mise à jour',
-          severity: 'success',
-        });
-      } catch (err: unknown) {
-        // Rollback
-        setUser((prev) => {
-          if (!prev) return prev;
-          return { ...prev, avatar: previousAvatar };
-        });
-        showSnackbar({
-          message:
-            err instanceof Error ? err.message : 'Une erreur est survenue',
-          severity: 'error',
-        });
-      }
+      updateAvatar(avatar, previousAvatar ?? '');
     };
 
     openModal(
