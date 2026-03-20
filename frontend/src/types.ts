@@ -4,7 +4,10 @@ interface MainContext {}
 
 interface UserContextType {
   authenticatedUser: MaybeAuthenticatedUser;
-  register: (newUser: User, navigate: (path: string) => void) => Promise<void | null>;
+  register: (
+    newUser: User,
+    navigate: (path: string) => void,
+  ) => Promise<void | null>;
   login: (user: User, navigate: (path: string) => void) => Promise<void | null>;
   clearUser: () => void;
   isLoggingIn: boolean;

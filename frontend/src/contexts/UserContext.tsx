@@ -6,11 +6,7 @@ import {
   useCallback,
   useMemo,
 } from 'react';
-import {
-  MaybeAuthenticatedUser,
-  User,
-  UserContextType,
-} from '../types';
+import { MaybeAuthenticatedUser, User, UserContextType } from '../types';
 import { useApi } from '../hooks/useApi';
 
 import {
@@ -61,7 +57,7 @@ const UserContextProvider = ({ children }: { children: ReactNode }) => {
       onError: () => {
         clearUser();
       },
-    }
+    },
   );
 
   useEffect(() => {
@@ -155,14 +151,7 @@ const UserContextProvider = ({ children }: { children: ReactNode }) => {
       isLoggingIn,
       isRegistering,
     }),
-    [
-      authenticatedUser,
-      register,
-      login,
-      clearUser,
-      isLoggingIn,
-      isRegistering,
-    ],
+    [authenticatedUser, register, login, clearUser, isLoggingIn, isRegistering],
   );
 
   return (
