@@ -162,7 +162,7 @@ export const useMembers = (options?: UseMembersOptions) => {
         },
       });
       if (!response.ok)
-        throw new Error('Échec de la mise à jour du statut admin.');
+        throw new Error('Échec de la mise à jour du statut administrateur.');
     },
     {
       onOptimism: (id) => {
@@ -182,8 +182,8 @@ export const useMembers = (options?: UseMembersOptions) => {
         setPendingIds?.((prev) => prev.filter((pid) => pid !== id));
         showSnackbar({
           message: wasAdmin
-            ? 'Statut admin rétrogradé avec succès !'
-            : 'Statut admin promu avec succès !',
+            ? 'Administrateur rétrogradé au rang de membre avec succès !'
+            : 'Membre promu au rang d\'administrateur avec succès !',
           severity: 'success',
         });
       },
@@ -193,7 +193,7 @@ export const useMembers = (options?: UseMembersOptions) => {
           message:
             err instanceof Error
               ? err.message
-              : 'Une erreur est survenue lors de la mise à jour du statut admin.',
+              : 'Une erreur est survenue lors de la mise à jour du statut administrateur.',
           severity: 'error',
         });
       },
