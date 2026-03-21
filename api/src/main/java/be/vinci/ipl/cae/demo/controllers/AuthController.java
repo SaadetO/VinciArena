@@ -62,12 +62,7 @@ public class AuthController {
         || newMember.getPassword().isBlank()) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email ou mot de passe manquant");
     }
-
-    Member member = memberService.register(newMember);
-
-    if (member == null) {
-      throw new ResponseStatusException(HttpStatus.CONFLICT, "Email déjà utilisé");
-    }
+    memberService.register(newMember);
   }
 
   /**
@@ -83,16 +78,10 @@ public class AuthController {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email ou mot de passe manquant");
     }
 
-    AuthenticatedUser user = memberService.login(
+    return memberService.login(
         credentials.getEmail(),
         credentials.getPassword()
     );
-
-    if (user == null) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Identifiants invalides");
-    }
-
-    return user;
   }
 
   /**
