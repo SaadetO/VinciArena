@@ -111,11 +111,11 @@ public class MemberService {
     Member member = memberRepository.findByEmail(email);
 
     if (member == null) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED , "Identifiants invalides");
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Identifiants invalides");
     }
 
     if (!passwordEncoder.matches(password, member.getPassword())) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED , "Identifiants invalides");
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Identifiants invalides");
     }
 
     return createJwtToken(email);
