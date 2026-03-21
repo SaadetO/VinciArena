@@ -69,7 +69,7 @@ export const TeamPage = () => {
         <Grid2
           container
           spacing={3}
-          paddingTop="1.5rem"
+          padding="1.5rem 0 4rem"
           direction={{ xs: 'column-reverse', lg: 'row' }}
           justifyContent="center"
         >
