@@ -18,9 +18,9 @@ import { useSnackbar } from '../hooks/useSnackbar';
 
 const defaultUserContext: UserContextType = {
   authenticatedUser: undefined,
-  register: async () => { },
-  login: async () => { },
-  clearUser: () => { },
+  register: async () => {},
+  login: async () => {},
+  clearUser: () => {},
   isLoggingIn: false,
   isRegistering: false,
 };
@@ -83,7 +83,7 @@ const UserContextProvider = ({ children }: { children: ReactNode }) => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Erreur lors de l\'inscription');
+        throw new Error(errorData.message || "Erreur lors de l'inscription");
       }
     },
     {
