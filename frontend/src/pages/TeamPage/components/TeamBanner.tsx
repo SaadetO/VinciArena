@@ -16,7 +16,11 @@ export const TeamBanner = ({ team }: { team?: TeamDetailsInfoDto }) => {
     >
       <Stack spacing="0.75rem" alignItems="center" direction="row">
         <Typography variant="h1">
-          {team ? team.name : <Skeleton variant="rounded" width="15rem" />}
+          {team ? (
+            team.name
+          ) : (
+            <Skeleton variant="text" height="3.375rem" width="15rem" />
+          )}
         </Typography>
       </Stack>
       <Stack direction="row" spacing="0.25rem" alignItems="center">
