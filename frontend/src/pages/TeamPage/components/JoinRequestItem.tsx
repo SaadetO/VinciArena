@@ -84,10 +84,10 @@ export const JoinRequestItem = ({
   return (
     <>
       <Stack
-        padding="0.5rem 1rem 0.5rem"
-        borderRadius="0.5rem"
+        padding="0.625rem 0.75rem 0.625rem"
+        borderRadius="0.75rem"
         alignItems="center"
-        spacing="1rem"
+        spacing="0.5rem"
         direction="row"
         sx={{ background: (theme) => theme.palette.background.s2 }}
       >
@@ -98,28 +98,30 @@ export const JoinRequestItem = ({
             color: 'text.primary',
           }}
           src={`/assets/avatars/${joinRequest.requester.avatar}`}
-        ></Avatar>
-        <Typography variant="h5" sx={{ flex: 1 }}>
+        />
+        <Typography variant="h5" fontWeight="bold" sx={{ flex: 1 }}>
           {joinRequest.requester.tag}
         </Typography>
-        <Button
-          onClick={handleAccept}
-          variant="contained"
-          color="secondary"
-          size="small"
-          disabled={isLoading}
-        >
-          Accepter
-        </Button>
-        <Button
-          onClick={handleDeny}
-          variant="contained"
-          color="secondary"
-          size="small"
-          disabled={isLoading}
-        >
-          Refuser
-        </Button>
+        <Stack direction="row" spacing="0.75rem">
+          <Button
+            onClick={handleAccept}
+            variant="contained"
+            color="secondary"
+            size="small"
+            disabled={isLoading}
+          >
+            Accepter
+          </Button>
+          <Button
+            onClick={handleDeny}
+            variant="contained"
+            color="secondary"
+            size="small"
+            disabled={isLoading}
+          >
+            Refuser
+          </Button>
+        </Stack>
       </Stack>
     </>
   );

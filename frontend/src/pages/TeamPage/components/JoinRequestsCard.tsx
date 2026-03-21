@@ -34,13 +34,15 @@ export const JoinRequestsCard = ({
               ))
           ) : (
             <Stack
-              padding="2rem 1.5rem"
+              padding="1.5rem 1.5rem"
               spacing="0.25rem"
               alignItems="center"
               width="100%"
+              borderRadius="0.75rem"
+              sx={{ background: (theme) => theme.palette.background.s2 }}
             >
               <Typography variant="h5" textAlign="center">
-                Aucune demande d'adhésion
+                Rien à signaler !
               </Typography>
               <Typography
                 variant="body2"
@@ -48,7 +50,7 @@ export const JoinRequestsCard = ({
                 width="14rem"
                 color="text.secondary"
               >
-                Rien à signaler !
+                Aucune demande d'adhésion pour le moment.
               </Typography>
             </Stack>
           )}

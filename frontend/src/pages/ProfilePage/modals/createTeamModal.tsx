@@ -15,4 +15,5 @@ export const createTeamModal = ({
   confirmDisabled: true,
   children: <CreateTeamModalContent onSelect={onSelect} />,
   onConfirm: (close) => onConfirm(close),
+  onCancel: (close) => close(),
 });

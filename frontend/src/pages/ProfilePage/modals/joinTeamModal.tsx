@@ -16,4 +16,5 @@ export const joinTeamModal = ({
   confirmDisabled: true,
   children: <JoinTeamModalContent onSelect={onSelect} />,
   onConfirm: (close) => onConfirm(close),
+  onCancel: (close) => close(),
 });
