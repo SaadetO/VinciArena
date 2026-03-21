@@ -121,6 +121,43 @@ public class MemberService {
     return createJwtToken(email);
   }
 
+  private void validatePassword(String password) {
+    if (password == null || password.length() < 8) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST,
+          "Le mot de passe doit contenir au moins 8 caractères"
+      );
+    }
+
+    if (!password.matches(".*[A-Z].*")) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST,
+          "Le mot de passe doit contenir au moins une majuscule"
+      );
+    }
+
+    if (!password.matches(".*[a-z].*")) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST,
+          "Le mot de passe doit contenir au moins une minuscule"
+      );
+    }
+
+    if (!password.matches(".*\\d.*")) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST,
+          "Le mot de passe doit contenir au moins un chiffre"
+      );
+    }
+
+    if (!password.matches(".*[^a-zA-Z0-9].*")) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST,
+          "Le mot de passe doit contenir au moins un caractère spécial"
+      );
+    }
+  }
+
   /**
    * Register a new member.
    *
@@ -128,6 +165,8 @@ public class MemberService {
    * @return the created member
    */
   public Member register(NewMember newMember) {
+
+    validatePassword(newMember.getPassword());
 
     if (memberRepository.existsByEmail(newMember.getEmail())) {
       throw new ResponseStatusException(HttpStatus.CONFLICT, "Email déjà utilisé");

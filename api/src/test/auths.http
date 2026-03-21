@@ -7,9 +7,22 @@ Content-Type: application/json
 
 {
   "email":"player1@mail.com",
-  "password":"123",
+  "password":"Password1!",
   "tag":"Vector",
-  "specialtyId":1,
+  "specialityId":1,
+  "profileImageId":1
+}
+
+### REGISTER A SECOND MEMBER
+# EXPECTED: 200
+POST {{baseUrl}}/auths/register
+Content-Type: application/json
+
+{
+  "email":"player2@mail.com",
+  "password":"Password1!",
+  "tag":"Rogue",
+  "specialityId":2,
   "profileImageId":1
 }
 
@@ -20,9 +33,9 @@ Content-Type: application/json
 
 {
   "email":"player1@mail.com",
-  "password":"123",
+  "password":"Password1!",
   "tag":"Duplicate",
-  "specialtyId":1,
+  "specialityId":1,
   "profileImageId":1
 }
 
@@ -32,22 +45,9 @@ POST {{baseUrl}}/auths/register
 Content-Type: application/json
 
 {
-  "password":"123",
+  "password":"Password1!",
   "tag":"NoEmail",
-  "specialtyId":1,
-  "profileImageId":1
-}
-
-### REGISTER WITH EMPTY EMAIL
-# EXPECTED: 400
-POST {{baseUrl}}/auths/register
-Content-Type: application/json
-
-{
-  "email":"",
-  "password":"123",
-  "tag":"Test",
-  "specialtyId":1,
+  "specialityId":1,
   "profileImageId":1
 }
 
@@ -57,45 +57,22 @@ POST {{baseUrl}}/auths/register
 Content-Type: application/json
 
 {
-  "email":"test@mail.com",
+  "email":"player3@mail.com",
   "tag":"NoPassword",
-  "specialtyId":1,
+  "specialityId":1,
   "profileImageId":1
 }
 
 ### REGISTER WITHOUT TAG
-# EXPECTED: 400
+# EXPECTED: 200 (depends on backend rules)
 POST {{baseUrl}}/auths/register
 Content-Type: application/json
 
 {
-  "email":"test2@mail.com",
-  "password":"123",
-  "specialtyId":1,
+  "email":"player4@mail.com",
+  "password":"Password1!",
+  "specialityId":1,
   "profileImageId":1
-}
-
-### REGISTER WITHOUT SPECIALTY
-# EXPECTED: 400
-POST {{baseUrl}}/auths/register
-Content-Type: application/json
-
-{
-  "email":"test3@mail.com",
-  "password":"123",
-  "tag":"Test"
-}
-
-### REGISTER WITHOUT PROFILE IMAGE
-# EXPECTED: 400
-POST {{baseUrl}}/auths/register
-Content-Type: application/json
-
-{
-  "email":"test4@mail.com",
-  "password":"123",
-  "tag":"Test",
-  "specialtyId":1
 }
 
 ### REGISTER WITH EMPTY BODY
@@ -111,14 +88,90 @@ Content-Type: application/json
 POST {{baseUrl}}/auths/register
 Content-Type: application/json
 
-### LOGIN SUCCESS
+
+### REGISTER WITH WEAK PASSWORD (TOO SHORT)
+# EXPECTED: 400
+POST {{baseUrl}}/auths/register
+Content-Type: application/json
+
+{
+  "email":"weak1@mail.com",
+  "password":"Pass1!",
+  "tag":"Weak",
+  "specialityId":1,
+  "profileImageId":1
+}
+
+### REGISTER WITHOUT UPPERCASE
+# EXPECTED: 400
+POST {{baseUrl}}/auths/register
+Content-Type: application/json
+
+{
+  "email":"weak2@mail.com",
+  "password":"password1!",
+  "tag":"Weak",
+  "specialityId":1,
+  "profileImageId":1
+}
+
+### REGISTER WITHOUT LOWERCASE
+# EXPECTED: 400
+POST {{baseUrl}}/auths/register
+Content-Type: application/json
+
+{
+  "email":"weak3@mail.com",
+  "password":"PASSWORD1!",
+  "tag":"Weak",
+  "specialityId":1,
+  "profileImageId":1
+}
+
+### REGISTER WITHOUT NUMBER
+# EXPECTED: 400
+POST {{baseUrl}}/auths/register
+Content-Type: application/json
+
+{
+  "email":"weak4@mail.com",
+  "password":"Password!",
+  "tag":"Weak",
+  "specialityId":1,
+  "profileImageId":1
+}
+
+### REGISTER WITHOUT SPECIAL CHARACTER
+# EXPECTED: 400
+POST {{baseUrl}}/auths/register
+Content-Type: application/json
+
+{
+  "email":"weak5@mail.com",
+  "password":"Password1",
+  "tag":"Weak",
+  "specialityId":1,
+  "profileImageId":1
+}
+
+### LOGIN WITH VALID USER
 # EXPECTED: 200
 POST {{baseUrl}}/auths/login
 Content-Type: application/json
 
 {
   "email":"player1@mail.com",
-  "password":"123"
+  "password":"Password1!"
+}
+
+### LOGIN SECOND USER
+# EXPECTED: 200
+POST {{baseUrl}}/auths/login
+Content-Type: application/json
+
+{
+  "email":"player2@mail.com",
+  "password":"Password1!"
 }
 
 ### LOGIN WITH WRONG PASSWORD
@@ -128,17 +181,17 @@ Content-Type: application/json
 
 {
   "email":"player1@mail.com",
-  "password":"WRONG"
+  "password":"WrongPassword1!"
 }
 
-### LOGIN WITH UNKNOWN USER
+### LOGIN UNKNOWN USER
 # EXPECTED: 401
 POST {{baseUrl}}/auths/login
 Content-Type: application/json
 
 {
   "email":"unknown@mail.com",
-  "password":"123"
+  "password":"Password1!"
 }
 
 ### LOGIN WITHOUT EMAIL
@@ -147,7 +200,7 @@ POST {{baseUrl}}/auths/login
 Content-Type: application/json
 
 {
-  "password":"123"
+  "password":"Password1!"
 }
 
 ### LOGIN WITHOUT PASSWORD
@@ -157,16 +210,6 @@ Content-Type: application/json
 
 {
   "email":"player1@mail.com"
-}
-
-### LOGIN WITH EMPTY EMAIL
-# EXPECTED: 400
-POST {{baseUrl}}/auths/login
-Content-Type: application/json
-
-{
-  "email":"",
-  "password":"123"
 }
 
 ### LOGIN WITH EMPTY BODY

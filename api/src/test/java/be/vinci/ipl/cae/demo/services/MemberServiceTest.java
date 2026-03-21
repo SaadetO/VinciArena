@@ -41,7 +41,7 @@ class MemberServiceTest {
     // Arrange
     NewMember newMember = new NewMember();
     newMember.setEmail("test@mail.com");
-    newMember.setPassword("123");
+    newMember.setPassword("Password1!");
     newMember.setTag("Vector");
 
     Member member = new Member();
@@ -50,7 +50,7 @@ class MemberServiceTest {
     when(profileImageRepository.getProfileImageByIdImage(org.mockito.ArgumentMatchers.any()))
         .thenReturn(null);
     when(memberRepository.existsByEmail("test@mail.com")).thenReturn(false);
-    when(passwordEncoder.encode("123")).thenReturn("encodedPassword");
+    when(passwordEncoder.encode("Password1!")).thenReturn("encodedPassword");
     when(memberRepository.save(org.mockito.ArgumentMatchers.any(Member.class))).thenReturn(member);
     when(specialtyRepository.getByIdSpecialty(org.mockito.ArgumentMatchers.any())).thenReturn(null);
 
@@ -67,10 +67,87 @@ class MemberServiceTest {
     // Arrange
     NewMember newMember = new NewMember();
     newMember.setEmail("test@mail.com");
-    newMember.setPassword("123");
+    newMember.setPassword("Password1!");
     newMember.setTag("Vector");
 
     when(memberRepository.existsByEmail("test@mail.com")).thenReturn(true);
+
+    // Act + Assert
+    assertThrows(ResponseStatusException.class, () -> {
+      memberService.register(newMember);
+    });
+  }
+
+  @Test
+  void registerMemberWithPasswordTooShort() {
+
+    // Arrange
+    NewMember newMember = new NewMember();
+    newMember.setEmail("test@mail.com");
+    newMember.setPassword("Pass1!");
+    newMember.setTag("Vector");
+
+    // Act + Assert
+    assertThrows(ResponseStatusException.class, () -> {
+      memberService.register(newMember);
+    });
+  }
+
+  @Test
+  void registerMemberWithoutUppercase() {
+
+    // Arrange
+    NewMember newMember = new NewMember();
+    newMember.setEmail("test@mail.com");
+    newMember.setPassword("password1!");
+    newMember.setTag("Vector");
+
+    // Act + Assert
+    assertThrows(ResponseStatusException.class, () -> {
+      memberService.register(newMember);
+    });
+  }
+
+  @Test
+  void registerMemberWithoutLowercase() {
+
+    // Arrange
+    NewMember newMember = new NewMember();
+    newMember.setEmail("test@mail.com");
+    newMember.setPassword("PASSWORD1!");
+    newMember.setTag("Vector");
+
+    // Act + Assert
+    assertThrows(ResponseStatusException.class, () -> {
+      memberService.register(newMember);
+    });
+  }
+
+  @Test
+  void registerMemberWithoutNumber() {
+
+    // Arrange
+    NewMember newMember = new NewMember();
+    newMember.setEmail("test@mail.com");
+    newMember.setPassword("Password!");
+    newMember.setTag("Vector");
+
+    // Act + Assert
+    assertThrows(ResponseStatusException.class, () -> {
+      memberService.register(newMember);
+    });
+  }
+
+  @Test
+  void registerMemberWithoutSpecialCharacter() {
+
+    // Arrange
+    NewMember newMember = new NewMember();
+    newMember.setEmail("test@mail.com");
+    newMember.setPassword("Password1");
+    newMember.setTag("Vector");
+
+    // Act + Assert
     assertThrows(ResponseStatusException.class, () -> {
       memberService.register(newMember);
     });
@@ -78,9 +155,10 @@ class MemberServiceTest {
 
   @Test
   void loginMemberWithValidEmailAndPassword(){
+
     // Arrange
     String email = "test@mail.com";
-    String password = "123";
+    String password = "Password1!";
 
     Member member = new Member();
     member.setEmail(email);
@@ -100,8 +178,9 @@ class MemberServiceTest {
   @Test
   void loginMemberWithWrongPassword(){
 
+    // Arrange
     String email = "test@mail.com";
-    String password = "wrong";
+    String password = "Wrong1!";
 
     Member member = new Member();
     member.setEmail(email);
@@ -110,6 +189,7 @@ class MemberServiceTest {
     when(memberRepository.findByEmail(email)).thenReturn(member);
     when(passwordEncoder.matches(password, "encodedPassword")).thenReturn(false);
 
+    // Act + Assert
     assertThrows(ResponseStatusException.class, () -> {
       memberService.login(email, password);
     });
@@ -118,11 +198,13 @@ class MemberServiceTest {
   @Test
   void loginMemberWithUnknownEmail(){
 
+    // Arrange
     String email = "unknown@mail.com";
-    String password = "123";
+    String password = "Password1!";
 
     when(memberRepository.findByEmail(email)).thenReturn(null);
 
+    // Act + Assert
     assertThrows(ResponseStatusException.class, () -> {
       memberService.login(email, password);
     });
