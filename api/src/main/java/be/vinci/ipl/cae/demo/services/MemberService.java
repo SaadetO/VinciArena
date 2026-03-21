@@ -15,8 +15,10 @@ import com.auth0.jwt.algorithms.Algorithm;
 import java.util.Date;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 /**
  * Service handling authentication and registration for members.
@@ -109,11 +111,11 @@ public class MemberService {
     Member member = memberRepository.findByEmail(email);
 
     if (member == null) {
-      return null;
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED , "Identifiants invalides");
     }
 
     if (!passwordEncoder.matches(password, member.getPassword())) {
-      return null;
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED , "Identifiants invalides");
     }
 
     return createJwtToken(email);
@@ -128,7 +130,7 @@ public class MemberService {
   public Member register(NewMember newMember) {
 
     if (memberRepository.existsByEmail(newMember.getEmail())) {
-      return null;
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "Email déjà utilisé");
     }
 
     Member member = new Member();

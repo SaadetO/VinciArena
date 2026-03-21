@@ -81,7 +81,10 @@ const UserContextProvider = ({ children }: { children: ReactNode }) => {
         },
       });
 
-      if (!response.ok) throw new Error('Échec de la création du compte !');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Erreur lors de l'inscription");
+      }
     },
     {
       onSuccess: (_, __, navigate) => {
@@ -117,7 +120,10 @@ const UserContextProvider = ({ children }: { children: ReactNode }) => {
         },
       });
 
-      if (!response.ok) throw new Error('Échec de la connexion !');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Identifiants invalides');
+      }
       return response.json();
     },
     {

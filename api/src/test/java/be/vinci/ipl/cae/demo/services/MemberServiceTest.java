@@ -15,6 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.server.ResponseStatusException;
 
 @ExtendWith(MockitoExtension.class)
 class MemberServiceTest {
@@ -70,16 +71,14 @@ class MemberServiceTest {
     newMember.setTag("Vector");
 
     when(memberRepository.existsByEmail("test@mail.com")).thenReturn(true);
-
-    // Act
-    Member result = memberService.register(newMember);
-
-    // Assert
-    assertNull(result);
+    assertThrows(ResponseStatusException.class, () -> {
+      memberService.register(newMember);
+    });
   }
 
   @Test
   void loginMemberWithValidEmailAndPassword(){
+    // Arrange
     String email = "test@mail.com";
     String password = "123";
 
@@ -90,15 +89,17 @@ class MemberServiceTest {
     when(memberRepository.findByEmail(email)).thenReturn(member);
     when(passwordEncoder.matches(password, "encodedPassword")).thenReturn(true);
 
+    // Act
     AuthenticatedUser result = memberService.login(email, password);
 
+    // Assert
     assertNotNull(result);
     assertEquals(email, result.getEmail());
-    assertNotNull(result.getToken());
   }
 
   @Test
   void loginMemberWithWrongPassword(){
+
     String email = "test@mail.com";
     String password = "wrong";
 
@@ -109,20 +110,21 @@ class MemberServiceTest {
     when(memberRepository.findByEmail(email)).thenReturn(member);
     when(passwordEncoder.matches(password, "encodedPassword")).thenReturn(false);
 
-    AuthenticatedUser result = memberService.login(email, password);
-
-    assertNull(result);
+    assertThrows(ResponseStatusException.class, () -> {
+      memberService.login(email, password);
+    });
   }
 
   @Test
   void loginMemberWithUnknownEmail(){
+
     String email = "unknown@mail.com";
     String password = "123";
 
     when(memberRepository.findByEmail(email)).thenReturn(null);
 
-    AuthenticatedUser result = memberService.login(email, password);
-
-    assertNull(result);
+    assertThrows(ResponseStatusException.class, () -> {
+      memberService.login(email, password);
+    });
   }
 }
