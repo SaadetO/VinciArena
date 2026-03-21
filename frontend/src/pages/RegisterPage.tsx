@@ -30,6 +30,17 @@ interface FormData {
   profileImageId: number | null;
 }
 
+const isValidPassword = (password: string) => {
+  if (password.length < 8) return false;
+
+  const hasLowercase = /[a-z]/.test(password);
+  const hasUppercase = /[A-Z]/.test(password);
+  const hasNumber = /\d/.test(password);
+  const hasSpecialChar = /[\W_]/.test(password);
+
+  return hasLowercase && hasUppercase && hasNumber && hasSpecialChar;
+};
+
 export const RegisterPage = () => {
   const { register, isRegistering } = useUser();
   const [chosenImage, setChosenImage] = useState<ProfileImage | null>(null);
@@ -44,14 +55,24 @@ export const RegisterPage = () => {
     specialtyId: null,
     profileImageId: null,
   });
+
   const {
     specialties,
     getAll: getSpecialties,
     isGettingSpecialties: loading,
   } = useSpecialties();
+
   const [showPassword, setShowPassword] = useState(false);
   const { openModal } = useModal();
   const { showSnackbar } = useSnackbar();
+
+  // ✅ AJOUT (validation globale)
+  const isStep1Valid =
+    formData.email &&
+    formData.password &&
+    formData.tag &&
+    formData.specialtyId &&
+    isValidPassword(formData.password);
 
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
@@ -61,13 +82,28 @@ export const RegisterPage = () => {
         !formData.password ||
         !formData.tag ||
         !formData.specialtyId
-      )
+      ) {
+        showSnackbar({
+          message: 'Veuillez remplir tous les champs',
+          severity: 'error',
+        });
         return;
+      }
+      if (!isValidPassword(formData.password)) {
+        return;
+      }
+
       setStep(2);
       return;
     }
 
-    if (!formData.profileImageId) return;
+    if (!formData.profileImageId) {
+      showSnackbar({
+        message: 'Veuillez choisir une photo de profil',
+        severity: 'error',
+      });
+      return;
+    }
 
     register(formData, navigate);
   };
@@ -133,6 +169,7 @@ export const RegisterPage = () => {
           Retour à l'Accueil
         </Button>
       </Link>
+
       <Container
         maxWidth={false}
         sx={{
@@ -153,6 +190,7 @@ export const RegisterPage = () => {
           ) : (
             <img src={logo} width="44" height="44" />
           )}
+
           <Stack spacing="0.5rem">
             <Typography variant="h3" textAlign="center">
               {isRegistering
@@ -161,6 +199,7 @@ export const RegisterPage = () => {
                   ? 'Bienvenue'
                   : 'Choisissez votre avatar'}
             </Typography>
+
             <Typography variant="body1" color="secondary" textAlign="center">
               {isRegistering
                 ? 'Votre inscription est en cours de traitement, veuillez patienter.'
@@ -170,13 +209,9 @@ export const RegisterPage = () => {
             </Typography>
           </Stack>
         </Stack>
+
         {!isRegistering && (
-          <form
-            onSubmit={handleSubmit}
-            style={{
-              width: '100%',
-            }}
-          >
+          <form onSubmit={handleSubmit} style={{ width: '100%' }}>
             {step === 1 ? (
               <Stack spacing="0.75rem">
                 <TextField
@@ -190,6 +225,7 @@ export const RegisterPage = () => {
                   onChange={handleChange}
                   required
                 />
+
                 <TextField
                   fullWidth
                   id="password"
@@ -210,6 +246,61 @@ export const RegisterPage = () => {
                     },
                   }}
                 />
+
+                {/* POINTS */}
+                <Box sx={{ mt: 0.5 }}>
+                  {[
+                    {
+                      label: '8 caractères minimum',
+                      valid: formData.password.length >= 8,
+                    },
+                    {
+                      label: '1 majuscule',
+                      valid: /[A-Z]/.test(formData.password),
+                    },
+                    {
+                      label: '1 minuscule',
+                      valid: /[a-z]/.test(formData.password),
+                    },
+                    {
+                      label: '1 chiffre',
+                      valid: /\d/.test(formData.password),
+                    },
+                    {
+                      label: '1 caractère spécial',
+                      valid: /[\W_]/.test(formData.password),
+                    },
+                  ].map((rule, index) => (
+                    <Box
+                      key={index}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1,
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: '50%',
+                          backgroundColor: rule.valid ? '#52c41a' : '#666',
+                        }}
+                      />
+
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: rule.valid ? '#52c41a' : '#888',
+                          fontSize: '0.75rem',
+                        }}
+                      >
+                        {rule.label}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Box>
+
                 <TextField
                   fullWidth
                   id="tag"
@@ -220,6 +311,7 @@ export const RegisterPage = () => {
                   onChange={handleChange}
                   required
                 />
+
                 <Autocomplete
                   options={specialties}
                   loading={loading}
@@ -250,10 +342,10 @@ export const RegisterPage = () => {
                     height: 100,
                     cursor: 'pointer',
                   }}
-                  className="profile-picture-placeholder"
                 />
               </Stack>
             )}
+
             <Stack spacing="1.5rem" paddingTop="1.5rem">
               <Stack spacing="0.5rem">
                 {step === 2 && (
@@ -266,10 +358,15 @@ export const RegisterPage = () => {
                     Retour
                   </Button>
                 )}
-                <Button type="submit" variant="contained">
+                <Button
+                  type="submit"
+                  variant="contained"
+                  disabled={step === 1 && !isStep1Valid}
+                >
                   {step === 1 ? 'Continuer' : "S'Inscrire"}
                 </Button>
               </Stack>
+
               <Typography textAlign="center" variant="body2" color="secondary">
                 Déjà inscrit? <Link to="/auth/login">Se connecter</Link>
               </Typography>
@@ -277,6 +374,7 @@ export const RegisterPage = () => {
           </form>
         )}
       </Container>
+
       <Box
         width={1 / 3}
         minHeight="100%"
