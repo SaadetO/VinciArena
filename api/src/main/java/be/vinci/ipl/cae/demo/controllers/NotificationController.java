@@ -85,13 +85,4 @@ public class NotificationController {
       @AuthenticationPrincipal Member currentMember) {
     return notificationService.countUnreadNotifications(currentMember.getIdMember());
   }
-
-//  private void verifyAccess(long id, Member currentMember) {
-//    if (currentMember == null || !Objects.equals(currentMember.getIdMember(), id)) {
-//      throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-//    }
-//    if (!memberRepository.existsById(id)) {
-//      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-//    }
-//  }
 }
