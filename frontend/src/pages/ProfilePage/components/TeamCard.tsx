@@ -184,8 +184,8 @@ export const TeamCard = ({ user, setUser }: TeamCardProps) => {
     <Stack
       sx={{ background: (theme) => theme.palette.background.s1 }}
       padding="1.25rem 1rem 1rem"
-      borderRadius="0.5rem"
-      spacing="1rem"
+      borderRadius="1.5rem"
+      spacing="1.25rem"
     >
       <Typography variant="h4" display="flex" alignItems="center" gap="0.5rem">
         Team{' '}
@@ -220,7 +220,7 @@ export const TeamCard = ({ user, setUser }: TeamCardProps) => {
               color="secondary"
               fullWidth
             >
-              voir {user.team.name}
+              Voir {user.team.name}
             </Button>
             <Button
               variant="contained"
@@ -228,7 +228,7 @@ export const TeamCard = ({ user, setUser }: TeamCardProps) => {
               fullWidth
               onClick={handleQuit}
             >
-              quitter {user.team.name}
+              Quitter {user.team.name}
             </Button>
           </>
         ) : (
@@ -239,7 +239,7 @@ export const TeamCard = ({ user, setUser }: TeamCardProps) => {
               color="secondary"
               fullWidth
             >
-              rejoindre une team
+              Rejoindre une Team
             </Button>
             <Button
               onClick={handleCreate}
@@ -247,7 +247,7 @@ export const TeamCard = ({ user, setUser }: TeamCardProps) => {
               color="secondary"
               fullWidth
             >
-              créer une team
+              Créer une Team
             </Button>
           </>
         )}

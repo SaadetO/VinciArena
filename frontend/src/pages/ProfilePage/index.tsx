@@ -45,7 +45,7 @@ export const ProfilePage = () => {
               <Stack
                 sx={{ background: (theme) => theme.palette.background.s1 }}
                 padding="1.25rem 1rem 1rem"
-                borderRadius="0.5rem"
+                borderRadius="1.5rem"
               >
                 <Typography variant="h5" textAlign="center">
                   Placeholder for match & tournament section

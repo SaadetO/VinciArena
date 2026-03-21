@@ -108,7 +108,11 @@ export const ProfileBanner = ({
           <Skeleton variant="circular" width="2.5rem" height="2.5rem" />
         )}
         <Typography variant="h1">
-          {user ? user.tag : <Skeleton width="10rem" />}
+          {user ? (
+            user.tag
+          ) : (
+            <Skeleton variant="text" height="3.375rem" width="10rem" />
+          )}
         </Typography>
       </Stack>
       <Stack direction="row" spacing="0.25rem" alignItems="center">
@@ -120,10 +124,9 @@ export const ProfileBanner = ({
                 to={`/teams/${user.team.id}`}
                 size="small"
                 color="inverse"
-                label={`TEAM ${user.team.name}`}
+                label={`Team ${user.team.name}`}
                 clickable
                 sx={{
-                  textTransform: 'none',
                   '& .MuiChip-label': {
                     color: (theme) => theme.palette.background.s0,
                   },
@@ -137,13 +140,18 @@ export const ProfileBanner = ({
             <Chip
               size="medium"
               variant="text"
-              label={`spécialité ${user.specialty}`}
+              label={`Spécialité ${user?.specialty ? user.specialty.charAt(0).toUpperCase() + user.specialty.slice(1) : ''}`}
             />
           </>
         ) : (
           <>
-            <Skeleton variant="rounded" width="4rem" height="1.5rem" />
-            <Skeleton variant="rounded" width="8rem" height="1.5rem" />
+            <Skeleton
+              variant="rounded"
+              width="7.5rem"
+              height="1.5rem"
+              sx={{ borderRadius: '100rem' }}
+            />
+            <Skeleton variant="text" width="10rem" height="1.75rem" />
           </>
         )}
       </Stack>

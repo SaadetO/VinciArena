@@ -53,8 +53,8 @@ export const UnavailabilitiesCard = memo(
       <Stack
         sx={{ background: (theme) => theme.palette.background.s1 }}
         padding="1.25rem 1rem 1rem"
-        borderRadius="0.5rem"
-        spacing="1rem"
+        borderRadius="1.5rem"
+        spacing="1.25rem"
       >
         <Typography variant="h4">Mes indisponibilités</Typography>
         <Stack spacing="0.24rem">
@@ -93,7 +93,7 @@ export const UnavailabilitiesCard = memo(
             color="secondary"
             onClick={handleAddUnavailability}
           >
-            ajouter une indisponibilité
+            Ajouter une Indisponibilité
           </Button>
         )}
       </Stack>

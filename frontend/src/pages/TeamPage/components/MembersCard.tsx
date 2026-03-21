@@ -16,8 +16,8 @@ export const MembersCard = memo(({ team }: MembersCardProps) => {
       <Stack
         sx={{ background: (theme) => theme.palette.background.s1 }}
         padding="1.25rem 1rem 1rem"
-        borderRadius="0.5rem"
-        spacing="1rem"
+        borderRadius="1.5rem"
+        spacing="1.25rem"
       >
         <Typography variant="h4">Membres</Typography>
         <Stack gap="0.75rem" direction="row" flexWrap="wrap">
@@ -34,7 +34,7 @@ export const MembersCard = memo(({ team }: MembersCardProps) => {
                   sx={{
                     background: (theme) => theme.palette.background.s2,
                   }}
-                  borderRadius="0.5rem"
+                  borderRadius="0.75rem"
                 >
                   <Skeleton variant="circular" width="1.5rem" height="1.5rem" />
                   <Skeleton
@@ -53,7 +53,6 @@ export const MembersCard = memo(({ team }: MembersCardProps) => {
                   '&:hover': {
                     background: (theme) => theme.palette.background.s4,
                   },
-                  textTransform: 'none',
                 }}
                 key={member.id}
                 component={Link}

@@ -81,7 +81,7 @@ export const NotificationMenu = () => {
             color="secondary"
             size="small"
           >
-            voir tout
+            Voir Tout
           </Button>
         </Stack>
         <Divider />

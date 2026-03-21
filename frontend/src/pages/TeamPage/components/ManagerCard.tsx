@@ -88,8 +88,8 @@ export const ManagerCard = ({
     <Stack
       sx={{ background: (theme) => theme.palette.background.s1 }}
       padding="1.25rem 1rem 1rem"
-      borderRadius="0.5rem"
-      spacing="1rem"
+      borderRadius="1.5rem"
+      spacing="1.25rem"
     >
       <Typography variant="h4">Responsables</Typography>
       <Stack gap="0.75rem" direction="row" flexWrap="wrap">
@@ -101,7 +101,6 @@ export const ManagerCard = ({
                 '&:hover': {
                   background: (theme) => theme.palette.background.s4,
                 },
-                textTransform: 'none',
               }}
               key={manager.id}
               component={Link}
@@ -126,7 +125,7 @@ export const ManagerCard = ({
                 sx={{
                   background: (theme) => theme.palette.background.s2,
                 }}
-                borderRadius="0.5rem"
+                borderRadius="0.75rem"
               >
                 <Skeleton variant="circular" width="1.5rem" height="1.5rem" />
                 <Skeleton
@@ -144,7 +143,7 @@ export const ManagerCard = ({
         team.managers.some((manager) => manager.id === authenticatedUser?.id) &&
         team.members.length > 1 && (
           <Button variant="contained" color="secondary" onClick={handlePromote}>
-            Désigner un responsable
+            Désigner un Responsable
           </Button>
         )}
     </Stack>

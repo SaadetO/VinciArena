@@ -130,7 +130,7 @@ export const RegisterPage = () => {
     <Stack direction="row" flex="1">
       <Link to="/" style={{ padding: '1rem', position: 'fixed' }}>
         <Button variant="text" startIcon={<ArrowBack />}>
-          Retour à l'accueil
+          Retour à l'Accueil
         </Button>
       </Link>
       <Container
@@ -267,7 +267,7 @@ export const RegisterPage = () => {
                   </Button>
                 )}
                 <Button type="submit" variant="contained">
-                  {step === 1 ? 'Continuer' : "S'inscrire"}
+                  {step === 1 ? 'Continuer' : "S'Inscrire"}
                 </Button>
               </Stack>
               <Typography textAlign="center" variant="body2" color="secondary">

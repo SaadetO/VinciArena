@@ -1,6 +1,6 @@
 import { Button, Skeleton, Stack, Typography } from '@mui/material';
 import { ProfileInfoDto } from '../../../types';
-import { AlternateEmail, Person } from '@mui/icons-material';
+import { AlternateEmail, CategoryOutlined, Person } from '@mui/icons-material';
 import { ReactNode } from 'react';
 import { useModal } from '../../../hooks/useModal';
 import { changePasswordModal } from '../modals/changePasswordModal';
@@ -40,16 +40,25 @@ export const PersonalInfoCard = ({ user }: PersonalInfoCardProps) => {
     <Stack
       sx={{ background: (theme) => theme.palette.background.s1 }}
       padding="1.25rem 1rem 1rem"
-      borderRadius="0.5rem"
-      spacing="1rem"
+      borderRadius="1.5rem"
+      spacing="1.25rem"
     >
       <Typography variant="h4">Informations Personnelles</Typography>
       <Stack spacing="0.75rem">
         <DataField data={user?.email} icon={<AlternateEmail sx={iconSx} />} />
         <DataField
           data={formatDate(user?.creationDate ?? '')}
-          skeletonWidth="15rem"
+          skeletonWidth="10rem"
           icon={<Person sx={iconSx} />}
+        />
+        <DataField
+          data={
+            !user?.specialty
+              ? ''
+              : user.specialty.charAt(0).toUpperCase() + user.specialty.slice(1)
+          }
+          skeletonWidth="11rem"
+          icon={<CategoryOutlined sx={iconSx} />}
         />
       </Stack>
       {!user ? (
@@ -65,7 +74,7 @@ export const PersonalInfoCard = ({ user }: PersonalInfoCardProps) => {
           color="secondary"
           onClick={handlePasswordChange}
         >
-          modifier mon mot de passe
+          Modifier mon Mot de Passe
         </Button>
       )}
     </Stack>

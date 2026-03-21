@@ -166,7 +166,6 @@ export const AdminManagementModal = ({
                       width: 'fit-content !important',
                       color: (theme) =>
                         `${theme.palette.text.primary} !important`,
-                      textTransform: 'none',
                     }}
                     variant="contained"
                     color="secondary"
@@ -219,10 +218,9 @@ export const AdminManagementModal = ({
             height: '2rem',
             zIndex: 10,
             background: (theme) =>
-              `linear-gradient(to bottom, ${theme.palette.background.s1}, ${theme.palette.background.s1} 25%, transparent)`,
+              `linear-gradient(to bottom, ${theme.palette.background.s1}, transparent)`,
             opacity: canScrollTop ? 1 : 0,
             pointerEvents: 'none',
-            transition: 'opacity 0.2s',
           },
           '&::after': {
             content: '""',
@@ -234,10 +232,9 @@ export const AdminManagementModal = ({
             height: '2rem',
             zIndex: 10,
             background: (theme) =>
-              `linear-gradient(to top, ${theme.palette.background.s1}, ${theme.palette.background.s1} 25%, transparent)`,
+              `linear-gradient(to top, ${theme.palette.background.s1}, transparent)`,
             opacity: canScrollBottom ? 1 : 0,
             pointerEvents: 'none',
-            transition: 'opacity 0.2s',
           },
         }}
       >

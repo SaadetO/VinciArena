@@ -45,7 +45,7 @@ export const LoginPage = () => {
     <Stack direction="row" flex="1">
       <Link to="/" style={{ padding: '1rem', position: 'fixed' }}>
         <Button variant="text" startIcon={<ArrowBack />}>
-          Retour à l'accueil
+          Retour à l'Accueil
         </Button>
       </Link>
       <Container

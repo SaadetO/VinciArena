@@ -28,16 +28,22 @@ export const TeamBanner = ({ team }: { team?: TeamDetailsInfoDto }) => {
               label={team.isActive ? 'Équipe active' : 'Équipe inactive'}
             />
             <Chip
+              size="medium"
               variant="text"
-              sx={{ height: '1.5rem', '& .MuiSvgIcon-root': { mr: '0.25rem' } }}
+              sx={{ '& .MuiSvgIcon-root': { mr: '0.25rem' } }}
               icon={<PersonOutline sx={{ height: '1rem', width: '1rem' }} />}
               label={team.members.length}
             />
           </>
         ) : (
           <>
-            <Skeleton variant="rounded" width="6rem" height="1.5rem" />
-            <Skeleton variant="rounded" width="2rem" height="1.5rem" />
+            <Skeleton
+              variant="rounded"
+              width="6rem"
+              height="1.5rem"
+              sx={{ borderRadius: '100rem' }}
+            />
+            <Skeleton variant="text" width="2rem" height="1.75rem" />
           </>
         )}
       </Stack>

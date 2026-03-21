@@ -47,14 +47,14 @@ export const Header = () => {
         sx={{ flex: 1 }}
         onChange={(_e: SyntheticEvent, newValue: string) => navigate(newValue)}
       >
-        <Tab label="tournois" value="/" />
-        <Tab label="teams" value="/teams" />
+        <Tab label="Tournois" value="/" />
+        <Tab label="Teams" value="/teams" />
       </Tabs>
       <Stack direction="row" spacing="1.5rem">
         <Stack direction="row" spacing="1rem">
           {authenticatedUser?.admin && (
             <Stack direction="row" spacing="1rem">
-              <Button variant="contained">Créer un tournoi</Button>
+              <Button variant="contained">Créer un Tournoi</Button>
               <Button
                 variant="contained"
                 color="secondary"
@@ -77,11 +77,11 @@ export const Header = () => {
             <>
               <Link to="/auth/register">
                 <Button variant="contained" color="secondary">
-                  s'inscrire
+                  S'Inscrire
                 </Button>
               </Link>
               <Link to="/auth/login">
-                <Button variant="contained">se connecter</Button>
+                <Button variant="contained">Se Connecter</Button>
               </Link>
             </>
           )}

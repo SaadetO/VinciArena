@@ -15,8 +15,8 @@ export const JoinRequestsCard = ({
       <Stack
         sx={{ background: (theme) => theme.palette.background.s1 }}
         padding="1.25rem 1rem 1rem"
-        borderRadius="0.5rem"
-        spacing="1rem"
+        borderRadius="1.5rem"
+        spacing="1.25rem"
       >
         <Typography variant="h4">Demandes d'adhésion</Typography>
         <Stack spacing="0.75rem" flexWrap="wrap">

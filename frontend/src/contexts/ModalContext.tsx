@@ -115,11 +115,10 @@ const ModalContextProvider = ({ children }: { children: ReactNode }) => {
                 height: '2rem',
                 zIndex: 100,
                 background: (theme) =>
-                  `linear-gradient(to bottom, ${theme.palette.background.s1}, ${theme.palette.background.s1} 25%, transparent)`,
+                  `linear-gradient(to bottom, ${theme.palette.background.s1}, transparent)`,
                 width: '100%',
                 opacity: canScrollTop ? 1 : 0,
                 pointerEvents: 'none',
-                transition: 'opacity 0.2s',
               },
               '&::after': {
                 content: '""',
@@ -130,11 +129,10 @@ const ModalContextProvider = ({ children }: { children: ReactNode }) => {
                 height: '2rem',
                 zIndex: 100,
                 background: (theme) =>
-                  `linear-gradient(to top, ${theme.palette.background.s1}, ${theme.palette.background.s1} 25%, transparent)`,
+                  `linear-gradient(to top, ${theme.palette.background.s1}, transparent)`,
                 width: '100%',
                 opacity: canScrollBottom ? 1 : 0,
                 pointerEvents: 'none',
-                transition: 'opacity 0.2s',
               },
             }}
           >
@@ -167,7 +165,7 @@ const ModalContextProvider = ({ children }: { children: ReactNode }) => {
               }}
               fullWidth
             >
-              {config?.cancelLabel ?? 'Cancel'}
+              {config?.cancelLabel ?? 'Annuler'}
             </Button>
             <Button
               variant="contained"
@@ -177,7 +175,7 @@ const ModalContextProvider = ({ children }: { children: ReactNode }) => {
               fullWidth
               disabled={confirmDisabled}
             >
-              {config?.confirmLabel ?? 'Confirm'}
+              {config?.confirmLabel ?? 'Confirmer'}
             </Button>
           </DialogActions>
         </Dialog>

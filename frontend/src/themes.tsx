@@ -60,6 +60,7 @@ export const theme = createTheme({
     primary: {
       main: '#00C8FF',
       contrastText: '#111111',
+      dark: 'hsla(193, 100%, 40%, 1)',
     },
     success: {
       main: '#4CE59B',
@@ -70,7 +71,7 @@ export const theme = createTheme({
     error: {
       main: '#EF7D7D',
     },
-    divider: '#303030',
+    divider: '#252525',
     background: {
       ...surfaceLevels,
       default: surfaceLevels.s0,
@@ -92,37 +93,37 @@ export const theme = createTheme({
     h1: {
       fontSize: '2.8125rem',
       lineHeight: '3.375rem',
-      fontWeight: 'bold',
+      fontWeight: '500',
     },
     h2: {
       fontSize: '1.5rem',
       lineHeight: '2rem',
       letterSpacing: '0',
-      fontWeight: 'bold',
+      fontWeight: '500',
     },
     h3: {
       fontSize: '1.375rem',
       lineHeight: '1.75rem',
       letterSpacing: '0',
-      fontWeight: 'bold',
+      fontWeight: '500',
     },
     h4: {
       fontSize: '1.125rem',
       lineHeight: '1.5rem',
       letterSpacing: '0.15%',
-      fontWeight: 'bold',
+      fontWeight: '500',
     },
     h5: {
       fontSize: '0.875rem',
       lineHeight: '1.25rem',
       letterSpacing: '0.1%',
-      fontWeight: 'bold',
+      fontWeight: '500',
     },
     h6: {
       fontSize: '0.6875rem',
       lineHeight: '1rem',
       letterSpacing: '0.5%',
-      fontWeight: 'bold',
+      fontWeight: '500',
     },
     body1: {
       fontSize: '0.875rem',
@@ -171,8 +172,8 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: '0.75rem',
-          textTransform: 'uppercase',
-          fontWeight: 'Bold',
+          textTransform: 'none',
+          fontWeight: '700',
           boxShadow: 'none',
           height: '2rem',
           padding: '0 1rem',
@@ -190,13 +191,13 @@ export const theme = createTheme({
           },
         },
         containedSecondary: {
-          backgroundColor: '#262626',
+          backgroundColor: surfaceLevels.s3,
           color: '#FFFFFF',
           '&:hover': {
-            background: 'color-mix(in srgb, #262626 92%, #FFFFFF 8%)',
+            background: `color-mix(in srgb, ${surfaceLevels.s3} 92%, #FFFFFF 8%)`,
           },
           '&:active': {
-            background: 'color-mix(in srgb, #262626 88%, #FFFFFF 12%)',
+            background: `color-mix(in srgb, ${surfaceLevels.s3} 88%, #FFFFFF 12%)`,
           },
         },
         text: {
@@ -229,21 +230,22 @@ export const theme = createTheme({
       },
       styleOverrides: {
         root: {
+          background: surfaceLevels.s3,
           width: 'fit-content',
-          textTransform: 'uppercase',
-          fontWeight: 'Bold',
+          textTransform: 'none',
+          fontWeight: '600',
           fontSize: '0.875rem',
-          borderRadius: '0.5rem',
+          borderRadius: '0.75rem',
           '& .MuiChip-label': {
             padding: '0',
           },
         },
         sizeMedium: {
-          height: '1.5rem',
+          height: '1.75rem',
           borderRadius: '100rem',
           padding: '0 0.75rem',
-          fontSize: '0.6875rem',
-          lineHeight: '1rem',
+          fontSize: '0.875rem',
+          lineHeight: '1.5rem',
           '& .MuiSvgIcon-root': {
             width: '1rem',
             height: '1rem',
@@ -251,13 +253,11 @@ export const theme = createTheme({
           },
         },
         sizeSmall: {
-          height: '1.25rem',
+          height: '1.5rem',
           borderRadius: '100rem',
-          padding: '0 0.5rem',
-          fontSize: '0.5625rem',
-          letterSpacing: '0.5%',
-          lineHeight: '0.625rem',
-          fontWeight: 'Bold',
+          padding: '0 0.75rem',
+          fontSize: '0.6875rem',
+          lineHeight: '1.5rem',
           '& .MuiSvgIcon-root': {
             width: '0.75rem',
             height: '0.75rem',
@@ -287,13 +287,17 @@ export const theme = createTheme({
           marginRight: '0.5rem',
           color: '#FFFFFF',
         },
+        colorPrimary: {
+          backgroundColor: 'hsla(193, 100%, 50%, 0.1)',
+          color: 'hsla(193, 100%, 40%, 1)',
+        },
       },
       variants: [
         {
           props: { size: 'large' },
           style: {
             height: '2.75rem',
-            borderRadius: '0.5rem',
+            borderRadius: '0.75rem',
             padding: '0 1rem',
           },
         },
@@ -301,7 +305,7 @@ export const theme = createTheme({
           props: { size: 'extra-large' },
           style: {
             height: '3rem',
-            borderRadius: '0.5rem',
+            borderRadius: '0.75rem',
             padding: '0 1rem',
           },
         },
@@ -359,9 +363,9 @@ export const theme = createTheme({
           minWidth: '0',
           height: '100%',
           color: '#FFFFFF',
-          fontWeight: 'bold',
-          fontSize: '0.875rem',
-          textTransform: 'uppercase',
+          fontWeight: '600',
+          fontSize: '1rem',
+          textTransform: 'none',
           disableRipple: true,
           '&.Mui-selected': {
             color: '#FFFFFF',
@@ -392,22 +396,22 @@ export const theme = createTheme({
         },
         colorPrimary: {
           color: '#FFFFFF',
-          background: '#262626',
+          background: surfaceLevels.s3,
           '&:hover': {
-            background: 'color-mix(in srgb, #262626 92%, #FFFFFF 8%)',
+            background: `color-mix(in srgb, ${surfaceLevels.s3} 92%, #FFFFFF 8%)`,
           },
           '&:active': {
-            background: 'color-mix(in srgb, #262626 88%, #FFFFFF 12%)',
+            background: `color-mix(in srgb, ${surfaceLevels.s3} 88%, #FFFFFF 12%)`,
           },
         },
         colorSecondary: {
           color: '#FFFFFF',
-          background: '#262626',
+          background: surfaceLevels.s3,
           '&:hover': {
-            background: 'color-mix(in srgb, #262626 92%, #FFFFFF 8%)',
+            background: `color-mix(in srgb, ${surfaceLevels.s3} 92%, #FFFFFF 8%)`,
           },
           '&:active': {
-            background: 'color-mix(in srgb, #262626 88%, #FFFFFF 12%)',
+            background: `color-mix(in srgb, ${surfaceLevels.s3} 88%, #FFFFFF 12%)`,
           },
         },
       },
@@ -444,7 +448,7 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: '0.5rem',
-          border: '1px solid #303030 !important',
+          border: '1px solid #252525 !important',
           '& .MuiSvgIcon-root': {
             color: '#8C8C8C',
           },
@@ -474,7 +478,7 @@ export const theme = createTheme({
             color: '#FFFFFF',
           },
           '& .MuiOutlinedInput-notchedOutline': {
-            border: '1px solid #303030',
+            border: '1px solid #252525',
           },
           '& input::placeholder': {
             color: '#8C8C8C',

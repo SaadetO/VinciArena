@@ -28,7 +28,7 @@ export const NotFoundPage = ({
       </Typography>
       <Link to="/">
         <Button startIcon={<ArrowBack />} variant="contained" color="secondary">
-          Retour en lieu sûr
+          Retour en Lieu Sûr
         </Button>
       </Link>
     </Stack>
