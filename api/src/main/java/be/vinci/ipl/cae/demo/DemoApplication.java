@@ -65,7 +65,7 @@ public class DemoApplication {
       }
 
       // Create Member 1: Manager
-      String pw = "1";
+      String pw = "Password1!";
       String encodedPw = new BCryptPasswordEncoder().encode(pw);
       Member member1 = new Member();
       member1.setEmail("lea@mail.com");

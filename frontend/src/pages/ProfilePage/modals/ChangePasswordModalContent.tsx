@@ -1,4 +1,4 @@
-import { IconButton, Stack, TextField } from '@mui/material';
+import { IconButton, Stack, TextField, Box, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useModalController } from '../../../hooks/useModalController';
@@ -12,6 +12,29 @@ const initPasswordData = (): PasswordData => ({
   password: '',
   confirmPassword: '',
 });
+
+const getPasswordRules = (password: string) => [
+  {
+    label: '8 caractères minimum',
+    valid: password.length >= 8,
+  },
+  {
+    label: '1 majuscule',
+    valid: /[A-Z]/.test(password),
+  },
+  {
+    label: '1 minuscule',
+    valid: /[a-z]/.test(password),
+  },
+  {
+    label: '1 chiffre',
+    valid: /\d/.test(password),
+  },
+  {
+    label: '1 caractère spécial',
+    valid: /[\W_]/.test(password),
+  },
+];
 
 const errorMsgs = [
   'Le mot de passe ne peut pas être vide.',
@@ -49,7 +72,6 @@ export const ChangePasswordModalContent = ({
   };
 
   useEffect(() => {
-    // Initial state handling
     if (!password.password && !password.confirmPassword) {
       setConfirmDisabled(true);
       setError(null);
@@ -105,6 +127,38 @@ export const ChangePasswordModalContent = ({
           },
         }}
       />
+
+      {/* ✅ AJOUT ICI */}
+      <Box>
+        {getPasswordRules(password.password).map((rule, index) => (
+          <Box
+            key={index}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+            }}
+          >
+            <Box
+              sx={{
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                backgroundColor: rule.valid ? '#52c41a' : '#666',
+              }}
+            />
+            <Typography
+              variant="caption"
+              sx={{
+                color: rule.valid ? '#52c41a' : '#888',
+              }}
+            >
+              {rule.label}
+            </Typography>
+          </Box>
+        ))}
+      </Box>
+
       <TextField
         id="confirmPassword"
         name="confirmPassword"
