@@ -9,6 +9,7 @@ import { NotificationDto } from '../types';
 import { useApi } from '../hooks/useApi';
 import { UserContext } from './UserContext';
 import { useSnackbar } from '../hooks/useSnackbar';
+import { useLocation } from 'react-router-dom';
 
 interface NotificationContextProps {
   notifications: NotificationDto[];
@@ -31,6 +32,8 @@ const NotificationProvider = ({ children }: { children: ReactNode }) => {
   const [unreadCount, setUnreadCount] = useState(0);
   const { authenticatedUser } = useContext(UserContext);
   const { showSnackbar } = useSnackbar();
+  const { pathname } = useLocation();
+  const isNotificationPage = pathname == '/notifications';
 
   const { execute: getAll } = useApi(
     async () => {
@@ -149,18 +152,18 @@ const NotificationProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
-    // Initial fetch
-    getAll();
+    // Initial fetch for navBar only
     getUnreadCount();
+    if (isNotificationPage) getAll();
 
-    // Poll every 10 seconds
+    // Poll every 10 seconds only the unreadCount
     const intervalId = setInterval(() => {
-      getAll();
       getUnreadCount();
+      if (isNotificationPage) getAll();
     }, 10000);
 
     return () => clearInterval(intervalId);
-  }, [authenticatedUser, getAll, getUnreadCount]);
+  }, [authenticatedUser, getAll, getUnreadCount, isNotificationPage]);
 
   return (
     <NotificationContext.Provider

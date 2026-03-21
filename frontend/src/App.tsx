@@ -2,12 +2,13 @@ import { Outlet } from 'react-router-dom';
 import { Header } from './components/Header';
 import { MainContext } from './types';
 import { Box } from '@mui/material';
+import { NotificationProvider } from './contexts/NotificationContext';
 
 export const App = () => {
   const mainContext: MainContext = {};
 
   return (
-    <>
+    <NotificationProvider>
       <Header />
       <Box
         component="main"
@@ -19,6 +20,6 @@ export const App = () => {
       >
         <Outlet context={mainContext} />
       </Box>
-    </>
+    </NotificationProvider>
   );
 };
