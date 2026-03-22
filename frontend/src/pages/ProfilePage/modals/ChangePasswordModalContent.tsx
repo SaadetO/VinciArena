@@ -27,7 +27,7 @@ export const ChangePasswordModalContent = ({
   });
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
 
-  const { setConfirmDisabled, setError } = useModalController();
+  const { setError } = useModalController();
 
   const isValid = getPasswordRules(password.password).every(
     (rule) => rule.valid,
@@ -55,34 +55,36 @@ export const ChangePasswordModalContent = ({
   };
 
   useEffect(() => {
-    if (!password.password && !password.confirmPassword) {
-      setConfirmDisabled(true);
-      setError(null);
-      onSelect(null);
-      return;
-    }
-
     let currentError = null;
     let isDisabled = false;
 
-    if (!password.password.trim()) {
-      isDisabled = true;
-    } else if (!password.confirmPassword.trim()) {
-      isDisabled = true;
-    } else if (isValid && password.password !== password.confirmPassword) {
+    // Check for mismatch only if both fields are fully filled and valid otherwise
+    if (
+      password.password.trim() &&
+      password.confirmPassword.trim() &&
+      isValid &&
+      password.password !== password.confirmPassword
+    ) {
       isDisabled = true;
       currentError = 'Les mots de passe ne correspondent pas.';
     }
 
-    setConfirmDisabled(isDisabled);
     setError(currentError);
-    onSelect(isDisabled ? null : password.password);
-  }, [password, setConfirmDisabled, setError, onSelect, isValid]);
+
+    onSelect(
+      isDisabled ||
+        !password.password.trim() ||
+        !password.confirmPassword.trim()
+        ? null
+        : password.password,
+    );
+  }, [password, setError, onSelect, isValid]);
 
   return (
     <Stack spacing="0.75rem">
       <Stack spacing="0.25rem">
         <TextField
+          autoFocus
           id="password"
           name="password"
           type={showPassword.password ? 'text' : 'password'}
@@ -91,6 +93,7 @@ export const ChangePasswordModalContent = ({
           onFocus={() => setIsPasswordFocused(true)}
           onBlur={() => setIsPasswordFocused(false)}
           variant="outlined"
+          required
           slotProps={{
             input: {
               endAdornment: password.password.trim().length > 0 && (
@@ -125,12 +128,14 @@ export const ChangePasswordModalContent = ({
 
       {isValid && (
         <TextField
+          autoFocus
           id="confirmPassword"
           name="confirmPassword"
           type={showPassword.confirmPassword ? 'text' : 'password'}
           placeholder="Confirmez votre mot de passe"
           onChange={handleChange}
           variant="outlined"
+          required
           slotProps={{
             input: {
               endAdornment: password.confirmPassword.trim().length > 0 && (

@@ -4,14 +4,12 @@ import { ModalControllerContext } from '../../../contexts/ModalControllerContext
 import { CreateTeamModalContent } from './CreateTeamModalContent';
 
 describe('CreateTeamModalContent', () => {
-  const setConfirmDisabledMock = vi.fn();
   const setErrorMock = vi.fn();
 
   const renderWithContext = (ui: React.ReactElement) => {
     return render(
       <ModalControllerContext.Provider
         value={{
-          setConfirmDisabled: setConfirmDisabledMock,
           setError: setErrorMock,
         }}
       >
@@ -38,7 +36,6 @@ describe('CreateTeamModalContent', () => {
 
     await waitFor(() => {
       expect(onSelectMock).toHaveBeenCalledWith('My Awesome Team');
-      expect(setConfirmDisabledMock).toHaveBeenCalledWith(false);
     });
   });
 
@@ -53,7 +50,6 @@ describe('CreateTeamModalContent', () => {
 
     await waitFor(() => {
       expect(onSelectMock).toHaveBeenCalledWith(null);
-      expect(setConfirmDisabledMock).toHaveBeenCalledWith(true);
     });
   });
 });

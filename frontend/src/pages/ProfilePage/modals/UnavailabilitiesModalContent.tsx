@@ -31,11 +31,13 @@ const datePickerSx: SxProps<Theme> = {
 
 interface UnavailabilitiesModalContentProps {
   unavailabilities: { id: number; startDate: string; endDate: string }[] | null;
-  onSelect: (dates: {
-    tempId: number;
-    startDate: string;
-    endDate: string;
-  }) => void;
+  onSelect: (
+    dates: {
+      tempId: number;
+      startDate: string;
+      endDate: string;
+    } | null,
+  ) => void;
 }
 
 export const UnavailabilitiesModalContent = ({
@@ -47,7 +49,7 @@ export const UnavailabilitiesModalContent = ({
     endDate: dayjs(Date.now()).add(7, 'day'),
   });
 
-  const { setConfirmDisabled, setError } = useModalController();
+  const { setError } = useModalController();
 
   useEffect(() => {
     let error = checkOverlap(dates.startDate, dates.endDate, unavailabilities);
@@ -59,16 +61,18 @@ export const UnavailabilitiesModalContent = ({
       error = 'La date de début doit être dans le futur.';
 
     setError(error);
-    setConfirmDisabled(!!error);
 
-    if (error) return;
+    if (error) {
+      onSelect(null);
+      return;
+    }
 
     onSelect({
       tempId: -Date.now(),
       startDate: dates.startDate.toISOString(),
       endDate: dates.endDate.toISOString(),
     });
-  }, [dates, unavailabilities, setError, setConfirmDisabled, onSelect]);
+  }, [dates, unavailabilities, setError, onSelect]);
 
   const handleDateChange = (
     date: dayjs.Dayjs | null,
@@ -109,6 +113,7 @@ export const UnavailabilitiesModalContent = ({
     >
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <DatePicker
+          autoFocus
           format="DD/MM/YYYY"
           name="startDate"
           sx={datePickerSx}

@@ -1,7 +1,6 @@
 import { createContext } from 'react';
 
 interface ModalController {
-  setConfirmDisabled: (disabled: boolean) => void;
   setError: (error: string | null) => void;
 }
 

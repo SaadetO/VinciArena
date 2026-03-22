@@ -16,13 +16,11 @@ export const JoinTeamModalContent = ({
   const [requestedTeam, setRequestedTeam] = useState<Team | null>(null);
 
   const { authenticatedUser } = useContext(UserContext);
-  const { setError, setConfirmDisabled } = useModalController();
+  const { setError } = useModalController();
 
   useEffect(() => {
-    // Disable confirm button strictly if no team is selected
-    setConfirmDisabled(!requestedTeam);
     onSelect(requestedTeam);
-  }, [requestedTeam, setConfirmDisabled, onSelect]);
+  }, [requestedTeam, onSelect]);
 
   useEffect(() => {
     (async () => {
@@ -67,6 +65,7 @@ export const JoinTeamModalContent = ({
             placeholder="Nom de Team"
             error={!!localError}
             helperText={localError}
+            required
             autoFocus
           />
         )}

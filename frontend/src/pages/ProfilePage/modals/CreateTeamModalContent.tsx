@@ -11,20 +11,19 @@ export const CreateTeamModalContent = ({
 }: CreateTeamModalContentProps) => {
   const [teamName, setTeamName] = useState('');
   const [localError, setLocalError] = useState<string | null>(null);
-  const { setError, setConfirmDisabled } = useModalController();
+  const { setError } = useModalController();
 
   useEffect(() => {
-    if (localError) return;
-
-    if (teamName.trim().length > 0) {
-      setConfirmDisabled(false);
-      setError(null);
-      onSelect(teamName.trim());
-    } else {
-      setConfirmDisabled(true);
+    if (localError) {
       onSelect(null);
+      return;
     }
-  }, [teamName, localError, setConfirmDisabled, setError, onSelect]);
+
+    setError(null);
+
+    // Only pass actual string if it genuinely exists, else null (so API call doesn't fire).
+    onSelect(teamName.trim().length > 0 ? teamName.trim() : null);
+  }, [teamName, localError, setError, onSelect]);
 
   const handleChange = (e: SyntheticEvent) => {
     const input = e.target as HTMLInputElement;
@@ -37,6 +36,7 @@ export const CreateTeamModalContent = ({
   return (
     <Stack>
       <TextField
+        autoFocus
         id="teamName"
         name="teamName"
         placeholder="Nom de Team"
@@ -44,7 +44,7 @@ export const CreateTeamModalContent = ({
         variant="outlined"
         error={!!localError}
         helperText={localError}
-        autoFocus
+        required
       />
     </Stack>
   );

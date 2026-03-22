@@ -21,12 +21,11 @@ export const ManagerModalContent = ({
   const [localError, setLocalError] = useState<string | null>(null);
   const [selectedUser, setSelectedUser] = useState<ProfileInfoDto | null>(null);
 
-  const { setError, setConfirmDisabled } = useModalController();
+  const { setError } = useModalController();
 
   useEffect(() => {
-    setConfirmDisabled(!selectedUser);
     onSelect(selectedUser);
-  }, [selectedUser, setConfirmDisabled, onSelect]);
+  }, [selectedUser, onSelect]);
 
   return (
     <>
@@ -75,6 +74,7 @@ export const ManagerModalContent = ({
             placeholder="Utilisateur à promouvoir"
             error={!!localError}
             helperText={localError}
+            required
             autoFocus
           />
         )}

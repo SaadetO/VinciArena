@@ -30,11 +30,9 @@ const ModalContext = createContext<ModalContextType | null>(null);
 const ModalContextProvider = ({ children }: { children: ReactNode }) => {
   const [open, setOpen] = useState(false);
   const [config, setConfig] = useState<ModalConfig | null>(null);
-  const [confirmDisabled, setConfirmDisabled] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const openModal = useCallback((cfg: ModalConfig) => {
-    setConfirmDisabled(cfg.confirmDisabled ?? false);
     setError(null);
     setConfig(cfg);
     setOpen(true);
@@ -57,10 +55,8 @@ const ModalContextProvider = ({ children }: { children: ReactNode }) => {
 
   const modalControllerContextValue = useMemo(
     () => ({
-      setConfirmDisabled,
       setError: (err: string | null) => {
         setError(err);
-        if (err) setConfirmDisabled(true);
       },
     }),
     [],
@@ -92,92 +88,98 @@ const ModalContextProvider = ({ children }: { children: ReactNode }) => {
         {children}
 
         <Dialog open={open} onClose={closeModal} fullWidth>
-          <DialogTitle variant="h2">{config?.title}</DialogTitle>
-          {config?.subtitle && (
-            <Typography
-              textAlign="center"
-              padding="0 2rem 1rem"
-              color="secondary"
-            >
-              {config?.subtitle}
-            </Typography>
-          )}
-          <Stack
-            maxHeight="20rem"
-            sx={{
-              position: 'relative',
-              '&::before': {
-                content: '""',
-                display: 'block',
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                height: '2rem',
-                zIndex: 100,
-                background: (theme) =>
-                  `linear-gradient(to bottom, ${theme.palette.background.s1}, transparent)`,
-                width: '100%',
-                opacity: canScrollTop ? 1 : 0,
-                pointerEvents: 'none',
-              },
-              '&::after': {
-                content: '""',
-                display: 'block',
-                position: 'absolute',
-                bottom: 0,
-                left: 0,
-                height: '2rem',
-                zIndex: 100,
-                background: (theme) =>
-                  `linear-gradient(to top, ${theme.palette.background.s1}, transparent)`,
-                width: '100%',
-                opacity: canScrollBottom ? 1 : 0,
-                pointerEvents: 'none',
-              },
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (config?.onConfirm) {
+                config.onConfirm(closeModal);
+              } else {
+                closeModal();
+              }
             }}
+            style={{ display: 'contents' }}
           >
-            {config?.children && (
-              <DialogContent
-                ref={scrollRef}
-                onScroll={handleScroll}
-                sx={{
-                  maxHeight: '25rem',
-                  overflowY: 'auto',
-                }}
+            <DialogTitle variant="h2">{config?.title}</DialogTitle>
+            {config?.subtitle && (
+              <Typography
+                textAlign="center"
+                padding="0 2rem 1rem"
+                color="secondary"
               >
-                {config.children}
-              </DialogContent>
+                {config?.subtitle}
+              </Typography>
             )}
-          </Stack>
-          {error && (
-            <Stack padding="0 1rem 1rem">
-              <Alert severity="error" size="small" align="center">
-                {error}
-              </Alert>
+            <Stack
+              maxHeight="20rem"
+              sx={{
+                position: 'relative',
+                '&::before': {
+                  content: '""',
+                  display: 'block',
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  height: '2rem',
+                  zIndex: 100,
+                  background: (theme) =>
+                    `linear-gradient(to bottom, ${theme.palette.background.s1}, transparent)`,
+                  width: '100%',
+                  opacity: canScrollTop ? 1 : 0,
+                  pointerEvents: 'none',
+                },
+                '&::after': {
+                  content: '""',
+                  display: 'block',
+                  position: 'absolute',
+                  bottom: 0,
+                  left: 0,
+                  height: '2rem',
+                  zIndex: 100,
+                  background: (theme) =>
+                    `linear-gradient(to top, ${theme.palette.background.s1}, transparent)`,
+                  width: '100%',
+                  opacity: canScrollBottom ? 1 : 0,
+                  pointerEvents: 'none',
+                },
+              }}
+            >
+              {config?.children && (
+                <DialogContent
+                  ref={scrollRef}
+                  onScroll={handleScroll}
+                  sx={{
+                    maxHeight: '25rem',
+                    overflowY: 'auto',
+                  }}
+                >
+                  {config.children}
+                </DialogContent>
+              )}
             </Stack>
-          )}
-          <DialogActions>
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={() => {
-                config?.onCancel?.(closeModal);
-              }}
-              fullWidth
-            >
-              {config?.cancelLabel ?? 'Annuler'}
-            </Button>
-            <Button
-              variant="contained"
-              onClick={() => {
-                config?.onConfirm?.(closeModal);
-              }}
-              fullWidth
-              disabled={confirmDisabled}
-            >
-              {config?.confirmLabel ?? 'Confirmer'}
-            </Button>
-          </DialogActions>
+            {error && (
+              <Stack padding="0 1rem 1rem">
+                <Alert severity="error" size="small" align="center">
+                  {error}
+                </Alert>
+              </Stack>
+            )}
+            <DialogActions>
+              <Button
+                variant="contained"
+                color="secondary"
+                type="button"
+                onClick={() => {
+                  config?.onCancel?.(closeModal);
+                }}
+                fullWidth
+              >
+                {config?.cancelLabel ?? 'Annuler'}
+              </Button>
+              <Button variant="contained" type="submit" fullWidth>
+                {config?.confirmLabel ?? 'Confirmer'}
+              </Button>
+            </DialogActions>
+          </form>
         </Dialog>
       </ModalControllerContext.Provider>
     </ModalContext.Provider>
