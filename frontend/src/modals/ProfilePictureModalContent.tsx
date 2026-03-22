@@ -21,13 +21,14 @@ export const ProfilePictureModalContent = ({ onSelect }: Props) => {
     <ImageList cols={4} gap={10}>
       {isGettingProfilePictures
         ? Array.from({ length: 20 }).map((_, i) => (
-            <Skeleton
-              key={i}
-              variant="circular"
-              width="100%"
-              height="100%"
-              sx={{ aspectRatio: '1' }}
-            />
+            <ImageListItem key={i}>
+              <Skeleton
+                variant="circular"
+                width="100%"
+                height="100%"
+                sx={{ aspectRatio: '1' }}
+              />
+            </ImageListItem>
           ))
         : profilePictures.map((icon) => (
             <ImageListItem
