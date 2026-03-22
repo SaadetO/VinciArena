@@ -1,8 +1,8 @@
 package be.vinci.ipl.cae.demo.services;
 
 import be.vinci.ipl.cae.demo.models.dtos.JoinRequestDto;
-import be.vinci.ipl.cae.demo.models.dtos.UserSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.TeamDetailsDto;
+import be.vinci.ipl.cae.demo.models.dtos.UserSummaryDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.RequestStatus;
 import be.vinci.ipl.cae.demo.models.entities.Team;
@@ -65,7 +65,7 @@ public class TeamService {
     }
 
     List<UserSummaryDto> members = team.getMembers().stream()
-        .map(m -> memberService.getUserSummary(m))
+        .map(memberService::getUserSummary)
         .collect(Collectors.toList());
 
     boolean isManager = isManager(team, currentMember);
