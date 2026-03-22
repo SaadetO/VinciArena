@@ -15,7 +15,7 @@ interface NotificationContextProps {
   notifications: NotificationDto[];
   unreadCount: number;
   markAsRead: (idNotification: number) => void;
-  getAll: () => void;
+  getAll: (unreadOnly?: boolean) => void;
   getUnreadCount: () => void;
 }
 
@@ -36,13 +36,16 @@ const NotificationProvider = ({ children }: { children: ReactNode }) => {
   const isNotificationPage = pathname == '/notifications';
 
   const { execute: getAll } = useApi(
-    async () => {
-      const response = await fetch(`/api/notifications/member/me`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: authenticatedUser?.token ?? '',
+    async (unreadOnly: boolean = false) => {
+      const response = await fetch(
+        `/api/notifications/member/me?unreadOnly=${unreadOnly}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: authenticatedUser?.token ?? '',
+          },
         },
-      });
+      );
       if (!response.ok)
         throw new Error('Échec de la récupération des notifications.');
       return response.json();
@@ -163,7 +166,8 @@ const NotificationProvider = ({ children }: { children: ReactNode }) => {
     }, 10000);
 
     return () => clearInterval(intervalId);
-  }, [authenticatedUser, getAll, getUnreadCount, isNotificationPage]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authenticatedUser, isNotificationPage]);
 
   return (
     <NotificationContext.Provider

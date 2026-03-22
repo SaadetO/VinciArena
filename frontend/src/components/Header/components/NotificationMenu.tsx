@@ -17,13 +17,11 @@ export const NotificationMenu = () => {
   const [menuPosition, setMenuPosition] = useState<null | HTMLElement>(null);
   const { notifications, unreadCount, getAll } = useNotifications();
 
-  const unreadNotifications = notifications.filter((notif) => !notif.isRead);
-
   const isOpen = menuPosition != null;
 
   const handleMenuClick = (event: MouseEvent<HTMLElement>) => {
     setMenuPosition(event.currentTarget);
-    getAll();
+    getAll(true);
   };
 
   const handleClose = () => {
@@ -85,7 +83,7 @@ export const NotificationMenu = () => {
           </Button>
         </Stack>
         <Divider />
-        {unreadNotifications.length === 0 ? (
+        {notifications.length === 0 ? (
           <Stack padding="2rem 1.5rem" spacing="0.25rem" alignItems="center">
             <Typography variant="h5" textAlign="center">
               Rien à signaler!
@@ -100,7 +98,7 @@ export const NotificationMenu = () => {
             </Typography>
           </Stack>
         ) : (
-          unreadNotifications.map((notif) => (
+          notifications.map((notif) => (
             <NotificationItem key={notif.idNotification} notification={notif} />
           ))
         )}
