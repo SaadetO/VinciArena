@@ -37,7 +37,7 @@ export const NotificationsPage = () => {
             </Typography>
           </Stack>
         ) : (
-          <Stack divider={<Divider />}>
+          <Stack divider={<Divider />} padding="0.5rem 0">
             {notifications.map((notif) => (
               <NotificationItem
                 key={notif.idNotification}
