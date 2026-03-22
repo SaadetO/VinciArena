@@ -1,11 +1,11 @@
-import { ProfileImageModalContent } from './ProfileImageModalContent';
-import { ModalConfig, ProfileImage } from '../types';
+import { ProfilePictureModalContent } from './ProfilePictureModalContent';
+import { ModalConfig, ProfilePicture } from '../types';
 
-export const profileImageModal = ({
+export const profilePictureModal = ({
   onSelect,
   onConfirm,
 }: {
-  onSelect: (image: ProfileImage) => void;
+  onSelect: (image: ProfilePicture) => void;
   onConfirm: (close: () => void) => void;
 }): ModalConfig => ({
   title: 'Faites votre choix',
@@ -13,7 +13,7 @@ export const profileImageModal = ({
   confirmLabel: 'Confirmer',
   cancelLabel: 'Annuler',
   confirmDisabled: true,
-  children: <ProfileImageModalContent onSelect={onSelect} />,
+  children: <ProfilePictureModalContent onSelect={onSelect} />,
   onConfirm: (close) => onConfirm(close),
   onCancel: (close) => close(),
 });

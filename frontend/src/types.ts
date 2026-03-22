@@ -13,7 +13,7 @@ interface UserContextType {
   isLoggingIn: boolean;
   isRegistering: boolean;
 }
-interface ProfileImage {
+interface ProfilePicture {
   idImage: number;
   path: string;
 }
@@ -30,7 +30,7 @@ interface Member {
   email: string;
   admin: boolean;
   specialty: Specialty;
-  profileImage: ProfileImage;
+  profileImage: ProfilePicture;
 }
 
 interface Specialty {
@@ -151,7 +151,7 @@ export type {
   StoredUser,
   Member,
   SpecialtyDto,
-  ProfileImage,
+  ProfilePicture,
   ModalConfig,
   RegisterFormData,
 };

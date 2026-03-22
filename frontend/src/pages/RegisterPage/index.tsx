@@ -1,12 +1,12 @@
 import { useState, SyntheticEvent, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Box, Button, Container, Stack } from '@mui/material';
-import { SpecialtyDto, ProfileImage, RegisterFormData } from '../../types';
+import { SpecialtyDto, ProfilePicture, RegisterFormData } from '../../types';
 import { useUser } from '../../hooks/useUser';
 import { useSpecialties } from '../../hooks/useSpecialties';
 import authBackground from '../../assets/images/auth_background.jpg';
 import { ArrowBack } from '@mui/icons-material';
-import { profileImageModal } from '../../modals/profileImageModal';
+import { profilePictureModal } from '../../modals/profilePictureModal';
 import { useModal } from '../../hooks/useModal';
 import { useSnackbar } from '../../hooks/useSnackbar';
 import { RegisterTitle } from './components/RegisterTitle';
@@ -18,7 +18,7 @@ import { getPasswordRules } from '../../utils/passwordRules';
 
 export const RegisterPage = () => {
   const { register, isRegistering } = useUser();
-  const [chosenImage, setChosenImage] = useState<ProfileImage | null>(null);
+  const [chosenImage, setChosenImage] = useState<ProfilePicture | null>(null);
   const [selectedSpecialty, setSelectedSpecialty] =
     useState<SpecialtyDto | null>(null);
   const navigate = useNavigate();
@@ -128,9 +128,9 @@ export const RegisterPage = () => {
   }, [getSpecialties]);
 
   const handleAvatarClick = () => {
-    let selectedImage: ProfileImage | null = null;
+    let selectedImage: ProfilePicture | null = null;
 
-    const onSelect = (image: ProfileImage | null) => {
+    const onSelect = (image: ProfilePicture | null) => {
       selectedImage = image;
     };
 
@@ -149,7 +149,7 @@ export const RegisterPage = () => {
     };
 
     openModal(
-      profileImageModal({
+      profilePictureModal({
         onSelect,
         onConfirm,
       }),

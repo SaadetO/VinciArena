@@ -1,8 +1,8 @@
 import { Avatar, ButtonBase, Stack } from '@mui/material';
-import { ProfileImage } from '../../../types';
+import { ProfilePicture } from '../../../types';
 
 interface Step3Props {
-  chosenImage: ProfileImage | null;
+  chosenImage: ProfilePicture | null;
   handleAvatarClick: () => void;
 }
 

@@ -1,33 +1,23 @@
 import { ImageList, ImageListItem, Skeleton } from '@mui/material';
 import { useState, useEffect } from 'react';
-import { ProfileImage } from '../types';
+import { ProfilePicture } from '../types';
+import { useProfilePictures } from '../hooks/useProfilePictures';
 
 interface Props {
-  onSelect: (image: ProfileImage) => void;
+  onSelect: (image: ProfilePicture) => void;
 }
 
-export const ProfileImageModalContent = ({ onSelect }: Props) => {
-  const [defaultImages, setDefaultImages] = useState<ProfileImage[]>([]);
-  const [avatar, setAvatar] = useState<ProfileImage | null>(null);
-  const [loading, setLoading] = useState(true);
+export const ProfilePictureModalContent = ({ onSelect }: Props) => {
+  const { profilePictures, getAll, isGettingProfilePictures } =
+    useProfilePictures();
+  const [avatar, setAvatar] = useState<ProfilePicture | null>(null);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const response = await fetch(`/api/profile-images/`);
-        if (!response.ok) throw new Error('Failed to fetch profile images');
-        const data = await response.json();
-        setDefaultImages(data);
-      } catch (err) {
-        console.error('Failed to fetch profile images', err);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, []);
+    getAll();
+  }, [getAll]);
   return (
     <ImageList cols={4} gap={10}>
-      {loading
+      {isGettingProfilePictures
         ? Array.from({ length: 20 }).map((_, i) => (
             <Skeleton
               key={i}
@@ -37,7 +27,7 @@ export const ProfileImageModalContent = ({ onSelect }: Props) => {
               sx={{ aspectRatio: '1' }}
             />
           ))
-        : defaultImages.map((icon) => (
+        : profilePictures.map((icon) => (
             <ImageListItem
               key={icon.idImage}
               onClick={() => {

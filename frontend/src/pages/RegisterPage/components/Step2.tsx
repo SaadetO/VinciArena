@@ -77,7 +77,6 @@ export const Step2 = ({ formData, handleChange, errors }: Step2Props) => {
       </Stack>
       {isValid && (
         <TextField
-          autoFocus
           fullWidth
           id="confirmPassword"
           name="confirmPassword"

@@ -7,12 +7,12 @@ import {
   Tooltip,
 } from '@mui/material';
 import profileHeroHeader from '../../../assets/images/profile_hero_header.jpg';
-import { ProfileImage, ProfileInfoDto } from '../../../types';
+import { ProfilePicture, ProfileInfoDto } from '../../../types';
 import { Link } from 'react-router-dom';
 import { EditOutlined } from '@mui/icons-material';
 import { UserContext } from '../../../contexts/UserContext';
 import { useContext, Dispatch, SetStateAction } from 'react';
-import { profileImageModal } from '../../../modals/profileImageModal';
+import { profilePictureModal } from '../../../modals/profilePictureModal';
 import { useModal } from '../../../hooks/useModal';
 import { useModalController } from '../../../hooks/useModalController';
 import { useMembers } from '../../../hooks/useMembers';
@@ -31,9 +31,9 @@ export const ProfileBanner = ({
   const { updateAvatar } = useMembers({ setUser });
 
   const handleAvatarChange = () => {
-    let selectedImage: ProfileImage | null = null;
+    let selectedImage: ProfilePicture | null = null;
 
-    const onSelect = (image: ProfileImage | null) => {
+    const onSelect = (image: ProfilePicture | null) => {
       selectedImage = image;
     };
 
@@ -52,7 +52,7 @@ export const ProfileBanner = ({
     };
 
     openModal(
-      profileImageModal({
+      profilePictureModal({
         onSelect,
         onConfirm,
       }),

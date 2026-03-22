@@ -128,7 +128,6 @@ export const ChangePasswordModalContent = ({
 
       {isValid && (
         <TextField
-          autoFocus
           id="confirmPassword"
           name="confirmPassword"
           type={showPassword.confirmPassword ? 'text' : 'password'}

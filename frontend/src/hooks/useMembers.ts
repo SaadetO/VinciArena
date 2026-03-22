@@ -1,7 +1,7 @@
 import { useApi } from './useApi';
 import { useContext, useRef } from 'react';
 import { UserContext } from '../contexts/UserContext';
-import { Member, ProfileImage, ProfileInfoDto } from '../types';
+import { Member, ProfilePicture, ProfileInfoDto } from '../types';
 import { useSnackbar } from './useSnackbar';
 
 interface UseMembersOptions {
@@ -108,7 +108,7 @@ export const useMembers = (options?: UseMembersOptions) => {
   );
 
   const { execute: updateAvatar } = useApi(
-    async (avatar: ProfileImage, previousAvatar: string) => {
+    async (avatar: ProfilePicture, previousAvatar: string) => {
       void previousAvatar;
       const response = await fetch(`/api/members/me/avatar`, {
         method: 'PATCH',
