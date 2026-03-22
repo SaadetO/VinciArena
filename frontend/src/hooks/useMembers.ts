@@ -151,6 +151,55 @@ export const useMembers = (options?: UseMembersOptions) => {
     },
   );
 
+  const { execute: updateSpecialty } = useApi(
+    async (
+      specialtyId: number,
+      previousSpecialty: string,
+      newSpecialtyLabel: string,
+    ) => {
+      void previousSpecialty;
+      void newSpecialtyLabel;
+      const response = await fetch(`/api/members/me/specialty`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: authenticatedUser?.token ?? '',
+        },
+        body: JSON.stringify({ specialtyId }),
+      });
+      if (!response.ok)
+        throw new Error('Échec de la mise à jour de la spécialité.');
+    },
+    {
+      onOptimism: (_, _previousSpecialty, newSpecialtyLabel) => {
+        setUser?.((prev) => {
+          if (!prev) return prev;
+          return { ...prev, specialty: newSpecialtyLabel };
+        });
+      },
+      onRollback: (_, previousSpecialty) => {
+        setUser?.((prev) => {
+          if (!prev) return prev;
+          return { ...prev, specialty: previousSpecialty };
+        });
+      },
+      onSuccess: () => {
+        showSnackbar({
+          message: 'Spécialité modifiée avec succès !',
+          severity: 'success',
+        });
+      },
+      onError: (err) =>
+        showSnackbar({
+          message:
+            err instanceof Error
+              ? err.message
+              : 'Une erreur est survenue lors de la mise à jour de la spécialité.',
+          severity: 'error',
+        }),
+    },
+  );
+
   const { execute: toggleAdmin } = useApi(
     async (id: number, wasAdmin: boolean) => {
       void wasAdmin;
@@ -205,6 +254,7 @@ export const useMembers = (options?: UseMembersOptions) => {
     getById,
     updatePassword,
     updateAvatar,
+    updateSpecialty,
     toggleAdmin,
     isGettingUsers,
   };

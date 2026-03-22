@@ -1,32 +1,41 @@
-import { ProfileInfoDto, Team } from '../../../types';
+import {
+  Button,
+  IconButton,
+  Skeleton,
+  Stack,
+  Tooltip,
+  Typography,
+} from '@mui/material';
+import { Add, ArrowOutward } from '@mui/icons-material';
 import { Dispatch, SetStateAction, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ProfileInfoDto, Team } from '../../../types';
 import { UserContext } from '../../../contexts/UserContext';
 import { useModal } from '../../../hooks/useModal';
 import { useSnackbar } from '../../../hooks/useSnackbar';
 import { createTeamModal } from '../modals/createTeamModal';
 import { joinTeamModal } from '../modals/joinTeamModal';
-import { Button, Skeleton, Stack, Typography } from '@mui/material';
 
-interface TeamCardProps {
-  setUser: Dispatch<SetStateAction<ProfileInfoDto | undefined>>;
+interface TeamItemProps {
   user?: ProfileInfoDto;
+  setUser: Dispatch<SetStateAction<ProfileInfoDto | undefined>>;
 }
 
-export const TeamCard = ({ user, setUser }: TeamCardProps) => {
+export const TeamItem = ({ user, setUser }: TeamItemProps) => {
+  const navigate = useNavigate();
+  const { authenticatedUser } = useContext(UserContext);
+  const { openModal } = useModal();
+  const { showSnackbar } = useSnackbar();
+
   const handleJoin = () => {
     let selectedTeam: Team | null = null;
-
     const onSelect = (team: Team | null) => {
       selectedTeam = team;
     };
-
     const onConfirm = async (close: () => void) => {
       const idTeam = selectedTeam?.idTeam;
       if (!idTeam) return;
-
       close();
-
       try {
         const response = await fetch(`/api/teams/${idTeam}/join-requests`, {
           method: 'POST',
@@ -35,13 +44,11 @@ export const TeamCard = ({ user, setUser }: TeamCardProps) => {
             Authorization: authenticatedUser?.token ?? '',
           },
         });
-
         if (!response.ok) {
           throw new Error(
             'Vous avez déjà une demande en attente pour cette équipe.',
           );
         }
-
         showSnackbar({
           message: 'Demande effectuée avec succès !',
           severity: 'success',
@@ -54,38 +61,23 @@ export const TeamCard = ({ user, setUser }: TeamCardProps) => {
         });
       }
     };
-
     openModal(joinTeamModal({ onSelect, onConfirm }));
   };
 
   const handleCreate = () => {
     let selectedName: string | null = null;
-
     const onSelect = (name: string | null) => {
       selectedName = name;
     };
-
     const onConfirm = async (close: () => void) => {
       if (!selectedName) return;
       close();
-
-      // Backup (know it's null or we wouldn't see the button)
       const previousTeam = user?.team;
-
-      // Optimistic Update with temp data
       setUser((prev) =>
         prev
-          ? {
-              ...prev,
-              team: {
-                id: -1,
-                name: selectedName!,
-                isManager: true,
-              },
-            }
+          ? { ...prev, team: { id: -1, name: selectedName!, isManager: true } }
           : prev,
       );
-
       try {
         const response = await fetch('/api/teams/', {
           method: 'POST',
@@ -95,29 +87,23 @@ export const TeamCard = ({ user, setUser }: TeamCardProps) => {
           },
           body: JSON.stringify({ name: selectedName }),
         });
-
         if (!response.ok) {
-          if (response.status === 409) {
+          if (response.status === 409)
             throw new Error('Une équipe avec ce nom existe déjà');
-          }
           throw new Error('Erreur lors de la création de la team.');
         }
-
         const createdTeam = await response.json();
         const team = {
           id: createdTeam.idTeam,
           name: createdTeam.name,
           isManager: true,
         };
-
         setUser((prev) => (prev ? { ...prev, team } : prev));
-
         showSnackbar({
           message: 'Team créée avec succès !',
           severity: 'success',
         });
       } catch (err: unknown) {
-        // Rollback
         setUser((prev) =>
           prev ? { ...prev, team: previousTeam ?? null } : prev,
         );
@@ -128,14 +114,8 @@ export const TeamCard = ({ user, setUser }: TeamCardProps) => {
         });
       }
     };
-
     openModal(createTeamModal({ onSelect, onConfirm }));
   };
-
-  const navigate = useNavigate();
-  const { authenticatedUser } = useContext(UserContext);
-  const { openModal } = useModal();
-  const { showSnackbar } = useSnackbar();
 
   const handleViewTeam = () => {
     if (user?.team) {
@@ -146,10 +126,7 @@ export const TeamCard = ({ user, setUser }: TeamCardProps) => {
   const handleQuit = async () => {
     if (!user?.team) return;
     const previousTeam = user.team;
-
-    // Optimistic update
     setUser((prev) => (prev ? { ...prev, team: null } : prev));
-
     try {
       const response = await fetch('/api/teams/quit', {
         method: 'POST',
@@ -158,17 +135,12 @@ export const TeamCard = ({ user, setUser }: TeamCardProps) => {
           Authorization: authenticatedUser?.token ?? '',
         },
       });
-
-      if (!response.ok) {
-        throw new Error('Erreur lors du départ de la team.');
-      }
-
+      if (!response.ok) throw new Error('Erreur lors du départ de la team.');
       showSnackbar({
         message: "Vous avez quitté l'équipe avec succès.",
         severity: 'success',
       });
     } catch (err) {
-      // Rollback
       setUser((prev) => (prev ? { ...prev, team: previousTeam } : prev));
       showSnackbar({
         message:
@@ -182,73 +154,74 @@ export const TeamCard = ({ user, setUser }: TeamCardProps) => {
 
   return (
     <Stack
-      sx={{ background: (theme) => theme.palette.background.s1 }}
-      padding="1.25rem 1rem 1rem"
-      borderRadius="1.5rem"
-      spacing="1.25rem"
+      direction="row"
+      justifyContent="space-between"
+      alignItems="center"
+      padding="1.125rem 0"
     >
-      <Typography variant="h4" display="flex" alignItems="center" gap="0.5rem">
-        Team{' '}
-        {user ? (
-          (user.team?.name ?? '')
-        ) : (
-          <Skeleton variant="rounded" height="1.25rem" width="5rem" />
-        )}
-      </Typography>
+      <Stack>
+        <Typography variant="h6" color="text.secondary">
+          {user ? 'Votre Team' : <Skeleton variant="text" width="6rem" />}
+        </Typography>
+        <Typography
+          variant="h3"
+          color={user?.team ? 'text.primary' : 'text.secondary'}
+        >
+          {user ? (
+            user.team ? (
+              user.team.name
+            ) : (
+              'Aucune team'
+            )
+          ) : (
+            <Skeleton variant="text" width="10rem" />
+          )}
+        </Typography>
+      </Stack>
 
-      <Stack spacing="0.75rem" direction={{ xs: 'column', sm: 'row' }}>
+      <Stack direction="row" spacing={1} alignItems="center">
         {!user ? (
           <>
             <Skeleton
               variant="rounded"
-              sx={{ borderRadius: '0.75rem' }}
+              width="6rem"
               height="2rem"
-              width="100%"
+              sx={{ borderRadius: '0.75rem' }}
             />
             <Skeleton
               variant="rounded"
-              sx={{ borderRadius: '0.75rem' }}
+              width="2rem"
               height="2rem"
-              width="100%"
+              sx={{ borderRadius: '0.75rem' }}
             />
-          </>
-        ) : user.team ? (
-          <>
-            <Button
-              onClick={handleViewTeam}
-              variant="contained"
-              color="secondary"
-              fullWidth
-            >
-              Voir {user.team.name}
-            </Button>
-            <Button
-              variant="contained"
-              color="secondary"
-              fullWidth
-              onClick={handleQuit}
-            >
-              Quitter {user.team.name}
-            </Button>
           </>
         ) : (
           <>
             <Button
-              onClick={handleJoin}
+              onClick={user.team ? handleQuit : handleJoin}
               variant="contained"
               color="secondary"
-              fullWidth
+              sx={{ borderRadius: '0.75rem', paddingX: '1rem' }}
             >
-              Rejoindre une Team
+              {user.team ? 'Quitter' : 'Rejoindre'}
             </Button>
-            <Button
-              onClick={handleCreate}
-              variant="contained"
-              color="secondary"
-              fullWidth
+            <Tooltip
+              title={user.team ? 'Voir la team' : 'Créer une team'}
+              arrow
+              placement="bottom"
             >
-              Créer une Team
-            </Button>
+              <IconButton
+                onClick={user.team ? handleViewTeam : handleCreate}
+                color="secondary"
+                size="small"
+              >
+                {user.team ? (
+                  <ArrowOutward />
+                ) : (
+                  <Add />
+                )}
+              </IconButton>
+            </Tooltip>
           </>
         )}
       </Stack>

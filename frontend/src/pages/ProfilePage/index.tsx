@@ -1,14 +1,15 @@
 import { Container, Grid2, Stack, Typography } from '@mui/material';
-import { PersonalInfoCard } from './components/PersonalInfoCard';
+import { PersonalInfoItem } from './components/PersonalInfoItem';
 import { ProfileBanner } from './components/ProfileBanner';
-import { TeamCard } from './components/TeamCard';
+import { TeamItem } from './components/TeamItem';
 import { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { UserContext } from '../../contexts/UserContext';
 import { ProfileInfoDto } from '../../types';
 import { NotFoundPage } from '../NotFoundPage';
-import { UnavailabilitiesCard } from './components/UnavailabilitiesCard';
+import { UnavailabilitiesItem } from './components/UnavailabilitiesItem';
 import { useMembers } from '../../hooks/useMembers';
+import { Divider } from '@mui/material';
 
 export const ProfilePage = () => {
   const { id } = useParams();
@@ -30,7 +31,7 @@ export const ProfilePage = () => {
   if (error) return <NotFoundPage error={error} />;
   return (
     <>
-      <ProfileBanner user={user} setUser={setUser} />
+      <ProfileBanner user={user} />
       <Container maxWidth="lg">
         <Grid2
           container
@@ -55,10 +56,15 @@ export const ProfilePage = () => {
           </Grid2>
           {authenticatedUser?.id === idNbr && (
             <Grid2 size={{ xs: 12, lg: 5 }}>
-              <Stack spacing="1.5rem">
-                <PersonalInfoCard user={user} />
-                <TeamCard user={user} setUser={setUser} />
-                <UnavailabilitiesCard user={user} setUser={setUser} />
+              <Stack
+                sx={{ background: (theme) => theme.palette.background.s1 }}
+                borderRadius="1.5rem"
+                divider={<Divider />}
+                padding="1.5rem"
+              >
+                <PersonalInfoItem user={user} setUser={setUser} />
+                <TeamItem user={user} setUser={setUser} />
+                <UnavailabilitiesItem user={user} setUser={setUser} />
               </Stack>
             </Grid2>
           )}

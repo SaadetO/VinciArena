@@ -23,7 +23,7 @@ export const MembersCard = memo(({ team }: MembersCardProps) => {
         <Stack gap="0.75rem" direction="row" flexWrap="wrap">
           {!team ? (
             <>
-              {[...Array(4)].map((_, index) => (
+              {Array.from({ length: 4 }).map((_, index) => (
                 <Stack
                   key={index}
                   direction="row"
