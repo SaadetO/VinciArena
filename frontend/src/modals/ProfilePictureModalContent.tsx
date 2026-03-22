@@ -48,10 +48,16 @@ export const ProfilePictureModalContent = ({ onSelect }: Props) => {
                 borderRadius: '100rem',
                 overflow: 'hidden',
                 aspectRatio: '1',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
             >
               <Avatar
-                sx={{ width: '100%', height: '100%', flexShrink: 0 }}
+                sx={{
+                  width: 'calc(100% - 0.5rem)',
+                  height: 'calc(100% - 0.5rem)',
+                  flexShrink: 0,
+                }}
                 src={`/assets/avatars/${icon.path}`}
                 alt="avatar"
               />
