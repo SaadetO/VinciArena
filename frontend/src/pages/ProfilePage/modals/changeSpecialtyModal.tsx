@@ -14,7 +14,12 @@ export const changeSpecialtyModal = ({
   subtitle: 'Choisissez votre nouvelle spécialité ci-dessous',
   confirmLabel: 'Confirmer',
   cancelLabel: 'Annuler',
-  children: <ChangeSpecialtyModalContent currentSpecialty={currentSpecialty} onSelect={onSelect} />,
+  children: (
+    <ChangeSpecialtyModalContent
+      currentSpecialty={currentSpecialty}
+      onSelect={onSelect}
+    />
+  ),
   onConfirm: (close) => onConfirm(close),
   onCancel: (close) => close(),
 });

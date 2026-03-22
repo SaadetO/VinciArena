@@ -1,4 +1,4 @@
-import { IconButton, Stack, Typography, Tooltip } from '@mui/material';
+import { IconButton, Stack, Typography, Tooltip, Divider } from '@mui/material';
 import { Add } from '@mui/icons-material';
 import { memo } from 'react';
 import { ProfileInfoDto } from '../../../types';
@@ -61,21 +61,18 @@ export const UnavailabilitiesItem = memo(
             </IconButton>
           </Tooltip>
         </Stack>
-        <Stack px="0.25rem">
+        <Stack
+          p="0.25rem 0.5rem 0.25rem 1rem"
+          divider={<Divider />}
+          sx={{ background: (theme) => theme.palette.background.s2 }}
+          borderRadius="0.75rem"
+        >
           {!user ? (
             Array.from({ length: 3 }).map((_, index) => (
               <UnavailabilityItem key={index} setUser={() => {}} />
             ))
           ) : user.unavailabilities?.length === 0 ? (
-            <Stack
-              width="100%"
-              alignItems="center"
-              padding="1rem"
-              sx={{
-                background: (theme) => theme.palette.background.s2,
-              }}
-              borderRadius="0.75rem"
-            >
+            <Stack width="100%" alignItems="center" padding="1rem">
               <Typography variant="h5" color="text.secondary">
                 Aucune indisponibilité pour le moment
               </Typography>

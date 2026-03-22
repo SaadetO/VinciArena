@@ -61,20 +61,7 @@ export const UnavailabilityItem = ({
       spacing="0.375rem"
       alignItems="center"
       justifyContent="space-between"
-      sx={{
-        background: (theme) => theme.palette.background.s2,
-        '&:last-of-type': {
-          borderRadius: '0.375rem 0.375rem 0.75rem 0.75rem',
-        },
-        '&:first-of-type': {
-          borderRadius: '0.75rem 0.75rem 0.375rem 0.375rem',
-        },
-        '&:only-of-type': {
-          borderRadius: '0.75rem 0.75rem 0.75rem 0.75rem',
-        },
-      }}
-      padding="0.375rem 0.5rem 0.375rem 1rem"
-      borderRadius="0.375rem"
+      padding="0.375rem 0"
     >
       <Tooltip
         title={getDurationString({

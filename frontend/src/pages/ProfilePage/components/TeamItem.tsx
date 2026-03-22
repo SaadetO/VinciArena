@@ -215,11 +215,7 @@ export const TeamItem = ({ user, setUser }: TeamItemProps) => {
                 color="secondary"
                 size="small"
               >
-                {user.team ? (
-                  <ArrowOutward />
-                ) : (
-                  <Add />
-                )}
+                {user.team ? <ArrowOutward /> : <Add />}
               </IconButton>
             </Tooltip>
           </>
