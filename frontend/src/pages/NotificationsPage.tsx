@@ -3,7 +3,7 @@ import { NotificationItem } from '../components/NotificationItem';
 import { useNotifications } from '../hooks/useNotifications';
 
 export const NotificationsPage = () => {
-  const { notifications } = useNotifications();
+  const { allNotifications: notifications } = useNotifications();
   return (
     <Container maxWidth="md" sx={{ py: 4, flex: 1 }}>
       <Typography variant="h4" pb="1rem">

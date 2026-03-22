@@ -15,7 +15,7 @@ import { useNotifications } from '../../../hooks/useNotifications';
 
 export const NotificationMenu = () => {
   const [menuPosition, setMenuPosition] = useState<null | HTMLElement>(null);
-  const { notifications, unreadCount, getAll } = useNotifications();
+  const { unreadNotifications, unreadCount, getAll } = useNotifications();
 
   const isOpen = menuPosition != null;
 
@@ -83,7 +83,7 @@ export const NotificationMenu = () => {
           </Button>
         </Stack>
         <Divider />
-        {notifications.length === 0 ? (
+        {unreadNotifications.length === 0 ? (
           <Stack padding="2rem 1.5rem" spacing="0.25rem" alignItems="center">
             <Typography variant="h5" textAlign="center">
               Rien à signaler!
@@ -98,7 +98,7 @@ export const NotificationMenu = () => {
             </Typography>
           </Stack>
         ) : (
-          notifications.map((notif) => (
+          unreadNotifications.map((notif) => (
             <NotificationItem key={notif.idNotification} notification={notif} />
           ))
         )}

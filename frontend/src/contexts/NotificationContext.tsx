@@ -12,7 +12,8 @@ import { useSnackbar } from '../hooks/useSnackbar';
 import { useLocation } from 'react-router-dom';
 
 interface NotificationContextProps {
-  notifications: NotificationDto[];
+  allNotifications: NotificationDto[];
+  unreadNotifications: NotificationDto[];
   unreadCount: number;
   markAsRead: (idNotification: number) => void;
   getAll: (unreadOnly?: boolean) => void;
@@ -20,7 +21,8 @@ interface NotificationContextProps {
 }
 
 const NotificationContext = createContext<NotificationContextProps>({
-  notifications: [],
+  allNotifications: [],
+  unreadNotifications: [],
   unreadCount: 0,
   markAsRead: () => {},
   getAll: () => {},
@@ -28,12 +30,18 @@ const NotificationContext = createContext<NotificationContextProps>({
 });
 
 const NotificationProvider = ({ children }: { children: ReactNode }) => {
-  const [notifications, setNotifications] = useState<NotificationDto[]>([]);
+  const [allNotifications, setAllNotifications] = useState<NotificationDto[]>(
+    [],
+  );
+  const [unreadNotifications, setUnreadNotifications] = useState<
+    NotificationDto[]
+  >([]);
   const [unreadCount, setUnreadCount] = useState(0);
+
   const { authenticatedUser } = useContext(UserContext);
   const { showSnackbar } = useSnackbar();
   const { pathname } = useLocation();
-  const isNotificationPage = pathname == '/notifications';
+  const isNotificationPage = pathname === '/notifications';
 
   const { execute: getAll } = useApi(
     async (unreadOnly: boolean = false) => {
@@ -51,13 +59,19 @@ const NotificationProvider = ({ children }: { children: ReactNode }) => {
       return response.json();
     },
     {
-      onSuccess: (data) => setNotifications(data),
+      onSuccess: (data, params) => {
+        // extract the unreadOnly argument from the execution parameters
+        const unreadOnly = params as unknown as boolean;
+        // put fetch result to the correct state variable
+        if (unreadOnly) {
+          setUnreadNotifications(data);
+        } else {
+          setAllNotifications(data);
+        }
+      },
       onError: (err) =>
         showSnackbar({
-          message:
-            err instanceof Error
-              ? err.message
-              : 'Une erreur est survenue lors de la récupération des notifications.',
+          message: err instanceof Error ? err.message : 'Erreur réseau.',
           severity: 'error',
         }),
     },
@@ -75,21 +89,11 @@ const NotificationProvider = ({ children }: { children: ReactNode }) => {
         },
       );
       if (!response.ok)
-        throw new Error(
-          'Échec de la récupération du nombre de notifications non lues.',
-        );
+        throw new Error('Échec de la récupération du nombre de notifications.');
       return response.json();
     },
     {
       onSuccess: (data) => setUnreadCount(data),
-      onError: (err) =>
-        showSnackbar({
-          message:
-            err instanceof Error
-              ? err.message
-              : 'Une erreur est survenue lors de la récupération du nombre de notifications non lues.',
-          severity: 'error',
-        }),
     },
   );
 
@@ -105,24 +109,27 @@ const NotificationProvider = ({ children }: { children: ReactNode }) => {
           },
         },
       );
-      if (!response.ok)
-        throw new Error(
-          'Échec de la mise à jour du statut de la notification.',
-        );
+      if (!response.ok) throw new Error('Échec de la mise à jour du statut.');
     },
     {
       onOptimism: (idNotification) => {
-        setNotifications((prev) =>
+        // update full List
+        setAllNotifications((prev) =>
           prev.map((notif) =>
             notif.idNotification === idNotification
               ? { ...notif, isRead: true }
               : notif,
           ),
         );
+        // update the unreadNotifs instantly
+        setUnreadNotifications((prev) =>
+          prev.filter((notif) => notif.idNotification !== idNotification),
+        );
+        // set unread count to -1
         setUnreadCount((prev) => Math.max(0, prev - 1));
       },
       onRollback: (idNotification) => {
-        setNotifications((prev) =>
+        setAllNotifications((prev) =>
           prev.map((notif) =>
             notif.idNotification === idNotification
               ? { ...notif, isRead: false }
@@ -133,16 +140,8 @@ const NotificationProvider = ({ children }: { children: ReactNode }) => {
       },
       onSuccess: () =>
         showSnackbar({
-          message: 'Notification marquée comme lue avec succès !',
+          message: 'Notification marquée comme lue !',
           severity: 'success',
-        }),
-      onError: (err) =>
-        showSnackbar({
-          message:
-            err instanceof Error
-              ? err.message
-              : 'Une erreur est survenue lors de la mise à jour du statut de la notification.',
-          severity: 'error',
         }),
     },
   );
@@ -150,19 +149,19 @@ const NotificationProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (authenticatedUser === undefined) return;
     if (authenticatedUser === null) {
-      setNotifications([]);
+      // init state variables
+      setAllNotifications([]);
+      setUnreadNotifications([]);
       setUnreadCount(0);
       return;
     }
 
-    // Initial fetch for navBar only
     getUnreadCount();
-    if (isNotificationPage) getAll();
+    if (isNotificationPage) getAll(false);
 
-    // Poll every 10 seconds only the unreadCount
     const intervalId = setInterval(() => {
       getUnreadCount();
-      if (isNotificationPage) getAll();
+      if (isNotificationPage) getAll(false);
     }, 10000);
 
     return () => clearInterval(intervalId);
@@ -172,7 +171,8 @@ const NotificationProvider = ({ children }: { children: ReactNode }) => {
   return (
     <NotificationContext.Provider
       value={{
-        notifications,
+        allNotifications,
+        unreadNotifications,
         unreadCount,
         markAsRead,
         getAll,
