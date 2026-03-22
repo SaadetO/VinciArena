@@ -49,13 +49,15 @@ export const EditMenu = ({
     const onConfirm = async (close: () => void) => {
       if (!user || !selectedSpecialty) return;
       close();
-      updateSpecialty(
-        selectedSpecialty.id,
-        user.specialty ?? '',
-        selectedSpecialty.label,
-      );
+      updateSpecialty(selectedSpecialty, user.specialty ?? '');
     };
-    openModal(changeSpecialtyModal({ onSelect, onConfirm }));
+    openModal(
+      changeSpecialtyModal({
+        onSelect,
+        onConfirm,
+        currentSpecialty: user.specialty ?? '',
+      }),
+    );
   };
 
   return (

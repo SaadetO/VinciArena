@@ -6,10 +6,12 @@ import { useModalController } from '../../../hooks/useModalController';
 
 interface ChangeSpecialtyModalContentProps {
   onSelect: (specialty: SpecialtyDto | null) => void;
+  currentSpecialty: string;
 }
 
 export const ChangeSpecialtyModalContent = ({
   onSelect,
+  currentSpecialty,
 }: ChangeSpecialtyModalContentProps) => {
   const { specialties, getAll, isGettingSpecialties } = useSpecialties();
   const [selectedSpecialty, setSelectedSpecialty] =
@@ -28,7 +30,7 @@ export const ChangeSpecialtyModalContent = ({
   return (
     <Stack spacing="0.75rem">
       <Autocomplete
-        options={specialties}
+        options={specialties.filter((s) => s.label !== currentSpecialty)}
         loading={isGettingSpecialties}
         noOptionsText={
           isGettingSpecialties

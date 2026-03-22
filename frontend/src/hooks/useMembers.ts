@@ -1,7 +1,7 @@
 import { useApi } from './useApi';
 import { useContext, useRef } from 'react';
 import { UserContext } from '../contexts/UserContext';
-import { Member, ProfilePicture, ProfileInfoDto } from '../types';
+import { Member, ProfilePicture, ProfileInfoDto, SpecialtyDto } from '../types';
 import { useSnackbar } from './useSnackbar';
 
 interface UseMembersOptions {
@@ -152,29 +152,24 @@ export const useMembers = (options?: UseMembersOptions) => {
   );
 
   const { execute: updateSpecialty } = useApi(
-    async (
-      specialtyId: number,
-      previousSpecialty: string,
-      newSpecialtyLabel: string,
-    ) => {
+    async (specialty: SpecialtyDto, previousSpecialty: string) => {
       void previousSpecialty;
-      void newSpecialtyLabel;
       const response = await fetch(`/api/members/me/specialty`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           Authorization: authenticatedUser?.token ?? '',
         },
-        body: JSON.stringify({ specialtyId }),
+        body: JSON.stringify(specialty.id),
       });
       if (!response.ok)
         throw new Error('Échec de la mise à jour de la spécialité.');
     },
     {
-      onOptimism: (_, _previousSpecialty, newSpecialtyLabel) => {
+      onOptimism: (specialty) => {
         setUser?.((prev) => {
           if (!prev) return prev;
-          return { ...prev, specialty: newSpecialtyLabel };
+          return { ...prev, specialty: specialty.label };
         });
       },
       onRollback: (_, previousSpecialty) => {

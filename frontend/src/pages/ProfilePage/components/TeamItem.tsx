@@ -157,14 +157,14 @@ export const TeamItem = ({ user, setUser }: TeamItemProps) => {
       direction="row"
       justifyContent="space-between"
       alignItems="center"
-      padding="1.125rem 0"
+      padding="1.25rem 0"
     >
       <Stack>
         <Typography variant="h6" color="text.secondary">
           {user ? 'Votre Team' : <Skeleton variant="text" width="6rem" />}
         </Typography>
         <Typography
-          variant="h3"
+          variant="h4"
           color={user?.team ? 'text.primary' : 'text.secondary'}
         >
           {user ? (

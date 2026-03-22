@@ -88,7 +88,7 @@ export const ChangePasswordModalContent = ({
           id="password"
           name="password"
           type={showPassword.password ? 'text' : 'password'}
-          placeholder="Mot de passe"
+          placeholder="Nouveau mot de passe"
           onChange={handleChange}
           onFocus={() => setIsPasswordFocused(true)}
           onBlur={() => setIsPasswordFocused(false)}

@@ -112,6 +112,24 @@ public class MemberController {
   }
 
   /**
+   * Update a member's specialty.
+   *
+   * @param specialtyId the new profile image entity
+   * @param currentMember the currently authenticated member
+   */
+  @PreAuthorize("isAuthenticated()")
+  @PatchMapping("/me/specialty")
+  public void updateAvatar(
+      @RequestBody Long specialtyId,
+      @AuthenticationPrincipal Member currentMember) {
+
+    boolean updated = memberService.updateSpecialty(currentMember, specialtyId);
+    if (!updated) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid profile image");
+    }
+  }
+
+  /**
    * Updates the isAdmin property. (we assume we want to change it so we toggle it since it's a
    * boolean)
    *
