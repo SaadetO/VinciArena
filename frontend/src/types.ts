@@ -74,6 +74,12 @@ interface AuthenticatedUser {
   token: string;
 }
 
+interface UserSummaryDto {
+  id: number;
+  tag: string;
+  avatar: string | null;
+}
+
 interface Team {
   idTeam: number;
   name: string;
@@ -86,15 +92,15 @@ interface JoinRequestDto {
   teamName: string;
   status: 'PENDING' | 'ACCEPTED' | 'REJECTED';
   expirationDate: string;
-  requester: ProfileInfoDto;
+  requester: UserSummaryDto;
 }
 
 interface TeamDetailsInfoDto {
   idTeam: number;
   name: string;
   isActive: boolean;
-  managers: ProfileInfoDto[];
-  members: ProfileInfoDto[];
+  managers: UserSummaryDto[];
+  members: UserSummaryDto[];
   joinRequests: JoinRequestDto[] | null;
 }
 
@@ -162,4 +168,5 @@ export type {
   ProfilePicture,
   ModalConfig,
   RegisterFormData,
+  UserSummaryDto,
 };
