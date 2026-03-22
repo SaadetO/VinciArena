@@ -3,6 +3,7 @@ package be.vinci.ipl.cae.demo.services;
 import be.vinci.ipl.cae.demo.models.dtos.AuthenticatedUser;
 import be.vinci.ipl.cae.demo.models.dtos.NewMember;
 import be.vinci.ipl.cae.demo.models.dtos.ProfileDto;
+import be.vinci.ipl.cae.demo.models.dtos.UserSummaryDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.ProfileImage;
 import be.vinci.ipl.cae.demo.models.entities.Specialty;
@@ -313,6 +314,23 @@ public class MemberService {
     }
 
     return builder.build();
+  }
+
+  /**
+   * Get member summary DTO for lists.
+   *
+   * @param member the member entity
+   * @return the user summary DTO
+   */
+  public UserSummaryDto getUserSummary(Member member) {
+    if (member == null) {
+      return null;
+    }
+    return UserSummaryDto.builder()
+        .id(member.getIdMember())
+        .tag(member.getTag())
+        .avatar(member.getProfileImage() != null ? member.getProfileImage().getPath() : null)
+        .build();
   }
 
   /**
