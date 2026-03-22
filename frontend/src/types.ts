@@ -74,6 +74,12 @@ interface AuthenticatedUser {
   token: string;
 }
 
+interface UserSummaryDto {
+  id: number;
+  tag: string;
+  avatar: string | null;
+}
+
 interface Team {
   idTeam: number;
   name: string;
