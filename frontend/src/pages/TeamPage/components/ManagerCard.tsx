@@ -6,7 +6,7 @@ import {
   Chip,
   Button,
 } from '@mui/material';
-import { ProfileInfoDto, TeamDetailsInfoDto } from '../../../types';
+import { UserSummaryDto, TeamDetailsInfoDto } from '../../../types';
 import { Link } from 'react-router-dom';
 import { useContext } from 'react';
 import { UserContext } from '../../../contexts/UserContext';
@@ -26,9 +26,9 @@ export const ManagerCard = ({
   const { showSnackbar } = useSnackbar();
 
   const handlePromote = () => {
-    let selectedManager: ProfileInfoDto | null = null;
+    let selectedManager: UserSummaryDto | null = null;
 
-    const onSelect = (user: ProfileInfoDto | null) => {
+    const onSelect = (user: UserSummaryDto | null) => {
       selectedManager = user;
     };
 

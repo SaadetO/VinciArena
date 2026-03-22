@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useModalController } from '../../../hooks/useModalController';
-import { ProfileInfoDto, TeamDetailsInfoDto } from '../../../types';
+import { UserSummaryDto, TeamDetailsInfoDto } from '../../../types';
 import {
   Autocomplete,
   Avatar,
@@ -11,7 +11,7 @@ import {
 
 interface ManagerModalContentProps {
   team: TeamDetailsInfoDto | undefined;
-  onSelect: (user: ProfileInfoDto | null) => void;
+  onSelect: (user: UserSummaryDto | null) => void;
 }
 
 export const ManagerModalContent = ({
@@ -19,7 +19,7 @@ export const ManagerModalContent = ({
   onSelect,
 }: ManagerModalContentProps) => {
   const [localError, setLocalError] = useState<string | null>(null);
-  const [selectedUser, setSelectedUser] = useState<ProfileInfoDto | null>(null);
+  const [selectedUser, setSelectedUser] = useState<UserSummaryDto | null>(null);
 
   const { setError } = useModalController();
 
@@ -32,7 +32,7 @@ export const ManagerModalContent = ({
       <Autocomplete
         options={
           team?.members.filter(
-            (user: ProfileInfoDto) =>
+            (user: UserSummaryDto) =>
               !team?.managers.find((manager) => manager.id === user.id),
           ) ?? []
         }

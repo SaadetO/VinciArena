@@ -1,6 +1,6 @@
 import {
   ModalConfig,
-  ProfileInfoDto,
+  UserSummaryDto,
   TeamDetailsInfoDto,
 } from '../../../types';
 import { ManagerModalContent } from './ManagerModalContent';
@@ -11,7 +11,7 @@ export const managerModal = ({
   onConfirm,
 }: {
   team: TeamDetailsInfoDto | undefined;
-  onSelect: (user: ProfileInfoDto | null) => void;
+  onSelect: (user: UserSummaryDto | null) => void;
   onConfirm: (close: () => void) => void;
 }): ModalConfig => ({
   title: 'Désigner un Responsable',
