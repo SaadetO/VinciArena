@@ -672,5 +672,12 @@ export const theme = createTheme({
         },
       },
     },
+    MuiCheckbox: {
+      styleOverrides: {
+        root: {
+          color: '#252525',
+        },
+      },
+    },
   },
 });

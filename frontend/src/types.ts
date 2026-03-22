@@ -127,6 +127,15 @@ interface ModalConfig {
   onCancel?: (close: () => void) => void;
 }
 
+interface RegisterFormData {
+  email: string;
+  password: string;
+  confirmPassword: string;
+  tag: string;
+  specialtyId: number | null;
+  profileImageId: number | null;
+}
+
 export type {
   MainContext,
   User,
@@ -144,4 +153,5 @@ export type {
   SpecialtyDto,
   ProfileImage,
   ModalConfig,
+  RegisterFormData,
 };

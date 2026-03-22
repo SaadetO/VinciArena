@@ -1,7 +1,6 @@
 import { useState, SyntheticEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  // Alert,
   Box,
   Button,
   Checkbox,
@@ -34,12 +33,20 @@ export const LoginPage = () => {
 
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
+    if (!formData.email.trim() || !formData.password.trim()) return;
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email.trim())) return;
+
     login({ ...formData, rememberMe }, navigate);
   };
 
   const handleChange = (e: SyntheticEvent) => {
     const input = e.target as HTMLInputElement;
-    setFormData((prev) => ({ ...prev, [input.name]: input.value }));
+    const name = input.name as 'email' | 'password';
+    const value = input.value;
+
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
   return (
     <Stack direction="row" flex="1">
@@ -130,14 +137,10 @@ export const LoginPage = () => {
               }
               label="Se souvenir de moi"
               sx={{
+                pl: '0.5rem',
                 color: 'text.secondary',
               }}
             />
-            {/* {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              Identifiants invalides !
-            </Alert>
-          )} */}
             <Stack spacing="1.5rem" paddingTop="1.5rem">
               <Button type="submit" variant="contained">
                 Se Connecter

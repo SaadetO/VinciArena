@@ -5,7 +5,7 @@ import './index.css';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { App } from './App.tsx';
 import { HomePage } from './pages/HomePage.tsx';
-import { RegisterPage } from './pages/RegisterPage.tsx';
+import { RegisterPage } from './pages/RegisterPage/index.tsx';
 import { LoginPage } from './pages/LoginPage.tsx';
 import { UserContextProvider } from './contexts/UserContext.tsx';
 import '@fontsource/roboto/700.css';
