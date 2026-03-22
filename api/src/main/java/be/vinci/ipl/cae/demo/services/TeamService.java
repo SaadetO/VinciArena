@@ -1,8 +1,8 @@
 package be.vinci.ipl.cae.demo.services;
 
 import be.vinci.ipl.cae.demo.models.dtos.JoinRequestDto;
-import be.vinci.ipl.cae.demo.models.dtos.ProfileDto;
 import be.vinci.ipl.cae.demo.models.dtos.TeamDetailsDto;
+import be.vinci.ipl.cae.demo.models.dtos.UserSummaryDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.RequestStatus;
 import be.vinci.ipl.cae.demo.models.entities.Team;
@@ -55,18 +55,17 @@ public class TeamService {
       return null;
     }
 
-    String authEmail = currentMember != null ? currentMember.getEmail() : null;
 
-    List<ProfileDto> managers = new ArrayList<>();
+    List<UserSummaryDto> managers = new ArrayList<>();
     if (team.getManager1() != null) {
-      managers.add(memberService.getProfile(team.getManager1().getIdMember(), authEmail));
+      managers.add(memberService.getUserSummary(team.getManager1()));
     }
     if (team.getManager2() != null) {
-      managers.add(memberService.getProfile(team.getManager2().getIdMember(), authEmail));
+      managers.add(memberService.getUserSummary(team.getManager2()));
     }
 
-    List<ProfileDto> members = team.getMembers().stream()
-        .map(m -> memberService.getProfile(m.getIdMember(), authEmail))
+    List<UserSummaryDto> members = team.getMembers().stream()
+        .map(memberService::getUserSummary)
         .collect(Collectors.toList());
 
     boolean isManager = isManager(team, currentMember);
@@ -82,7 +81,7 @@ public class TeamService {
               .teamName(jr.getRequestedTeam().getName())
               .status(jr.getStatus())
               .expirationDate(jr.getExpirationDate())
-              .requester(memberService.getProfile(jr.getMember().getIdMember(), authEmail))
+              .requester(memberService.getUserSummary(jr.getMember()))
               .build())
           .collect(Collectors.toList());
     }

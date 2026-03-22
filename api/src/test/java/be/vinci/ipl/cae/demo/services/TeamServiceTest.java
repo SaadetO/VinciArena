@@ -8,10 +8,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-
-import be.vinci.ipl.cae.demo.models.dtos.ProfileDto;
+import be.vinci.ipl.cae.demo.models.dtos.UserSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.TeamDetailsDto;
 
 import be.vinci.ipl.cae.demo.models.entities.JoinRequest;
@@ -159,7 +156,7 @@ class TeamServiceTest {
     currentMember.setEmail("user@test.com");
 
     when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
-    when(memberService.getProfile(eq(10L), anyString())).thenReturn(ProfileDto.builder().id(10L).build());
+    when(memberService.getUserSummary(member1)).thenReturn(UserSummaryDto.builder().id(10L).build());
 
     // Act
     TeamDetailsDto result = teamService.getTeamDetails(1L, currentMember);
@@ -192,8 +189,8 @@ class TeamServiceTest {
     jr.setStatus(RequestStatus.PENDING);
 
     when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
-    when(memberService.getProfile(eq(10L), anyString())).thenReturn(ProfileDto.builder().id(10L).build());
-    when(memberService.getProfile(eq(30L), anyString())).thenReturn(ProfileDto.builder().id(30L).build());
+    when(memberService.getUserSummary(manager)).thenReturn(UserSummaryDto.builder().id(10L).build());
+    when(memberService.getUserSummary(jr.getMember())).thenReturn(UserSummaryDto.builder().id(30L).build());
     when(joinRequestRepository.findAllByRequestedTeamAndStatus(team, RequestStatus.PENDING))
         .thenReturn(List.of(jr));
 
