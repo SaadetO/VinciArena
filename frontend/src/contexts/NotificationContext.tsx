@@ -60,18 +60,15 @@ const NotificationProvider = ({ children }: { children: ReactNode }) => {
     },
     {
       onSuccess: (data, params) => {
-        // extract the unreadOnly argument from the execution parameters
-        const unreadOnly = params as unknown as boolean;
-        // put fetch result to the correct state variable
-        if (unreadOnly) {
-          setUnreadNotifications(data);
-        } else {
-          setAllNotifications(data);
-        }
+        if (params) setUnreadNotifications(data);
+        else setAllNotifications(data);
       },
       onError: (err) =>
         showSnackbar({
-          message: err instanceof Error ? err.message : 'Erreur réseau.',
+          message:
+            err instanceof Error
+              ? err.message
+              : 'Une erreur est survenue lors de la récupération des notifications.',
           severity: 'error',
         }),
     },
@@ -94,6 +91,14 @@ const NotificationProvider = ({ children }: { children: ReactNode }) => {
     },
     {
       onSuccess: (data) => setUnreadCount(data),
+      onError: (err) =>
+        showSnackbar({
+          message:
+            err instanceof Error
+              ? err.message
+              : 'Une erreur est survenue lors de la récupération du nombre de notifications.',
+          severity: 'error',
+        }),
     },
   );
 
@@ -109,7 +114,10 @@ const NotificationProvider = ({ children }: { children: ReactNode }) => {
           },
         },
       );
-      if (!response.ok) throw new Error('Échec de la mise à jour du statut.');
+      if (!response.ok)
+        throw new Error(
+          'Échec de la mise à jour du statut de la notification.',
+        );
     },
     {
       onOptimism: (idNotification) => {
@@ -143,6 +151,14 @@ const NotificationProvider = ({ children }: { children: ReactNode }) => {
           message: 'Notification marquée comme lue !',
           severity: 'success',
         }),
+      onError: (err) =>
+        showSnackbar({
+          message:
+            err instanceof Error
+              ? err.message
+              : 'Une erreur est survenue lors de la mise à jour du statut de la notification.',
+          severity: 'error',
+        }),
     },
   );
 
@@ -165,8 +181,7 @@ const NotificationProvider = ({ children }: { children: ReactNode }) => {
     }, 10000);
 
     return () => clearInterval(intervalId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authenticatedUser, isNotificationPage]);
+  }, [authenticatedUser, isNotificationPage, getAll, getUnreadCount]);
 
   return (
     <NotificationContext.Provider
