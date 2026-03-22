@@ -175,7 +175,13 @@ const ModalContextProvider = ({ children }: { children: ReactNode }) => {
               >
                 {config?.cancelLabel ?? 'Annuler'}
               </Button>
-              <Button variant="contained" type="submit" fullWidth>
+              <Button
+                variant="contained"
+                color={config?.confirmColor ?? 'primary'}
+                type="submit"
+                fullWidth
+                disabled={config?.confirmDisabled}
+              >
                 {config?.confirmLabel ?? 'Confirmer'}
               </Button>
             </DialogActions>

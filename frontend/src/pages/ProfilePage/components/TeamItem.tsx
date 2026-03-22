@@ -15,6 +15,7 @@ import { useModal } from '../../../hooks/useModal';
 import { useSnackbar } from '../../../hooks/useSnackbar';
 import { createTeamModal } from '../modals/createTeamModal';
 import { joinTeamModal } from '../modals/joinTeamModal';
+import { quitConfirmationModal } from '../modals/quitConfirmationModal';
 
 interface TeamItemProps {
   user?: ProfileInfoDto;
@@ -123,33 +124,37 @@ export const TeamItem = ({ user, setUser }: TeamItemProps) => {
     }
   };
 
-  const handleQuit = async () => {
-    if (!user?.team) return;
-    const previousTeam = user.team;
-    setUser((prev) => (prev ? { ...prev, team: null } : prev));
-    try {
-      const response = await fetch('/api/teams/quit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: authenticatedUser?.token ?? '',
-        },
-      });
-      if (!response.ok) throw new Error('Erreur lors du départ de la team.');
-      showSnackbar({
-        message: "Vous avez quitté l'équipe avec succès.",
-        severity: 'success',
-      });
-    } catch (err) {
-      setUser((prev) => (prev ? { ...prev, team: previousTeam } : prev));
-      showSnackbar({
-        message:
-          err instanceof Error
-            ? err.message
-            : 'Une erreur est survenue en quittant la team.',
-        severity: 'error',
-      });
-    }
+  const handleQuit = () => {
+    const onConfirm = async (close: () => void) => {
+      close();
+      if (!user?.team) return;
+      const previousTeam = user.team;
+      setUser((prev) => (prev ? { ...prev, team: null } : prev));
+      try {
+        const response = await fetch('/api/teams/quit', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: authenticatedUser?.token ?? '',
+          },
+        });
+        if (!response.ok) throw new Error('Erreur lors du départ de la team.');
+        showSnackbar({
+          message: "Vous avez quitté l'équipe avec succès.",
+          severity: 'success',
+        });
+      } catch (err) {
+        setUser((prev) => (prev ? { ...prev, team: previousTeam } : prev));
+        showSnackbar({
+          message:
+            err instanceof Error
+              ? err.message
+              : 'Une erreur est survenue en quittant la team.',
+          severity: 'error',
+        });
+      }
+    };
+    openModal(quitConfirmationModal({ onConfirm }));
   };
 
   return (
