@@ -98,9 +98,14 @@ export const NotificationMenu = () => {
             </Typography>
           </Stack>
         ) : (
-          unreadNotifications.map((notif) => (
-            <NotificationItem key={notif.idNotification} notification={notif} />
-          ))
+          <Stack divider={<Divider />}>
+            {unreadNotifications.map((notif) => (
+              <NotificationItem
+                key={notif.idNotification}
+                notification={notif}
+              />
+            ))}
+          </Stack>
         )}
       </Menu>
     </>

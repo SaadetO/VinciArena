@@ -1,4 +1,4 @@
-import { Container, List, Stack, Typography } from '@mui/material';
+import { Container, Divider, List, Stack, Typography } from '@mui/material';
 import { NotificationItem } from '../components/NotificationItem';
 import { useNotifications } from '../hooks/useNotifications';
 
@@ -13,7 +13,7 @@ export const NotificationsPage = () => {
         sx={{
           p: 0,
           background: (theme) => theme.palette.background.s1,
-          borderRadius: '0.5rem',
+          borderRadius: '1.5rem',
           overflow: 'hidden',
         }}
       >
@@ -37,9 +37,14 @@ export const NotificationsPage = () => {
             </Typography>
           </Stack>
         ) : (
-          notifications.map((notif) => (
-            <NotificationItem key={notif.idNotification} notification={notif} />
-          ))
+          <Stack divider={<Divider />}>
+            {notifications.map((notif) => (
+              <NotificationItem
+                key={notif.idNotification}
+                notification={notif}
+              />
+            ))}
+          </Stack>
         )}
       </List>
     </Container>

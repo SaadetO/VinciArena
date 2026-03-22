@@ -1,7 +1,6 @@
 import {
   ListItem,
   ListItemText,
-  Divider,
   IconButton,
   Tooltip,
 } from '@mui/material';
@@ -21,52 +20,49 @@ export const NotificationItem = ({ notification }: Props) => {
   const { markAsRead } = useNotifications();
   if (!authenticatedUser) return;
   return (
-    <>
-      <ListItem
-        sx={{
-          backgroundColor: (theme) =>
-            notification.isRead ? 'transparent' : theme.palette.background.s3,
-          alignItems: 'center',
+    <ListItem
+      sx={{
+        backgroundColor: (theme) =>
+          notification.isRead ? 'transparent' : theme.palette.background.s3,
+        alignItems: 'center',
+      }}
+      secondaryAction={
+        !notification.isRead && (
+          <Tooltip title="Marquer comme lu" placement="left" arrow>
+            <IconButton
+              size="small"
+              color="primary"
+              onClick={() => markAsRead(notification.idNotification)}
+            >
+              <MarkEmailReadOutlined />
+            </IconButton>
+          </Tooltip>
+        )
+      }
+    >
+      <ListItemText
+        primary={notification.content}
+        secondary={formatRelativeTime(notification.dateTime)}
+        slotProps={{
+          primary: {
+            variant: 'h5',
+            color: 'text.primary',
+            sx: {
+              textOverflow: 'ellipsis',
+              overflow: 'hidden',
+              whiteSpace: 'nowrap',
+            },
+          },
+          secondary: {
+            variant: 'body2',
+            sx: {
+              textOverflow: 'ellipsis',
+              overflow: 'hidden',
+              whiteSpace: 'nowrap',
+            },
+          },
         }}
-        secondaryAction={
-          !notification.isRead && (
-            <Tooltip title="Marquer comme lu" placement="left" arrow>
-              <IconButton
-                size="small"
-                color="primary"
-                onClick={() => markAsRead(notification.idNotification)}
-              >
-                <MarkEmailReadOutlined />
-              </IconButton>
-            </Tooltip>
-          )
-        }
-      >
-        <ListItemText
-          primary={notification.content}
-          secondary={formatRelativeTime(notification.dateTime)}
-          slotProps={{
-            primary: {
-              variant: 'h5',
-              color: 'text.primary',
-              sx: {
-                textOverflow: 'ellipsis',
-                overflow: 'hidden',
-                whiteSpace: 'nowrap',
-              },
-            },
-            secondary: {
-              variant: 'body2',
-              sx: {
-                textOverflow: 'ellipsis',
-                overflow: 'hidden',
-                whiteSpace: 'nowrap',
-              },
-            },
-          }}
-        />
-      </ListItem>
-      <Divider sx={{ '&:last-of-type': { display: 'none' } }} />
-    </>
+      />
+    </ListItem>
   );
 };
