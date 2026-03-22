@@ -26,7 +26,6 @@ export const unavailabilitiesModal = ({
   subtitle: 'Ajoutez une indisponibilité en complétant les champs ci-dessous',
   confirmLabel: 'Confirmer',
   cancelLabel: 'Annuler',
-  confirmDisabled: false,
   children: (
     <UnavailabilitiesModalContent
       unavailabilities={unavailabilities}

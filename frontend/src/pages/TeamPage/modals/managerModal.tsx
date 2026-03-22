@@ -20,4 +20,5 @@ export const managerModal = ({
   cancelLabel: 'Annuler',
   children: <ManagerModalContent team={team} onSelect={onSelect} />,
   onConfirm: (close) => onConfirm(close),
+  onCancel: (close) => close(),
 });
