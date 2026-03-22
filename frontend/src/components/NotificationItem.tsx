@@ -1,9 +1,4 @@
-import {
-  ListItem,
-  ListItemText,
-  IconButton,
-  Tooltip,
-} from '@mui/material';
+import { ListItem, ListItemText, IconButton, Tooltip } from '@mui/material';
 import { NotificationDto } from '../types';
 import { useContext } from 'react';
 import { UserContext } from '../contexts/UserContext';
