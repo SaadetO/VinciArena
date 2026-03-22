@@ -12,15 +12,17 @@ import { useSnackbar } from '../hooks/useSnackbar';
 import { useLocation } from 'react-router-dom';
 
 interface NotificationContextProps {
-  notifications: NotificationDto[];
+  allNotifications: NotificationDto[];
+  unreadNotifications: NotificationDto[];
   unreadCount: number;
   markAsRead: (idNotification: number) => void;
-  getAll: () => void;
+  getAll: (unreadOnly?: boolean) => void;
   getUnreadCount: () => void;
 }
 
 const NotificationContext = createContext<NotificationContextProps>({
-  notifications: [],
+  allNotifications: [],
+  unreadNotifications: [],
   unreadCount: 0,
   markAsRead: () => {},
   getAll: () => {},
@@ -28,27 +30,39 @@ const NotificationContext = createContext<NotificationContextProps>({
 });
 
 const NotificationProvider = ({ children }: { children: ReactNode }) => {
-  const [notifications, setNotifications] = useState<NotificationDto[]>([]);
+  const [allNotifications, setAllNotifications] = useState<NotificationDto[]>(
+    [],
+  );
+  const [unreadNotifications, setUnreadNotifications] = useState<
+    NotificationDto[]
+  >([]);
   const [unreadCount, setUnreadCount] = useState(0);
+
   const { authenticatedUser } = useContext(UserContext);
   const { showSnackbar } = useSnackbar();
   const { pathname } = useLocation();
-  const isNotificationPage = pathname == '/notifications';
+  const isNotificationPage = pathname === '/notifications';
 
   const { execute: getAll } = useApi(
-    async () => {
-      const response = await fetch(`/api/notifications/member/me`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: authenticatedUser?.token ?? '',
+    async (unreadOnly: boolean = false) => {
+      const response = await fetch(
+        `/api/notifications/member/me?unreadOnly=${unreadOnly}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: authenticatedUser?.token ?? '',
+          },
         },
-      });
+      );
       if (!response.ok)
         throw new Error('Échec de la récupération des notifications.');
       return response.json();
     },
     {
-      onSuccess: (data) => setNotifications(data),
+      onSuccess: (data, params) => {
+        if (params) setUnreadNotifications(data);
+        else setAllNotifications(data);
+      },
       onError: (err) =>
         showSnackbar({
           message:
@@ -72,9 +86,7 @@ const NotificationProvider = ({ children }: { children: ReactNode }) => {
         },
       );
       if (!response.ok)
-        throw new Error(
-          'Échec de la récupération du nombre de notifications non lues.',
-        );
+        throw new Error('Échec de la récupération du nombre de notifications.');
       return response.json();
     },
     {
@@ -84,7 +96,7 @@ const NotificationProvider = ({ children }: { children: ReactNode }) => {
           message:
             err instanceof Error
               ? err.message
-              : 'Une erreur est survenue lors de la récupération du nombre de notifications non lues.',
+              : 'Une erreur est survenue lors de la récupération du nombre de notifications.',
           severity: 'error',
         }),
     },
@@ -109,17 +121,23 @@ const NotificationProvider = ({ children }: { children: ReactNode }) => {
     },
     {
       onOptimism: (idNotification) => {
-        setNotifications((prev) =>
+        // update full List
+        setAllNotifications((prev) =>
           prev.map((notif) =>
             notif.idNotification === idNotification
               ? { ...notif, isRead: true }
               : notif,
           ),
         );
+        // update the unreadNotifs instantly
+        setUnreadNotifications((prev) =>
+          prev.filter((notif) => notif.idNotification !== idNotification),
+        );
+        // set unread count to -1
         setUnreadCount((prev) => Math.max(0, prev - 1));
       },
       onRollback: (idNotification) => {
-        setNotifications((prev) =>
+        setAllNotifications((prev) =>
           prev.map((notif) =>
             notif.idNotification === idNotification
               ? { ...notif, isRead: false }
@@ -130,7 +148,7 @@ const NotificationProvider = ({ children }: { children: ReactNode }) => {
       },
       onSuccess: () =>
         showSnackbar({
-          message: 'Notification marquée comme lue avec succès !',
+          message: 'Notification marquée comme lue !',
           severity: 'success',
         }),
       onError: (err) =>
@@ -147,28 +165,29 @@ const NotificationProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (authenticatedUser === undefined) return;
     if (authenticatedUser === null) {
-      setNotifications([]);
+      // init state variables
+      setAllNotifications([]);
+      setUnreadNotifications([]);
       setUnreadCount(0);
       return;
     }
 
-    // Initial fetch for navBar only
     getUnreadCount();
-    if (isNotificationPage) getAll();
+    if (isNotificationPage) getAll(false);
 
-    // Poll every 10 seconds only the unreadCount
     const intervalId = setInterval(() => {
       getUnreadCount();
-      if (isNotificationPage) getAll();
+      if (isNotificationPage) getAll(false);
     }, 10000);
 
     return () => clearInterval(intervalId);
-  }, [authenticatedUser, getAll, getUnreadCount, isNotificationPage]);
+  }, [authenticatedUser, isNotificationPage, getAll, getUnreadCount]);
 
   return (
     <NotificationContext.Provider
       value={{
-        notifications,
+        allNotifications,
+        unreadNotifications,
         unreadCount,
         markAsRead,
         getAll,

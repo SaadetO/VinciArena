@@ -15,15 +15,13 @@ import { useNotifications } from '../../../hooks/useNotifications';
 
 export const NotificationMenu = () => {
   const [menuPosition, setMenuPosition] = useState<null | HTMLElement>(null);
-  const { notifications, unreadCount, getAll } = useNotifications();
-
-  const unreadNotifications = notifications.filter((notif) => !notif.isRead);
+  const { unreadNotifications, unreadCount, getAll } = useNotifications();
 
   const isOpen = menuPosition != null;
 
   const handleMenuClick = (event: MouseEvent<HTMLElement>) => {
     setMenuPosition(event.currentTarget);
-    getAll();
+    getAll(true);
   };
 
   const handleClose = () => {
