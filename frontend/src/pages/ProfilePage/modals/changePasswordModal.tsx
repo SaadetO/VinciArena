@@ -13,7 +13,6 @@ export const changePasswordModal = ({
     'Créez votre nouveau mot de passe en complétant les champs ci-dessous',
   confirmLabel: 'Confirmer',
   cancelLabel: 'Annuler',
-  confirmDisabled: true,
   children: <ChangePasswordModalContent onSelect={onSelect} />,
   onConfirm: (close) => onConfirm(close),
   onCancel: (close) => close(),

@@ -31,8 +31,10 @@ const ModalContextProvider = ({ children }: { children: ReactNode }) => {
   const [open, setOpen] = useState(false);
   const [config, setConfig] = useState<ModalConfig | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [confirmDisabled, setConfirmDisabled] = useState(false);
 
   const openModal = useCallback((cfg: ModalConfig) => {
+    setConfirmDisabled(cfg.confirmDisabled ?? false);
     setError(null);
     setConfig(cfg);
     setOpen(true);
@@ -55,11 +57,10 @@ const ModalContextProvider = ({ children }: { children: ReactNode }) => {
 
   const modalControllerContextValue = useMemo(
     () => ({
-      setError: (err: string | null) => {
-        setError(err);
-      },
+      setConfirmDisabled,
+      setError,
     }),
-    [],
+    [setConfirmDisabled, setError],
   );
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -180,7 +181,7 @@ const ModalContextProvider = ({ children }: { children: ReactNode }) => {
                 color={config?.confirmColor ?? 'primary'}
                 type="submit"
                 fullWidth
-                disabled={config?.confirmDisabled}
+                disabled={confirmDisabled}
               >
                 {config?.confirmLabel ?? 'Confirmer'}
               </Button>

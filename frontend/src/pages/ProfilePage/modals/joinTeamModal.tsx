@@ -13,7 +13,6 @@ export const joinTeamModal = ({
   subtitle: 'Demandez à rejoindre une Team ci-dessous',
   confirmLabel: 'Demander',
   cancelLabel: 'Annuler',
-  confirmDisabled: true,
   children: <JoinTeamModalContent onSelect={onSelect} />,
   onConfirm: (close) => onConfirm(close),
   onCancel: (close) => close(),

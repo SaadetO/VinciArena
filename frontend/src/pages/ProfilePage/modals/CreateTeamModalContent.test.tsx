@@ -11,6 +11,7 @@ describe('CreateTeamModalContent', () => {
       <ModalControllerContext.Provider
         value={{
           setError: setErrorMock,
+          setConfirmDisabled: vi.fn(),
         }}
       >
         {ui}

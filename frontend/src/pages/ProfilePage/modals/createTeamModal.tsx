@@ -12,7 +12,6 @@ export const createTeamModal = ({
   subtitle: "Comment s'appelle votre Team ?",
   confirmLabel: 'Créer',
   cancelLabel: 'Annuler',
-  confirmDisabled: true,
   children: <CreateTeamModalContent onSelect={onSelect} />,
   onConfirm: (close) => onConfirm(close),
   onCancel: (close) => close(),

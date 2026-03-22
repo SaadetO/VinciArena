@@ -1,13 +1,15 @@
-import { ImageList, ImageListItem, Skeleton } from '@mui/material';
+import { Avatar, ImageList, ImageListItem, Skeleton } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { ProfilePicture } from '../types';
 import { useProfilePictures } from '../hooks/useProfilePictures';
+import { useModalController } from '../hooks/useModalController';
 
 interface Props {
   onSelect: (image: ProfilePicture) => void;
 }
 
 export const ProfilePictureModalContent = ({ onSelect }: Props) => {
+  const { setConfirmDisabled } = useModalController();
   const { profilePictures, getAll, isGettingProfilePictures } =
     useProfilePictures();
   const [avatar, setAvatar] = useState<ProfilePicture | null>(null);
@@ -33,6 +35,7 @@ export const ProfilePictureModalContent = ({ onSelect }: Props) => {
               onClick={() => {
                 setAvatar(icon);
                 onSelect(icon);
+                setConfirmDisabled(false);
               }}
               sx={{
                 cursor: 'pointer',
@@ -45,7 +48,11 @@ export const ProfilePictureModalContent = ({ onSelect }: Props) => {
                 overflow: 'hidden',
               }}
             >
-              <img src={`/assets/avatars/${icon.path}`} alt="avatar" />
+              <Avatar
+                sx={{ width: '100%', height: '100%' }}
+                src={`/assets/avatars/${icon.path}`}
+                alt="avatar"
+              />
             </ImageListItem>
           ))}
     </ImageList>
