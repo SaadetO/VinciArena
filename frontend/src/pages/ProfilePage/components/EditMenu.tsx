@@ -1,4 +1,4 @@
-import { useState, MouseEvent } from 'react';
+import { useState, MouseEvent, Dispatch, SetStateAction } from 'react';
 import { Button, Menu, MenuItem, Typography } from '@mui/material';
 import { ArrowDropDown } from '@mui/icons-material';
 import { ProfileInfoDto, SpecialtyDto } from '../../../types';
@@ -12,7 +12,7 @@ export const EditMenu = ({
   setUser,
 }: {
   user: ProfileInfoDto;
-  setUser: React.Dispatch<React.SetStateAction<ProfileInfoDto | undefined>>;
+  setUser: Dispatch<SetStateAction<ProfileInfoDto | undefined>>;
 }) => {
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
   const isOpen = menuAnchor != null;

@@ -1,18 +1,18 @@
 import { useApi } from './useApi';
-import { useContext, useRef } from 'react';
+import { Dispatch, SetStateAction, useContext, useRef } from 'react';
 import { UserContext } from '../contexts/UserContext';
 import { Member, ProfilePicture, ProfileInfoDto, SpecialtyDto } from '../types';
 import { useSnackbar } from './useSnackbar';
 
 interface UseMembersOptions {
-  setUser?: React.Dispatch<React.SetStateAction<ProfileInfoDto | undefined>>;
-  setError?: React.Dispatch<
-    React.SetStateAction<
+  setUser?: Dispatch<SetStateAction<ProfileInfoDto | undefined>>;
+  setError?: Dispatch<
+    SetStateAction<
       { code: number; message: string; subtitle?: string } | undefined
     >
   >;
-  setUsers?: React.Dispatch<React.SetStateAction<Member[]>>;
-  setPendingIds?: React.Dispatch<React.SetStateAction<number[]>>;
+  setUsers?: Dispatch<SetStateAction<Member[]>>;
+  setPendingIds?: Dispatch<SetStateAction<number[]>>;
 }
 
 export const useMembers = (options?: UseMembersOptions) => {

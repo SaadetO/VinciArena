@@ -252,7 +252,7 @@ export const AdminManagementModal = ({
           <Stack ref={contentRef} sx={{ padding: '1rem' }}>
             {isGettingUsers ? (
               <List disablePadding sx={{ height: '100%' }}>
-                {[...Array(4)].map((_, index) => (
+                {Array.from({length: 4}).map((_, index) => (
                   <UserItem
                     key={index}
                     user={null}
