@@ -442,6 +442,14 @@ export const theme = createTheme({
             },
           },
         },
+        {
+          props: { size: 'small', color: 'secondary' },
+          style: {
+            '& .MuiSvgIcon-root': {
+              fontSize: '1.25rem',
+            },
+          },
+        },
       ],
     },
     MuiSelect: {
