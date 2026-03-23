@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import { useContext } from 'react';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 
@@ -17,35 +17,58 @@ afterEach(() => {
 });
 
 describe('NotificationContext basic tests', () => {
-  // mock SnackBarContext
+  // mock snackbar context
   const mockSnackbarContext = {
     showSnackbar: vi.fn(),
-  } as unknown as React.ContextType<typeof SnackbarContext>;
+  } as unknown as NonNullable<React.ContextType<typeof SnackbarContext>>;
 
-  // test component to display data from the context
+  // mock users
+  // without token
+  const GUEST_USER = {
+    authenticatedUser: null,
+    setAuthenticatedUser: vi.fn(),
+  } as unknown as UserContextType;
+
+  // with token
+  const AUTH_USER = {
+    authenticatedUser: { token: 'mock-token' },
+  } as unknown as UserContextType;
+
+  // test component to display the data
   const TestDisplay = () => {
     const { allNotifications, unreadNotifications, unreadCount } =
       useContext(NotificationContext);
     return (
       <div>
-        <span data-testid="list-size">{allNotifications.length}</span>
-        <span data-testid="unread-size">{unreadNotifications.length}</span>
-        <span data-testid="count">{unreadCount}</span>
+        <span data-testid="list-size">
+          {String(allNotifications?.length || 0)}
+        </span>
+        <span data-testid="unread-size">
+          {String(unreadNotifications?.length || 0)}
+        </span>
+        <span data-testid="count">{String(unreadCount || 0)}</span>
+      </div>
+    );
+  };
+
+  // test component for the triggers
+  const TestTrigger = () => {
+    const { allNotifications, unreadCount, getAll, markAsRead } =
+      useContext(NotificationContext);
+    return (
+      <div>
+        <button onClick={() => getAll(false)}>Get All</button>
+        <button onClick={() => markAsRead(1)}>Mark Read</button>
+        <span data-testid="size">{String(allNotifications?.length || 0)}</span>
+        <span data-testid="count">{String(unreadCount || 0)}</span>
       </div>
     );
   };
 
   it('starts with empty notifications and zero count', () => {
-    // mock user context without token (logged out user)
-    const mockUserContext = {
-      authenticatedUser: null,
-      setAuthenticatedUser: vi.fn(),
-    } as unknown as UserContextType;
-
-    // render test component
     render(
       <SnackbarContext.Provider value={mockSnackbarContext}>
-        <UserContext.Provider value={mockUserContext}>
+        <UserContext.Provider value={GUEST_USER}>
           <BrowserRouter>
             <NotificationProvider>
               <TestDisplay />
@@ -55,39 +78,22 @@ describe('NotificationContext basic tests', () => {
       </SnackbarContext.Provider>,
     );
 
-    // assert notifications list sizes to 0 and unread count to be 0
+    // assert allNotifications and unreadNotifications are empty and count is 0
     expect(screen.getByTestId('list-size').textContent).toBe('0');
     expect(screen.getByTestId('unread-size').textContent).toBe('0');
     expect(screen.getByTestId('count').textContent).toBe('0');
   });
 
   it('updates the list when getAll is called', async () => {
-    // mock fetch from backend
+    // Mock fetch from backend
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => [{ idNotification: 1, content: 'Test', isRead: false }],
     });
 
-    // mock user with token (logged in)
-    const mockUser = {
-      authenticatedUser: { token: 'mock-token' },
-    } as unknown as UserContextType;
-
-    // test component with a button that triggers getAll()
-    const TestTrigger = () => {
-      const { allNotifications, getAll } = useContext(NotificationContext);
-      return (
-        <div>
-          <button onClick={() => getAll(false)}>Test Click</button>
-          <span data-testid="size">{allNotifications.length}</span>
-        </div>
-      );
-    };
-
-    // render test component
     render(
       <SnackbarContext.Provider value={mockSnackbarContext}>
-        <UserContext.Provider value={mockUser}>
+        <UserContext.Provider value={AUTH_USER}>
           <BrowserRouter>
             <NotificationProvider>
               <TestTrigger />
@@ -97,12 +103,89 @@ describe('NotificationContext basic tests', () => {
       </SnackbarContext.Provider>,
     );
 
-    // testing hook by clicking button associated with getAll
-    screen.getByText('Test Click').click();
-
-    // assert: wait for list length to become 1
-    await waitFor(() => {
-      expect(screen.getByTestId('size').textContent).toBe('1');
+    // Act: click
+    await act(async () => {
+      screen.getByText('Get All').click();
     });
+
+    // Asssert: check size became 1
+    await waitFor(() => {
+      const sizeElement = screen.getByTestId('size');
+      expect(sizeElement.textContent).toBe('1');
+    });
+  });
+
+  it('optimistically updates while the fetch is still pending', async () => {
+    // allows us to control when to call fetch
+    let resolveFetch: (value: unknown) => void = () => {};
+
+    // mock fetch
+    global.fetch = vi.fn().mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveFetch = resolve;
+        }),
+    );
+
+    render(
+      <SnackbarContext.Provider value={mockSnackbarContext}>
+        <UserContext.Provider value={AUTH_USER}>
+          <BrowserRouter>
+            <NotificationProvider>
+              <TestTrigger />
+            </NotificationProvider>
+          </BrowserRouter>
+        </UserContext.Provider>
+      </SnackbarContext.Provider>,
+    );
+
+    // Act: click
+    await act(async () => {
+      screen.getByText('Mark Read').click();
+    });
+
+    // assert fetch is called
+    expect(global.fetch).toHaveBeenCalled();
+    // assert count went down to 0 before fetch is resolved
+    expect(screen.getByTestId('count').textContent).toBe('0');
+
+    // cleanup : use resolve fetch for esLinter
+    resolveFetch({
+      ok: true,
+      json: async () => ({}),
+    });
+  });
+
+  it('rolls back the unreadCount if the API call fails', async () => {
+    // mock fetch with internal error
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 500,
+    });
+
+    render(
+      <SnackbarContext.Provider value={mockSnackbarContext}>
+        <UserContext.Provider value={AUTH_USER}>
+          <BrowserRouter>
+            <NotificationProvider>
+              <TestTrigger />
+            </NotificationProvider>
+          </BrowserRouter>
+        </UserContext.Provider>
+      </SnackbarContext.Provider>,
+    );
+
+    // act: click
+    await act(async () => {
+      screen.getByText('Mark Read').click();
+    });
+
+    // wait for snackbar to be called (to display the error)
+    await waitFor(() => {
+      expect(mockSnackbarContext.showSnackbar).toHaveBeenCalled();
+    });
+
+    // count to go back to initial value 1
+    expect(screen.getByTestId('count').textContent).toBe('1');
   });
 });
