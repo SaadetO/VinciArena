@@ -97,7 +97,7 @@ export const PersonalInfoItem = ({ user, setUser }: PersonalInfoItemProps) => {
           />
         )}
       </Stack>
-      <Stack padding="2rem 0 3rem" spacing="0.5rem">
+      <Stack padding="2rem 0 1.5rem" spacing="0.5rem">
         <Typography variant="h2">
           {user ? (
             user.tag

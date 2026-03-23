@@ -5,9 +5,9 @@ export const quitConfirmationModal = ({
 }: {
   onConfirm: (close: () => void) => void;
 }): ModalConfig => ({
-  title: "Quitter l'équipe",
+  title: "Quitter la Team",
   subtitle:
-    'Êtes-vous sûr de vouloir quitter cette équipe ? Cette action est irréversible.',
+    'Êtes-vous sûr de vouloir quitter cette Team ? Cette action est irréversible.',
   confirmLabel: 'Quitter',
   confirmColor: 'error',
   cancelLabel: 'Annuler',
