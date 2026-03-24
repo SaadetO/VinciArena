@@ -15,21 +15,36 @@ export const NotificationItem = ({ notification }: Props) => {
   const { authenticatedUser } = useContext(UserContext);
   const { handleNotificationClick } = useContext(NotificationContext);
   const { markAsRead } = useNotifications();
+
+  // Logic: Only clickable if it has a reference ID
   const isClickable = !!notification.idReference;
-  if (!authenticatedUser) return;
+
+  if (!authenticatedUser) return null;
+
   return (
     <ListItem
+      //  only trigger if there is a destination
       onClick={
         isClickable ? () => handleNotificationClick(notification) : undefined
       }
       sx={{
+        alignItems: 'center',
+        transition: 'all 0.2s ease-in-out',
         backgroundColor: (theme) =>
           notification.isRead ? 'transparent' : theme.palette.background.s3,
-        alignItems: 'center',
+
+        // opacity for read vs unread
+        opacity: notification.isRead ? 0.8 : 1,
+
         cursor: isClickable ? 'pointer' : 'default',
         '&:hover': {
           backgroundColor: (theme) =>
-            isClickable ? theme.palette.action.hover : 'transparent',
+            isClickable
+              ? theme.palette.action.hover
+              : notification.isRead
+                ? 'transparent'
+                : theme.palette.background.s3,
+          opacity: isClickable ? 1 : notification.isRead ? 0.8 : 1,
         },
       }}
       secondaryAction={
@@ -39,7 +54,7 @@ export const NotificationItem = ({ notification }: Props) => {
               size="small"
               color="primary"
               onClick={(e) => {
-                // exclude navigation when mark as read is clicked
+                // stops bubbling
                 e.stopPropagation();
                 markAsRead(notification.idNotification);
               }}
@@ -56,19 +71,22 @@ export const NotificationItem = ({ notification }: Props) => {
         slotProps={{
           primary: {
             variant: 'h5',
-            color: 'text.primary',
+            color: notification.isRead ? 'text.secondary' : 'text.primary',
             sx: {
               textOverflow: 'ellipsis',
               overflow: 'hidden',
               whiteSpace: 'nowrap',
+              fontWeight: notification.isRead ? 400 : 800,
             },
           },
           secondary: {
             variant: 'body2',
             sx: {
+              color: 'text.disabled',
               textOverflow: 'ellipsis',
               overflow: 'hidden',
               whiteSpace: 'nowrap',
+              mt: 0.5, // separate time and content
             },
           },
         }}
