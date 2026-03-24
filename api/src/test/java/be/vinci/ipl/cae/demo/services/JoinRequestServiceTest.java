@@ -13,6 +13,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import be.vinci.ipl.cae.demo.models.dtos.JoinRequestDto;
 import be.vinci.ipl.cae.demo.models.entities.JoinRequest;
 import be.vinci.ipl.cae.demo.models.entities.Member;
+import be.vinci.ipl.cae.demo.models.entities.NotificationType;
 import be.vinci.ipl.cae.demo.models.entities.RequestStatus;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.repositories.JoinRequestRepository;
@@ -78,7 +79,9 @@ class JoinRequestServiceTest {
     assertEquals(2L, result.getIdTeam());
     assertEquals("Team Name", result.getTeamName());
     verify(joinRequestRepository).save(any(JoinRequest.class));
-    verify(notificationService).notifyTeamManagers(any(Team.class), anyString());
+
+    // verify with type and reference
+    verify(notificationService).notifyTeamManagers(eq(team), anyString(), eq(NotificationType.TEAM), eq(team.getIdTeam()));
   }
 
   @Test
@@ -148,7 +151,10 @@ class JoinRequestServiceTest {
     assertEquals(teamA, requester.getTeam());
     verify(joinRequestRepository).save(jr);
     verify(memberRepository).save(requester);
-    verify(notificationService).notifyMember(eq(requester.getIdMember()), anyString());
+
+    // verify with type and reference
+    verify(notificationService).notifyMember(eq(requester.getIdMember()), anyString(), eq(NotificationType.TEAM), eq(null));
+
     verify(joinRequestRepository).deleteAllByMemberAndStatus(requester, RequestStatus.PENDING);
   }
 
@@ -177,7 +183,10 @@ class JoinRequestServiceTest {
     assertNotNull(result);
     assertEquals(RequestStatus.REJECTED, result.getStatus());
     verify(joinRequestRepository).save(jr);
-    verify(notificationService).notifyMember(eq(requester.getIdMember()), anyString());
+
+    // verify with type and reference
+    verify(notificationService).notifyMember(eq(requester.getIdMember()), anyString(), eq(NotificationType.TEAM), eq(null));
+
     verify(memberRepository, never()).save(any(Member.class));
     verify(joinRequestRepository, never()).deleteAllByMemberAndStatus(any(), any());
   }
@@ -201,7 +210,7 @@ class JoinRequestServiceTest {
     when(joinRequestRepository.findById(100L)).thenReturn(Optional.of(jr));
 
     // Act & Assert
-    assertThrows(IllegalStateException.class, 
+    assertThrows(IllegalStateException.class,
         () -> joinRequestService.updateJoinRequestStatus(100L, RequestStatus.ACCEPTED, intruder));
   }
 }
