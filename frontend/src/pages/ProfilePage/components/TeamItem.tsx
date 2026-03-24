@@ -206,7 +206,6 @@ export const TeamItem = ({ user, setUser }: TeamItemProps) => {
               onClick={user.team ? handleQuit : handleJoin}
               variant="contained"
               color="secondary"
-              sx={{ borderRadius: '0.75rem', paddingX: '1rem' }}
             >
               {user.team ? 'Quitter' : 'Rejoindre'}
             </Button>
