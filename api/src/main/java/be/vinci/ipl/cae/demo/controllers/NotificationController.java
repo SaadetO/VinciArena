@@ -3,7 +3,6 @@ package be.vinci.ipl.cae.demo.controllers;
 import be.vinci.ipl.cae.demo.models.dtos.NotificationDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Notification;
-import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.services.NotificationService;
 import java.util.Objects;
 import java.util.Optional;
@@ -27,17 +26,14 @@ import org.springframework.web.server.ResponseStatusException;
 public class NotificationController {
 
   private final NotificationService notificationService;
-  private final MemberRepository memberRepository;
 
   /**
    * Constructor initializes notificationService.
    *
    * @param notificationService = service
    */
-  public NotificationController(NotificationService notificationService,
-      MemberRepository memberRepository) {
+  public NotificationController(NotificationService notificationService) {
     this.notificationService = notificationService;
-    this.memberRepository = memberRepository;
   }
 
   /**
