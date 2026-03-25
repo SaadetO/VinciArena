@@ -56,6 +56,7 @@ public class TeamService {
     }
 
 
+
     List<UserSummaryDto> managers = new ArrayList<>();
     if (team.getManager1() != null) {
       managers.add(memberService.getUserSummary(team.getManager1()));
@@ -68,10 +69,9 @@ public class TeamService {
         .map(memberService::getUserSummary)
         .collect(Collectors.toList());
 
-    boolean isManager = isManager(team, currentMember);
-
     List<JoinRequestDto> joinRequests = null;
-    if (isManager) {
+
+    if (currentMember != null && isManager(team, currentMember)) {
       joinRequests = joinRequestRepository.findAllByRequestedTeamAndStatus(team,
               RequestStatus.PENDING)
           .stream()
