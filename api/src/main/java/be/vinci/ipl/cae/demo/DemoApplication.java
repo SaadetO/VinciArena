@@ -4,11 +4,15 @@ import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.ProfileImage;
 import be.vinci.ipl.cae.demo.models.entities.Specialty;
 import be.vinci.ipl.cae.demo.models.entities.Team;
+import be.vinci.ipl.cae.demo.models.entities.Tournament;
+import be.vinci.ipl.cae.demo.models.entities.TournamentStatus;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.NotificationRepository;
 import be.vinci.ipl.cae.demo.repositories.ProfileImageRepository;
 import be.vinci.ipl.cae.demo.repositories.SpecialtyRepository;
 import be.vinci.ipl.cae.demo.repositories.TeamRepository;
+import be.vinci.ipl.cae.demo.repositories.TournamentRepository;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,7 +46,10 @@ public class DemoApplication {
       MemberRepository memberRepo,
       NotificationRepository notifsRepo,
       TeamRepository teamRepo,
-      SpecialtyRepository specRepo, ProfileImageRepository imageRepo) {
+      SpecialtyRepository specRepo,
+      ProfileImageRepository imageRepo,
+      TournamentRepository tournamentRepo
+  ) {
     return args -> {
       // Create Specialities
       String[] specialities = {
@@ -63,6 +70,13 @@ public class DemoApplication {
         specMap.put(specialty, specRepo.save(spec));
       }
 
+      // insert profile image paths into database
+      for (int i = 1; i <= 20; i++) {
+        ProfileImage image = new ProfileImage();
+        image.setPath("profile-" + i + ".png");
+        imageRepo.save(image);
+      }
+
       // Create Member 1: Manager
       String pw = "Password1!";
       String encodedPw = new BCryptPasswordEncoder().encode(pw);
@@ -74,6 +88,7 @@ public class DemoApplication {
       member1.setAdmin(false);
       member1.setDeleted(false);
       member1.setSpecialty(specMap.get("tacticien"));
+      member1.setProfileImage(imageRepo.getProfileImageByIdImage(1L));
       member1 = memberRepo.save(member1);
 
       // Create Member 2: Player
@@ -85,6 +100,7 @@ public class DemoApplication {
       member2.setAdmin(false);
       member2.setDeleted(false);
       member2.setSpecialty(specMap.get("exécuteur"));
+      member2.setProfileImage(imageRepo.getProfileImageByIdImage(2L));
       member2 = memberRepo.save(member2);
 
       // Create Member 3: Admin
@@ -96,6 +112,7 @@ public class DemoApplication {
       member3.setAdmin(true);
       member3.setDeleted(false);
       member3.setSpecialty(specMap.get("guérisseur"));
+      member3.setProfileImage(imageRepo.getProfileImageByIdImage(3L));
       member3 = memberRepo.save(member3);
 
       // Create Member 4: Admin and Manager
@@ -107,6 +124,7 @@ public class DemoApplication {
       member4.setAdmin(true);
       member4.setDeleted(false);
       member4.setSpecialty(specMap.get("gardien"));
+      member4.setProfileImage(imageRepo.getProfileImageByIdImage(4L));
       member4 = memberRepo.save(member4);
 
       // Create Team "TEAM_ALPHA"
@@ -117,7 +135,7 @@ public class DemoApplication {
       team1.setManager1(member1);
       team1 = teamRepo.save(team1);
 
-      // Create Team "TEAM_ALPHA"
+      // Create Team "TEAM_OMEGA"
       Team team2 =
           new Team();
       team2.setName("TEAM_OMEGA");
@@ -134,25 +152,80 @@ public class DemoApplication {
       memberRepo.save(member2);
       memberRepo.save(member3);
       memberRepo.save(member4);
+      
+      // Create Notification for Member 2
+      Notification notif2 = new Notification();
+      notif2.setMember(member2);
+      notif2.setContent("Your match result has been confirmed, " + member2.getTag() + ".");
+      notif2.setRead(false);
+      notifsRepo.save(notif2);
 
+      // Create Tournaments
+      // 1. IN_PREPARATION
+      Tournament t1 = new Tournament();
+      t1.setName("Tournament Alpha");
+      t1.setDescription("A tournament in preparation.");
+      t1.setRegistrationDeadline(LocalDate.of(2026, 10, 1));
+      t1.setStartDate(LocalDate.of(2026, 10, 15));
+      t1.setEndDate(LocalDate.of(2026, 10, 20));
+      t1.setTournamentStatus(TournamentStatus.IN_PREPARATION);
+      t1.setMaxNbOfTeams(8);
+      tournamentRepo.save(t1);
 
+      // 2. REGISTRATION_OPEN
+      Tournament t2 = new Tournament();
+      t2.setName("Tournament Beta");
+      t2.setDescription("Registration is open for this tournament.");
+      t2.setRegistrationDeadline(LocalDate.of(2026, 11, 1));
+      t2.setStartDate(LocalDate.of(2026, 11, 15));
+      t2.setEndDate(LocalDate.of(2026, 11, 20));
+      t2.setTournamentStatus(TournamentStatus.REGISTRATION_OPEN);
+      t2.setMaxNbOfTeams(16);
+      tournamentRepo.save(t2);
 
-      // insert profile image paths into database
-      for (int i = 1; i <= 20; i++) {
-        ProfileImage image = new ProfileImage();
-        image.setPath("profile-" + i + ".png");
-        imageRepo.save(image);
-      }
+      // 3. REGISTRATION_CLOSED
+      Tournament t3 = new Tournament();
+      t3.setName("Tournament Gamma");
+      t3.setDescription("Registration is closed but not planned yet.");
+      t3.setRegistrationDeadline(LocalDate.of(2026, 3, 1));
+      t3.setStartDate(LocalDate.of(2026, 4, 15));
+      t3.setEndDate(LocalDate.of(2026, 4, 20));
+      t3.setTournamentStatus(TournamentStatus.REGISTRATION_CLOSED);
+      t3.setMaxNbOfTeams(8);
+      tournamentRepo.save(t3);
 
-      // Add profile image to members
-      member1.setProfileImage(imageRepo.getProfileImageByIdImage(1L));
-      member2.setProfileImage(imageRepo.getProfileImageByIdImage(2L));
-      member3.setProfileImage(imageRepo.getProfileImageByIdImage(3L));
-      member4.setProfileImage(imageRepo.getProfileImageByIdImage(4L));
-      memberRepo.save(member1);
-      memberRepo.save(member2);
-      memberRepo.save(member3);
-      memberRepo.save(member4);
+      // 4. PLANNED
+      Tournament t4 = new Tournament();
+      t4.setName("Tournament Delta");
+      t4.setDescription("This tournament is fully planned.");
+      t4.setRegistrationDeadline(LocalDate.of(2026, 3, 1));
+      t4.setStartDate(LocalDate.of(2026, 5, 15));
+      t4.setEndDate(LocalDate.of(2026, 5, 20));
+      t4.setTournamentStatus(TournamentStatus.PLANNED);
+      t4.setMaxNbOfTeams(12);
+      tournamentRepo.save(t4);
+
+      // 5. IN_PROGRESS
+      Tournament t5 = new Tournament();
+      t5.setName("Tournament Epsilon");
+      t5.setDescription("Tournament currently in progress.");
+      t5.setRegistrationDeadline(LocalDate.of(2026, 2, 1));
+      t5.setStartDate(LocalDate.of(2026, 3, 20));
+      t5.setEndDate(LocalDate.of(2026, 3, 30));
+      t5.setTournamentStatus(TournamentStatus.IN_PROGRESS);
+      t5.setMaxNbOfTeams(4);
+      tournamentRepo.save(t5);
+
+      // 6. DONE
+      Tournament t6 = new Tournament();
+      t6.setName("Tournament Zeta");
+      t6.setDescription("A completed tournament.");
+      t6.setRegistrationDeadline(LocalDate.of(2026, 1, 1));
+      t6.setStartDate(LocalDate.of(2026, 2, 15));
+      t6.setEndDate(LocalDate.of(2026, 2, 20));
+      t6.setTournamentStatus(TournamentStatus.DONE);
+      t6.setMaxNbOfTeams(8);
+      tournamentRepo.save(t6);
     };
   }
 
