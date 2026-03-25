@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, useContext, useRef } from 'react';
 import { ProfileInfoDto, TeamDetailsInfoDto } from '../types';
 import { UserContext } from '../contexts/UserContext';
-//import { useSnackbar } from './useSnackbar';
+// import { useSnackbar } from './useSnackbar';
 import { useApi } from './useApi';
 
 interface UseTeamsOptions {
@@ -17,7 +17,7 @@ interface UseTeamsOptions {
 export const useTeams = (options?: UseTeamsOptions) => {
   const { setError, setTeam } = options ?? {};
   const { authenticatedUser } = useContext(UserContext);
-  //const { showSnackbar } = useSnackbar();
+  // const { showSnackbar } = useSnackbar();
 
   const response = useRef<Response | undefined>(undefined);
 
