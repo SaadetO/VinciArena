@@ -16,10 +16,10 @@ export const TeamPage = () => {
   const { authenticatedUser } = useContext(UserContext);
   const [team, setTeam] = useState<TeamDetailsInfoDto | undefined>(undefined);
   const [error, setError] = useState<
-  { code: number; message: string; subtitle?: string } | undefined
+    { code: number; message: string; subtitle?: string } | undefined
   >(undefined);
-  const { getById, isGettingTeam} = useTeams({setTeam, setError})
-  
+  const { getById, isGettingTeam } = useTeams({ setTeam, setError });
+
   useEffect(() => {
     if (authenticatedUser === undefined) return;
     setTeam(undefined);
