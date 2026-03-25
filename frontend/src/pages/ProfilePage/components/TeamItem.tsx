@@ -16,6 +16,7 @@ import { useSnackbar } from '../../../hooks/useSnackbar';
 import { createTeamModal } from '../modals/createTeamModal';
 import { joinTeamModal } from '../modals/joinTeamModal';
 import { quitConfirmationModal } from '../modals/quitConfirmationModal';
+import { useTeams } from '../../../hooks/useTeams';
 
 interface TeamItemProps {
   user?: ProfileInfoDto;
@@ -27,6 +28,7 @@ export const TeamItem = ({ user, setUser }: TeamItemProps) => {
   const { authenticatedUser } = useContext(UserContext);
   const { openModal } = useModal();
   const { showSnackbar } = useSnackbar();
+  const { createTeam } = useTeams({ setUser });
 
   const handleJoin = () => {
     let selectedTeam: Team | null = null;
@@ -72,47 +74,11 @@ export const TeamItem = ({ user, setUser }: TeamItemProps) => {
     };
     const onConfirm = async (close: () => void) => {
       if (!selectedName) return;
-      close();
-      const previousTeam = user?.team;
-      setUser((prev) =>
-        prev
-          ? { ...prev, team: { id: -1, name: selectedName!, isManager: true } }
-          : prev,
-      );
-      try {
-        const response = await fetch('/api/teams/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: authenticatedUser?.token ?? '',
-          },
-          body: JSON.stringify({ name: selectedName }),
-        });
-        if (!response.ok) {
-          if (response.status === 409)
-            throw new Error('Une équipe avec ce nom existe déjà');
-          throw new Error('Erreur lors de la création de la team.');
-        }
-        const createdTeam = await response.json();
-        const team = {
-          id: createdTeam.idTeam,
-          name: createdTeam.name,
-          isManager: true,
-        };
-        setUser((prev) => (prev ? { ...prev, team } : prev));
-        showSnackbar({
-          message: 'Team créée avec succès !',
-          severity: 'success',
-        });
-      } catch (err: unknown) {
-        setUser((prev) =>
-          prev ? { ...prev, team: previousTeam ?? null } : prev,
-        );
-        showSnackbar({
-          message:
-            err instanceof Error ? err.message : 'Une erreur est survenue.',
-          severity: 'error',
-        });
+
+      const createdTeam = await createTeam(selectedName);
+
+      if (createdTeam) {
+        close();
       }
     };
     openModal(createTeamModal({ onSelect, onConfirm }));
