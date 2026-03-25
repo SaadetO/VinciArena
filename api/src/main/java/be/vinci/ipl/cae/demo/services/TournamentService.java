@@ -1,5 +1,6 @@
 package be.vinci.ipl.cae.demo.services;
 
+import be.vinci.ipl.cae.demo.repositories.TournamentRepository;
 import org.springframework.stereotype.Service;
 
 /**
@@ -8,10 +9,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class TournamentService {
 
+  TournamentRepository tournamentRepository;
+
   /**
    * Constructor.
    */
-  public TournamentService() {
-
+  public TournamentService(TournamentRepository tournamentRepository) {
+    this.tournamentRepository = tournamentRepository;
   }
 }
