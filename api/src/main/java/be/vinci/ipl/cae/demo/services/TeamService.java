@@ -245,26 +245,20 @@ public class TeamService {
         isManager1(team, currentMember)
     ) {
       if (
-          //if there is a manager 2
           team.getManager2() != null
       ) {
-        //put mana 2 to 1 and set mana 2 to null
         team.setManager1(team.getManager2());
         team.setManager2(null);
       } else if (
-          //only 1 mana and other members in the team
-          team.getMembers().size()>1
+          1 < team.getMembers().size()
       ) {
-        // last manager cannot leave if other members remain
         return null;
       } else {
-        //if there is only a mana 1
         team.setManager1(null);
       }
     } else if (
         isManager2(team, currentMember)
     ) {
-      //if currentMember is mana 2
       team.setManager2(null);
     }
 
