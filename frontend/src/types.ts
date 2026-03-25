@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { ReactNode } from 'react';
 
 interface MainContext {}
@@ -104,11 +105,18 @@ interface TeamDetailsInfoDto {
   joinRequests: JoinRequestDto[] | null;
 }
 
+export enum NotificationType {
+  TEAM = 'TEAM',
+  MATCH = 'MATCH',
+  TOURNAMENT = 'TOURNAMENT',
+}
 interface NotificationDto {
   idNotification: number;
   content: string;
   isRead: boolean;
   dateTime: Date;
+  type: NotificationType;
+  idReference: number | null;
 }
 
 interface StoredUser {

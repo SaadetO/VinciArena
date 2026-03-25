@@ -3,6 +3,7 @@ package be.vinci.ipl.cae.demo.services;
 import be.vinci.ipl.cae.demo.models.dtos.JoinRequestDto;
 import be.vinci.ipl.cae.demo.models.entities.JoinRequest;
 import be.vinci.ipl.cae.demo.models.entities.Member;
+import be.vinci.ipl.cae.demo.models.entities.NotificationType;
 import be.vinci.ipl.cae.demo.models.entities.RequestStatus;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.repositories.JoinRequestRepository;
@@ -70,8 +71,8 @@ public class JoinRequestService {
     joinRequest = joinRequestRepository.save(joinRequest);
 
     notificationService.notifyTeamManagers(requestedTeam,
-         requester.getTag() + " souhaite rejoindre "
-            + requestedTeam.getName());
+        requester.getTag() + " souhaite rejoindre "
+            + requestedTeam.getName(), NotificationType.TEAM, teamId);
 
     return JoinRequestDto.builder()
         .idJoinRequest(joinRequest.getIdJoinRequest())
@@ -120,7 +121,8 @@ public class JoinRequestService {
     Member requester = joinRequest.getMember();
     String decision = newStatus == RequestStatus.ACCEPTED ? "acceptée" : "rejetée";
     notificationService.notifyMember(requester.getIdMember(),
-        "Votre demande pour rejoindre " + team.getName() + " a été " + decision);
+        "Votre demande pour rejoindre " + team.getName() + " a été " + decision,
+        NotificationType.TEAM, null);
 
     if (newStatus == RequestStatus.ACCEPTED) {
       requester.setTeam(team);
