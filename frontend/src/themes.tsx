@@ -288,8 +288,8 @@ export const theme = createTheme({
           color: '#FFFFFF',
         },
         colorPrimary: {
-          backgroundColor: 'hsla(193, 100%, 50%, 0.1)',
-          color: 'hsla(193, 100%, 40%, 1)',
+          background: 'color-mix(in srgb, #00C8FF 10%, transparent)',
+          color: '#00C8FF',
         },
       },
       variants: [
