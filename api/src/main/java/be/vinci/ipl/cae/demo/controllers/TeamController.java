@@ -120,9 +120,16 @@ public class TeamController {
   @PostMapping("/quit")
   @PreAuthorize("isAuthenticated()")
   public void quitTeam(@AuthenticationPrincipal Member currentMember) {
-    Team team = teamService.quitTeam(currentMember);
-    if (team == null) {
+    if (currentMember.getTeam() == null) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member is not in a team");
+    }
+
+    Team team = teamService.quitTeam(currentMember);
+
+    if(team == null) {
+      throw new ResponseStatusException(
+          HttpStatus.CONFLICT, "Member is last manager and cannot leave team with remaining members"
+      );
     }
   }
 }

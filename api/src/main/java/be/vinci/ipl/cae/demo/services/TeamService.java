@@ -144,6 +144,30 @@ public class TeamService {
   }
 
   /**
+   * Check if member is a manager1 of a given team.
+   *
+   * @param team   the given team
+   * @param member the member to check for manager1 status
+   * @return true is member is a manager1; false otherwise
+   */
+  public boolean isManager1(Team team, Member member) {
+    return team.getManager1() != null && team.getManager1().getIdMember()
+        .equals(member.getIdMember());
+  }
+
+  /**
+   * Check if member is a manager2 of a given team.
+   *
+   * @param team   the given team
+   * @param member the member to check for manager2 status
+   * @return true is member is a manager2; false otherwise
+   */
+  public boolean isManager2(Team team, Member member) {
+    return team.getManager2() != null && team.getManager2().getIdMember()
+        .equals(member.getIdMember());
+  }
+
+  /**
    * Get all active teams.
    *
    * @return an iterable containing all active teams
@@ -218,12 +242,29 @@ public class TeamService {
     Team team = currentMember.getTeam();
 
     if (
-        team.getManager1() != null
-            && team.getManager1().getIdMember().equals(currentMember.getIdMember())
+        isManager1(team, currentMember)
     ) {
-      team.setManager1(null);
-    } else if (team.getManager2() != null && team.getManager2().getIdMember()
-        .equals(currentMember.getIdMember())) {
+      if (
+          //if there is a manager 2
+          team.getManager2() != null
+      ) {
+        //put mana 2 to 1 and set mana 2 to null
+        team.setManager1(team.getManager2());
+        team.setManager2(null);
+      } else if (
+          //only 1 mana and other members in the team
+          team.getMembers().size()>1
+      ) {
+        // last manager cannot leave if other members remain
+        return null;
+      } else {
+        //if there is only a mana 1
+        team.setManager1(null);
+      }
+    } else if (
+        isManager2(team, currentMember)
+    ) {
+      //if currentMember is mana 2
       team.setManager2(null);
     }
 
