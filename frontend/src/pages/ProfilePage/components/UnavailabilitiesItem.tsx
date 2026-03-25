@@ -1,4 +1,11 @@
-import { IconButton, Stack, Typography, Tooltip, Divider, Skeleton } from '@mui/material';
+import {
+  IconButton,
+  Stack,
+  Typography,
+  Tooltip,
+  Divider,
+  Skeleton,
+} from '@mui/material';
 import { Add } from '@mui/icons-material';
 import { memo } from 'react';
 import { ProfileInfoDto } from '../../../types';

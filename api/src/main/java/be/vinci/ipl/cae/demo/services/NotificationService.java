@@ -46,7 +46,7 @@ public class NotificationService {
 
     Member member = memberRepository.findById(idMember)
         .orElseThrow(() -> new IllegalArgumentException("Member not found"));
-    saveNotification(member, content, type, idReference );
+    saveNotification(member, content, type, idReference);
   }
 
   /**
@@ -101,7 +101,12 @@ public class NotificationService {
    * @param content the message content
    * @throws IllegalArgumentException if content is null or blank
    */
-  private void saveNotification(Member member, String content, NotificationType type, Long idReference) {
+  private void saveNotification(
+      Member member,
+      String content,
+      NotificationType type,
+      Long idReference
+  ) {
     if (content == null || content.isBlank()) {
       throw new IllegalArgumentException("content must contain text");
     }
