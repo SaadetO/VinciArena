@@ -1,5 +1,5 @@
 import { Container, Grid2, Stack, Typography } from '@mui/material';
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { UserContext } from '../../contexts/UserContext';
 import { TeamDetailsInfoDto } from '../../types';
@@ -8,59 +8,26 @@ import { TeamBanner } from './components/TeamBanner';
 import { ManagerCard } from './components/ManagerCard';
 import { MembersCard } from './components/MembersCard';
 import { JoinRequestsCard } from './components/JoinRequestsCard';
+import { useTeams } from '../../hooks/useTeams';
 
 export const TeamPage = () => {
   const { id } = useParams();
-  const [isLoading, setIsloading] = useState(true);
   const idNbr = Number(id);
   const { authenticatedUser } = useContext(UserContext);
   const [team, setTeam] = useState<TeamDetailsInfoDto | undefined>(undefined);
   const [error, setError] = useState<
-    { code: number; message: string; subtitle?: string } | undefined
+  { code: number; message: string; subtitle?: string } | undefined
   >(undefined);
-
-  const fetchTeam = useCallback(async () => {
-    if (isNaN(idNbr) || idNbr <= 0) return;
-    setIsloading(true);
-    let response: Response | undefined = undefined;
-    try {
-      response = await fetch(`/api/teams/${idNbr}/details`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: authenticatedUser?.token ?? '',
-        },
-      });
-      if (response.status === 404) {
-        return setError({
-          code: 404,
-          message: 'Équipe introuvable',
-          subtitle:
-            "La team que vous cherchez n'existe pas ou a été désactivée.",
-        });
-      }
-      if (!response.ok) throw new Error('Failed to fetch team details');
-
-      setTeam(await response.json());
-    } catch (err) {
-      setError({
-        code: response?.status ?? 500,
-        message: 'Une erreur est survenue',
-        subtitle:
-          'Une erreur est survenue lors de la récupération des détails de la team.',
-      });
-    } finally {
-      setIsloading(false);
-    }
-  }, [idNbr, authenticatedUser]);
-
+  const { getById, isGettingTeam} = useTeams({setTeam, setError})
+  
   useEffect(() => {
     if (authenticatedUser === undefined) return;
     setTeam(undefined);
     setError(undefined);
-    fetchTeam();
-  }, [idNbr, authenticatedUser, fetchTeam]);
+    getById(idNbr);
+  }, [idNbr, authenticatedUser, getById]);
 
-  if (error && !isLoading) return <NotFoundPage error={error} />;
+  if (error && !isGettingTeam) return <NotFoundPage error={error} />;
 
   return (
     <>
@@ -92,7 +59,7 @@ export const TeamPage = () => {
               <MembersCard team={team} />
               {team?.managers.find((e) => e.id === authenticatedUser?.id) && (
                 <JoinRequestsCard
-                  isLoading={isLoading}
+                  isLoading={isGettingTeam}
                   team={team}
                   setTeam={setTeam}
                 />
