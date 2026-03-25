@@ -2,6 +2,7 @@ package be.vinci.ipl.cae.demo;
 
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Notification;
+import be.vinci.ipl.cae.demo.models.entities.NotificationType;
 import be.vinci.ipl.cae.demo.models.entities.ProfileImage;
 import be.vinci.ipl.cae.demo.models.entities.Specialty;
 import be.vinci.ipl.cae.demo.models.entities.Team;
@@ -153,13 +154,6 @@ public class DemoApplication {
       memberRepo.save(member2);
       memberRepo.save(member3);
       memberRepo.save(member4);
-      
-      // Create Notification for Member 2
-      Notification notif2 = new Notification();
-      notif2.setMember(member2);
-      notif2.setContent("Your match result has been confirmed, " + member2.getTag() + ".");
-      notif2.setRead(false);
-      notifsRepo.save(notif2);
 
       // Create Tournaments
       // 1. IN_PREPARATION
