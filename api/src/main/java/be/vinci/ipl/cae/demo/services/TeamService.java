@@ -214,10 +214,9 @@ public class TeamService {
    * deactivates the team if it's the last manager.
    *
    * @param currentMember the member leaving the team
-   * @return the updated team, or null if member is not in a team
    */
   @Transactional
-  public Team quitTeam(Member currentMember) {
+  public void quitTeam(Member currentMember) {
     if (currentMember.getTeam() == null) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
           "L'utilisateur ne fait pas partie de la Team.");
@@ -242,6 +241,6 @@ public class TeamService {
     currentMember.setTeam(null);
     memberRepository.save(currentMember);
 
-    return teamRepository.save(team);
+    teamRepository.save(team);
   }
 }
