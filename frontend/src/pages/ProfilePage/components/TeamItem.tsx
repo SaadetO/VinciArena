@@ -28,7 +28,7 @@ export const TeamItem = ({ user, setUser }: TeamItemProps) => {
   const { authenticatedUser } = useContext(UserContext);
   const { openModal } = useModal();
   const { showSnackbar } = useSnackbar();
-  const { createTeam } = useTeams({ setUser });
+  const { createTeam, quitTeam } = useTeams({ setUser });
 
   const handleJoin = () => {
     let selectedTeam: Team | null = null;
@@ -94,31 +94,7 @@ export const TeamItem = ({ user, setUser }: TeamItemProps) => {
     const onConfirm = async (close: () => void) => {
       close();
       if (!user?.team) return;
-      const previousTeam = user.team;
-      setUser((prev) => (prev ? { ...prev, team: null } : prev));
-      try {
-        const response = await fetch('/api/teams/quit', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: authenticatedUser?.token ?? '',
-          },
-        });
-        if (!response.ok) throw new Error('Erreur lors du départ de la team.');
-        showSnackbar({
-          message: "Vous avez quitté l'équipe avec succès.",
-          severity: 'success',
-        });
-      } catch (err) {
-        setUser((prev) => (prev ? { ...prev, team: previousTeam } : prev));
-        showSnackbar({
-          message:
-            err instanceof Error
-              ? err.message
-              : 'Une erreur est survenue en quittant la team.',
-          severity: 'error',
-        });
-      }
+      await quitTeam();
     };
     openModal(quitConfirmationModal({ onConfirm }));
   };
