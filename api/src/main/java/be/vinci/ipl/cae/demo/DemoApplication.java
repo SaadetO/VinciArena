@@ -1,8 +1,6 @@
 package be.vinci.ipl.cae.demo;
 
 import be.vinci.ipl.cae.demo.models.entities.Member;
-import be.vinci.ipl.cae.demo.models.entities.Notification;
-import be.vinci.ipl.cae.demo.models.entities.NotificationType;
 import be.vinci.ipl.cae.demo.models.entities.ProfileImage;
 import be.vinci.ipl.cae.demo.models.entities.Specialty;
 import be.vinci.ipl.cae.demo.models.entities.Team;
