@@ -34,7 +34,10 @@ export const useTeams = (options?: UseTeamsOptions) => {
       if (!response.ok) {
         if (response.status === 404)
           throw new ApiError('Equipe introuvable', response.status);
-        throw new ApiError('Échec de la récupération de la Team.', response.status);
+        throw new ApiError(
+          'Échec de la récupération de la Team.',
+          response.status,
+        );
       }
       return response.json();
     },
@@ -51,7 +54,7 @@ export const useTeams = (options?: UseTeamsOptions) => {
               ? "La team que vous cherchez n'existe pas ou a été désactivée."
               : 'Une erreur est survenue lors de la récupération de la Team.',
         });
-      }
+      },
     },
   );
 
@@ -70,8 +73,12 @@ export const useTeams = (options?: UseTeamsOptions) => {
         if (response.status === 409)
           throw new ApiError('Nom de Team déjà pris', response.status);
         else if (response.status === 400)
-          throw new ApiError("Utilisateur déjà membre d'une Team", response.status);
-        else throw new ApiError('Échec de la création de Team', response.status);
+          throw new ApiError(
+            "Utilisateur déjà membre d'une Team",
+            response.status,
+          );
+        else
+          throw new ApiError('Échec de la création de Team', response.status);
       }
 
       return response.json();
@@ -115,7 +122,10 @@ export const useTeams = (options?: UseTeamsOptions) => {
       });
 
       if (!response.ok) {
-        throw new ApiError('Erreur lors du départ de la team.', response.status);
+        throw new ApiError(
+          'Erreur lors du départ de la team.',
+          response.status,
+        );
       }
     },
     {
@@ -136,7 +146,6 @@ export const useTeams = (options?: UseTeamsOptions) => {
           severity: 'error',
         });
       },
-      
     },
   );
 
