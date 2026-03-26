@@ -164,7 +164,7 @@ public class MemberController {
    *
    * @param currentMember the authenticated member
    */
-  @PostMapping("/team/quit")
+  @PostMapping("/me/quit-team")
   @PreAuthorize("isAuthenticated()")
   public void quitTeam(@AuthenticationPrincipal Member currentMember) {
     teamService.quitTeam(currentMember);
