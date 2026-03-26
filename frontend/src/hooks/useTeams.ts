@@ -1,8 +1,9 @@
-import { Dispatch, SetStateAction, useContext, useRef } from 'react';
-import { ProfileInfoDto, TeamDetailsInfoDto } from '../types';
+import { Dispatch, SetStateAction, useContext } from 'react';
+import { ApiError, ProfileInfoDto, TeamDetailsInfoDto } from '../types';
 import { UserContext } from '../contexts/UserContext';
 import { useSnackbar } from './useSnackbar';
 import { useApi } from './useApi';
+import { useModalController } from './useModalController';
 
 interface UseTeamsOptions {
   setUser?: Dispatch<SetStateAction<ProfileInfoDto | undefined>>;
@@ -18,44 +19,45 @@ export const useTeams = (options?: UseTeamsOptions) => {
   const { setUser, setError, setTeam } = options ?? {};
   const { authenticatedUser } = useContext(UserContext);
   const { showSnackbar } = useSnackbar();
-
-  const response = useRef<Response | undefined>(undefined);
+  const { setError: setErrorModal } = useModalController();
 
   const { execute: getById, loading: isGettingTeam } = useApi(
     async (idTeam: number) => {
       if (isNaN(idTeam) || idTeam <= 0) return;
 
-      response.current = await fetch(`/api/teams/${idTeam}/details`, {
+      const response = await fetch(`/api/teams/${idTeam}/details`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: authenticatedUser?.token ?? '',
         },
       });
-      if (!response.current.ok) {
-        if (response.current.status === 404)
-          throw new Error('Equipe introuvable');
-        throw new Error('Échec de la récupération de la Team.');
+      if (!response.ok) {
+        if (response.status === 404)
+          throw new ApiError('Equipe introuvable', response.status);
+        throw new ApiError('Échec de la récupération de la Team.', response.status);
       }
-      return response.current.json();
+      return response.json();
     },
     {
       onSuccess: (data) => setTeam?.(data),
-      onError: (err) =>
+      onError: (err) => {
+        const status = err instanceof ApiError ? err.status : 500;
         setError?.({
-          code: response.current?.status ?? 500,
+          code: status,
           message:
-            err instanceof Error ? err.message : 'Une erreur est survenue',
+            err instanceof ApiError ? err.message : 'Une erreur est survenue',
           subtitle:
-            response.current?.status === 404
+            status === 404
               ? "La team que vous cherchez n'existe pas ou a été désactivée."
               : 'Une erreur est survenue lors de la récupération de la Team.',
-        }),
+        });
+      }
     },
   );
 
   const { execute: createTeam } = useApi(
     async (selectedName: string) => {
-      response.current = await fetch('/api/teams/', {
+      const response = await fetch('/api/teams/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -64,15 +66,15 @@ export const useTeams = (options?: UseTeamsOptions) => {
         body: JSON.stringify({ name: selectedName }),
       });
 
-      if (!response.current?.ok) {
-        if (response.current?.status === 409)
-          throw new Error('Nom de Team déjà pris');
-        else if (response.current?.status === 400)
-          throw new Error("Utilisateur déjà membre d'une Team");
-        else throw new Error('Échec de la création de Team');
+      if (!response.ok) {
+        if (response.status === 409)
+          throw new ApiError('Nom de Team déjà pris', response.status);
+        else if (response.status === 400)
+          throw new ApiError("Utilisateur déjà membre d'une Team", response.status);
+        else throw new ApiError('Échec de la création de Team', response.status);
       }
 
-      return response.current.json();
+      return response.json();
     },
     {
       onSuccess: (data) => {
@@ -87,32 +89,62 @@ export const useTeams = (options?: UseTeamsOptions) => {
           severity: 'success',
         });
       },
+
       onError: (err) => {
+        const status = err instanceof ApiError ? err.status : 500;
         const subtitle =
-          response.current?.status === 409
+          status === 409
             ? 'Une équipe avec ce nom existe déjà.'
-            : response.current?.status === 400
+            : status === 400
               ? "Vous faites déjà parti d'une équipe." // Should never actually be displayed.
               : 'Une erreur est survenue lors de la création de la Team.';
 
-        setError?.({
-          code: response.current?.status ?? 500,
-          message:
-            err instanceof Error ? err.message : 'Une erreur est survenue',
-          subtitle,
-        });
+        setErrorModal(subtitle);
+      },
+    },
+  );
 
+  const { execute: quitTeam, loading: isQuittingTeam } = useApi(
+    async () => {
+      const response = await fetch('/api/members/team/quit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: authenticatedUser?.token ?? '',
+        },
+      });
+
+      if (!response.ok) {
+        throw new ApiError('Erreur lors du départ de la team.', response.status);
+      }
+    },
+    {
+      onSuccess: () => {
+        setUser?.((prev) => (prev ? { ...prev, team: null } : prev));
         showSnackbar({
-          message: subtitle,
+          message: "Vous avez quitté l'équipe avec succès.",
+          severity: 'success',
+        });
+      },
+
+      onError: (err) => {
+        showSnackbar({
+          message:
+            err instanceof ApiError
+              ? err.message
+              : 'Une erreur est survenue en quittant la team.',
           severity: 'error',
         });
       },
+      
     },
   );
 
   return {
     getById,
     createTeam,
+    quitTeam,
     isGettingTeam,
+    isQuittingTeam,
   };
 };
