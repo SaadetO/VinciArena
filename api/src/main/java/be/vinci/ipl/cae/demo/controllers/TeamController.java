@@ -95,14 +95,4 @@ public class TeamController {
     return teamService.designateSecondManager(id, idMember, currentMember);
   }
 
-  /**
-   * Quit the current team.
-   *
-   * @param currentMember the authenticated member
-   */
-  @PostMapping("/quit")
-  @PreAuthorize("isAuthenticated()")
-  public void quitTeam(@AuthenticationPrincipal Member currentMember) {
-    teamService.quitTeam(currentMember);
-  }
 }
