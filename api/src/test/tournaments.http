@@ -1,0 +1,26 @@
+@baseUrl = http://localhost:3000
+
+### Login Manager
+POST {{baseUrl}}/auths/login
+Content-Type: application/json
+
+{
+  "email": "ines@mail.com",
+  "password": "Password1!"
+}
+
+> {% client.global.set("auth_token", response.body.token); %}
+
+### POST: valid case
+POST {{baseUrl}}/tournaments/
+Content-Type: application/json
+Authorization: {{auth_token}}
+
+{
+  "name": "Vinci Arena Opening",
+  "description": "The very first tournament of the year.",
+  "nbMaxOfTeams": 16,
+  "registrationDeadline": "2026-04-15",
+  "startDate": "2026-04-20",
+  "endDate": "2026-04-22"
+}

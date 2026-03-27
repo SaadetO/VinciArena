@@ -1,9 +1,9 @@
 package be.vinci.ipl.cae.demo.models.dtos;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
-public record NewTournament(String name, String description, LocalDateTime startDate,
-                            LocalDateTime endDate, int capacity,
-                            LocalDateTime registrationDeadline) {
+public record NewTournament(String name, String description, LocalDate startDate,
+                            LocalDate endDate, int nbMaxOfTeams,
+                            LocalDate registrationDeadline) {
 
 }
