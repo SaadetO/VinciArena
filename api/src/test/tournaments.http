@@ -24,3 +24,80 @@ Authorization: {{auth_token}}
   "startDate": "2026-04-20",
   "endDate": "2026-04-22"
 }
+
+
+### POST: error - missing payload (400)
+POST {{baseUrl}}/tournaments/
+Content-Type: application/json
+Authorization: {{auth_token}}
+
+{}
+
+### POST: error - blank name (400)
+POST {{baseUrl}}/tournaments/
+Content-Type: application/json
+Authorization: {{auth_token}}
+
+{
+  "name": "   ",
+  "description": "Valid description",
+  "nbMaxOfTeams": 16,
+  "registrationDeadline": "2026-04-15",
+  "startDate": "2026-04-20",
+  "endDate": "2026-04-22"
+}
+
+### POST: error - non-positive teams (400)
+POST {{baseUrl}}/tournaments/
+Content-Type: application/json
+Authorization: {{auth_token}}
+
+{
+  "name": "Small Tournament",
+  "description": "Testing max teams",
+  "nbMaxOfTeams": 0,
+  "registrationDeadline": "2026-04-15",
+  "startDate": "2026-04-20",
+  "endDate": "2026-04-22"
+}
+
+### POST: error - registration deadline in the past (400)
+POST {{baseUrl}}/tournaments/
+Content-Type: application/json
+Authorization: {{auth_token}}
+
+{
+  "name": "Past Tournament",
+  "description": "This should fail",
+  "nbMaxOfTeams": 8,
+  "registrationDeadline": "2020-01-01",
+  "startDate": "2026-04-20",
+  "endDate": "2026-04-22"
+}
+
+### POST: error - end date before start date (400)
+POST {{baseUrl}}/tournaments/
+Content-Type: application/json
+Authorization: {{auth_token}}
+
+{
+  "name": "Time Traveler Cup",
+  "description": "Ends before it starts",
+  "nbMaxOfTeams": 8,
+  "registrationDeadline": "2026-04-15",
+  "startDate": "2026-04-20",
+  "endDate": "2026-04-18"
+}
+
+### POST: error - no authorization (401/403)
+POST {{baseUrl}}/tournaments/
+Content-Type: application/json
+
+{
+  "name": "Anonymous Tournament",
+  "description": "No token provided",
+  "nbMaxOfTeams": 16,
+  "registrationDeadline": "2026-04-15",
+  "startDate": "2026-04-20",
+  "endDate": "2026-04-22"
+}
