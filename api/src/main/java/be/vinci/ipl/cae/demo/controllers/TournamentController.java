@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/tournaments")
-public class TounramentController {
+public class TournamentController {
 
   private final TournamentService tournamentService;
   private final TournamentRepository tournamentRepo;
@@ -23,7 +23,7 @@ public class TounramentController {
    *
    * @param tournamentService the unavailability service
    */
-  public TounramentController(TournamentService tournamentService,
+  public TournamentController(TournamentService tournamentService,
       TournamentRepository tournamentRepo) {
     this.tournamentService = tournamentService;
     this.tournamentRepo = tournamentRepo;
