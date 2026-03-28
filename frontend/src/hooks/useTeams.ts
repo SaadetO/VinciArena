@@ -159,12 +159,12 @@ export const useTeams = (options?: UseTeamsOptions) => {
 
       if (!response.ok) {
         if (response.status === 400) {
-          throw new ApiError("Utilisateur n'appartient pas à l'équipe.", response.status);
+          throw new ApiError(
+            "Utilisateur n'appartient pas à l'équipe.",
+            response.status,
+          );
         }
-        throw new ApiError(
-          'Échec du départ de la team.',
-          response.status,
-        );
+        throw new ApiError('Échec du départ de la team.', response.status);
       }
     },
     {
@@ -180,7 +180,7 @@ export const useTeams = (options?: UseTeamsOptions) => {
         const status = err instanceof ApiError ? err.status : 500;
         const message =
           status === 400
-            ? "Vous ne faites déjà plus partie de cette équipe."
+            ? 'Vous ne faites déjà plus partie de cette équipe.'
             : 'Une erreur est survenue en quittant la team.';
         showSnackbar({
           message,
@@ -205,18 +205,21 @@ export const useTeams = (options?: UseTeamsOptions) => {
 
       if (!response.ok) {
         if (response.status === 409) {
-           throw new ApiError("Plus de place de responsable.", response.status);
+          throw new ApiError('Plus de place de responsable.', response.status);
         } else if (response.status === 400) {
-           throw new ApiError("L'utilisateur n'est pas dans l'équipe.", response.status);
+          throw new ApiError(
+            "L'utilisateur n'est pas dans l'équipe.",
+            response.status,
+          );
         } else if (response.status === 403) {
-           throw new ApiError("Droits insuffisants.", response.status);
+          throw new ApiError('Droits insuffisants.', response.status);
         } else if (response.status === 404) {
-           throw new ApiError("Equipe ou utilisateur introuvable.", response.status);
+          throw new ApiError(
+            'Equipe ou utilisateur introuvable.',
+            response.status,
+          );
         }
-        throw new ApiError(
-          'Échec de la promotion.',
-          response.status,
-        );
+        throw new ApiError('Échec de la promotion.', response.status);
       }
     },
     {
