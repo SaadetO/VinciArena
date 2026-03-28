@@ -13,10 +13,17 @@ export const TournamentYearGroup = ({
 }: TournamentYearGroupProps) => {
   return (
     <Stack spacing="1rem">
-      <Stack position="sticky" top="0.5rem" zIndex={1} bgcolor="background.s0" width="fit-content" borderRadius="0.5rem" padding="0.5rem" ml="1rem !important">
-        <Typography variant="h2">
-          {year}
-        </Typography>
+      <Stack
+        position="sticky"
+        top="0.5rem"
+        zIndex={1}
+        bgcolor="background.s0"
+        width="fit-content"
+        borderRadius="0.5rem"
+        padding="0.5rem"
+        ml="1rem !important"
+      >
+        <Typography variant="h2">{year}</Typography>
       </Stack>
       {monthsData.map((monthData) => (
         <TournamentMonthGroup

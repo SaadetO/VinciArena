@@ -30,7 +30,11 @@ export const HomePage = () => {
     <Container component={Stack} spacing="2rem" maxWidth="md">
       <Stack spacing="2rem" pb="4rem">
         {groupedTournaments.map((yearGroup) => (
-          <TournamentYearGroup key={yearGroup.year} year={yearGroup.year} monthsData={yearGroup.monthsData} />
+          <TournamentYearGroup
+            key={yearGroup.year}
+            year={yearGroup.year}
+            monthsData={yearGroup.monthsData}
+          />
         ))}
 
         {!isGettingTournaments && tournaments.length === 0 && (

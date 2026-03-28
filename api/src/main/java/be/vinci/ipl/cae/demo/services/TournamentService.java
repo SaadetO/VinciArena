@@ -4,8 +4,9 @@ import be.vinci.ipl.cae.demo.models.dtos.NewTournament;
 import be.vinci.ipl.cae.demo.models.entities.Tournament;
 import be.vinci.ipl.cae.demo.models.entities.TournamentStatus;
 import be.vinci.ipl.cae.demo.repositories.TournamentRepository;
-import org.springframework.stereotype.Service;
 import java.util.List;
+import org.springframework.stereotype.Service;
+
 
 /**
  * Tournament service.
@@ -23,7 +24,7 @@ public class TournamentService {
   }
 
   /**
-   * creates and inserts a new tournament into the database
+   * Creates and inserts a new tournament into the database.
    *
    * @param newTournament payload
    * @return created tournament
@@ -52,7 +53,7 @@ public class TournamentService {
       return tournamentRepository.findAllByOrderByStartDateDesc();
     }
 
-    return switch (timeframe.toLowerCase()) {
+    return switch (timeframe.toLowerCase(java.util.Locale.ROOT)) {
       case "past" ->
           tournamentRepository.findByTournamentStatusOrderByStartDateDesc(TournamentStatus.DONE);
       case "current" -> tournamentRepository.findByTournamentStatusOrderByStartDateDesc(
