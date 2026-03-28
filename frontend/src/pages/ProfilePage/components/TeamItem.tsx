@@ -7,12 +7,10 @@ import {
   Typography,
 } from '@mui/material';
 import { Add, ArrowOutward } from '@mui/icons-material';
-import { Dispatch, SetStateAction, useContext } from 'react';
+import { Dispatch, SetStateAction } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ProfileInfoDto, Team } from '../../../types';
-import { UserContext } from '../../../contexts/UserContext';
 import { useModal } from '../../../hooks/useModal';
-import { useSnackbar } from '../../../hooks/useSnackbar';
 import { createTeamModal } from '../modals/createTeamModal';
 import { joinTeamModal } from '../modals/joinTeamModal';
 import { quitConfirmationModal } from '../modals/quitConfirmationModal';
@@ -25,10 +23,8 @@ interface TeamItemProps {
 
 export const TeamItem = ({ user, setUser }: TeamItemProps) => {
   const navigate = useNavigate();
-  const { authenticatedUser } = useContext(UserContext);
   const { openModal } = useModal();
-  const { showSnackbar } = useSnackbar();
-  const { createTeam, quitTeam } = useTeams({ setUser });
+  const { createTeam, quitTeam, createJoinRequest } = useTeams({ setUser });
 
   const handleJoin = () => {
     let selectedTeam: Team | null = null;
@@ -39,30 +35,7 @@ export const TeamItem = ({ user, setUser }: TeamItemProps) => {
       const idTeam = selectedTeam?.idTeam;
       if (!idTeam) return;
       close();
-      try {
-        const response = await fetch(`/api/teams/${idTeam}/join-requests`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: authenticatedUser?.token ?? '',
-          },
-        });
-        if (!response.ok) {
-          throw new Error(
-            'Vous avez déjà une demande en attente pour cette équipe.',
-          );
-        }
-        showSnackbar({
-          message: 'Demande effectuée avec succès !',
-          severity: 'success',
-        });
-      } catch (err: unknown) {
-        showSnackbar({
-          message:
-            err instanceof Error ? err.message : 'Une erreur est survenue.',
-          severity: 'error',
-        });
-      }
+      await createJoinRequest(idTeam);
     };
     openModal(joinTeamModal({ onSelect, onConfirm }));
   };
