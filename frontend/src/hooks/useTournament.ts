@@ -12,7 +12,7 @@ export const useTournament = (config: UseTournamentOptions) => {
   const { showSnackbar } = useSnackbar();
 
   const { execute: getAll, loading: isGettingTournaments } = useApi(
-    async (timeframe?: string) => {
+    async (timeframe: 'past' | 'current' | 'future' | undefined) => {
       const query = timeframe ? `?timeframe=${timeframe}` : '';
       const response = await fetch(`/api/tournaments${query}`);
       if (!response.ok) {
