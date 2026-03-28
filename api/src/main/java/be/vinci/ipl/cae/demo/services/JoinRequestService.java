@@ -61,7 +61,8 @@ public class JoinRequestService {
 
     if (joinRequestRepository.existsByMemberAndRequestedTeamAndStatus(requester, requestedTeam,
         RequestStatus.PENDING)) {
-      throw new ResponseStatusException(HttpStatus.CONFLICT, "Vous avez déjà une demande en attente pour cette équipe");
+      throw new ResponseStatusException(HttpStatus.CONFLICT,
+          "Vous avez déjà une demande en attente pour cette équipe");
     }
 
     JoinRequest joinRequest = new JoinRequest();
@@ -72,7 +73,7 @@ public class JoinRequestService {
     joinRequest = joinRequestRepository.save(joinRequest);
 
     notificationService.notifyTeamManagers(requestedTeam,
-         requester.getTag() + " souhaite rejoindre "
+        requester.getTag() + " souhaite rejoindre "
             + requestedTeam.getName());
 
     return JoinRequestDto.builder()
@@ -91,7 +92,8 @@ public class JoinRequestService {
    * @param newStatus the new status (ACCEPTED or REJECTED)
    * @param manager   the manager performing the action
    * @return the updated JoinRequestDto
-   * @throws ResponseStatusException if the request doesn't exist, is not pending, or the user is not authorized
+   * @throws ResponseStatusException if the request doesn't exist, is not pending, or the user is
+   *                                 not authorized
    */
   @Transactional
   public JoinRequestDto updateJoinRequestStatus(Long requestId, RequestStatus newStatus,
@@ -102,7 +104,8 @@ public class JoinRequestService {
     }
 
     if (joinRequest.getStatus() != RequestStatus.PENDING) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cette demande n'est plus en attente");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+          "Cette demande n'est plus en attente");
     }
 
     Team team = joinRequest.getRequestedTeam();
@@ -112,7 +115,8 @@ public class JoinRequestService {
         .equals(manager.getIdMember()));
 
     if (!isManager) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Seul un responsable de l'équipe peut gérer les demandes");
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+          "Seul un responsable de l'équipe peut gérer les demandes");
     }
 
     joinRequest.setStatus(newStatus);
