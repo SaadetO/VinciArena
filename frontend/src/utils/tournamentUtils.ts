@@ -1,0 +1,98 @@
+import dayjs from 'dayjs';
+import { TournamentDto } from '../types';
+
+export interface MonthGroup {
+  month: string;
+  monthNumber: number;
+  tournaments: TournamentDto[];
+}
+
+export interface YearGroup {
+  year: string;
+  yearNumber: number;
+  monthsData: MonthGroup[];
+}
+
+export const groupTournamentsByYearAndMonth = (
+  tournaments: TournamentDto[],
+): YearGroup[] => {
+  const grouped = tournaments.reduce(
+    (acc, tournament) => {
+      const date = new Date(tournament.startDate);
+      const year = date.getFullYear().toString();
+
+      const monthKey = date.toLocaleDateString('fr-FR', { month: 'long' });
+      const capitalizedMonthKey =
+        monthKey.charAt(0).toUpperCase() + monthKey.slice(1);
+
+      // if accumulator doesn't have the year, add it
+      if (!acc[year]) acc[year] = {};
+
+      // if accumulator[year] doesn't have the month, add it
+      if (!acc[year][capitalizedMonthKey]) {
+        acc[year][capitalizedMonthKey] = {
+          monthNumber: date.getMonth(),
+          tournaments: [],
+        };
+      }
+
+      acc[year][capitalizedMonthKey].tournaments.push(tournament);
+      return acc;
+    },
+    {} as Record<string, Record<string, { monthNumber: number, tournaments: TournamentDto[] }>>,
+  );
+
+  const yearGroups: YearGroup[] = Object.entries(grouped).map(([year, monthsObj]) => {
+    const monthsData = Object.entries(monthsObj).map(([month, data]) => {
+      const sortedTournaments = [...data.tournaments].sort((a, b) => 
+        new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
+      );
+      
+      return {
+        month,
+        monthNumber: data.monthNumber,
+        tournaments: sortedTournaments
+      };
+    });
+
+    monthsData.sort((a, b) => b.monthNumber - a.monthNumber);
+
+    return {
+      year,
+      yearNumber: parseInt(year),
+      monthsData
+    };
+  });
+
+  yearGroups.sort((a, b) => b.yearNumber - a.yearNumber);
+
+  return yearGroups;
+};
+
+export const getFormattedDate = (startDate: string, endDate: string) => {
+  const start = dayjs(startDate);
+  const end = dayjs(endDate);
+
+  const isSameMonth = start.isSame(end, 'month');
+
+  // if the both dates are in the same month we display the Label of the day
+  // else we display the day and the month
+  const formatStr = isSameMonth ? 'ddd D' : 'D MMM';
+
+  return formatAndCapitalize(start, formatStr, isSameMonth) + ' - ' + formatAndCapitalize(end, formatStr, isSameMonth);
+}
+
+export const formatAndCapitalize = (d: dayjs.Dayjs, formatStr: string, isSameMonth: boolean) => {
+    const formatted = d.format(formatStr);
+
+    // capitalize the first letter of the day label or the month label
+    if (isSameMonth)
+      return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+    else {
+      const parts = formatted.split(' ');
+      if (parts.length > 1)
+        parts[1] = parts[1].charAt(0).toUpperCase() + parts[1].slice(1);
+
+      return parts.join(' ');
+    }
+  };

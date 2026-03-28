@@ -9,17 +9,18 @@ export const App = () => {
 
   return (
     <NotificationProvider>
-      <Header />
-      <Box
-        component="main"
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          flex: 1,
-        }}
-      >
-        <Outlet context={mainContext} />
-      </Box>
+        <Header />
+        <Box
+          component="main"
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            flex: 1,
+            overflowY: 'auto',
+          }}
+        >
+          <Outlet context={mainContext} />
+        </Box>
     </NotificationProvider>
   );
 };

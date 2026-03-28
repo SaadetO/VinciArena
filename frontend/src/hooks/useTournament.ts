@@ -12,8 +12,9 @@ export const useTournament = (config: UseTournamentOptions) => {
   const { showSnackbar } = useSnackbar();
 
   const { execute: getAll, loading: isGettingTournaments } = useApi(
-    async () => {
-      const response = await fetch('/api/tournaments');
+    async (timeframe?: string) => {
+      const query = timeframe ? `?timeframe=${timeframe}` : '';
+      const response = await fetch(`/api/tournaments${query}`);
       if (!response.ok) {
         throw new Error('Échec de la récupération des tournois !');
       }
