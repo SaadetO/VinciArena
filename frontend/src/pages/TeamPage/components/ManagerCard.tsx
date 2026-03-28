@@ -11,8 +11,8 @@ import { Link } from 'react-router-dom';
 import { useContext } from 'react';
 import { UserContext } from '../../../contexts/UserContext';
 import { useModal } from '../../../hooks/useModal';
-import { useSnackbar } from '../../../hooks/useSnackbar';
 import { managerModal } from '../modals/managerModal';
+import { useTeams } from '../../../hooks/useTeams';
 
 export const ManagerCard = ({
   team,
@@ -23,7 +23,7 @@ export const ManagerCard = ({
 }) => {
   const { authenticatedUser } = useContext(UserContext);
   const { openModal } = useModal();
-  const { showSnackbar } = useSnackbar();
+  const { promoteToManager } = useTeams({setTeam});
 
   const handlePromote = () => {
     let selectedManager: UserSummaryDto | null = null;
@@ -33,53 +33,10 @@ export const ManagerCard = ({
     };
 
     const onConfirm = async (close: () => void) => {
-      if (!selectedManager) return;
+      if (!selectedManager || !team) return;
       close();
 
-      const previousManagers = team?.managers ?? [];
-
-      // Optimistic update
-      setTeam((prev) =>
-        prev
-          ? {
-              ...prev,
-              managers: [...prev.managers, selectedManager!],
-            }
-          : undefined,
-      );
-
-      try {
-        const response = await fetch(
-          `/api/teams/${team?.idTeam}/manager/${selectedManager.id}`,
-          {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: authenticatedUser?.token ?? '',
-            },
-          },
-        );
-
-        if (!response.ok) {
-          throw new Error('Failed to promote user');
-        }
-
-        showSnackbar({
-          message: 'Utilisateur promu manager avec succès !',
-          severity: 'success',
-        });
-      } catch (err: unknown) {
-        // Rollback
-        setTeam((prev) =>
-          prev ? { ...prev, managers: previousManagers } : undefined,
-        );
-        const errMsg =
-          err instanceof Error ? err.message : 'Une erreur est survenue';
-        showSnackbar({
-          message: errMsg,
-          severity: 'error',
-        });
-      }
+      await promoteToManager(team.idTeam, selectedManager);
     };
 
     openModal(managerModal({ team, onSelect, onConfirm }));

@@ -1,5 +1,10 @@
 import { Dispatch, SetStateAction, useContext } from 'react';
-import { ApiError, ProfileInfoDto, TeamDetailsInfoDto } from '../types';
+import {
+  ApiError,
+  ProfileInfoDto,
+  TeamDetailsInfoDto,
+  UserSummaryDto,
+} from '../types';
 import { UserContext } from '../contexts/UserContext';
 import { useSnackbar } from './useSnackbar';
 import { useApi } from './useApi';
@@ -149,6 +154,65 @@ export const useTeams = (options?: UseTeamsOptions) => {
     },
   );
 
+  const { execute: promoteToManager } = useApi(
+    async (idTeam: number, selectedManager: UserSummaryDto) => {
+      const response = await fetch(
+        `/api/teams/${idTeam}/manager/${selectedManager.id}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: authenticatedUser?.token ?? '',
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new ApiError(
+          'Erreur lors de la promotion au rang de manager.',
+          response.status,
+        );
+      }
+    },
+    {
+      onOptimism: (_idTeam, selectedManager) => {
+        setTeam?.((prev) =>
+          prev
+            ? {
+                ...prev,
+                managers: [...prev.managers, selectedManager!],
+              }
+            : undefined,
+        );
+      },
+      onSuccess: () => {
+        showSnackbar({
+          message: 'Utilisateur promu manager avec succès !',
+          severity: 'success',
+        });
+      },
+      onError: (err) => {
+        showSnackbar({
+          message:
+            err instanceof ApiError ? err.message : 'Une erreur est survenue.',
+          severity: 'error',
+        });
+      },
+      onRollback: (_idTeam, selectedManager) => {
+        setTeam?.((prev) =>
+          prev
+            ? {
+                ...prev,
+                managers: prev.managers.filter(
+                  (m) => m.id !== selectedManager.id,
+                ),
+              }
+            : undefined,
+        );
+      },
+    },
+  );
+
   const { execute: createJoinRequest } = useApi(
     async (idTeam: number) => {
       if (isNaN(idTeam) || idTeam <= 0) return;
@@ -197,6 +261,7 @@ export const useTeams = (options?: UseTeamsOptions) => {
     getById,
     createTeam,
     quitTeam,
+    promoteToManager,
     createJoinRequest,
     isGettingTeam,
     isQuittingTeam,
