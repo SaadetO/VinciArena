@@ -28,14 +28,14 @@ export const useJoinRequests = (options?: UseJoinRequestsOptions) => {
       if (!response.ok) {
         if (response.status === 409) {
           throw new ApiError(
-            "Vous avez déjà une demande en attente ou faites déjà partie d'une équipe.",
+            "Demande en attente ou utilisateur déjà dans une équipe.",
             response.status,
           );
         } else if (response.status === 404) {
-          throw new ApiError("Cette équipe n'existe plus.", response.status);
+          throw new ApiError("Equipe introuvable.", response.status);
         }
         throw new ApiError(
-          "Impossible d'effectuer la demande.",
+          "Échec de la demande.",
           response.status,
         );
       }
@@ -48,9 +48,15 @@ export const useJoinRequests = (options?: UseJoinRequestsOptions) => {
         });
       },
       onError: (err) => {
+        const status = err instanceof ApiError ? err.status : 500;
+        const message =
+          status === 409
+            ? "Vous avez déjà une demande en attente ou faites déjà partie d'une équipe."
+            : status === 404
+              ? "Cette équipe n'existe plus."
+              : 'Une erreur est survenue lors de la demande.';
         showSnackbar({
-          message:
-            err instanceof ApiError ? err.message : 'Une erreur est survenue.',
+          message,
           severity: 'error',
         });
       },
@@ -73,7 +79,14 @@ export const useJoinRequests = (options?: UseJoinRequestsOptions) => {
         );
 
         if (!response.ok) {
-          throw new ApiError('Une erreur est survenue.', response.status);
+          if (response.status === 404) {
+            throw new ApiError("Demande introuvable.", response.status);
+          } else if (response.status === 400) {
+            throw new ApiError("Demande déjà traitée.", response.status);
+          } else if (response.status === 403) {
+            throw new ApiError("Droits insuffisants.", response.status);
+          }
+          throw new ApiError('Échec du traitement de la demande.', response.status);
         }
       },
       {
@@ -105,15 +118,21 @@ export const useJoinRequests = (options?: UseJoinRequestsOptions) => {
           });
         },
         onError: (err) => {
+          const status = err instanceof ApiError ? err.status : 500;
+          const message =
+            status === 404
+              ? "Cette demande n'existe plus ou a été annulée."
+              : status === 400
+                ? "Cette demande a déjà été traitée par un autre manager."
+                : status === 403
+                  ? "Vous n'avez pas les droits pour gérer cette demande."
+                  : 'Une erreur est survenue lors du traitement de la demande.';
           showSnackbar({
-            message:
-              err instanceof ApiError
-                ? err.message
-                : 'Une erreur est survenue.',
+            message,
             severity: 'error',
           });
         },
-        onRollback: (joinRequest, _status) => {
+        onRollback: (joinRequest) => {
           setTeam?.((prev) => {
             if (!prev) return prev;
 

@@ -158,8 +158,11 @@ export const useTeams = (options?: UseTeamsOptions) => {
       });
 
       if (!response.ok) {
+        if (response.status === 400) {
+          throw new ApiError("Utilisateur n'appartient pas à l'équipe.", response.status);
+        }
         throw new ApiError(
-          'Erreur lors du départ de la team.',
+          'Échec du départ de la team.',
           response.status,
         );
       }
@@ -174,11 +177,13 @@ export const useTeams = (options?: UseTeamsOptions) => {
       },
 
       onError: (err) => {
+        const status = err instanceof ApiError ? err.status : 500;
+        const message =
+          status === 400
+            ? "Vous ne faites déjà plus partie de cette équipe."
+            : 'Une erreur est survenue en quittant la team.';
         showSnackbar({
-          message:
-            err instanceof ApiError
-              ? err.message
-              : 'Une erreur est survenue en quittant la team.',
+          message,
           severity: 'error',
         });
       },
@@ -199,8 +204,17 @@ export const useTeams = (options?: UseTeamsOptions) => {
       );
 
       if (!response.ok) {
+        if (response.status === 409) {
+           throw new ApiError("Plus de place de responsable.", response.status);
+        } else if (response.status === 400) {
+           throw new ApiError("L'utilisateur n'est pas dans l'équipe.", response.status);
+        } else if (response.status === 403) {
+           throw new ApiError("Droits insuffisants.", response.status);
+        } else if (response.status === 404) {
+           throw new ApiError("Equipe ou utilisateur introuvable.", response.status);
+        }
         throw new ApiError(
-          'Erreur lors de la promotion au rang de manager.',
+          'Échec de la promotion.',
           response.status,
         );
       }
@@ -223,9 +237,19 @@ export const useTeams = (options?: UseTeamsOptions) => {
         });
       },
       onError: (err) => {
+        const status = err instanceof ApiError ? err.status : 500;
+        const message =
+          status === 409
+            ? "Il n'y a plus de place de responsable libre dans l'équipe."
+            : status === 400
+              ? "L'utilisateur ne fait pas ou plus partie de l'équipe."
+              : status === 403
+                ? "Vous n'avez pas les droits de responsable."
+                : status === 404
+                  ? "L'équipe ou l'utilisateur est introuvable."
+                  : 'Une erreur est survenue lors de la promotion.';
         showSnackbar({
-          message:
-            err instanceof ApiError ? err.message : 'Une erreur est survenue.',
+          message,
           severity: 'error',
         });
       },
