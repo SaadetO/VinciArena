@@ -57,75 +57,79 @@ export const useJoinRequests = (options?: UseJoinRequestsOptions) => {
     },
   );
 
-  const { execute: updateJoinRequestStatus, loading: isUpdatingJoinRequest } = useApi(
-    async (joinRequest: JoinRequestDto, status: 'ACCEPTED' | 'REJECTED') => {
-      const response = await fetch(
-        `/api/teams/join-requests/${joinRequest.idJoinRequest}`,
-        {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: authenticatedUser?.token ?? '',
+  const { execute: updateJoinRequestStatus, loading: isUpdatingJoinRequest } =
+    useApi(
+      async (joinRequest: JoinRequestDto, status: 'ACCEPTED' | 'REJECTED') => {
+        const response = await fetch(
+          `/api/teams/join-requests/${joinRequest.idJoinRequest}`,
+          {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: authenticatedUser?.token ?? '',
+            },
+            body: JSON.stringify(status),
           },
-          body: JSON.stringify(status),
+        );
+
+        if (!response.ok) {
+          throw new ApiError('Une erreur est survenue.', response.status);
+        }
+      },
+      {
+        onOptimism: (joinRequest, status) => {
+          setTeam?.((prev) => {
+            if (!prev) return prev;
+
+            const updatedRequests = (prev.joinRequests ?? []).filter(
+              (jr) => jr.idJoinRequest !== joinRequest.idJoinRequest,
+            );
+
+            const updatedMembers =
+              status === 'ACCEPTED'
+                ? [...(prev.members ?? []), joinRequest.requester]
+                : (prev.members ?? []);
+
+            return {
+              ...prev,
+              joinRequests: updatedRequests,
+              members: updatedMembers,
+            };
+          });
         },
-      );
+        onSuccess: (_data, _joinRequest, status) => {
+          showSnackbar({
+            message:
+              status === 'ACCEPTED' ? 'Demande acceptée !' : 'Demande refusée.',
+            severity: 'success',
+          });
+        },
+        onError: (err) => {
+          showSnackbar({
+            message:
+              err instanceof ApiError
+                ? err.message
+                : 'Une erreur est survenue.',
+            severity: 'error',
+          });
+        },
+        onRollback: (joinRequest, _status) => {
+          setTeam?.((prev) => {
+            if (!prev) return prev;
 
-      if (!response.ok) {
-        throw new ApiError('Une erreur est survenue.', response.status);
-      }
-    },
-    {
-      onOptimism: (joinRequest, status) => {
-        setTeam?.((prev) => {
-          if (!prev) return prev;
+            const rolledBackMembers = prev.members.filter(
+              (m) => m.id !== joinRequest.requester.id,
+            );
 
-          const updatedRequests = (prev.joinRequests ?? []).filter(
-            (jr) => jr.idJoinRequest !== joinRequest.idJoinRequest,
-          );
-
-          const updatedMembers =
-            status === 'ACCEPTED'
-              ? [...(prev.members ?? []), joinRequest.requester]
-              : (prev.members ?? []);
-
-          return {
-            ...prev,
-            joinRequests: updatedRequests,
-            members: updatedMembers,
-          };
-        });
+            return {
+              ...prev,
+              joinRequests: [...(prev.joinRequests ?? []), joinRequest],
+              members: rolledBackMembers,
+            };
+          });
+        },
       },
-      onSuccess: (_data, _joinRequest, status) => {
-        showSnackbar({
-          message: status === 'ACCEPTED' ? 'Demande acceptée !' : 'Demande refusée.',
-          severity: 'success',
-        });
-      },
-      onError: (err) => {
-        showSnackbar({
-          message:
-            err instanceof ApiError ? err.message : 'Une erreur est survenue.',
-          severity: 'error',
-        });
-      },
-      onRollback: (joinRequest, _status) => {
-        setTeam?.((prev) => {
-          if (!prev) return prev;
-
-          const rolledBackMembers = prev.members.filter(
-            (m) => m.id !== joinRequest.requester.id,
-          );
-
-          return {
-            ...prev,
-            joinRequests: [...(prev.joinRequests ?? []), joinRequest],
-            members: rolledBackMembers,
-          };
-        });
-      },
-    },
-  );
+    );
 
   return {
     createJoinRequest,

@@ -4,6 +4,7 @@ import {
   ProfileInfoDto,
   TeamDetailsInfoDto,
   UserSummaryDto,
+  Team,
 } from '../types';
 import { UserContext } from '../contexts/UserContext';
 import { useSnackbar } from './useSnackbar';
@@ -18,10 +19,11 @@ interface UseTeamsOptions {
       { code: number; message: string; subtitle?: string } | undefined
     >
   >;
+  setTeams?: Dispatch<SetStateAction<Team[]>>;
 }
 
 export const useTeams = (options?: UseTeamsOptions) => {
-  const { setUser, setError, setTeam } = options ?? {};
+  const { setUser, setError, setTeam, setTeams } = options ?? {};
   const { authenticatedUser } = useContext(UserContext);
   const { showSnackbar } = useSnackbar();
   const { setError: setErrorModal } = useModalController();
@@ -59,6 +61,35 @@ export const useTeams = (options?: UseTeamsOptions) => {
               ? "La team que vous cherchez n'existe pas ou a été désactivée."
               : 'Une erreur est survenue lors de la récupération de la Team.',
         });
+      },
+    },
+  );
+
+  const { execute: getAll } = useApi(
+    async () => {
+      const response = await fetch('/api/teams', {
+        method: 'GET',
+        headers: {
+          Authorization: authenticatedUser?.token ?? '',
+        },
+      });
+
+      if (!response.ok)
+        throw new ApiError(
+          'Erreur lors de la récupération des Teams',
+          response.status,
+        );
+
+      return response.json();
+    },
+    {
+      onSuccess: (data) => {
+        setTeams?.(data);
+      },
+      onError: (err) => {
+        setErrorModal(
+          err instanceof ApiError ? err.message : 'Une erreur est survenue.',
+        );
       },
     },
   );
@@ -214,6 +245,7 @@ export const useTeams = (options?: UseTeamsOptions) => {
   );
 
   return {
+    getAll,
     getById,
     createTeam,
     quitTeam,

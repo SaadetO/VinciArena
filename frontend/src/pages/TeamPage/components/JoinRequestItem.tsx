@@ -9,7 +9,9 @@ export const JoinRequestItem = ({
   joinRequest: JoinRequestDto;
   setTeam: React.Dispatch<React.SetStateAction<TeamDetailsInfoDto | undefined>>;
 }) => {
-  const { updateJoinRequestStatus, isUpdatingJoinRequest } = useJoinRequests({ setTeam });
+  const { updateJoinRequestStatus, isUpdatingJoinRequest } = useJoinRequests({
+    setTeam,
+  });
 
   const handleAction = async (status: 'ACCEPTED' | 'REJECTED') => {
     await updateJoinRequestStatus(joinRequest, status);
