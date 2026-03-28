@@ -25,6 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.server.ResponseStatusException;
 
 @ExtendWith(MockitoExtension.class)
 class JoinRequestServiceTest {
@@ -85,10 +86,10 @@ class JoinRequestServiceTest {
   void createJoinRequest_TeamNotFound() {
     when(teamRepository.findById(2L)).thenReturn(Optional.empty());
 
-    IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+    ResponseStatusException exception = assertThrows(ResponseStatusException.class,
         () -> joinRequestService.createJoinRequest(2L, requester));
 
-    assertEquals("L'équipe demandée n'existe pas", exception.getMessage());
+    assertEquals("L'équipe demandée n'existe pas", exception.getReason());
     verify(joinRequestRepository, never()).save(any(JoinRequest.class));
   }
 
@@ -100,10 +101,10 @@ class JoinRequestServiceTest {
 
     when(teamRepository.findById(2L)).thenReturn(Optional.of(team));
 
-    IllegalStateException exception = assertThrows(IllegalStateException.class,
+    ResponseStatusException exception = assertThrows(ResponseStatusException.class,
         () -> joinRequestService.createJoinRequest(2L, requester));
 
-    assertEquals("Vous appartenez déjà à une équipe", exception.getMessage());
+    assertEquals("Vous appartenez déjà à une équipe", exception.getReason());
     verify(joinRequestRepository, never()).save(any(JoinRequest.class));
   }
 
@@ -114,10 +115,10 @@ class JoinRequestServiceTest {
         RequestStatus.PENDING))
         .thenReturn(true);
 
-    IllegalStateException exception = assertThrows(IllegalStateException.class,
+    ResponseStatusException exception = assertThrows(ResponseStatusException.class,
         () -> joinRequestService.createJoinRequest(2L, requester));
 
-    assertEquals("Vous avez déjà une demande en attente pour cette équipe", exception.getMessage());
+    assertEquals("Vous avez déjà une demande en attente pour cette équipe", exception.getReason());
     verify(joinRequestRepository, never()).save(any(JoinRequest.class));
   }
 
@@ -201,7 +202,7 @@ class JoinRequestServiceTest {
     when(joinRequestRepository.findById(100L)).thenReturn(Optional.of(jr));
 
     // Act & Assert
-    assertThrows(IllegalStateException.class, 
+    assertThrows(ResponseStatusException.class,
         () -> joinRequestService.updateJoinRequestStatus(100L, RequestStatus.ACCEPTED, intruder));
   }
 }
