@@ -23,7 +23,7 @@ export const ManagerCard = ({
 }) => {
   const { authenticatedUser } = useContext(UserContext);
   const { openModal } = useModal();
-  const { promoteToManager } = useTeams({setTeam});
+  const { promoteToManager } = useTeams({ setTeam });
 
   const handlePromote = () => {
     let selectedManager: UserSummaryDto | null = null;

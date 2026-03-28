@@ -15,6 +15,7 @@ import { createTeamModal } from '../modals/createTeamModal';
 import { joinTeamModal } from '../modals/joinTeamModal';
 import { quitConfirmationModal } from '../modals/quitConfirmationModal';
 import { useTeams } from '../../../hooks/useTeams';
+import { useJoinRequests } from '../../../hooks/useJoinRequests';
 
 interface TeamItemProps {
   user?: ProfileInfoDto;
@@ -24,7 +25,8 @@ interface TeamItemProps {
 export const TeamItem = ({ user, setUser }: TeamItemProps) => {
   const navigate = useNavigate();
   const { openModal } = useModal();
-  const { createTeam, quitTeam, createJoinRequest } = useTeams({ setUser });
+  const { createTeam, quitTeam } = useTeams({ setUser });
+  const { createJoinRequest } = useJoinRequests();
 
   const handleJoin = () => {
     let selectedTeam: Team | null = null;

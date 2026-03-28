@@ -213,56 +213,11 @@ export const useTeams = (options?: UseTeamsOptions) => {
     },
   );
 
-  const { execute: createJoinRequest } = useApi(
-    async (idTeam: number) => {
-      if (isNaN(idTeam) || idTeam <= 0) return;
-
-      const response = await fetch(`/api/teams/${idTeam}/join-requests`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: authenticatedUser?.token ?? '',
-        },
-      });
-
-      if (!response.ok) {
-        if (response.status === 409) {
-          throw new ApiError(
-            "Vous avez déjà une demande en attente ou faites déjà partie d'une équipe.",
-            response.status,
-          );
-        } else if (response.status === 404) {
-          throw new ApiError("Cette équipe n'existe plus.", response.status);
-        }
-        throw new ApiError(
-          "Impossible d'effectuer la demande.",
-          response.status,
-        );
-      }
-    },
-    {
-      onSuccess: () => {
-        showSnackbar({
-          message: 'Demande effectuée avec succès !',
-          severity: 'success',
-        });
-      },
-      onError: (err) => {
-        showSnackbar({
-          message:
-            err instanceof ApiError ? err.message : 'Une erreur est survenue.',
-          severity: 'error',
-        });
-      },
-    },
-  );
-
   return {
     getById,
     createTeam,
     quitTeam,
     promoteToManager,
-    createJoinRequest,
     isGettingTeam,
     isQuittingTeam,
   };
