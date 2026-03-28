@@ -163,11 +163,17 @@ export const useTeams = (options?: UseTeamsOptions) => {
 
       if (!response.ok) {
         if (response.status === 409) {
-          throw new ApiError("Vous avez déjà une demande en attente ou faites déjà partie d'une équipe.", response.status);
+          throw new ApiError(
+            "Vous avez déjà une demande en attente ou faites déjà partie d'une équipe.",
+            response.status,
+          );
         } else if (response.status === 404) {
           throw new ApiError("Cette équipe n'existe plus.", response.status);
         }
-        throw new ApiError("Impossible d'effectuer la demande.", response.status);
+        throw new ApiError(
+          "Impossible d'effectuer la demande.",
+          response.status,
+        );
       }
     },
     {
@@ -179,11 +185,12 @@ export const useTeams = (options?: UseTeamsOptions) => {
       },
       onError: (err) => {
         showSnackbar({
-          message: err instanceof ApiError ? err.message : 'Une erreur est survenue.',
+          message:
+            err instanceof ApiError ? err.message : 'Une erreur est survenue.',
           severity: 'error',
         });
       },
-    }
+    },
   );
 
   return {
