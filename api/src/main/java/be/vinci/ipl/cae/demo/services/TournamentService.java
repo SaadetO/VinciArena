@@ -2,8 +2,10 @@ package be.vinci.ipl.cae.demo.services;
 
 import be.vinci.ipl.cae.demo.models.dtos.NewTournament;
 import be.vinci.ipl.cae.demo.models.entities.Tournament;
+import be.vinci.ipl.cae.demo.models.entities.TournamentStatus;
 import be.vinci.ipl.cae.demo.repositories.TournamentRepository;
 import org.springframework.stereotype.Service;
+import java.util.List;
 
 /**
  * Tournament service.
@@ -11,7 +13,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class TournamentService {
 
-  TournamentRepository tournamentRepository;
+  private final TournamentRepository tournamentRepository;
 
   /**
    * Constructor.
@@ -37,5 +39,28 @@ public class TournamentService {
 
     tournament = tournamentRepository.save(tournament);
     return tournament;
+  }
+
+  /**
+   * Get all tournaments optionally filtered by timeframe.
+   *
+   * @param timeframe past, future, current, or null/empty for all.
+   * @return the filtered and sorted list of tournaments.
+   */
+  public Iterable<Tournament> getTournaments(String timeframe) {
+    if (timeframe == null || timeframe.isBlank()) {
+      return tournamentRepository.findAllByOrderByStartDateDesc();
+    }
+
+    return switch (timeframe.toLowerCase()) {
+      case "past" ->
+          tournamentRepository.findByTournamentStatusOrderByStartDateDesc(TournamentStatus.DONE);
+      case "current" -> tournamentRepository.findByTournamentStatusOrderByStartDateDesc(
+          TournamentStatus.IN_PROGRESS);
+      case "future" -> tournamentRepository.findByTournamentStatusNotInOrderByStartDateDesc(
+          List.of(TournamentStatus.DONE, TournamentStatus.IN_PROGRESS)
+      );
+      default -> tournamentRepository.findAllByOrderByStartDateDesc();
+    };
   }
 }
