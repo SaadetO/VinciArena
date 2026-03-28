@@ -46,6 +46,10 @@ export const TournamentControls = ({
       position="sticky"
       top="0"
       zIndex={1}
+      sx={{
+        outline: '4px solid',
+        outlineColor: 'background.s0',
+      }}
     >
       <Stack
         ref={containerRef}
