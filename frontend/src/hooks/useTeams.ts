@@ -118,7 +118,7 @@ export const useTeams = (options?: UseTeamsOptions) => {
 
   const { execute: quitTeam, loading: isQuittingTeam } = useApi(
     async () => {
-      const response = await fetch('/api/members/team/quit', {
+      const response = await fetch('/api/members/me/quit-team', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
