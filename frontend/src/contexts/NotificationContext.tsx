@@ -9,7 +9,7 @@ import { NotificationDto } from '../types';
 import { useApi } from '../hooks/useApi';
 import { UserContext } from './UserContext';
 import { useSnackbar } from '../hooks/useSnackbar';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface NotificationContextProps {
   allNotifications: NotificationDto[];
@@ -18,6 +18,7 @@ interface NotificationContextProps {
   markAsRead: (idNotification: number) => void;
   getAll: (unreadOnly?: boolean) => void;
   getUnreadCount: () => void;
+  handleNotificationClick: (notification: NotificationDto) => void;
 }
 
 const NotificationContext = createContext<NotificationContextProps>({
@@ -27,6 +28,7 @@ const NotificationContext = createContext<NotificationContextProps>({
   markAsRead: () => {},
   getAll: () => {},
   getUnreadCount: () => {},
+  handleNotificationClick: () => {},
 });
 
 const NotificationProvider = ({ children }: { children: ReactNode }) => {
@@ -42,6 +44,7 @@ const NotificationProvider = ({ children }: { children: ReactNode }) => {
   const { showSnackbar } = useSnackbar();
   const { pathname } = useLocation();
   const isNotificationPage = pathname === '/notifications';
+  const navigate = useNavigate();
 
   const { execute: getAll } = useApi(
     async (unreadOnly: boolean = false) => {
@@ -183,6 +186,19 @@ const NotificationProvider = ({ children }: { children: ReactNode }) => {
     return () => clearInterval(intervalId);
   }, [authenticatedUser, isNotificationPage, getAll, getUnreadCount]);
 
+  const handleNotificationClick = (notification: NotificationDto) => {
+    // Routing Logic
+    if (notification.type && notification.idReference) {
+      const paths: Record<string, string> = {
+        TEAM: `/teams/${notification.idReference}`,
+        MATCH: `/matches/${notification.idReference}`,
+        TOURNAMENT: `/tournaments/${notification.idReference}`,
+      };
+
+      const targetPath = paths[notification.type];
+      if (targetPath) navigate(targetPath);
+    }
+  };
   return (
     <NotificationContext.Provider
       value={{
@@ -192,6 +208,7 @@ const NotificationProvider = ({ children }: { children: ReactNode }) => {
         markAsRead,
         getAll,
         getUnreadCount,
+        handleNotificationClick,
       }}
     >
       {children}

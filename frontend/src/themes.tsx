@@ -288,8 +288,20 @@ export const theme = createTheme({
           color: '#FFFFFF',
         },
         colorPrimary: {
-          backgroundColor: 'hsla(193, 100%, 50%, 0.1)',
-          color: 'hsla(193, 100%, 40%, 1)',
+          background: 'color-mix(in srgb, #00C8FF 10%, transparent)',
+          color: '#00C8FF',
+        },
+        colorSuccess: {
+          background: 'color-mix(in srgb, #4CE59B 10%, transparent)',
+          color: '#4CE59B',
+        },
+        colorWarning: {
+          background: 'color-mix(in srgb, #F5B664 10%, transparent)',
+          color: '#F5B664',
+        },
+        colorSecondary: {
+          background: 'color-mix(in srgb, #8C8C8C 10%, transparent)',
+          color: '#8C8C8C',
         },
       },
       variants: [

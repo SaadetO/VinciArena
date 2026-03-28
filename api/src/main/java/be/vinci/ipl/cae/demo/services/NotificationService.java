@@ -3,6 +3,7 @@ package be.vinci.ipl.cae.demo.services;
 import be.vinci.ipl.cae.demo.models.dtos.NotificationDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Notification;
+import be.vinci.ipl.cae.demo.models.entities.NotificationType;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.NotificationRepository;
@@ -41,11 +42,11 @@ public class NotificationService {
    * @param content  the text message of the notification
    * @throws IllegalArgumentException if the member is not found or content is blank
    */
-  public void notifyMember(Long idMember, String content) {
+  public void notifyMember(Long idMember, String content, NotificationType type, Long idReference) {
 
     Member member = memberRepository.findById(idMember)
         .orElseThrow(() -> new IllegalArgumentException("Member not found"));
-    saveNotification(member, content);
+    saveNotification(member, content, type, idReference);
   }
 
   /**
@@ -54,10 +55,10 @@ public class NotificationService {
    *
    * @param content the text message of the notification
    */
-  public void notifyAllMembers(String content) {
+  public void notifyAllMembers(String content, NotificationType type, Long idReference) {
     Member[] activeMembers = memberRepository.findAllByIsDeletedOrderByTagAsc(false);
     for (Member activeMember : activeMembers) {
-      saveNotification(activeMember, content);
+      saveNotification(activeMember, content, type, idReference);
     }
   }
 
@@ -67,10 +68,10 @@ public class NotificationService {
    * @param team    the team entity whose members will be notified
    * @param content the text message of the notification
    */
-  public void notifyTeam(Team team, String content) {
+  public void notifyTeam(Team team, String content, NotificationType type,  Long idReference) {
     List<Member> teamMembers = team.getMembers();
     for (Member teamMember : teamMembers) {
-      saveNotification(teamMember, content);
+      saveNotification(teamMember, content, type, idReference);
     }
   }
 
@@ -81,14 +82,15 @@ public class NotificationService {
    * @param team    the team whose managers will be notified
    * @param content the text message of the notification
    */
-  public void notifyTeamManagers(Team team, String content) {
+  public void notifyTeamManagers(Team team, String content, NotificationType type,
+      Long idReference) {
     Member manager1 = team.getManager1();
     Member manager2 = team.getManager2();
     if (manager1 != null) {
-      saveNotification(manager1, content);
+      saveNotification(manager1, content, type, idReference);
     }
     if (manager2 != null) {
-      saveNotification(manager2, content);
+      saveNotification(manager2, content, type, idReference);
     }
   }
 
@@ -99,13 +101,20 @@ public class NotificationService {
    * @param content the message content
    * @throws IllegalArgumentException if content is null or blank
    */
-  private void saveNotification(Member member, String content) {
+  private void saveNotification(
+      Member member,
+      String content,
+      NotificationType type,
+      Long idReference
+  ) {
     if (content == null || content.isBlank()) {
       throw new IllegalArgumentException("content must contain text");
     }
     Notification notification = new Notification();
     notification.setContent(content);
     notification.setMember(member);
+    notification.setType(type);
+    notification.setIdReference(idReference);
     notificationRepository.save(notification);
   }
 
@@ -127,7 +136,7 @@ public class NotificationService {
     for (Notification entity : entities) {
       dtos.add(
           new NotificationDto(entity.getIdNotification(), entity.getContent(), entity.isRead(),
-              entity.getDateTime())
+              entity.getDateTime(), entity.getType(), entity.getIdReference())
       );
     }
     return dtos;

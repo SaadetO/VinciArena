@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { ReactNode } from 'react';
 
 interface MainContext {}
@@ -104,11 +105,18 @@ interface TeamDetailsInfoDto {
   joinRequests: JoinRequestDto[] | null;
 }
 
+export enum NotificationType {
+  TEAM = 'TEAM',
+  MATCH = 'MATCH',
+  TOURNAMENT = 'TOURNAMENT',
+}
 interface NotificationDto {
   idNotification: number;
   content: string;
   isRead: boolean;
   dateTime: Date;
+  type: NotificationType;
+  idReference: number | null;
 }
 
 interface StoredUser {
@@ -149,6 +157,23 @@ interface RegisterFormData {
   specialtyId: number | null;
   profileImageId: number | null;
 }
+interface TournamentDto {
+  idTournament: number;
+  name: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  registrationDeadline: string;
+  tournamentStatus:
+    | 'IN_PREPARATION'
+    | 'REGISTRATION_OPEN'
+    | 'REGISTRATION_CLOSED'
+    | 'PLANNED'
+    | 'IN_PROGRESS'
+    | 'DONE';
+  maxNbOfTeams: number;
+  teams?: Team[];
+}
 
 export class ApiError extends Error {
   status: number;
@@ -178,4 +203,5 @@ export type {
   ModalConfig,
   RegisterFormData,
   UserSummaryDto,
+  TournamentDto,
 };

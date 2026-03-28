@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 import be.vinci.ipl.cae.demo.models.dtos.NotificationDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Notification;
+import be.vinci.ipl.cae.demo.models.entities.NotificationType;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.NotificationRepository;
@@ -43,19 +44,23 @@ class NotificationServiceTest {
     return m;
   }
 
-  private Notification createNotification(Long id, String content, Member member, boolean isRead) {
+  private Notification createNotification(Long id, String content, Member member, boolean isRead, NotificationType type, Long idReference) {
     Notification n = new Notification();
     n.setIdNotification(id);
     n.setContent(content);
     n.setMember(member);
     n.setRead(isRead);
+    n.setType(type);
+    n.setIdReference(idReference);
     return n;
   }
 
   private void assertSavedNotification(Notification captured, Member expectedMember,
-      String expectedContent) {
+      String expectedContent, NotificationType expectedType, Long expectedReference) {
     assertEquals(expectedMember, captured.getMember());
     assertEquals(expectedContent, captured.getContent());
+    assertEquals(expectedType, captured.getType());
+    assertEquals(expectedReference, captured.getIdReference());
   }
 
   private List<Notification> captureNotifications(int times) {
@@ -71,10 +76,10 @@ class NotificationServiceTest {
     Member mockMember = createMember(memberId);
     when(memberRepository.findById(memberId)).thenReturn(Optional.of(mockMember));
 
-    notificationService.notifyMember(memberId, "hi");
+    notificationService.notifyMember(memberId, "hi", NotificationType.TEAM, 10L);
 
     List<Notification> captured = captureNotifications(1);
-    assertSavedNotification(captured.get(0), mockMember, "hi");
+    assertSavedNotification(captured.get(0), mockMember, "hi", NotificationType.TEAM, 10L);
   }
 
   @Test
@@ -82,7 +87,7 @@ class NotificationServiceTest {
   void notifyMember_MemberNotFound() {
     when(memberRepository.findById(999L)).thenReturn(Optional.empty());
     assertThrows(IllegalArgumentException.class,
-        () -> notificationService.notifyMember(999L, "hi"));
+        () -> notificationService.notifyMember(999L, "hi", NotificationType.MATCH, 20L));
   }
 
   @Test
@@ -92,18 +97,18 @@ class NotificationServiceTest {
     Member m2 = createMember(2L);
     when(memberRepository.findAllByIsDeletedOrderByTagAsc(false)).thenReturn(new Member[]{m1, m2});
 
-    notificationService.notifyAllMembers("hi everyone");
+    notificationService.notifyAllMembers("hi everyone", NotificationType.TOURNAMENT, 30L);
 
     List<Notification> captured = captureNotifications(2);
-    assertSavedNotification(captured.get(0), m1, "hi everyone");
-    assertSavedNotification(captured.get(1), m2, "hi everyone");
+    assertSavedNotification(captured.get(0), m1, "hi everyone", NotificationType.TOURNAMENT, 30L);
+    assertSavedNotification(captured.get(1), m2, "hi everyone", NotificationType.TOURNAMENT, 30L);
   }
 
   @Test
   @DisplayName("Should not call save when there are no active members")
   void notifyAllMembers_EmptyList() {
     when(memberRepository.findAllByIsDeletedOrderByTagAsc(false)).thenReturn(new Member[0]);
-    notificationService.notifyAllMembers("Hi");
+    notificationService.notifyAllMembers("Hi", NotificationType.TEAM, 40L);
     verify(notificationRepository, never()).save(any());
   }
 
@@ -113,14 +118,15 @@ class NotificationServiceTest {
     Member m1 = createMember(1L);
     Member m2 = createMember(2L);
     Team team = new Team();
+    team.setIdTeam(5L); // Set ID for reference check
     team.getMembers().add(m1);
     team.getMembers().add(m2);
 
-    notificationService.notifyTeam(team, "hi");
+    notificationService.notifyTeam(team, "hi", NotificationType.TEAM, team.getIdTeam());
 
     List<Notification> captured = captureNotifications(2);
-    assertSavedNotification(captured.get(0), m1, "hi");
-    assertSavedNotification(captured.get(1), m2, "hi");
+    assertSavedNotification(captured.get(0), m1, "hi", NotificationType.TEAM, 5L);
+    assertSavedNotification(captured.get(1), m2, "hi", NotificationType.TEAM, 5L);
   }
 
   @Test
@@ -128,12 +134,13 @@ class NotificationServiceTest {
   void notifyTeamManagers() {
     Member m1 = createMember(1L);
     Team team = new Team();
+    team.setIdTeam(5L);
     team.setManager1(m1);
 
-    notificationService.notifyTeamManagers(team, "hi");
+    notificationService.notifyTeamManagers(team, "hi", NotificationType.TEAM, team.getIdTeam());
 
     List<Notification> captured = captureNotifications(1);
-    assertSavedNotification(captured.get(0), m1, "hi");
+    assertSavedNotification(captured.get(0), m1, "hi", NotificationType.TEAM, 5L);
   }
 
   @Test
@@ -141,8 +148,8 @@ class NotificationServiceTest {
   void getNotificationsByIdMember() {
     long memberId = 1L;
     Member m1 = createMember(memberId);
-    Notification n1 = createNotification(100L, "First Notif", m1, true);
-    Notification n2 = createNotification(101L, "Second Notif", m1, false);
+    Notification n1 = createNotification(100L, "First Notif", m1, true, NotificationType.TEAM, 10L);
+    Notification n2 = createNotification(101L, "Second Notif", m1, false, NotificationType.MATCH, 20L);
 
     when(notificationRepository.findByMemberIdMemberOrderByIsReadAscDateTimeDesc(memberId))
         .thenReturn(List.of(n1, n2));
@@ -153,7 +160,9 @@ class NotificationServiceTest {
     result.forEach(dtoList::add);
 
     assertEquals(2, dtoList.size());
-    assertEquals("First Notif", dtoList.get(0).content());
+    assertEquals("First Notif", dtoList.getFirst().content());
+    assertEquals(NotificationType.TEAM, dtoList.getFirst().type());
+    assertEquals(10L, dtoList.get(0).idReference());
     assertTrue(dtoList.get(0).isRead());
     assertFalse(dtoList.get(1).isRead());
 
