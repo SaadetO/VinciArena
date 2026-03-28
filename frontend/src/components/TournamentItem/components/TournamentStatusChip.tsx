@@ -25,7 +25,7 @@ export const TournamentStatusChip = ({ status }: TournamentStatusChipProps) => {
       label = 'Préparation';
       break;
     case 'REGISTRATION_CLOSED':
-      label = 'Inscriptions Closes';
+      label = 'Inscriptions closes';
       color = 'warning';
       break;
     case 'PLANNED':
