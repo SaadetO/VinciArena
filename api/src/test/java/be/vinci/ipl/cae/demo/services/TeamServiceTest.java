@@ -3,11 +3,13 @@ package be.vinci.ipl.cae.demo.services;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
 import be.vinci.ipl.cae.demo.models.dtos.UserSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.TeamDetailsDto;
 
@@ -26,6 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.server.ResponseStatusException;
 
 @ExtendWith(MockitoExtension.class)
 class TeamServiceTest {
@@ -85,11 +88,9 @@ class TeamServiceTest {
     // Arrange
     when(teamRepository.existsByName("Taken Name")).thenReturn(true);
 
-    // Act
-    Team result = teamService.createTeam("Taken Name", creator);
-
-    // Assert
-    assertNull(result);
+    // Act + Assert
+    assertThrows(ResponseStatusException.class,
+        () -> teamService.createTeam("Taken Name", creator));
     verify(teamRepository, never()).save(any(Team.class));
     verify(memberRepository, never()).save(any(Member.class));
   }
@@ -103,11 +104,9 @@ class TeamServiceTest {
 
     when(teamRepository.existsByName("New Team")).thenReturn(false);
 
-    // Act
-    Team result = teamService.createTeam("New Team", creator);
-
-    // Assert
-    assertNull(result);
+    // Act + Assert
+    assertThrows(ResponseStatusException.class,
+        () -> teamService.createTeam("New Team", creator));
     verify(memberRepository, never()).save(any(Member.class));
     verify(teamRepository, never()).save(any(Team.class));
   }
@@ -121,7 +120,7 @@ class TeamServiceTest {
     team2.setName("Team 2");
     Team teamInactive = new Team();
     teamInactive.setIsActive(false);
-    
+
     when(teamRepository.findByIsActiveTrue()).thenReturn(List.of(team1, team2));
 
     // Act
@@ -136,8 +135,8 @@ class TeamServiceTest {
   @Test
   void getTeamDetails_NotFound() {
     when(teamRepository.findById(1L)).thenReturn(Optional.empty());
-    TeamDetailsDto result = teamService.getTeamDetails(1L, null);
-    assertNull(result);
+    assertThrows(ResponseStatusException.class,
+        () -> teamService.getTeamDetails(1L, null));
   }
 
   @Test
@@ -156,7 +155,8 @@ class TeamServiceTest {
     currentMember.setEmail("user@test.com");
 
     when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
-    when(memberService.getUserSummary(member1)).thenReturn(UserSummaryDto.builder().id(10L).build());
+    when(memberService.getUserSummary(member1)).thenReturn(
+        UserSummaryDto.builder().id(10L).build());
 
     // Act
     TeamDetailsDto result = teamService.getTeamDetails(1L, currentMember);
@@ -189,8 +189,10 @@ class TeamServiceTest {
     jr.setStatus(RequestStatus.PENDING);
 
     when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
-    when(memberService.getUserSummary(manager)).thenReturn(UserSummaryDto.builder().id(10L).build());
-    when(memberService.getUserSummary(jr.getMember())).thenReturn(UserSummaryDto.builder().id(30L).build());
+    when(memberService.getUserSummary(manager)).thenReturn(
+        UserSummaryDto.builder().id(10L).build());
+    when(memberService.getUserSummary(jr.getMember())).thenReturn(
+        UserSummaryDto.builder().id(30L).build());
     when(joinRequestRepository.findAllByRequestedTeamAndStatus(team, RequestStatus.PENDING))
         .thenReturn(List.of(jr));
 

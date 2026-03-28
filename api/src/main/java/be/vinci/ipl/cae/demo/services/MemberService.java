@@ -45,15 +45,17 @@ public class MemberService {
    * @param passwordEncoder          the password encoder
    * @param memberRepository         the member repository
    * @param unavailabilityRepository the unavailability repository
+   * @param specialtyRepository      the specialty repository
+   * @param profileImageRepository   the profile image repository
    */
   public MemberService(BCryptPasswordEncoder passwordEncoder,
       MemberRepository memberRepository,
-      UnavailabilityRepository unavailabilityRepository, SpecialtyRepository specialityRepository,
+      UnavailabilityRepository unavailabilityRepository, SpecialtyRepository specialtyRepository,
       ProfileImageRepository profileImageRepository) {
     this.passwordEncoder = passwordEncoder;
     this.memberRepository = memberRepository;
     this.unavailabilityRepository = unavailabilityRepository;
-    this.specialtyRepository = specialityRepository;
+    this.specialtyRepository = specialtyRepository;
     this.profileImageRepository = profileImageRepository;
   }
 

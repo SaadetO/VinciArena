@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 /**
  * JoinRequestController to handle join requests operations.
@@ -47,13 +46,7 @@ public class JoinRequestController {
   public JoinRequestDto createJoinRequest(@PathVariable Long teamId,
       @AuthenticationPrincipal Member currentMember) {
 
-    try {
-      return joinRequestService.createJoinRequest(teamId, currentMember);
-    } catch (IllegalArgumentException e) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
-    } catch (IllegalStateException e) {
-      throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage(), e);
-    }
+    return joinRequestService.createJoinRequest(teamId, currentMember);
   }
 
   /**
@@ -69,12 +62,6 @@ public class JoinRequestController {
   public JoinRequestDto updateJoinRequestStatus(@PathVariable Long requestId,
       @RequestBody RequestStatus status,
       @AuthenticationPrincipal Member currentMember) {
-    try {
-      return joinRequestService.updateJoinRequestStatus(requestId, status, currentMember);
-    } catch (IllegalArgumentException e) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
-    } catch (IllegalStateException e) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
-    }
+    return joinRequestService.updateJoinRequestStatus(requestId, status, currentMember);
   }
 }

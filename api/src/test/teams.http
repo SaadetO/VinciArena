@@ -8,7 +8,7 @@ Content-Type: application/json
 
 {
   "email": "player@test.com",
-  "password": "password123",
+  "password": "Password123!",
   "tag": "PlayerOne"
 }
 
@@ -17,8 +17,8 @@ POST {{baseUrl}}/auths/login
 Content-Type: application/json
 
 {
-  "username": "player@test.com",
-  "password": "password123"
+  "email": "player@test.com",
+  "password": "Password123!"
 }
 
 > {% client.global.set("auth_token", response.body.token); %}

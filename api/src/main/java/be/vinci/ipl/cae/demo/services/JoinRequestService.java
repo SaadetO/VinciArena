@@ -10,8 +10,10 @@ import be.vinci.ipl.cae.demo.repositories.JoinRequestRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.TeamRepository;
 import java.time.LocalDateTime;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 /**
  * JoinRequest Service.
@@ -51,16 +53,17 @@ public class JoinRequestService {
   public JoinRequestDto createJoinRequest(Long teamId, Member requester) {
     Team requestedTeam = teamRepository.findById(teamId).orElse(null);
     if (requestedTeam == null) {
-      throw new IllegalArgumentException("L'équipe demandée n'existe pas");
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "L'équipe demandée n'existe pas");
     }
 
     if (requester.getTeam() != null) {
-      throw new IllegalStateException("Vous appartenez déjà à une équipe");
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "Vous appartenez déjà à une équipe");
     }
 
     if (joinRequestRepository.existsByMemberAndRequestedTeamAndStatus(requester, requestedTeam,
         RequestStatus.PENDING)) {
-      throw new IllegalStateException("Vous avez déjà une demande en attente pour cette équipe");
+      throw new ResponseStatusException(HttpStatus.CONFLICT,
+          "Vous avez déjà une demande en attente pour cette équipe");
     }
 
     JoinRequest joinRequest = new JoinRequest();
@@ -90,19 +93,20 @@ public class JoinRequestService {
    * @param newStatus the new status (ACCEPTED or REJECTED)
    * @param manager   the manager performing the action
    * @return the updated JoinRequestDto
-   * @throws IllegalArgumentException if the request doesn't exist
-   * @throws IllegalStateException    if the action is unauthorized or the request is not pending
+   * @throws ResponseStatusException if the request doesn't exist, is not pending, or the user is
+   *                                 not authorized
    */
   @Transactional
   public JoinRequestDto updateJoinRequestStatus(Long requestId, RequestStatus newStatus,
       Member manager) {
     JoinRequest joinRequest = joinRequestRepository.findById(requestId).orElse(null);
     if (joinRequest == null) {
-      throw new IllegalArgumentException("Demande d'adhésion non trouvée");
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Demande d'adhésion non trouvée");
     }
 
     if (joinRequest.getStatus() != RequestStatus.PENDING) {
-      throw new IllegalStateException("Cette demande n'est plus en attente");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+          "Cette demande n'est plus en attente");
     }
 
     Team team = joinRequest.getRequestedTeam();
@@ -112,7 +116,8 @@ public class JoinRequestService {
         .equals(manager.getIdMember()));
 
     if (!isManager) {
-      throw new IllegalStateException("Seul un responsable de l'équipe peut gérer les demandes");
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+          "Seul un responsable de l'équipe peut gérer les demandes");
     }
 
     joinRequest.setStatus(newStatus);
