@@ -182,6 +182,14 @@ export const AdminManagementModal = ({
                   <Menu
                     anchorEl={anchorEl}
                     open={Boolean(anchorEl)}
+                    anchorOrigin={{
+                      vertical: 'bottom',
+                      horizontal: 'right',
+                    }}
+                    transformOrigin={{
+                      vertical: 'top',
+                      horizontal: 'right',
+                    }}
                     sx={{
                       '& .MuiPaper-root': {
                         width: 'fit-content',

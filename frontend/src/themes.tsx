@@ -513,6 +513,10 @@ export const theme = createTheme({
           '& .MuiOutlinedInput-notchedOutline': {
             border: 'none',
           },
+          '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline':
+            {
+              border: `2px solid ${primaryColor}`,
+            },
           '& input::placeholder': {
             color: '#8C8C8C',
             opacity: 0.75,
@@ -700,6 +704,7 @@ export const theme = createTheme({
           border: '1px solid #252525',
           boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
           backgroundImage: 'none',
+          margin: '0.375rem',
         },
         list: {
           padding: '0.375rem',
