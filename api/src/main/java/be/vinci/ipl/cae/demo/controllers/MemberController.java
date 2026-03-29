@@ -1,5 +1,6 @@
 package be.vinci.ipl.cae.demo.controllers;
 
+import be.vinci.ipl.cae.demo.models.dtos.MemberSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.PasswordUpdateDto;
 import be.vinci.ipl.cae.demo.models.dtos.ProfileDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
@@ -37,6 +38,17 @@ public class MemberController {
   public MemberController(MemberService memberService, TeamService teamService) {
     this.memberService = memberService;
     this.teamService = teamService;
+  }
+
+  /**
+   * Get all members as lightweight summaries (no sensitive data). Available to any authenticated
+   * user.
+   *
+   * @return an array of member summaries (id, tag, specialty, avatar).
+   */
+  @GetMapping({"/", ""})
+  public MemberSummaryDto[] getAllMemberSummaries() {
+    return memberService.getAllMemberSummaries();
   }
 
   /**
@@ -119,7 +131,7 @@ public class MemberController {
   /**
    * Update a member's specialty.
    *
-   * @param specialtyId the new profile image entity
+   * @param specialtyId   the new profile image entity
    * @param currentMember the currently authenticated member
    */
   @PreAuthorize("isAuthenticated()")
