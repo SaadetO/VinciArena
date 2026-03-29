@@ -86,23 +86,37 @@ public class JoinRequestService {
   /**
    * Update the status of a join request.
    *
-   * @param requestId the ID of the join request
-   * @param newStatus the new status (ACCEPTED or REJECTED)
-   * @param manager   the manager performing the action
+   * @param requestId       the ID of the join request
+   * @param newStatus       the new status (ACCEPTED or REJECTED)
+   * @param rejectionReason the reason for rejection (required if REJECTED)
+   * @param manager         the manager performing the action
    * @return the updated JoinRequestDto
    * @throws IllegalArgumentException if the request doesn't exist
-   * @throws IllegalStateException    if the action is unauthorized or the request is not pending
+   * @throws IllegalStateException    if the action is unauthorized or invalid
    */
   @Transactional
-  public JoinRequestDto updateJoinRequestStatus(Long requestId, RequestStatus newStatus,
-      Member manager) {
+  public JoinRequestDto updateJoinRequestStatus(Long requestId,
+      RequestStatus newStatus, String rejectionReason, Member manager) {
+
     JoinRequest joinRequest = joinRequestRepository.findById(requestId).orElse(null);
+
     if (joinRequest == null) {
       throw new IllegalArgumentException("Demande d'adhésion non trouvée");
     }
 
+    if (newStatus == null) {
+      throw new IllegalStateException("Le statut est obligatoire");
+    }
+
     if (joinRequest.getStatus() != RequestStatus.PENDING) {
       throw new IllegalStateException("Cette demande n'est plus en attente");
+    }
+
+    if (newStatus == RequestStatus.REJECTED) {
+      if (rejectionReason == null || rejectionReason.isBlank()) {
+        throw new IllegalStateException("Une raison est obligatoire pour refuser une demande");
+      }
+      joinRequest.setRejectionReason(rejectionReason);
     }
 
     Team team = joinRequest.getRequestedTeam();
@@ -119,7 +133,14 @@ public class JoinRequestService {
     joinRequestRepository.save(joinRequest);
 
     Member requester = joinRequest.getMember();
-    String decision = newStatus == RequestStatus.ACCEPTED ? "acceptée" : "rejetée";
+    String decision;
+
+    if (newStatus == RequestStatus.ACCEPTED) {
+      decision = "acceptée";
+    } else {
+      decision = "rejetée.\nRaison du refus : " + rejectionReason;
+    }
+
     notificationService.notifyMember(requester.getIdMember(),
         "Votre demande pour rejoindre " + team.getName() + " a été " + decision,
         NotificationType.TEAM, null);
@@ -128,8 +149,6 @@ public class JoinRequestService {
       requester.setTeam(team);
       memberRepository.save(requester);
 
-      // Obsolete requests deletion: 
-      // Delete all other pending requests for this member as they are now in a team
       joinRequestRepository.deleteAllByMemberAndStatus(requester, RequestStatus.PENDING);
     }
 
@@ -139,6 +158,7 @@ public class JoinRequestService {
         .teamName(team.getName())
         .status(joinRequest.getStatus())
         .expirationDate(joinRequest.getExpirationDate())
+        .rejectionReason(joinRequest.getRejectionReason())
         .build();
   }
 }

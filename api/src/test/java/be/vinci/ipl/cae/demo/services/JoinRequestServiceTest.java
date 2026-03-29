@@ -143,7 +143,7 @@ class JoinRequestServiceTest {
     when(joinRequestRepository.findById(100L)).thenReturn(Optional.of(jr));
 
     // Act
-    JoinRequestDto result = joinRequestService.updateJoinRequestStatus(100L, RequestStatus.ACCEPTED, manager);
+    JoinRequestDto result = joinRequestService.updateJoinRequestStatus(100L, RequestStatus.ACCEPTED, null, manager);
 
     // Assert
     assertNotNull(result);
@@ -177,7 +177,7 @@ class JoinRequestServiceTest {
     when(joinRequestRepository.findById(100L)).thenReturn(Optional.of(jr));
 
     // Act
-    JoinRequestDto result = joinRequestService.updateJoinRequestStatus(100L, RequestStatus.REJECTED, manager);
+    JoinRequestDto result = joinRequestService.updateJoinRequestStatus(100L, RequestStatus.REJECTED, "Pas de place", manager);
 
     // Assert
     assertNotNull(result);
@@ -211,6 +211,32 @@ class JoinRequestServiceTest {
 
     // Act & Assert
     assertThrows(IllegalStateException.class,
-        () -> joinRequestService.updateJoinRequestStatus(100L, RequestStatus.ACCEPTED, intruder));
+        () -> joinRequestService.updateJoinRequestStatus(100L, RequestStatus.ACCEPTED, null, intruder));
+  }
+
+  @Test
+  void updateJoinRequestStatus_RejectedWithoutReason_ShouldFail() {
+    // Arrange
+    Team teamA = new Team();
+    teamA.setIdTeam(1L);
+
+    Member manager = new Member();
+    manager.setIdMember(10L);
+    teamA.setManager1(manager);
+
+    JoinRequest jr = new JoinRequest();
+    jr.setStatus(RequestStatus.PENDING);
+    jr.setRequestedTeam(teamA);
+
+    when(joinRequestRepository.findById(100L)).thenReturn(Optional.of(jr));
+
+    // Act & Assert
+    assertThrows(IllegalStateException.class,
+        () -> joinRequestService.updateJoinRequestStatus(
+            100L,
+            RequestStatus.REJECTED,
+            null,
+            manager
+        ));
   }
 }

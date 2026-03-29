@@ -3,6 +3,8 @@ import { TeamDetailsInfoDto, JoinRequestDto } from '../../../types';
 import { useContext, useState } from 'react';
 import { UserContext } from '../../../contexts/UserContext';
 import { useSnackbar } from '../../../hooks/useSnackbar';
+import { useModal } from '../../../hooks/useModal';
+import { joinRequestRejectModal } from '../../ProfilePage/modals/joinRequestRejectModal';
 
 export const JoinRequestItem = ({
   joinRequest,
@@ -14,14 +16,15 @@ export const JoinRequestItem = ({
   const { showSnackbar } = useSnackbar();
   const { authenticatedUser } = useContext(UserContext);
   const [isLoading, setIsLoading] = useState(false);
+  const { openModal } = useModal();
 
   const handleAction = async (
     status: 'ACCEPTED' | 'REJECTED',
     successMsg: string,
+    rejectionReason?: string,
   ) => {
     setIsLoading(true);
 
-    // Backup for rollback
     let previousTeam: TeamDetailsInfoDto | undefined;
 
     setTeam((prev) => {
@@ -56,7 +59,10 @@ export const JoinRequestItem = ({
             'Content-Type': 'application/json',
             Authorization: authenticatedUser?.token ?? '',
           },
-          body: JSON.stringify(status),
+          body: JSON.stringify({
+            status,
+            rejectionReason,
+          }),
         },
       );
 
@@ -66,7 +72,6 @@ export const JoinRequestItem = ({
 
       showSnackbar({ message: successMsg, severity: 'success' });
     } catch (err: unknown) {
-      // Rollback
       setTeam(previousTeam);
       showSnackbar({
         message:
@@ -79,7 +84,23 @@ export const JoinRequestItem = ({
   };
 
   const handleAccept = () => handleAction('ACCEPTED', 'Demande acceptée !');
-  const handleDeny = () => handleAction('REJECTED', 'Demande refusée.');
+
+  const handleDeny = () => {
+    let selectedReason: string | null = null;
+
+    const onSelect = (reason: string | null) => {
+      selectedReason = reason;
+    };
+
+    const onConfirm = (close: () => void) => {
+      if (!selectedReason) return;
+
+      close();
+      handleAction('REJECTED', 'Demande refusée.', selectedReason);
+    };
+
+    openModal(joinRequestRejectModal({ onSelect, onConfirm }));
+  };
 
   return (
     <>

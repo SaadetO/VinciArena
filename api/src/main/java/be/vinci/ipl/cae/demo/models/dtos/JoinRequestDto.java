@@ -17,6 +17,7 @@ public class JoinRequestDto {
   private Long idTeam;
   private String teamName;
   private RequestStatus status;
+  private String rejectionReason;
   private LocalDateTime expirationDate;
 
 }
