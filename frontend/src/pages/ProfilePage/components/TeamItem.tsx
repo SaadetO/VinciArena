@@ -143,12 +143,14 @@ export const TeamItem = ({ user, setUser }: TeamItemProps) => {
 
           if (response.status === 400) {
             showSnackbar({
-              message: "Vous ne faite partie d'aucune équipe, impossible d'en quitter une.",
+              message:
+                "Vous ne faite partie d'aucune équipe, impossible d'en quitter une.",
               severity: 'error',
             });
           } else if (response.status === 409) {
             showSnackbar({
-              message: "Vous êtes la/le seul.e responsable de l'équipe. Veuillez en nommer un.e second.e avant de quitter.",
+              message:
+                "Vous êtes la/le seul.e responsable de l'équipe. Veuillez en nommer un.e second.e avant de quitter.",
               severity: 'error',
             });
           } else {
