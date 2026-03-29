@@ -515,6 +515,7 @@ export const theme = createTheme({
           },
           '& input::placeholder': {
             color: '#8C8C8C',
+            opacity: 0.75,
           },
           '& input[type="password"]': {
             fontFamily: 'monospace',
@@ -606,7 +607,7 @@ export const theme = createTheme({
               padding: '0 0.5rem',
               height: 'auto',
               minHeight: '2.25rem',
-              minWidth: '50px',
+              minWidth: '0',
               flex: 1,
             },
             '& .MuiChip-root:first-of-type': {
@@ -621,6 +622,7 @@ export const theme = createTheme({
               marginTop: '0.25rem',
               marginBottom: '0.25rem',
               color: '#FFFFFF',
+              pointerEvents: 'none',
               '& .MuiChip-avatar': {
                 width: '1.25rem',
                 height: '1.25rem',
@@ -629,6 +631,8 @@ export const theme = createTheme({
                 width: '1rem',
                 height: '1rem',
                 marginRight: '-0.25rem',
+                pointerEvents: 'auto',
+                cursor: 'pointer',
               },
             },
           },
@@ -690,13 +694,30 @@ export const theme = createTheme({
     },
     MuiMenu: {
       styleOverrides: {
+        paper: {
+          borderRadius: '1rem',
+          backgroundColor: surfaceLevels.s2,
+          border: '1px solid #252525',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+          backgroundImage: 'none',
+        },
+        list: {
+          padding: '0.375rem',
+          display: 'flex',
+          flexDirection: 'column',
+        },
+      },
+    },
+    MuiMenuItem: {
+      styleOverrides: {
         root: {
-          '& .MuiMenu-paper': {
-            borderRadius: '0.75rem',
-            background: surfaceLevels.s2,
-            backgroundImage: 'none',
-            width: '25rem',
-            marginTop: '0.375rem',
+          borderRadius: '0.5rem',
+          padding: '0.375rem 0.75rem',
+          minHeight: '2.25rem',
+          backgroundColor: 'transparent',
+          transition: 'background-color 0.2s',
+          '&:hover, &.Mui-focusVisible, &.Mui-selected, &.Mui-selected:hover': {
+            backgroundColor: surfaceLevels.s3,
           },
         },
       },
@@ -801,9 +822,9 @@ export const theme = createTheme({
         root: {
           padding: '0.375rem',
           '& .custom-checkbox': {
-            width: '12px',
-            height: '12px',
-            outline: '2px solid #252525',
+            width: '16px',
+            height: '16px',
+            border: '2px solid #252525',
             borderRadius: '0.25rem',
             backgroundColor: 'transparent',
             transition: 'all 0.15s ease',
@@ -811,7 +832,7 @@ export const theme = createTheme({
           },
           '& .custom-checkbox--checked': {
             backgroundColor: primaryColor,
-            outlineColor: primaryColor,
+            borderColor: primaryColor,
             '&::after': {
               content: '""',
               position: 'absolute',
