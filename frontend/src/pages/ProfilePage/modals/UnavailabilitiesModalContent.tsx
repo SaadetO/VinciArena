@@ -15,9 +15,14 @@ const datePickerSx: SxProps<Theme> = {
     alignItems: 'center',
   },
   '& .MuiPickersInputBase-root': {
-    borderRadius: '0.5rem',
+    borderRadius: '0.75rem',
     fontSize: '1rem',
     letterSpacing: '0.25%',
+    backgroundColor: (theme: Theme) => theme.palette.background.s3,
+  },
+  '& .MuiPickersOutlinedInput-notchedOutline': {
+    border: '1px solid',
+    borderColor: 'none',
   },
   '& .MuiButtonBase-root': {
     width: '2rem',
