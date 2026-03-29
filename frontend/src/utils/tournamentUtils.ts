@@ -15,8 +15,8 @@ export interface YearGroup {
 
 export interface TournamentFilters {
   searchQuery: string;
-  teams: string[];
-  members: string[];
+  teams: number[];
+  members: number[];
   timeFrame: 'past' | 'current' | 'future';
 }
 

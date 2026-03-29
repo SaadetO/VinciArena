@@ -137,7 +137,7 @@ export const LoginPage = () => {
               }
               label="Se souvenir de moi"
               sx={{
-                pl: '0.5rem',
+                p: '0.25rem 0.5rem 0',
                 color: 'text.secondary',
               }}
             />

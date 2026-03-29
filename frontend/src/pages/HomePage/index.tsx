@@ -22,8 +22,12 @@ export const HomePage = () => {
 
   useEffect(() => {
     setTournaments([]);
-    getAll(filters.timeFrame);
-  }, [getAll, filters.timeFrame]);
+    getAll({
+      timeframe: filters.timeFrame,
+      members: filters.members.length > 0 ? filters.members : undefined,
+      teams: filters.teams.length > 0 ? filters.teams : undefined,
+    });
+  }, [getAll, filters.timeFrame, filters.members, filters.teams]);
 
   // Group tournaments by year and then month, filtering by search locally
   const groupedTournaments = useMemo(() => {
