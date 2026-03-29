@@ -21,8 +21,7 @@ const datePickerSx: SxProps<Theme> = {
     backgroundColor: (theme: Theme) => theme.palette.background.s3,
   },
   '& .MuiPickersOutlinedInput-notchedOutline': {
-    border: '1px solid',
-    borderColor: 'none',
+    border: 'none',
   },
   '& .MuiButtonBase-root': {
     width: '2rem',
