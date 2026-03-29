@@ -16,12 +16,14 @@ export const NotificationItem = ({ notification }: Props) => {
   const { handleNotificationClick } = useContext(NotificationContext);
   const { markAsRead } = useNotifications();
 
+  // Logic: Only clickable if it has a reference ID
   const isClickable = !!notification.idReference;
 
   if (!authenticatedUser) return null;
 
   return (
     <ListItem
+      //  only trigger if there is a destination
       onClick={
         isClickable ? () => handleNotificationClick(notification) : undefined
       }
@@ -30,7 +32,10 @@ export const NotificationItem = ({ notification }: Props) => {
         transition: 'all 0.2s ease-in-out',
         backgroundColor: (theme) =>
           notification.isRead ? 'transparent' : theme.palette.background.s3,
+
+        // opacity for read vs unread
         opacity: notification.isRead ? 0.8 : 1,
+
         cursor: isClickable ? 'pointer' : 'default',
         '&:hover': {
           backgroundColor: (theme) =>
@@ -49,6 +54,7 @@ export const NotificationItem = ({ notification }: Props) => {
               size="small"
               color="primary"
               onClick={(e) => {
+                // stops bubbling
                 e.stopPropagation();
                 markAsRead(notification.idNotification);
               }}
@@ -60,20 +66,27 @@ export const NotificationItem = ({ notification }: Props) => {
       }
     >
       <ListItemText
-        primary={
-          <span style={{ whiteSpace: 'pre-line' }}>{notification.content}</span>
-        }
+        primary={notification.content}
         secondary={formatRelativeTime(notification.dateTime)}
         slotProps={{
           primary: {
             variant: 'h5',
-            fontWeight: notification.isRead ? 400 : 800,
+            color: notification.isRead ? 'text.secondary' : 'text.primary',
+            sx: {
+              textOverflow: 'ellipsis',
+              overflow: 'hidden',
+              whiteSpace: 'nowrap',
+              fontWeight: notification.isRead ? 400 : 800,
+            },
           },
           secondary: {
             variant: 'body2',
             sx: {
               color: 'text.disabled',
-              mt: 0.5,
+              textOverflow: 'ellipsis',
+              overflow: 'hidden',
+              whiteSpace: 'nowrap',
+              mt: 0.5, // separate time and content
             },
           },
         }}

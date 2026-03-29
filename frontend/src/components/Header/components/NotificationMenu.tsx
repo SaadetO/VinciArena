@@ -28,34 +28,6 @@ export const NotificationMenu = () => {
     setMenuPosition(null);
   };
 
-  // TRI (récent → ancien)
-  const sortedNotifications = [...unreadNotifications].sort(
-    (a, b) => new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime(),
-  );
-
-  // GROUPES
-  const today = new Date();
-
-  const isToday = (date: Date) => date.toDateString() === today.toDateString();
-
-  const isYesterday = (date: Date) => {
-    const yesterday = new Date();
-    yesterday.setDate(today.getDate() - 1);
-    return date.toDateString() === yesterday.toDateString();
-  };
-
-  const todayNotifs = sortedNotifications.filter((n) =>
-    isToday(new Date(n.dateTime)),
-  );
-
-  const yesterdayNotifs = sortedNotifications.filter((n) =>
-    isYesterday(new Date(n.dateTime)),
-  );
-
-  const olderNotifs = sortedNotifications.filter(
-    (n) => !isToday(new Date(n.dateTime)) && !isYesterday(new Date(n.dateTime)),
-  );
-
   return (
     <>
       <IconButton
@@ -95,6 +67,9 @@ export const NotificationMenu = () => {
           alignItems="center"
           minWidth="15rem"
           padding="0.5rem 1.5rem 0.875rem 1.5rem"
+          sx={{
+            outline: 'none',
+          }}
         >
           <Typography variant="h4">Notifications</Typography>
           <Button
@@ -111,7 +86,7 @@ export const NotificationMenu = () => {
 
         <Divider />
 
-        {sortedNotifications.length === 0 ? (
+        {unreadNotifications.length === 0 ? (
           <Stack padding="2rem 1.5rem" spacing="0.25rem" alignItems="center">
             <Typography variant="h5" textAlign="center">
               Rien à signaler !
@@ -127,62 +102,12 @@ export const NotificationMenu = () => {
           </Stack>
         ) : (
           <Stack divider={<Divider />}>
-            {/* AUJOURD'HUI */}
-            {todayNotifs.length > 0 && (
-              <>
-                <Typography
-                  sx={{ px: 2, pt: 1 }}
-                  variant="body2"
-                  color="text.secondary"
-                >
-                  Aujourd'hui
-                </Typography>
-                {todayNotifs.map((notif) => (
-                  <NotificationItem
-                    key={notif.idNotification}
-                    notification={notif}
-                  />
-                ))}
-              </>
-            )}
-
-            {/* HIER */}
-            {yesterdayNotifs.length > 0 && (
-              <>
-                <Typography
-                  sx={{ px: 2, pt: 1 }}
-                  variant="body2"
-                  color="text.secondary"
-                >
-                  Hier
-                </Typography>
-                {yesterdayNotifs.map((notif) => (
-                  <NotificationItem
-                    key={notif.idNotification}
-                    notification={notif}
-                  />
-                ))}
-              </>
-            )}
-
-            {/* AVANT */}
-            {olderNotifs.length > 0 && (
-              <>
-                <Typography
-                  sx={{ px: 2, pt: 1 }}
-                  variant="body2"
-                  color="text.secondary"
-                >
-                  Plus ancien
-                </Typography>
-                {olderNotifs.map((notif) => (
-                  <NotificationItem
-                    key={notif.idNotification}
-                    notification={notif}
-                  />
-                ))}
-              </>
-            )}
+            {unreadNotifications.map((notif) => (
+              <NotificationItem
+                key={notif.idNotification}
+                notification={notif}
+              />
+            ))}
           </Stack>
         )}
       </Menu>
