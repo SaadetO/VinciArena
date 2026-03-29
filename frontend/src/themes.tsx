@@ -475,6 +475,16 @@ export const theme = createTheme({
         },
       },
     },
+    MuiInputBase: {
+      styleOverrides: {
+        root: {
+          fontSize: '1rem',
+          '& input::placeholder': {
+            color: '#8C8C8C',
+          },
+        },
+      },
+    },
     MuiTextField: {
       defaultProps: {
         variant: 'outlined',
