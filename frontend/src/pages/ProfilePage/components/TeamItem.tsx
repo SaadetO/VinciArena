@@ -138,7 +138,28 @@ export const TeamItem = ({ user, setUser }: TeamItemProps) => {
             Authorization: authenticatedUser?.token ?? '',
           },
         });
-        if (!response.ok) throw new Error('Erreur lors du départ de la team.');
+        if (!response.ok){
+          setUser((prev) => (prev ? { ...prev, team: previousTeam } : prev));
+          
+          if(response.status === 400){
+            showSnackbar({
+              message: "Vous ne faite partie d'aucune équipe, impossible d'en quitter une.",
+              severity: 'error',
+            });
+          } else if (response.status === 409) {
+            showSnackbar({
+              message: "Vous êtes la/le seul.e responsable de l'équipe. Veuillez en nommer un.e second.e avant de quitter.",
+              severity: "error",
+            });
+          } else {
+            showSnackbar({
+              message: "Une erreur est survenue en quittant l'équipe.",
+              severity: "error",
+            });
+          }
+
+          return;
+        }
         showSnackbar({
           message: "Vous avez quitté l'équipe avec succès.",
           severity: 'success',
