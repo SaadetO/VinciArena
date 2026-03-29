@@ -1,4 +1,4 @@
-import { Button } from "@mui/material"
+import { Button } from '@mui/material';
 
 interface TournamentTabProps {
   selected: 'past' | 'current' | 'future';
@@ -7,7 +7,12 @@ interface TournamentTabProps {
   value: 'past' | 'current' | 'future';
 }
 
-export const TournamentTab = ({ selected, setSelected, label, value }: TournamentTabProps) => {
+export const TournamentTab = ({
+  selected,
+  setSelected,
+  label,
+  value,
+}: TournamentTabProps) => {
   return (
     <Button
       data-value={value}
@@ -25,5 +30,5 @@ export const TournamentTab = ({ selected, setSelected, label, value }: Tournamen
     >
       {label}
     </Button>
-  )
-}
+  );
+};
