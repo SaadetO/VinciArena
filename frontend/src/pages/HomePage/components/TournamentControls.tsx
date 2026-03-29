@@ -1,20 +1,17 @@
-import { Box, IconButton, Stack, InputBase } from '@mui/material';
+import { Box, IconButton, Stack, InputBase, Badge } from '@mui/material';
 import { useEffect, useRef, useState } from 'react';
 import { TournamentTab } from './TournamentTab';
 import { Search, Tune } from '@mui/icons-material';
+import { TournamentFilters } from '../../../utils/tournamentUtils';
 
 interface TournamentControlsProps {
-  selected: 'past' | 'current' | 'future';
-  setSelected: (selected: 'past' | 'current' | 'future') => void;
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
+  filters: TournamentFilters;
+  setFilters: (filters: TournamentFilters) => void;
 }
 
 export const TournamentControls = ({
-  selected,
-  setSelected,
-  searchQuery,
-  setSearchQuery,
+  filters,
+  setFilters,
 }: TournamentControlsProps) => {
   const [indicatorStyle, setIndicatorStyle] = useState({
     left: 0,
@@ -27,7 +24,7 @@ export const TournamentControls = ({
   useEffect(() => {
     if (!containerRef.current) return;
     const selectedEl = containerRef.current.querySelector(
-      `button[data-value="${selected}"]`,
+      `button[data-value="${filters.timeFrame}"]`,
     ) as HTMLButtonElement | null;
 
     if (selectedEl) {
@@ -38,7 +35,7 @@ export const TournamentControls = ({
         height: selectedEl.offsetHeight,
       });
     }
-  }, [selected]);
+  }, [filters.timeFrame]);
 
   return (
     <Stack
@@ -82,20 +79,20 @@ export const TournamentControls = ({
           />
         )}
         <TournamentTab
-          selected={selected}
-          setSelected={setSelected}
+          selected={filters.timeFrame}
+          setSelected={(value) => setFilters({ ...filters, timeFrame: value })}
           label="À venir"
           value="future"
         />
         <TournamentTab
-          selected={selected}
-          setSelected={setSelected}
+          selected={filters.timeFrame}
+          setSelected={(value) => setFilters({ ...filters, timeFrame: value })}
           label="En cours"
           value="current"
         />
         <TournamentTab
-          selected={selected}
-          setSelected={setSelected}
+          selected={filters.timeFrame}
+          setSelected={(value) => setFilters({ ...filters, timeFrame: value })}
           label="Passés"
           value="past"
         />
@@ -114,17 +111,21 @@ export const TournamentControls = ({
             },
           }}
           placeholder="Rechercher..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          value={filters.searchQuery}
+          onChange={(e) =>
+            setFilters({ ...filters, searchQuery: e.target.value })
+          }
           endAdornment={
             <Stack p="0.25rem">
               <Search sx={{ color: 'text.secondary' }} />
             </Stack>
           }
         />
-        <IconButton size="medium">
-          <Tune sx={{ color: 'text.secondary' }} />
-        </IconButton>
+        <Badge badgeContent={1} color="primary" overlap="circular">
+          <IconButton size="medium" color="secondary">
+            <Tune sx={{ color: 'text.secondary' }} />
+          </IconButton>
+        </Badge>
       </Stack>
     </Stack>
   );

@@ -235,7 +235,7 @@ export const theme = createTheme({
           textTransform: 'none',
           fontWeight: '600',
           fontSize: '0.875rem',
-          borderRadius: '0.75rem',
+          borderRadius: '0.5rem',
           '& .MuiChip-label': {
             padding: '0',
           },
@@ -265,8 +265,8 @@ export const theme = createTheme({
           },
         },
         deleteIcon: {
-          width: '1.5rem',
-          height: '1.5rem',
+          width: '1.125rem',
+          height: '1.125rem',
           marginLeft: '0.5rem',
           marginRight: '-0.25rem',
           color: '#8C8C8C',
@@ -653,6 +653,17 @@ export const theme = createTheme({
           fontWeight: 'bold',
         },
       },
+      variants: [
+        {
+          props: { overlap: 'circular' },
+          style: {
+            '& .MuiBadge-badge': {
+              top: '12.5%',
+              right: '12.5%',
+            },
+          },
+        },
+      ],
     },
     MuiAlert: {
       defaultProps: {

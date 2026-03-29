@@ -13,6 +13,13 @@ export interface YearGroup {
   monthsData: MonthGroup[];
 }
 
+export interface TournamentFilters {
+  searchQuery: string;
+  teams: string[];
+  members: string[];
+  timeFrame: 'past' | 'current' | 'future';
+}
+
 /**
  * Groups tournaments by year and month.
  * @param {TournamentDto[]} tournaments The tournaments to group.
