@@ -54,13 +54,14 @@ const surfaceLevels = {
   s4: '#262626',
 };
 
+const primaryColor = '#0088F6';
+
 export const theme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#00C8FF',
-      contrastText: '#111111',
-      dark: 'hsla(193, 100%, 40%, 1)',
+      main: primaryColor,
+      contrastText: '#FFFFFF',
     },
     success: {
       main: '#4CE59B',
@@ -182,12 +183,12 @@ export const theme = createTheme({
           },
         },
         containedPrimary: {
-          color: '#111111',
+          color: '#FFFFFF',
           '&:hover': {
-            background: 'color-mix(in srgb, #00C8FF 60%, #FFFFFF 40%)',
+            background: `color-mix(in srgb, ${primaryColor} 60%, #FFFFFF 40%)`,
           },
           '&:active': {
-            background: 'color-mix(in srgb, #00C8FF 40%, #FFFFFF 60%)',
+            background: `color-mix(in srgb, ${primaryColor} 40%, #FFFFFF 60%)`,
           },
         },
         containedSecondary: {
@@ -236,6 +237,7 @@ export const theme = createTheme({
           fontWeight: '600',
           fontSize: '0.875rem',
           borderRadius: '0.5rem',
+          flexShrink: 0,
           '& .MuiChip-label': {
             padding: '0',
           },
@@ -288,8 +290,8 @@ export const theme = createTheme({
           color: '#FFFFFF',
         },
         colorPrimary: {
-          background: 'color-mix(in srgb, #00C8FF 10%, transparent)',
-          color: '#00C8FF',
+          background: `color-mix(in srgb, ${primaryColor} 10%, transparent)`,
+          color: primaryColor,
         },
         colorSuccess: {
           background: 'color-mix(in srgb, #4CE59B 10%, transparent)',
@@ -324,8 +326,8 @@ export const theme = createTheme({
         {
           props: { variant: 'active' },
           style: {
-            border: '2px solid #00C8FF',
-            color: '#00C8FF',
+            border: `2px solid ${primaryColor}`,
+            color: primaryColor,
           },
         },
         {
@@ -498,7 +500,8 @@ export const theme = createTheme({
             marginRight: '-0.375rem',
           },
           '& .MuiInputBase-root': {
-            borderRadius: '0.5rem',
+            borderRadius: '0.75rem',
+            backgroundColor: surfaceLevels.s3,
           },
           '& .MuiInputBase-input': {
             height: '3rem',
@@ -508,7 +511,7 @@ export const theme = createTheme({
             color: '#FFFFFF',
           },
           '& .MuiOutlinedInput-notchedOutline': {
-            border: '1px solid #252525',
+            border: 'none',
           },
           '& input::placeholder': {
             color: '#8C8C8C',
@@ -596,9 +599,37 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           '& .MuiOutlinedInput-root': {
-            padding: '0 0 0 1rem',
+            padding: '0.375rem 3rem 0.375rem 0.375rem',
+            flexWrap: 'wrap',
+            gap: '0.375rem',
             '& .MuiAutocomplete-input': {
-              padding: '0',
+              padding: '0 0.5rem',
+              height: 'auto',
+              minHeight: '2.25rem',
+              minWidth: '50px',
+              flex: 1,
+            },
+            '& .MuiChip-root:first-of-type': {
+              marginLeft: '0.25rem',
+            },
+            '& .MuiChip-root': {
+              margin: 0,
+              width: 'fit-content',
+              height: '1.75rem',
+              padding: '0.5rem',
+              background: surfaceLevels.s4,
+              marginTop: '0.25rem',
+              marginBottom: '0.25rem',
+              color: '#FFFFFF',
+              '& .MuiChip-avatar': {
+                width: '1.25rem',
+                height: '1.25rem',
+              },
+              '& .MuiChip-deleteIconSmall': {
+                width: '1rem',
+                height: '1rem',
+                marginRight: '-0.25rem',
+              },
             },
           },
           '& .MuiButtonBase-root': {
@@ -608,6 +639,51 @@ export const theme = createTheme({
           },
           '& .MuiButtonBase-root:last-child': {
             color: '#8C8C8C',
+          },
+        },
+        popper: {
+          '&[data-popper-placement*="bottom"] .MuiAutocomplete-paper': {
+            marginTop: '0.375rem',
+          },
+          '&[data-popper-placement*="top"] .MuiAutocomplete-paper': {
+            marginBottom: '0.375rem',
+          },
+        },
+        paper: {
+          borderRadius: '1.25rem',
+          backgroundColor: surfaceLevels.s2,
+          border: '1px solid #252525',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+          backgroundImage: 'none',
+        },
+        listbox: {
+          padding: '0.5rem',
+          display: 'flex',
+          flexDirection: 'column',
+          '& .MuiAutocomplete-option': {
+            borderRadius: '0.75rem',
+            padding: '0.25rem 0.5rem',
+            minHeight: '2.5rem',
+            '&[aria-selected="true"]': {
+              backgroundColor: 'transparent !important',
+              position: 'relative',
+              '&::after': {
+                content: '""',
+                position: 'absolute',
+                right: '1rem',
+                top: '50%',
+                transform: 'translateY(-60%) rotate(45deg)',
+                width: '5px',
+                height: '9px',
+                border: '2px solid #FFFFFF',
+                borderTop: 'none',
+                borderLeft: 'none',
+              },
+            },
+            '&.Mui-focused, &.Mui-focusVisible, &:hover, &[aria-selected="true"].Mui-focused, &[aria-selected="true"].Mui-focusVisible, &[aria-selected="true"]:hover':
+              {
+                backgroundColor: surfaceLevels.s3 + ' !important',
+              },
           },
         },
       },
@@ -714,9 +790,54 @@ export const theme = createTheme({
       },
     },
     MuiCheckbox: {
+      defaultProps: {
+        disableRipple: true,
+        icon: <span className="custom-checkbox" />,
+        checkedIcon: (
+          <span className="custom-checkbox custom-checkbox--checked" />
+        ),
+      },
       styleOverrides: {
         root: {
-          color: '#252525',
+          padding: '0.375rem',
+          '& .custom-checkbox': {
+            width: '12px',
+            height: '12px',
+            outline: '2px solid #252525',
+            borderRadius: '0.25rem',
+            backgroundColor: 'transparent',
+            transition: 'all 0.15s ease',
+            position: 'relative',
+          },
+          '& .custom-checkbox--checked': {
+            backgroundColor: primaryColor,
+            outlineColor: primaryColor,
+            '&::after': {
+              content: '""',
+              position: 'absolute',
+              width: '5px',
+              height: '9px',
+              border: '2px solid #FFFFFF',
+              borderTop: 'none',
+              borderLeft: 'none',
+              transform: 'translate(-50%, -60%) rotate(45deg)',
+              top: '50%',
+              left: '50%',
+            },
+          },
+        },
+      },
+    },
+    MuiTooltip: {
+      styleOverrides: {
+        tooltip: {
+          backgroundColor: surfaceLevels.s2,
+          color: '#FFFFFF',
+          borderRadius: '0.75rem',
+          padding: '0.25rem 0.75rem',
+        },
+        arrow: {
+          color: surfaceLevels.s2,
         },
       },
     },
