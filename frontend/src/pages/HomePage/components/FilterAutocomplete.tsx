@@ -31,6 +31,7 @@ export const FilterAutocomplete = <T,>({
   return (
     <Autocomplete
       multiple
+      disableCloseOnSelect
       loading={loading}
       loadingText="Chargement..."
       options={options}
@@ -91,7 +92,10 @@ export const FilterAutocomplete = <T,>({
         );
       }}
       renderInput={(params) => (
-        <TextField {...params} placeholder={placeholder} />
+        <TextField
+          {...params}
+          placeholder={value.length === 0 ? placeholder : ''}
+        />
       )}
     />
   );
