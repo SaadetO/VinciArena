@@ -88,7 +88,7 @@ export const FilterModalContent = ({
         value={selectedTeams}
         onChange={setSelectedTeams}
         loading={isLoadingTeams}
-        placeholder="Rechercher une équipe..."
+        placeholder="Filtrer par équipes"
         getOptionLabel={(team) => team.name}
         getOptionId={(team) => team.idTeam}
       />
@@ -97,7 +97,7 @@ export const FilterModalContent = ({
         value={selectedMembers}
         onChange={setSelectedMembers}
         loading={isLoadingMembers}
-        placeholder="Rechercher un membre..."
+        placeholder="Filtrer par membres"
         getOptionLabel={(member) => member.tag}
         getOptionId={(member) => member.id}
         getOptionAvatar={(member) => member.avatar ?? undefined}
