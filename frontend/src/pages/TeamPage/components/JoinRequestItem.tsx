@@ -1,10 +1,8 @@
 import { Avatar, Button, Stack, Typography } from '@mui/material';
 import { TeamDetailsInfoDto, JoinRequestDto } from '../../../types';
-import { useContext, useState } from 'react';
-import { UserContext } from '../../../contexts/UserContext';
-import { useSnackbar } from '../../../hooks/useSnackbar';
-import { useModal } from '../../../hooks/useModal';
 import { joinRequestRejectModal } from '../../ProfilePage/modals/joinRequestRejectModal';
+import { useJoinRequests } from '../../../hooks/useJoinRequests';
+import { useModal } from '../../../hooks/useModal';
 
 export const JoinRequestItem = ({
   joinRequest,
@@ -13,77 +11,19 @@ export const JoinRequestItem = ({
   joinRequest: JoinRequestDto;
   setTeam: React.Dispatch<React.SetStateAction<TeamDetailsInfoDto | undefined>>;
 }) => {
-  const { showSnackbar } = useSnackbar();
-  const { authenticatedUser } = useContext(UserContext);
-  const [isLoading, setIsLoading] = useState(false);
+  const { updateJoinRequestStatus, isUpdatingJoinRequest } = useJoinRequests({
+    setTeam,
+  });
   const { openModal } = useModal();
 
   const handleAction = async (
     status: 'ACCEPTED' | 'REJECTED',
-    successMsg: string,
-    rejectionReason?: string,
+    reason?: string,
   ) => {
-    setIsLoading(true);
-
-    let previousTeam: TeamDetailsInfoDto | undefined;
-
-    setTeam((prev) => {
-      if (!prev) return prev;
-      previousTeam = { ...prev };
-
-      const updatedRequests = (prev.joinRequests ?? []).filter(
-        (jr) => jr.idJoinRequest !== joinRequest.idJoinRequest,
-      );
-
-      const updatedMembers =
-        status === 'ACCEPTED'
-          ? [
-              ...(prev.members ?? []),
-              { ...joinRequest.requester, role: 'MEMBER' },
-            ]
-          : (prev.members ?? []);
-
-      return {
-        ...prev,
-        joinRequests: updatedRequests,
-        members: updatedMembers,
-      };
-    });
-
-    try {
-      const response = await fetch(
-        `/api/teams/join-requests/${joinRequest.idJoinRequest}`,
-        {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: authenticatedUser?.token ?? '',
-          },
-          body: JSON.stringify({
-            status,
-            rejectionReason,
-          }),
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error('Une erreur est survenue.');
-      }
-
-      showSnackbar({ message: successMsg, severity: 'success' });
-    } catch (err: unknown) {
-      setTeam(previousTeam);
-      showSnackbar({
-        message:
-          err instanceof Error ? err.message : 'Une erreur est survenue.',
-        severity: 'error',
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    await updateJoinRequestStatus(joinRequest, status, reason);
   };
 
-  const handleAccept = () => handleAction('ACCEPTED', 'Demande acceptée !');
+  const handleAccept = () => handleAction('ACCEPTED');
 
   const handleDeny = () => {
     let selectedReason: string | null = null;
@@ -96,7 +36,7 @@ export const JoinRequestItem = ({
       if (!selectedReason) return;
 
       close();
-      handleAction('REJECTED', 'Demande refusée.', selectedReason);
+      handleAction('REJECTED', selectedReason);
     };
 
     openModal(joinRequestRejectModal({ onSelect, onConfirm }));
@@ -129,7 +69,7 @@ export const JoinRequestItem = ({
             variant="contained"
             color="secondary"
             size="small"
-            disabled={isLoading}
+            disabled={isUpdatingJoinRequest}
           >
             Accepter
           </Button>
@@ -138,7 +78,7 @@ export const JoinRequestItem = ({
             variant="contained"
             color="secondary"
             size="small"
-            disabled={isLoading}
+            disabled={isUpdatingJoinRequest}
           >
             Refuser
           </Button>
