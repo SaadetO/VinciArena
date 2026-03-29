@@ -2,7 +2,6 @@ package be.vinci.ipl.cae.demo.services;
 
 import be.vinci.ipl.cae.demo.models.dtos.NewTournament;
 import be.vinci.ipl.cae.demo.models.entities.MatchLineup;
-import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.models.entities.Tournament;
 import be.vinci.ipl.cae.demo.models.entities.TournamentStatus;
@@ -72,10 +71,11 @@ public class TournamentService {
 
     Set<Long> tournamentIdsFromMembers = new HashSet<>();
     if (membersIds != null && !membersIds.isEmpty()) {
-      Iterable<MatchLineup> matchLineups = matchLineupRepository.findByMembers_IdMemberIn(
+      Iterable<MatchLineup> matchLineups = matchLineupRepository.findByMembersIdMemberIn(
           membersIds);
-      for (MatchLineup matchLineup : matchLineups)
+      for (MatchLineup matchLineup : matchLineups) {
         tournamentIdsFromMembers.add(matchLineup.getMatch().getTournament().getIdTournament());
+      }
     }
 
     boolean hasTeamFilter = teamsIds != null && !teamsIds.isEmpty();
@@ -98,10 +98,11 @@ public class TournamentService {
         );
         default -> tournamentRepository.findAllByOrderByStartDateDesc();
       };
-      }
+    }
 
-    if (!hasFilters)
+    if (!hasFilters) {
       return allTournaments;
+    }
 
     // Additional filtering
     List<Tournament> result = new ArrayList<>();
@@ -109,13 +110,15 @@ public class TournamentService {
       boolean matchMember = tournamentIdsFromMembers.contains(t.getIdTournament());
       boolean matchTeam = false;
       for (Team team : t.getTeams()) {
-        if (filteredTeamIds.contains(team.getIdTeam())){
+        if (filteredTeamIds.contains(team.getIdTeam())) {
           matchTeam = true;
           break;
         }
       }
 
-      if (matchTeam || matchMember) result.add(t);
+      if (matchTeam || matchMember) {
+        result.add(t);
+      }
     }
 
     return result;
