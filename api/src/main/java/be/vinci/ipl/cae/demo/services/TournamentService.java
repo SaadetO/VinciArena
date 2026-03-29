@@ -74,26 +74,28 @@ public class TournamentService {
    * @param currentMember the current member
    * @return the updated team if it has been updated, null otherwise.
    */
-  public Tournament updateTournament(Long tournamentId, NewTournament newTournament, Member currentMember) {
+  public Tournament updateTournament(
+      Long tournamentId, NewTournament newTournament, Member currentMember
+  ) {
     Tournament tournament = tournamentRepository.findById(tournamentId).orElse(null);
 
-    if(tournament == null) {
+    if (tournament == null) {
       return null;
     }
 
-    if(tournament.getTournamentStatus() != TournamentStatus.IN_PREPARATION) {
+    if (tournament.getTournamentStatus() != TournamentStatus.IN_PREPARATION) {
       return null;
     }
 
-    if(!currentMember.isAdmin()) {
+    if (!currentMember.isAdmin()) {
       return null;
     }
 
-    if(newTournament.name() != null) {
+    if (newTournament.name() != null) {
       tournament.setName(newTournament.name());
     }
 
-    if(newTournament.description() != null) {
+    if (newTournament.description() != null) {
       tournament.setDescription(newTournament.description());
     }
 
@@ -101,15 +103,15 @@ public class TournamentService {
       tournament.setStartDate(newTournament.startDate());
     }
 
-    if(newTournament.endDate() != null) {
+    if (newTournament.endDate() != null) {
       tournament.setEndDate(newTournament.endDate());
     }
 
-    if(newTournament.nbMaxOfTeams() != tournament.getMaxNbOfTeams()) {
+    if (newTournament.nbMaxOfTeams() != tournament.getMaxNbOfTeams()) {
       tournament.setMaxNbOfTeams(newTournament.nbMaxOfTeams());
     }
 
-    if(newTournament.registrationDeadline() != null) {
+    if (newTournament.registrationDeadline() != null) {
       tournament.setRegistrationDeadline(newTournament.registrationDeadline());
     }
 

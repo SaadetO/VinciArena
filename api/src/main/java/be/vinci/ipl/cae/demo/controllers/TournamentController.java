@@ -97,9 +97,9 @@ public class TournamentController {
    * The update is only possible if the tournament's status is IN_PREPARATION
    * and the member is an admin.
    *
-   * @param id
-   * @param newTournament
-   * @param currentMember
+   * @param id the tournament id.
+   * @param newTournament the new tournament data.
+   * @param currentMember the current member.
    * @return the updated tournament
    */
   @PutMapping("/{id}")
@@ -114,7 +114,7 @@ public class TournamentController {
     Tournament updatedTournament =
         tournamentService.updateTournament(id, newTournament, currentMember);
 
-    if(updatedTournament == null) {
+    if (updatedTournament == null) {
       throw  new ResponseStatusException(HttpStatus.CONFLICT, "Tournament cannot be updated");
     }
 
