@@ -12,6 +12,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -89,6 +90,35 @@ public class TournamentController {
     }
 
     return createdTournament;
+  }
+
+  /**
+   * Updates a tournament in the system.
+   * The update is only possible if the tournament's status is IN_PREPARATION
+   * and the member is an admin.
+   *
+   * @param id
+   * @param newTournament
+   * @param currentMember
+   * @return the updated tournament
+   */
+  @PutMapping("/{id}")
+  @PreAuthorize("hasRole('ADMIN')")
+  public Tournament updateTournament(
+      @PathVariable Long id,
+      @RequestBody NewTournament newTournament,
+      @AuthenticationPrincipal Member currentMember
+  ) {
+    validateNewTournament(newTournament, currentMember);
+
+    Tournament updatedTournament =
+        tournamentService.updateTournament(id, newTournament, currentMember);
+
+    if(updatedTournament == null) {
+      throw  new ResponseStatusException(HttpStatus.CONFLICT, "Tournament cannot be updated");
+    }
+
+    return updatedTournament;
   }
 
   private void validateNewTournament(NewTournament dto, Member currentMember) {
