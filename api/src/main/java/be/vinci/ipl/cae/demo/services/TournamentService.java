@@ -86,6 +86,7 @@ public class TournamentService {
   /**
    * Determines the next status for a tournament based on its current state and timeline.
    * * @param t The tournament to evaluate
+   *
    * @return The calculated TournamentStatus
    */
   private TournamentStatus determineNewStatus(Tournament t) {
