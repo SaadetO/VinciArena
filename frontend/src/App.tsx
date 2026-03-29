@@ -16,6 +16,7 @@ export const App = () => {
           display: 'flex',
           flexDirection: 'column',
           flex: 1,
+          overflowY: 'auto',
         }}
       >
         <Outlet context={mainContext} />

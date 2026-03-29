@@ -7,15 +7,15 @@ import {
   Typography,
 } from '@mui/material';
 import { Add, ArrowOutward } from '@mui/icons-material';
-import { Dispatch, SetStateAction, useContext } from 'react';
+import { Dispatch, SetStateAction } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ProfileInfoDto, Team } from '../../../types';
-import { UserContext } from '../../../contexts/UserContext';
 import { useModal } from '../../../hooks/useModal';
-import { useSnackbar } from '../../../hooks/useSnackbar';
 import { createTeamModal } from '../modals/createTeamModal';
 import { joinTeamModal } from '../modals/joinTeamModal';
 import { quitConfirmationModal } from '../modals/quitConfirmationModal';
+import { useTeams } from '../../../hooks/useTeams';
+import { useJoinRequests } from '../../../hooks/useJoinRequests';
 
 interface TeamItemProps {
   user?: ProfileInfoDto;
@@ -24,9 +24,9 @@ interface TeamItemProps {
 
 export const TeamItem = ({ user, setUser }: TeamItemProps) => {
   const navigate = useNavigate();
-  const { authenticatedUser } = useContext(UserContext);
   const { openModal } = useModal();
-  const { showSnackbar } = useSnackbar();
+  const { createTeam, quitTeam } = useTeams({ setUser });
+  const { createJoinRequest } = useJoinRequests();
 
   const handleJoin = () => {
     let selectedTeam: Team | null = null;
@@ -37,30 +37,7 @@ export const TeamItem = ({ user, setUser }: TeamItemProps) => {
       const idTeam = selectedTeam?.idTeam;
       if (!idTeam) return;
       close();
-      try {
-        const response = await fetch(`/api/teams/${idTeam}/join-requests`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: authenticatedUser?.token ?? '',
-          },
-        });
-        if (!response.ok) {
-          throw new Error(
-            'Vous avez déjà une demande en attente pour cette équipe.',
-          );
-        }
-        showSnackbar({
-          message: 'Demande effectuée avec succès !',
-          severity: 'success',
-        });
-      } catch (err: unknown) {
-        showSnackbar({
-          message:
-            err instanceof Error ? err.message : 'Une erreur est survenue.',
-          severity: 'error',
-        });
-      }
+      await createJoinRequest(idTeam);
     };
     openModal(joinTeamModal({ onSelect, onConfirm }));
   };
@@ -72,47 +49,11 @@ export const TeamItem = ({ user, setUser }: TeamItemProps) => {
     };
     const onConfirm = async (close: () => void) => {
       if (!selectedName) return;
-      close();
-      const previousTeam = user?.team;
-      setUser((prev) =>
-        prev
-          ? { ...prev, team: { id: -1, name: selectedName!, isManager: true } }
-          : prev,
-      );
-      try {
-        const response = await fetch('/api/teams/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: authenticatedUser?.token ?? '',
-          },
-          body: JSON.stringify({ name: selectedName }),
-        });
-        if (!response.ok) {
-          if (response.status === 409)
-            throw new Error('Une équipe avec ce nom existe déjà');
-          throw new Error('Erreur lors de la création de la team.');
-        }
-        const createdTeam = await response.json();
-        const team = {
-          id: createdTeam.idTeam,
-          name: createdTeam.name,
-          isManager: true,
-        };
-        setUser((prev) => (prev ? { ...prev, team } : prev));
-        showSnackbar({
-          message: 'Team créée avec succès !',
-          severity: 'success',
-        });
-      } catch (err: unknown) {
-        setUser((prev) =>
-          prev ? { ...prev, team: previousTeam ?? null } : prev,
-        );
-        showSnackbar({
-          message:
-            err instanceof Error ? err.message : 'Une erreur est survenue.',
-          severity: 'error',
-        });
+
+      const createdTeam = await createTeam(selectedName);
+
+      if (createdTeam) {
+        close();
       }
     };
     openModal(createTeamModal({ onSelect, onConfirm }));
@@ -128,31 +69,7 @@ export const TeamItem = ({ user, setUser }: TeamItemProps) => {
     const onConfirm = async (close: () => void) => {
       close();
       if (!user?.team) return;
-      const previousTeam = user.team;
-      setUser((prev) => (prev ? { ...prev, team: null } : prev));
-      try {
-        const response = await fetch('/api/teams/quit', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: authenticatedUser?.token ?? '',
-          },
-        });
-        if (!response.ok) throw new Error('Erreur lors du départ de la team.');
-        showSnackbar({
-          message: "Vous avez quitté l'équipe avec succès.",
-          severity: 'success',
-        });
-      } catch (err) {
-        setUser((prev) => (prev ? { ...prev, team: previousTeam } : prev));
-        showSnackbar({
-          message:
-            err instanceof Error
-              ? err.message
-              : 'Une erreur est survenue en quittant la team.',
-          severity: 'error',
-        });
-      }
+      await quitTeam();
     };
     openModal(quitConfirmationModal({ onConfirm }));
   };

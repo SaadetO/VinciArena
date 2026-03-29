@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -40,13 +41,14 @@ public class TournamentController {
   }
 
   /**
-   * Get all tournaments.
+   * Get all tournaments, optionally filtered by timeframe.
    *
+   * @param timeframe past, current, or future.
    * @return the list of tournaments.
    */
   @GetMapping({"", "/"})
-  public Iterable<Tournament> getTournaments() {
-    return tournamentRepo.findAll();
+  public Iterable<Tournament> getTournaments(@RequestParam(required = false) String timeframe) {
+    return tournamentService.getTournaments(timeframe);
   }
 
   /**
@@ -61,12 +63,11 @@ public class TournamentController {
   }
 
   /**
-   * Creates a new tournament in the system.
-   * The tournament is initialized with the state IN_PREPARATION.
-   * Access is restricted to users with administrative privileges.
+   * Creates a new tournament in the system. The tournament is initialized with the state
+   * IN_PREPARATION. Access is restricted to users with administrative privileges.
    *
-   * @param newTournament  The DTO containing the initial tournament details.
-   * @param currentMember  The authenticated administrator creating the tournament.
+   * @param newTournament The DTO containing the initial tournament details.
+   * @param currentMember The authenticated administrator creating the tournament.
    * @return The created {@link Tournament} object with its generated ID.
    * @throws ResponseStatusException 400 if the input data is invalid.
    * @throws ResponseStatusException 401 if the user is not authenticated.
