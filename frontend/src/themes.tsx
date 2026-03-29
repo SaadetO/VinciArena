@@ -399,7 +399,7 @@ export const theme = createTheme({
         sizeMedium: {
           width: '2.75rem',
           height: '2.75rem',
-          borderRadius: '0.25rem',
+          borderRadius: '1.125rem',
         },
         sizeSmall: {
           width: '2rem',
@@ -472,6 +472,13 @@ export const theme = createTheme({
           '& .MuiSvgIcon-root': {
             color: '#8C8C8C',
           },
+        },
+      },
+    },
+    MuiInputBase: {
+      styleOverrides: {
+        root: {
+          fontSize: '1rem',
         },
       },
     },

@@ -1,15 +1,20 @@
-import { Box, Stack } from '@mui/material';
+import { Box, IconButton, Stack, InputBase } from '@mui/material';
 import { useEffect, useRef, useState } from 'react';
 import { TournamentTab } from './TournamentTab';
+import { Search, Tune } from '@mui/icons-material';
 
 interface TournamentControlsProps {
   selected: 'past' | 'current' | 'future';
   setSelected: (selected: 'past' | 'current' | 'future') => void;
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
 }
 
 export const TournamentControls = ({
   selected,
   setSelected,
+  searchQuery,
+  setSearchQuery,
 }: TournamentControlsProps) => {
   const [indicatorStyle, setIndicatorStyle] = useState({
     left: 0,
@@ -37,6 +42,7 @@ export const TournamentControls = ({
 
   return (
     <Stack
+      justifyContent="space-between"
       direction="row"
       bgcolor="background.s1"
       borderRadius="0 0 1.5rem 1.5rem"
@@ -93,6 +99,32 @@ export const TournamentControls = ({
           label="Passés"
           value="past"
         />
+      </Stack>
+      <Stack direction="row" alignItems="center" spacing="0.75rem">
+        <InputBase
+          sx={{
+            bgcolor: 'background.s2',
+            borderRadius: '1.125rem',
+            height: '2.75rem',
+            width: '12rem',
+            p: '0 0.375rem 0 1rem',
+            '&:focus-within': {
+              outline: '2px solid',
+              outlineColor: 'primary.main',
+            },
+          }}
+          placeholder="Rechercher..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          endAdornment={
+            <Stack p="0.25rem">
+              <Search sx={{ color: 'text.secondary' }} />
+            </Stack>
+          }
+        />
+        <IconButton size="medium">
+          <Tune sx={{ color: 'text.secondary' }} />
+        </IconButton>
       </Stack>
     </Stack>
   );
