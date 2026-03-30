@@ -617,16 +617,17 @@ export const theme = createTheme({
         root: {
           '&.Mui-focused:has(.MuiChip-root) .MuiAutocomplete-input:not(:placeholder-shown)':
             {
-              minWidth: '4rem !important',
+              minWidth: '5rem !important',
             },
-          '&.Mui-focused:has(.MuiChip-root) .MuiAutocomplete-input:placeholder-shown':
+          '&:has(.MuiChip-root) .MuiAutocomplete-input:placeholder-shown':
             {
               padding: '0 !important',
             },
           '& .MuiOutlinedInput-root': {
             padding: '0.375rem 3rem 0.375rem 0.375rem',
             flexWrap: 'wrap',
-            gap: '0.375rem',
+            rowGap: '0',
+            columnGap: '0.375rem',
             '& .MuiAutocomplete-input': {
               padding: '0 0.5rem',
               height: 'auto',
@@ -693,7 +694,7 @@ export const theme = createTheme({
             padding: '0.25rem 0.5rem',
             minHeight: '2.5rem',
             '&[aria-selected="true"]': {
-              backgroundColor: 'transparent !important',
+              background: 'none',
               position: 'relative',
               '&::after': {
                 content: '""',
@@ -708,9 +709,9 @@ export const theme = createTheme({
                 borderLeft: 'none',
               },
             },
-            '&.Mui-focused, &.Mui-focusVisible, &:hover, &[aria-selected="true"].Mui-focused, &[aria-selected="true"].Mui-focusVisible, &[aria-selected="true"]:hover':
+            '&.Mui-focused, &.Mui-focusVisible, &[aria-selected="true"].Mui-focused, &[aria-selected="true"].Mui-focusVisible':
               {
-                backgroundColor: surfaceLevels.s3 + ' !important',
+                backgroundColor: surfaceLevels.s3,
               },
           },
         },
