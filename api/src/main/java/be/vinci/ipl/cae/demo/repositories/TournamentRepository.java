@@ -31,4 +31,24 @@ public interface TournamentRepository extends CrudRepository<Tournament, Long> {
 
   List<Tournament> findAllByTournamentStatusIn(List<TournamentStatus> tournamentStatuses);
 
+
+  /**
+   * Get all tournaments where at least one of the given teams
+   * participates, from a certain date on.
+   */
+  Iterable<Tournament> findDistinctByTeamsIdTeamInOrderByStartDateDesc(Collection<Long> teamIds);
+
+  /**
+   * Get all tournaments of a certain status where at least one
+   * of the given teams participates, from a certain date on.
+   */
+  Iterable<Tournament> findDistinctByTeamsIdTeamInAndTournamentStatusOrderByStartDateDesc(
+      Collection<Long> teamIds, TournamentStatus status);
+
+  /**
+   * Get all tournaments not of a certain status where at least
+   * one of the given teams participates, from a certain date on.
+   */
+  Iterable<Tournament> findDistinctByTeamsIdTeamInAndTournamentStatusNotInOrderByStartDateDesc(
+      Collection<Long> teamIds, Collection<TournamentStatus> statuses);
 }

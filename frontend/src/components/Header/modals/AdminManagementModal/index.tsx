@@ -164,6 +164,7 @@ export const AdminManagementModal = ({
                       flexShrink: 0,
                       maxWidth: 'none',
                       width: 'fit-content !important',
+                      background: (theme) => theme.palette.background.s4,
                       color: (theme) =>
                         `${theme.palette.text.primary} !important`,
                     }}
@@ -181,6 +182,14 @@ export const AdminManagementModal = ({
                   <Menu
                     anchorEl={anchorEl}
                     open={Boolean(anchorEl)}
+                    anchorOrigin={{
+                      vertical: 'bottom',
+                      horizontal: 'right',
+                    }}
+                    transformOrigin={{
+                      vertical: 'top',
+                      horizontal: 'right',
+                    }}
                     sx={{
                       '& .MuiPaper-root': {
                         width: 'fit-content',

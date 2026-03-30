@@ -65,10 +65,9 @@ export const useTeams = (options?: UseTeamsOptions) => {
     },
   );
 
-  const { execute: getAll } = useApi(
+  const { execute: getAll, loading: isGettingAllTeams } = useApi(
     async () => {
       const response = await fetch('/api/teams', {
-        method: 'GET',
         headers: {
           Authorization: authenticatedUser?.token ?? '',
         },
@@ -277,6 +276,7 @@ export const useTeams = (options?: UseTeamsOptions) => {
     createTeam,
     quitTeam,
     promoteToManager,
+    isGettingAllTeams,
     isGettingTeam,
     isQuittingTeam,
   };

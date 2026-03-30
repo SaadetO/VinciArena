@@ -204,7 +204,7 @@ public class DemoApplication {
       t5.setDescription("Tournament currently in progress.");
       t5.setRegistrationDeadline(LocalDate.of(2026, 2, 1).atStartOfDay());
       t5.setStartDate(LocalDate.of(2026, 3, 20));
-      t5.setEndDate(LocalDate.of(2026, 3, 30));
+      t5.setEndDate(LocalDate.of(2026, 5, 30));
       t5.setTournamentStatus(TournamentStatus.IN_PROGRESS);
       t5.setMaxNbOfTeams(4);
       tournamentRepo.save(t5);

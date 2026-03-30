@@ -15,13 +15,13 @@ export const TournamentYearGroup = ({
     <Stack spacing="1rem">
       <Stack
         position="sticky"
-        top="0.5rem"
+        top="6.5rem"
         zIndex={1}
         bgcolor="background.s0"
         width="fit-content"
-        borderRadius="0.5rem"
-        padding="0.5rem"
-        ml="1rem !important"
+        borderRadius="0.75rem"
+        padding=" 0.5rem 1rem"
+        ml="0.75rem !important"
       >
         <Typography variant="h2">{year}</Typography>
       </Stack>

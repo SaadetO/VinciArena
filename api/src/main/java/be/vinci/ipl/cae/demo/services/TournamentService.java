@@ -1,12 +1,18 @@
 package be.vinci.ipl.cae.demo.services;
 
 import be.vinci.ipl.cae.demo.models.dtos.NewTournament;
+import be.vinci.ipl.cae.demo.models.entities.MatchLineup;
+import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.models.entities.Tournament;
 import be.vinci.ipl.cae.demo.models.entities.TournamentStatus;
+import be.vinci.ipl.cae.demo.repositories.MatchLineupRepository;
+import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.TournamentRepository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.List;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -20,12 +26,17 @@ import org.springframework.transaction.annotation.Transactional;
 public class TournamentService {
 
   private final TournamentRepository tournamentRepository;
+  private final MemberRepository memberRepository;
+  private final MatchLineupRepository matchLineupRepository;
 
   /**
    * Constructor.
    */
-  public TournamentService(TournamentRepository tournamentRepository) {
+  public TournamentService(TournamentRepository tournamentRepository,
+      MemberRepository memberRepository, MatchLineupRepository matchLineupRepository) {
     this.tournamentRepository = tournamentRepository;
+    this.memberRepository = memberRepository;
+    this.matchLineupRepository = matchLineupRepository;
   }
 
   /**
@@ -79,7 +90,7 @@ public class TournamentService {
       tournamentRepository.saveAll(updatedTournaments);
       System.out.println("Updated " + updatedTournaments.size() + " tournament states.");
     } else {
-      System.out.println("No updated needed.");
+      System.out.println("No update needed.");
     }
   }
 
@@ -122,24 +133,72 @@ public class TournamentService {
   }
 
   /**
-   * Get all tournaments optionally filtered by timeframe.
+   * Get all tournaments optionally filtered by timeframe, teams or members.
    *
-   * @param timeframe past, future, current, or null/empty for all.
+   * @param timeframe  past, future, current, or null/empty for all.
+   * @param teamsIds   a list of specific team ids
+   * @param membersIds a list of specific member ids whose team will be used
    * @return the filtered and sorted list of tournaments.
    */
-  public Iterable<Tournament> getTournaments(String timeframe) {
-    if (timeframe == null || timeframe.isBlank()) {
-      return tournamentRepository.findAllByOrderByStartDateDesc();
+  public Iterable<Tournament> getTournaments(String timeframe, List<Long> teamsIds,
+      List<Long> membersIds) {
+    Set<Long> filteredTeamIds = new HashSet<>();
+    if (teamsIds != null && !teamsIds.isEmpty()) {
+      filteredTeamIds.addAll(teamsIds);
     }
 
-    return switch (timeframe.toLowerCase(java.util.Locale.ROOT)) {
-      case "past" ->
-          tournamentRepository.findByTournamentStatusOrderByStartDateDesc(TournamentStatus.DONE);
-      case "current" -> tournamentRepository.findByTournamentStatusOrderByStartDateDesc(
-          TournamentStatus.IN_PROGRESS);
-      case "future" -> tournamentRepository.findByTournamentStatusNotInOrderByStartDateDesc(
-          List.of(TournamentStatus.DONE, TournamentStatus.IN_PROGRESS));
-      default -> tournamentRepository.findAllByOrderByStartDateDesc();
-    };
+    Set<Long> tournamentIdsFromMembers = new HashSet<>();
+    if (membersIds != null && !membersIds.isEmpty()) {
+      Iterable<MatchLineup> matchLineups = matchLineupRepository.findByMembersIdMemberIn(
+          membersIds);
+      for (MatchLineup matchLineup : matchLineups) {
+        tournamentIdsFromMembers.add(matchLineup.getMatch().getTournament().getIdTournament());
+      }
+    }
+
+    boolean hasTeamFilter = teamsIds != null && !teamsIds.isEmpty();
+    boolean hasMemberFilter = membersIds != null && !membersIds.isEmpty();
+    boolean hasFilters = hasTeamFilter || hasMemberFilter;
+    boolean hasTimeframe = timeframe != null && !timeframe.isBlank();
+    Iterable<Tournament> allTournaments;
+
+    // Filter by time frame first
+    if (!hasTimeframe) {
+      allTournaments = tournamentRepository.findAllByOrderByStartDateDesc();
+    } else {
+      allTournaments = switch (timeframe.toLowerCase(java.util.Locale.ROOT)) {
+        case "past" ->
+            tournamentRepository.findByTournamentStatusOrderByStartDateDesc(TournamentStatus.DONE);
+        case "current" -> tournamentRepository.findByTournamentStatusOrderByStartDateDesc(
+            TournamentStatus.IN_PROGRESS);
+        case "future" -> tournamentRepository.findByTournamentStatusNotInOrderByStartDateDesc(
+            List.of(TournamentStatus.DONE, TournamentStatus.IN_PROGRESS)
+        );
+        default -> tournamentRepository.findAllByOrderByStartDateDesc();
+      };
+    }
+
+    if (!hasFilters) {
+      return allTournaments;
+    }
+
+    // Additional filtering
+    List<Tournament> result = new ArrayList<>();
+    for (Tournament t : allTournaments) {
+      boolean matchMember = tournamentIdsFromMembers.contains(t.getIdTournament());
+      boolean matchTeam = false;
+      for (Team team : t.getTeams()) {
+        if (filteredTeamIds.contains(team.getIdTeam())) {
+          matchTeam = true;
+          break;
+        }
+      }
+
+      if (matchTeam || matchMember) {
+        result.add(t);
+      }
+    }
+
+    return result;
   }
 }

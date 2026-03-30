@@ -4,7 +4,7 @@ import './index.css';
 
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { App } from './App.tsx';
-import { HomePage } from './pages/HomePage.tsx';
+import { HomePage } from './pages/HomePage/index.tsx';
 import { RegisterPage } from './pages/RegisterPage/index.tsx';
 import { LoginPage } from './pages/LoginPage.tsx';
 import { UserContextProvider } from './contexts/UserContext.tsx';
