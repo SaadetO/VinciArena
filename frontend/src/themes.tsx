@@ -619,10 +619,9 @@ export const theme = createTheme({
             {
               minWidth: '5rem !important',
             },
-          '&:has(.MuiChip-root) .MuiAutocomplete-input:placeholder-shown':
-            {
-              padding: '0 !important',
-            },
+          '&:has(.MuiChip-root) .MuiAutocomplete-input:placeholder-shown': {
+            padding: '0 !important',
+          },
           '& .MuiOutlinedInput-root': {
             padding: '0.375rem 3rem 0.375rem 0.375rem',
             flexWrap: 'wrap',
