@@ -113,6 +113,7 @@ public class Tournament {
 
   /**
    * Registers a team and closes the tournament if it becomes full.
+   *
    * @return true if registered, false if closed or deadline passed.
    */
   public boolean registerTeam(Team team) {

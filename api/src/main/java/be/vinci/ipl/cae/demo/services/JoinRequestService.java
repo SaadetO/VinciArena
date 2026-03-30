@@ -10,7 +10,6 @@ import be.vinci.ipl.cae.demo.repositories.JoinRequestRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.TeamRepository;
 import java.time.LocalDateTime;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

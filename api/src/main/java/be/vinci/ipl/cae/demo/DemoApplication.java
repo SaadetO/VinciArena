@@ -88,14 +88,22 @@ public class DemoApplication {
       ) {}
 
       MemberMockData[] memberDataList = {
-          new MemberMockData("lea@mail.com", "Lynx", "tacticien", "2025-11-12", true, true, "TEAM_ALPHA"),
-          new MemberMockData("tom@mail.com", "Rogue", "exécuteur", "2025-12-03", false, false, "TEAM_ALPHA"),
-          new MemberMockData("ines@mail.com", "Pulse", "guérisseur", "2026-01-18", false, false, "TEAM_ALPHA"),
-          new MemberMockData("tibo@mail.com", "Iron", "gardien", "2025-10-27", true, true, "TEAM_OMEGA"),
-          new MemberMockData("lisa@mail.com", "Storm", "exécuteur", "2026-01-10", false, true, "TEAM_IOTA"),
-          new MemberMockData("noa@mail.com", "Flash", "architecte", "2026-02-02", false, true, "TEAM_IOTA"),
-          new MemberMockData("tim@mail.com", "Titi", "gardien", "2026-02-03", false, false, "TEAM_IOTA"),
-          new MemberMockData("zoe@mail.com", "Vector", "catalyseur", "2026-02-04", false, false, "TEAM_IOTA")
+          new MemberMockData("lea@mail.com", "Lynx", "tacticien",
+              "2025-11-12", true, true, "TEAM_ALPHA"),
+          new MemberMockData("tom@mail.com", "Rogue", "exécuteur",
+              "2025-12-03", false, false, "TEAM_ALPHA"),
+          new MemberMockData("ines@mail.com", "Pulse", "guérisseur",
+              "2026-01-18", false, false, "TEAM_ALPHA"),
+          new MemberMockData("tibo@mail.com", "Iron", "gardien",
+              "2025-10-27", true, true, "TEAM_OMEGA"),
+          new MemberMockData("lisa@mail.com", "Storm", "exécuteur",
+              "2026-01-10", false, true, "TEAM_IOTA"),
+          new MemberMockData("noa@mail.com", "Flash", "architecte",
+              "2026-02-02", false, true, "TEAM_IOTA"),
+          new MemberMockData("tim@mail.com", "Titi", "gardien",
+              "2026-02-03", false, false, "TEAM_IOTA"),
+          new MemberMockData("zoe@mail.com", "Vector", "catalyseur",
+              "2026-02-04", false, false, "TEAM_IOTA")
       };
 
       Map<String, Team> teamMap = new HashMap<>();
