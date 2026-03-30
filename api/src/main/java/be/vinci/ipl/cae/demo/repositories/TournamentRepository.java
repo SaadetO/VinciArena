@@ -3,6 +3,7 @@ package be.vinci.ipl.cae.demo.repositories;
 import be.vinci.ipl.cae.demo.models.entities.Tournament;
 import be.vinci.ipl.cae.demo.models.entities.TournamentStatus;
 import java.util.Collection;
+import java.util.List;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -27,6 +28,9 @@ public interface TournamentRepository extends CrudRepository<Tournament, Long> {
    */
   Iterable<Tournament> findByTournamentStatusNotInOrderByStartDateDesc(
       Collection<TournamentStatus> statuses);
+
+  List<Tournament> findAllByTournamentStatusIn(List<TournamentStatus> tournamentStatuses);
+
 
   /**
    * Get all tournaments where at least one of the given teams

@@ -7,7 +7,6 @@ import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.models.entities.Tournament;
 import be.vinci.ipl.cae.demo.models.entities.TournamentStatus;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
-import be.vinci.ipl.cae.demo.repositories.NotificationRepository;
 import be.vinci.ipl.cae.demo.repositories.ProfileImageRepository;
 import be.vinci.ipl.cae.demo.repositories.SpecialtyRepository;
 import be.vinci.ipl.cae.demo.repositories.TeamRepository;
@@ -20,6 +19,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 
@@ -28,6 +28,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
  */
 @SuppressWarnings("PMD.UseUtilityClass")
 @SpringBootApplication
+@EnableScheduling
 public class DemoApplication {
 
   /**
@@ -44,7 +45,6 @@ public class DemoApplication {
   @Bean
   CommandLineRunner seed(
       MemberRepository memberRepo,
-      NotificationRepository notifsRepo,
       TeamRepository teamRepo,
       SpecialtyRepository specRepo,
       ProfileImageRepository imageRepo,
@@ -158,7 +158,7 @@ public class DemoApplication {
       Tournament t1 = new Tournament();
       t1.setName("Tournament Alpha");
       t1.setDescription("A tournament in preparation.");
-      t1.setRegistrationDeadline(LocalDate.of(2026, 10, 1));
+      t1.setRegistrationDeadline(LocalDate.of(2026, 10, 1).atStartOfDay());
       t1.setStartDate(LocalDate.of(2026, 10, 15));
       t1.setEndDate(LocalDate.of(2026, 10, 20));
       t1.setTournamentStatus(TournamentStatus.IN_PREPARATION);
@@ -169,7 +169,7 @@ public class DemoApplication {
       Tournament t2 = new Tournament();
       t2.setName("Tournament Beta");
       t2.setDescription("Registration is open for this tournament.");
-      t2.setRegistrationDeadline(LocalDate.of(2026, 11, 1));
+      t2.setRegistrationDeadline(LocalDate.of(2026, 11, 1).atStartOfDay());
       t2.setStartDate(LocalDate.of(2026, 11, 15));
       t2.setEndDate(LocalDate.of(2026, 11, 20));
       t2.setTournamentStatus(TournamentStatus.REGISTRATION_OPEN);
@@ -180,7 +180,7 @@ public class DemoApplication {
       Tournament t3 = new Tournament();
       t3.setName("Tournament Gamma");
       t3.setDescription("Registration is closed but not planned yet.");
-      t3.setRegistrationDeadline(LocalDate.of(2026, 3, 1));
+      t3.setRegistrationDeadline(LocalDate.of(2026, 3, 1).atStartOfDay());
       t3.setStartDate(LocalDate.of(2026, 4, 15));
       t3.setEndDate(LocalDate.of(2026, 4, 20));
       t3.setTournamentStatus(TournamentStatus.REGISTRATION_CLOSED);
@@ -191,7 +191,7 @@ public class DemoApplication {
       Tournament t4 = new Tournament();
       t4.setName("Tournament Delta");
       t4.setDescription("This tournament is fully planned.");
-      t4.setRegistrationDeadline(LocalDate.of(2026, 3, 1));
+      t4.setRegistrationDeadline(LocalDate.of(2026, 3, 1).atStartOfDay());
       t4.setStartDate(LocalDate.of(2026, 5, 15));
       t4.setEndDate(LocalDate.of(2026, 5, 20));
       t4.setTournamentStatus(TournamentStatus.PLANNED);
@@ -202,9 +202,9 @@ public class DemoApplication {
       Tournament t5 = new Tournament();
       t5.setName("Tournament Epsilon");
       t5.setDescription("Tournament currently in progress.");
-      t5.setRegistrationDeadline(LocalDate.of(2026, 2, 1));
+      t5.setRegistrationDeadline(LocalDate.of(2026, 2, 1).atStartOfDay());
       t5.setStartDate(LocalDate.of(2026, 3, 20));
-      t5.setEndDate(LocalDate.of(2026, 3, 30));
+      t5.setEndDate(LocalDate.of(2026, 5, 30));
       t5.setTournamentStatus(TournamentStatus.IN_PROGRESS);
       t5.setMaxNbOfTeams(4);
       tournamentRepo.save(t5);
@@ -213,7 +213,7 @@ public class DemoApplication {
       Tournament t6 = new Tournament();
       t6.setName("Tournament Zeta");
       t6.setDescription("A completed tournament.");
-      t6.setRegistrationDeadline(LocalDate.of(2026, 1, 1));
+      t6.setRegistrationDeadline(LocalDate.of(2026, 1, 1).atStartOfDay());
       t6.setStartDate(LocalDate.of(2026, 2, 15));
       t6.setEndDate(LocalDate.of(2026, 2, 20));
       t6.setTournamentStatus(TournamentStatus.DONE);

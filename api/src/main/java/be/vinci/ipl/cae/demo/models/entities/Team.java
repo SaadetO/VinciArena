@@ -58,4 +58,12 @@ public class Team {
   @JsonIgnore
   private List<Member> members = new ArrayList<>();
 
+  /**
+   * Adds a tournament to the team's registered list.
+   */
+  public void joinTournament(Tournament tournament) {
+    if (!this.tournaments.contains(tournament)) {
+      this.tournaments.add(tournament);
+    }
+  }
 }

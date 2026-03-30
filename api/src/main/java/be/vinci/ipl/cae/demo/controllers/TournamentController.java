@@ -5,7 +5,7 @@ import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Tournament;
 import be.vinci.ipl.cae.demo.repositories.TournamentRepository;
 import be.vinci.ipl.cae.demo.services.TournamentService;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -120,8 +120,7 @@ public class TournamentController {
     }
 
     // Check dates
-    LocalDate today = LocalDate.now();
-    if (dto.registrationDeadline().isBefore(today)) {
+    if (dto.registrationDeadline().isBefore(LocalDateTime.now())) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Deadline cannot be in the past");
     }
     if (dto.endDate().isBefore(dto.startDate())) {
