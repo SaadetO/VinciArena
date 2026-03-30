@@ -4,11 +4,12 @@ import {
   IconButton,
   Tooltip,
   Typography,
+  Stack,
 } from '@mui/material';
 import { NotificationDto } from '../types';
 import { useContext } from 'react';
 import { UserContext } from '../contexts/UserContext';
-import { MarkEmailReadOutlined } from '@mui/icons-material';
+import { Check } from '@mui/icons-material';
 import { formatRelativeTime } from '../utils/date';
 import { useNotifications } from '../hooks/useNotifications';
 import { NotificationContext } from '../contexts/NotificationContext';
@@ -43,19 +44,14 @@ export const NotificationItem = ({ notification }: Props) => {
         transition: 'all 0.2s ease-in-out',
         backgroundColor: (theme) =>
           notification.isRead ? 'transparent' : theme.palette.background.s3,
-
-        // opacity for read vs unread
-        opacity: notification.isRead ? 0.8 : 1,
-
-        cursor: isClickable ? 'pointer' : 'default',
+        cursor: isClickable ? 'pointer' : undefined,
         '&:hover': {
           backgroundColor: (theme) =>
-            isClickable
-              ? theme.palette.action.hover
-              : notification.isRead
-                ? 'transparent'
-                : theme.palette.background.s3,
-          opacity: isClickable ? 1 : notification.isRead ? 0.8 : 1,
+            isClickable && !notification.isRead
+              ? theme.palette.background.s4
+              : isClickable && notification.isRead
+                ? theme.palette.background.s3
+                : undefined,
         },
       }}
       secondaryAction={
@@ -70,7 +66,7 @@ export const NotificationItem = ({ notification }: Props) => {
                 markAsRead(notification.idNotification);
               }}
             >
-              <MarkEmailReadOutlined />
+              <Check />
             </IconButton>
           </Tooltip>
         )
@@ -81,12 +77,12 @@ export const NotificationItem = ({ notification }: Props) => {
         primary={
           <Typography
             variant="h5"
-            color={notification.isRead ? 'text.secondary' : 'text.primary'}
+            color="text.primary"
+            fontWeight={400}
             sx={{
               textOverflow: 'ellipsis',
               overflow: 'hidden',
               whiteSpace: 'nowrap',
-              fontWeight: notification.isRead ? 400 : 800,
             }}
           >
             {title}
@@ -95,28 +91,29 @@ export const NotificationItem = ({ notification }: Props) => {
         secondary={
           <>
             {description && (
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{
-                  display: 'block',
-                  textOverflow: 'ellipsis',
-                  overflow: 'hidden',
-                  whiteSpace: 'nowrap',
-                  mt: 0.5,
-                }}
+              <Stack
+                padding="0.375rem 0.5rem"
+                borderRadius="0.375rem"
+                border={(theme) => `1px solid ${theme.palette.divider}`}
+                mt="0.5rem"
+                width="fit-content"
               >
-                {description}
-              </Typography>
+                <Typography
+                  variant="h6"
+                  color="text.primary"
+                  fontWeight={400}
+                  sx={{
+                    display: 'block',
+                    textOverflow: 'ellipsis',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {description}
+                </Typography>
+              </Stack>
             )}
-            <Typography
-              variant="caption"
-              color="text.disabled"
-              sx={{
-                display: 'block',
-                mt: 0.5,
-              }}
-            >
+            <Typography variant="h6" color="text.secondary" mt="0.5rem">
               {formatRelativeTime(notification.dateTime)}
             </Typography>
           </>

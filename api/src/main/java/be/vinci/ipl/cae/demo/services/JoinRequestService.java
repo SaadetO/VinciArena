@@ -146,7 +146,7 @@ public class JoinRequestService {
     if (newStatus == RequestStatus.ACCEPTED) {
       decision = "acceptée";
     } else {
-      decision = "rejetée.\nRaison du refus : " + rejectionReason;
+      decision = "rejetée.\n" + rejectionReason;
     }
 
     notificationService.notifyMember(requester.getIdMember(),
