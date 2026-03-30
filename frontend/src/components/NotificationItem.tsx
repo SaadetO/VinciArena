@@ -1,4 +1,10 @@
-import { ListItem, ListItemText, IconButton, Tooltip, Typography } from '@mui/material';
+import {
+  ListItem,
+  ListItemText,
+  IconButton,
+  Tooltip,
+  Typography,
+} from '@mui/material';
 import { NotificationDto } from '../types';
 import { useContext } from 'react';
 import { UserContext } from '../contexts/UserContext';
@@ -23,7 +29,8 @@ export const NotificationItem = ({ notification }: Props) => {
 
   const contentParts = notification.content.split('\n');
   const title = contentParts[0];
-  const description = contentParts.length > 1 ? contentParts.slice(1).join('\n') : null;
+  const description =
+    contentParts.length > 1 ? contentParts.slice(1).join('\n') : null;
 
   return (
     <ListItem
