@@ -24,7 +24,7 @@ export const TournamentControls = ({
       alignItems="center"
       position="sticky"
       top="0"
-      zIndex={1}
+      zIndex={10}
       sx={{
         outline: '4px solid',
         outlineColor: 'background.s0',

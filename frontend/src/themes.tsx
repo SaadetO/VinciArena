@@ -618,24 +618,22 @@ export const theme = createTheme({
           '&.Mui-focused:has(.MuiChip-root) .MuiAutocomplete-input:not(:placeholder-shown)':
             {
               minWidth: '5rem !important',
+              padding: '0 0.375rem !important',
             },
-          '&:has(.MuiChip-root) .MuiAutocomplete-input:placeholder-shown': {
-            padding: '0 !important',
+          '&:has(.MuiChip-root) .MuiOutlinedInput-root': {
+            paddingLeft: '0.625rem',
           },
           '& .MuiOutlinedInput-root': {
-            padding: '0.375rem 3rem 0.375rem 0.375rem',
+            padding: '0.375rem 3rem 0.375rem 1rem',
             flexWrap: 'wrap',
             rowGap: '0',
             columnGap: '0.375rem',
             '& .MuiAutocomplete-input': {
-              padding: '0 0.5rem',
+              padding: '0',
               height: 'auto',
               minHeight: '2.25rem',
               minWidth: '0',
               flex: 1,
-            },
-            '& .MuiChip-root:first-of-type': {
-              marginLeft: '0.25rem',
             },
             '& .MuiChip-root': {
               margin: 0,
