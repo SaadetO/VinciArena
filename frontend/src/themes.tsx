@@ -615,6 +615,16 @@ export const theme = createTheme({
     MuiAutocomplete: {
       styleOverrides: {
         root: {
+          '&.Mui-Focused': {
+            '& .MuiAutocomplete-input': {
+              padding: '0 0.5rem',
+            },
+          },
+          '&:has(.MuiChip-root)': {
+            '& .MuiAutocomplete-input': {
+              padding: '0 !important',
+            },
+          },
           '& .MuiOutlinedInput-root': {
             padding: '0.375rem 3rem 0.375rem 0.375rem',
             flexWrap: 'wrap',
