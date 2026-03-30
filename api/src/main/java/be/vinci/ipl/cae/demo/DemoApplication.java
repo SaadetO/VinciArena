@@ -12,7 +12,6 @@ import be.vinci.ipl.cae.demo.repositories.SpecialtyRepository;
 import be.vinci.ipl.cae.demo.repositories.TeamRepository;
 import be.vinci.ipl.cae.demo.repositories.TournamentRepository;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.boot.CommandLineRunner;
@@ -77,81 +76,65 @@ public class DemoApplication {
         imageRepo.save(image);
       }
 
-      // Create Member 1: Manager
+      // Create Members and Teams for demo
+      record MemberMockData(
+          String email,
+          String tag,
+          String specialty,
+          String creationDate,
+          boolean isAdmin,
+          boolean isManager,
+          String teamName
+      ) {}
+
+      MemberMockData[] memberDataList = {
+          new MemberMockData("lea@mail.com", "Lynx", "tacticien", "2025-11-12", true, true, "TEAM_ALPHA"),
+          new MemberMockData("tom@mail.com", "Rogue", "exécuteur", "2025-12-03", false, false, "TEAM_ALPHA"),
+          new MemberMockData("ines@mail.com", "Pulse", "guérisseur", "2026-01-18", false, false, "TEAM_ALPHA"),
+          new MemberMockData("tibo@mail.com", "Iron", "gardien", "2025-10-27", true, true, "TEAM_OMEGA"),
+          new MemberMockData("lisa@mail.com", "Storm", "exécuteur", "2026-01-10", false, true, "TEAM_IOTA"),
+          new MemberMockData("noa@mail.com", "Flash", "architecte", "2026-02-02", false, true, "TEAM_IOTA"),
+          new MemberMockData("tim@mail.com", "Titi", "gardien", "2026-02-03", false, false, "TEAM_IOTA"),
+          new MemberMockData("zoe@mail.com", "Vector", "catalyseur", "2026-02-04", false, false, "TEAM_IOTA")
+      };
+
+      Map<String, Team> teamMap = new HashMap<>();
       String pw = "Password1!";
       String encodedPw = new BCryptPasswordEncoder().encode(pw);
-      Member member1 = new Member();
-      member1.setEmail("lea@mail.com");
-      member1.setPassword(encodedPw);
-      member1.setTag("Lynx");
-      member1.setCreationDate(LocalDateTime.of(2025, 11, 12, 0, 0));
-      member1.setAdmin(false);
-      member1.setDeleted(false);
-      member1.setSpecialty(specMap.get("tacticien"));
-      member1.setProfileImage(imageRepo.getProfileImageByIdImage(1L));
-      member1 = memberRepo.save(member1);
 
-      // Create Member 2: Player
-      Member member2 = new Member();
-      member2.setEmail("tom@mail.com");
-      member2.setPassword(encodedPw);
-      member2.setTag("Rogue");
-      member2.setCreationDate(LocalDateTime.of(2025, 12, 3, 0, 0));
-      member2.setAdmin(false);
-      member2.setDeleted(false);
-      member2.setSpecialty(specMap.get("exécuteur"));
-      member2.setProfileImage(imageRepo.getProfileImageByIdImage(2L));
-      member2 = memberRepo.save(member2);
+      for (int i = 0; i < memberDataList.length; i++) {
+        MemberMockData data = memberDataList[i];
 
-      // Create Member 3: Admin
-      Member member3 = new Member();
-      member3.setEmail("ines@mail.com");
-      member3.setPassword(encodedPw);
-      member3.setTag("Pulse");
-      member3.setCreationDate(LocalDateTime.of(2026, 1, 18, 0, 0));
-      member3.setAdmin(true);
-      member3.setDeleted(false);
-      member3.setSpecialty(specMap.get("guérisseur"));
-      member3.setProfileImage(imageRepo.getProfileImageByIdImage(3L));
-      member3 = memberRepo.save(member3);
+        Member member = new Member();
+        member.setEmail(data.email());
+        member.setPassword(encodedPw);
+        member.setTag(data.tag());
+        member.setCreationDate(LocalDate.parse(data.creationDate()).atStartOfDay());
+        member.setAdmin(data.isAdmin());
+        member.setDeleted(false);
+        member.setSpecialty(specMap.get(data.specialty()));
 
-      // Create Member 4: Admin and Manager
-      Member member4 = new Member();
-      member4.setEmail("tibo@mail.com");
-      member4.setPassword(encodedPw);
-      member4.setTag("Iron");
-      member4.setCreationDate(LocalDateTime.of(2025, 10, 27, 0, 0));
-      member4.setAdmin(true);
-      member4.setDeleted(false);
-      member4.setSpecialty(specMap.get("gardien"));
-      member4.setProfileImage(imageRepo.getProfileImageByIdImage(4L));
-      member4 = memberRepo.save(member4);
+        member.setProfileImage(imageRepo.getProfileImageByIdImage((long) ((i % 20) + 1)));
 
-      // Create Team "TEAM_ALPHA"
-      Team team1 =
-          new Team();
-      team1.setName("TEAM_ALPHA");
-      team1.setIsActive(true);
-      team1.setManager1(member1);
-      team1 = teamRepo.save(team1);
+        Team team = teamMap.computeIfAbsent(data.teamName(), name -> {
+          Team t = new Team();
+          t.setName(name);
+          t.setIsActive(true);
+          return teamRepo.save(t);
+        });
 
-      // Create Team "TEAM_OMEGA"
-      Team team2 =
-          new Team();
-      team2.setName("TEAM_OMEGA");
-      team2.setIsActive(true);
-      team2.setManager1(member4);
-      team2 = teamRepo.save(team2);
+        member.setTeam(team);
+        member = memberRepo.save(member);
 
-      // Link members to team
-      member1.setTeam(team1);
-      member2.setTeam(team1);
-      member3.setTeam(team1);
-      member4.setTeam(team2);
-      memberRepo.save(member1);
-      memberRepo.save(member2);
-      memberRepo.save(member3);
-      memberRepo.save(member4);
+        if (data.isManager()) {
+          if (team.getManager1() == null) {
+            team.setManager1(member);
+          } else if (team.getManager2() == null) {
+            team.setManager2(member);
+          }
+          teamRepo.save(team);
+        }
+      }
 
       // Create Tournaments
       // 1. IN_PREPARATION
