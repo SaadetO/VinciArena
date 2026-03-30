@@ -97,18 +97,9 @@ export const NotificationItem = ({ notification }: Props) => {
                 border={(theme) => `1px solid ${theme.palette.divider}`}
                 mt="0.5rem"
                 width="fit-content"
+                maxWidth="100%"
               >
-                <Typography
-                  variant="h6"
-                  color="text.primary"
-                  fontWeight={400}
-                  sx={{
-                    display: 'block',
-                    textOverflow: 'ellipsis',
-                    overflow: 'hidden',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
+                <Typography variant="h6" color="text.primary" fontWeight={400}>
                   {description}
                 </Typography>
               </Stack>
