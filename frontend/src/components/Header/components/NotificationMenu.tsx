@@ -55,9 +55,18 @@ export const NotificationMenu = () => {
           vertical: 'top',
           horizontal: 'right',
         }}
-        sx={{
-          '& .MuiPaper-root': {
-            marginTop: '0.375rem',
+        slotProps={{
+          paper: {
+            sx: {
+              width: '25rem',
+              marginTop: '0.375rem',
+            },
+          },
+        }}
+        MenuListProps={{
+          sx: {
+            padding: 0,
+            gap: 0,
           },
         }}
       >
@@ -66,7 +75,7 @@ export const NotificationMenu = () => {
           justifyContent="space-between"
           alignItems="center"
           minWidth="15rem"
-          padding="0.5rem 1.5rem 0.875rem 1.5rem"
+          padding="0.75rem 1rem 0.75rem 1rem"
           sx={{
             outline: 'none',
           }}

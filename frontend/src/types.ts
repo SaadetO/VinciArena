@@ -81,6 +81,13 @@ interface UserSummaryDto {
   avatar: string | null;
 }
 
+interface MemberSummaryDto {
+  id: number;
+  tag: string;
+  specialty: string | null;
+  avatar: string | null;
+}
+
 interface Team {
   idTeam: number;
   name: string;
@@ -199,6 +206,7 @@ export type {
   NotificationDto,
   StoredUser,
   Member,
+  MemberSummaryDto,
   SpecialtyDto,
   ProfilePicture,
   ModalConfig,
