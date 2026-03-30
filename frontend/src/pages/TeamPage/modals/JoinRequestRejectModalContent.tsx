@@ -36,9 +36,8 @@ export const JoinRequestRejectModalContent = ({
         placeholder="Raison du refus"
         value={reason}
         onChange={handleChange}
-        variant="outlined"
         multiline
-        rows={3}
+        rows={2}
         required
       />
     </Stack>

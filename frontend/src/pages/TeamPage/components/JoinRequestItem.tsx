@@ -1,6 +1,6 @@
 import { Avatar, Button, Stack, Typography } from '@mui/material';
 import { TeamDetailsInfoDto, JoinRequestDto } from '../../../types';
-import { joinRequestRejectModal } from '../../ProfilePage/modals/joinRequestRejectModal';
+import { joinRequestRejectModal } from '../modals/joinRequestRejectModal';
 import { useJoinRequests } from '../../../hooks/useJoinRequests';
 import { useModal } from '../../../hooks/useModal';
 

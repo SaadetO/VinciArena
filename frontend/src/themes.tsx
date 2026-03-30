@@ -521,6 +521,18 @@ export const theme = createTheme({
             color: '#8C8C8C',
             opacity: 0.75,
           },
+          '& textarea': {
+            padding: '0 1rem !important',
+            fontSize: '1rem',
+            color: '#FFFFFF',
+            '&::placeholder': {
+              color: '#8C8C8C',
+              opacity: 0.75,
+            },
+          },
+          '& .MuiInputBase-multiline': {
+            padding: '0.875rem 0',
+          },
           '& input[type="password"]': {
             fontFamily: 'monospace',
             letterSpacing: '0.25rem',
