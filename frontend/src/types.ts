@@ -94,6 +94,7 @@ interface JoinRequestDto {
   status: 'PENDING' | 'ACCEPTED' | 'REJECTED';
   expirationDate: string;
   requester: UserSummaryDto;
+  rejectionReason?: string;
 }
 
 interface TeamDetailsInfoDto {

@@ -1,4 +1,10 @@
-import { ListItem, ListItemText, IconButton, Tooltip } from '@mui/material';
+import {
+  ListItem,
+  ListItemText,
+  IconButton,
+  Tooltip,
+  Typography,
+} from '@mui/material';
 import { NotificationDto } from '../types';
 import { useContext } from 'react';
 import { UserContext } from '../contexts/UserContext';
@@ -20,6 +26,11 @@ export const NotificationItem = ({ notification }: Props) => {
   const isClickable = !!notification.idReference;
 
   if (!authenticatedUser) return null;
+
+  const contentParts = notification.content.split('\n');
+  const title = contentParts[0];
+  const description =
+    contentParts.length > 1 ? contentParts.slice(1).join('\n') : null;
 
   return (
     <ListItem
@@ -66,30 +77,50 @@ export const NotificationItem = ({ notification }: Props) => {
       }
     >
       <ListItemText
-        primary={notification.content}
-        secondary={formatRelativeTime(notification.dateTime)}
-        slotProps={{
-          primary: {
-            variant: 'h5',
-            color: notification.isRead ? 'text.secondary' : 'text.primary',
-            sx: {
+        disableTypography
+        primary={
+          <Typography
+            variant="h5"
+            color={notification.isRead ? 'text.secondary' : 'text.primary'}
+            sx={{
               textOverflow: 'ellipsis',
               overflow: 'hidden',
               whiteSpace: 'nowrap',
               fontWeight: notification.isRead ? 400 : 800,
-            },
-          },
-          secondary: {
-            variant: 'body2',
-            sx: {
-              color: 'text.disabled',
-              textOverflow: 'ellipsis',
-              overflow: 'hidden',
-              whiteSpace: 'nowrap',
-              mt: 0.5, // separate time and content
-            },
-          },
-        }}
+            }}
+          >
+            {title}
+          </Typography>
+        }
+        secondary={
+          <>
+            {description && (
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{
+                  display: 'block',
+                  textOverflow: 'ellipsis',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap',
+                  mt: 0.5,
+                }}
+              >
+                {description}
+              </Typography>
+            )}
+            <Typography
+              variant="caption"
+              color="text.disabled"
+              sx={{
+                display: 'block',
+                mt: 0.5,
+              }}
+            >
+              {formatRelativeTime(notification.dateTime)}
+            </Typography>
+          </>
+        }
       />
     </ListItem>
   );

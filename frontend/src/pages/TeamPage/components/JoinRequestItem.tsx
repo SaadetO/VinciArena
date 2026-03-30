@@ -1,6 +1,8 @@
 import { Avatar, Button, Stack, Typography } from '@mui/material';
 import { TeamDetailsInfoDto, JoinRequestDto } from '../../../types';
+import { joinRequestRejectModal } from '../../ProfilePage/modals/joinRequestRejectModal';
 import { useJoinRequests } from '../../../hooks/useJoinRequests';
+import { useModal } from '../../../hooks/useModal';
 
 export const JoinRequestItem = ({
   joinRequest,
@@ -12,13 +14,33 @@ export const JoinRequestItem = ({
   const { updateJoinRequestStatus, isUpdatingJoinRequest } = useJoinRequests({
     setTeam,
   });
+  const { openModal } = useModal();
 
-  const handleAction = async (status: 'ACCEPTED' | 'REJECTED') => {
-    await updateJoinRequestStatus(joinRequest, status);
+  const handleAction = async (
+    status: 'ACCEPTED' | 'REJECTED',
+    reason?: string,
+  ) => {
+    await updateJoinRequestStatus(joinRequest, status, reason);
   };
 
   const handleAccept = () => handleAction('ACCEPTED');
-  const handleDeny = () => handleAction('REJECTED');
+
+  const handleDeny = () => {
+    let selectedReason: string | null = null;
+
+    const onSelect = (reason: string | null) => {
+      selectedReason = reason;
+    };
+
+    const onConfirm = (close: () => void) => {
+      if (!selectedReason) return;
+
+      close();
+      handleAction('REJECTED', selectedReason);
+    };
+
+    openModal(joinRequestRejectModal({ onSelect, onConfirm }));
+  };
 
   return (
     <>

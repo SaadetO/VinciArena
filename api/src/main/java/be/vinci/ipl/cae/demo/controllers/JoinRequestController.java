@@ -1,8 +1,8 @@
 package be.vinci.ipl.cae.demo.controllers;
 
 import be.vinci.ipl.cae.demo.models.dtos.JoinRequestDto;
+import be.vinci.ipl.cae.demo.models.dtos.UpdateJoinRequestDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
-import be.vinci.ipl.cae.demo.models.entities.RequestStatus;
 import be.vinci.ipl.cae.demo.services.JoinRequestService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -50,18 +50,22 @@ public class JoinRequestController {
   }
 
   /**
-   * Update the status of a join request (accept or deny).
+   * Update the status of a join request (accepted or rejected). If rejected, a rejection reason
+   * must be provided.
    *
    * @param requestId     the ID of the join request
-   * @param status        the new status (ACCEPTED or REFUSED)
+   * @param request       the request containing status and rejection reason
    * @param currentMember the authenticated manager performing the action
    * @return the updated join request as a DTO
    */
   @PatchMapping("/join-requests/{requestId}")
   @PreAuthorize("isAuthenticated()")
-  public JoinRequestDto updateJoinRequestStatus(@PathVariable Long requestId,
-      @RequestBody RequestStatus status,
+  public JoinRequestDto updateJoinRequestStatus(
+      @PathVariable Long requestId,
+      @RequestBody UpdateJoinRequestDto request,
       @AuthenticationPrincipal Member currentMember) {
-    return joinRequestService.updateJoinRequestStatus(requestId, status, currentMember);
+
+    return joinRequestService.updateJoinRequestStatus(requestId, request.getStatus(),
+        request.getRejectionReason(), currentMember);
   }
 }

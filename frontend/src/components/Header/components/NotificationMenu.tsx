@@ -42,6 +42,7 @@ export const NotificationMenu = () => {
           <NotificationsOutlined />
         </Badge>
       </IconButton>
+
       <Menu
         open={isOpen}
         onClose={handleClose}
@@ -82,11 +83,13 @@ export const NotificationMenu = () => {
             Voir Tout
           </Button>
         </Stack>
+
         <Divider />
+
         {unreadNotifications.length === 0 ? (
           <Stack padding="2rem 1.5rem" spacing="0.25rem" alignItems="center">
             <Typography variant="h5" textAlign="center">
-              Rien à signaler!
+              Rien à signaler !
             </Typography>
             <Typography
               variant="body2"
