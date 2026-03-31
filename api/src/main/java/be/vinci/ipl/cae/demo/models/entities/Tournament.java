@@ -14,6 +14,7 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.Getter;
@@ -47,7 +48,7 @@ public class Tournament {
   private LocalDate endDate;
 
   @Column(nullable = false)
-  private LocalDate registrationDeadline;
+  private LocalDateTime registrationDeadline;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
@@ -84,7 +85,7 @@ public class Tournament {
   public void validateDates() {
     // check registrationDeadline is before startDate
     if (registrationDeadline != null && startDate != null) {
-      if (!registrationDeadline.isBefore(startDate)) {
+      if (!registrationDeadline.isBefore(startDate.atStartOfDay())) {
         throw new IllegalStateException("registrationDeadline must be before the startDate.");
       }
     }
