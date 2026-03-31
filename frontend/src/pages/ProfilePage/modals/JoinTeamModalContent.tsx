@@ -1,8 +1,8 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Team } from '../../../types';
-import { UserContext } from '../../../contexts/UserContext';
 import { useModalController } from '../../../hooks/useModalController';
 import { Autocomplete, TextField } from '@mui/material';
+import { useTeams } from '../../../hooks/useTeams';
 
 interface JoinTeamModalContentProps {
   onSelect: (team: Team | null) => void;
@@ -15,35 +15,16 @@ export const JoinTeamModalContent = ({
   const [localError, setLocalError] = useState<string | null>(null);
   const [requestedTeam, setRequestedTeam] = useState<Team | null>(null);
 
-  const { authenticatedUser } = useContext(UserContext);
   const { setError } = useModalController();
+  const { getAll } = useTeams({ setTeams });
 
   useEffect(() => {
     onSelect(requestedTeam);
   }, [requestedTeam, onSelect]);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const response = await fetch('/api/teams', {
-          method: 'GET',
-          headers: {
-            Authorization: authenticatedUser?.token ?? '',
-          },
-        });
-
-        if (!response.ok) throw new Error('Erreur lors du fetch des teams');
-
-        const fetchedTeams = await response.json();
-        setTeams(fetchedTeams);
-      } catch (err: unknown) {
-        const errorMsg =
-          err instanceof Error ? err.message : 'Une erreur est survenue.';
-        setError(errorMsg);
-        setLocalError(errorMsg);
-      }
-    })();
-  }, [authenticatedUser, setError]);
+    getAll();
+  }, [getAll]);
 
   return (
     <>

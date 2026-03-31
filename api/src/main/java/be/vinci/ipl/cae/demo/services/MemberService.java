@@ -1,6 +1,7 @@
 package be.vinci.ipl.cae.demo.services;
 
 import be.vinci.ipl.cae.demo.models.dtos.AuthenticatedUser;
+import be.vinci.ipl.cae.demo.models.dtos.MemberSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.NewMember;
 import be.vinci.ipl.cae.demo.models.dtos.ProfileDto;
 import be.vinci.ipl.cae.demo.models.dtos.UserSummaryDto;
@@ -45,15 +46,17 @@ public class MemberService {
    * @param passwordEncoder          the password encoder
    * @param memberRepository         the member repository
    * @param unavailabilityRepository the unavailability repository
+   * @param specialtyRepository      the specialty repository
+   * @param profileImageRepository   the profile image repository
    */
   public MemberService(BCryptPasswordEncoder passwordEncoder,
       MemberRepository memberRepository,
-      UnavailabilityRepository unavailabilityRepository, SpecialtyRepository specialityRepository,
+      UnavailabilityRepository unavailabilityRepository, SpecialtyRepository specialtyRepository,
       ProfileImageRepository profileImageRepository) {
     this.passwordEncoder = passwordEncoder;
     this.memberRepository = memberRepository;
     this.unavailabilityRepository = unavailabilityRepository;
-    this.specialtyRepository = specialityRepository;
+    this.specialtyRepository = specialtyRepository;
     this.profileImageRepository = profileImageRepository;
   }
 
@@ -351,5 +354,25 @@ public class MemberService {
 
   public Member[] getAllMembers() {
     return memberRepository.findAllByIsDeletedOrderByTagAsc(false);
+  }
+
+  /**
+   * Get all members as lightweight summaries (no sensitive data).
+   *
+   * @return array of MemberSummaryDto
+   */
+  public MemberSummaryDto[] getAllMemberSummaries() {
+    Member[] members = memberRepository.findAllByIsDeletedOrderByTagAsc(false);
+    MemberSummaryDto[] summaries = new MemberSummaryDto[members.length];
+    for (int i = 0; i < members.length; i++) {
+      Member m = members[i];
+      summaries[i] = MemberSummaryDto.builder()
+          .id(m.getIdMember())
+          .tag(m.getTag())
+          .specialty(m.getSpecialty() != null ? m.getSpecialty().getName() : null)
+          .avatar(m.getProfileImage() != null ? m.getProfileImage().getPath() : null)
+          .build();
+    }
+    return summaries;
   }
 }

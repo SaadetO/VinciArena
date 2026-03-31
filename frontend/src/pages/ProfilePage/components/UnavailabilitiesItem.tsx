@@ -1,4 +1,11 @@
-import { IconButton, Stack, Typography, Tooltip, Divider } from '@mui/material';
+import {
+  IconButton,
+  Stack,
+  Typography,
+  Tooltip,
+  Divider,
+  Skeleton,
+} from '@mui/material';
 import { Add } from '@mui/icons-material';
 import { memo } from 'react';
 import { ProfileInfoDto } from '../../../types';
@@ -50,15 +57,30 @@ export const UnavailabilitiesItem = memo(
           alignItems="center"
           padding="1.5rem 0 1rem"
         >
-          <Typography variant="h4">Indisponibilités</Typography>
+          <Typography variant="h4">
+            {user ? (
+              'Indisponibilités'
+            ) : (
+              <Skeleton variant="text" width="8rem" />
+            )}
+          </Typography>
           <Tooltip title="Ajouter une indisponibilité" placement="bottom" arrow>
-            <IconButton
-              onClick={handleAddUnavailability}
-              size="small"
-              color="secondary"
-            >
-              <Add />
-            </IconButton>
+            {user ? (
+              <IconButton
+                onClick={handleAddUnavailability}
+                size="small"
+                color="secondary"
+              >
+                <Add />
+              </IconButton>
+            ) : (
+              <Skeleton
+                variant="rounded"
+                width="2rem"
+                height="2rem"
+                sx={{ borderRadius: '0.75rem' }}
+              />
+            )}
           </Tooltip>
         </Stack>
         <Stack

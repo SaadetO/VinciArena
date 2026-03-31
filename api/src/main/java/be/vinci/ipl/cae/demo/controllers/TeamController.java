@@ -54,13 +54,7 @@ public class TeamController {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
     }
 
-    Team createdTeam = teamService.createTeam(newTeam.getName(), currentMember);
-
-    if (createdTeam == null) {
-      throw new ResponseStatusException(HttpStatus.CONFLICT);
-    }
-
-    return createdTeam;
+    return teamService.createTeam(newTeam.getName(), currentMember);
   }
 
   /**
@@ -83,11 +77,7 @@ public class TeamController {
   @GetMapping("/{id}/details")
   public TeamDetailsDto getTeamDetails(@PathVariable Long id,
       @AuthenticationPrincipal Member currentMember) {
-    TeamDetailsDto teamDetails = teamService.getTeamDetails(id, currentMember);
-    if (teamDetails == null) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-    }
-    return teamDetails;
+    return teamService.getTeamDetails(id, currentMember);
   }
 
   /**
@@ -102,34 +92,7 @@ public class TeamController {
   @PreAuthorize("isAuthenticated()")
   public Team designateSecondManager(@PathVariable Long id, @PathVariable Long idMember,
       @AuthenticationPrincipal Member currentMember) {
-    Team updatedTeam = teamService.designateSecondManager(id, idMember, currentMember);
-
-    if (updatedTeam == null) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-          "Team/Member not found, unauthorized, or no manager spots left");
-    }
-
-    return updatedTeam;
+    return teamService.designateSecondManager(id, idMember, currentMember);
   }
 
-  /**
-   * Quit the current team.
-   *
-   * @param currentMember the authenticated member
-   */
-  @PostMapping("/quit")
-  @PreAuthorize("isAuthenticated()")
-  public void quitTeam(@AuthenticationPrincipal Member currentMember) {
-    if (currentMember.getTeam() == null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member is not in a team");
-    }
-
-    Team team = teamService.quitTeam(currentMember);
-
-    if(team == null) {
-      throw new ResponseStatusException(
-          HttpStatus.CONFLICT, "Member is last manager and cannot leave team with remaining members"
-      );
-    }
-  }
 }
