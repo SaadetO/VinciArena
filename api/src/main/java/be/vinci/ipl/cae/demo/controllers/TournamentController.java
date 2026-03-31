@@ -115,7 +115,7 @@ public class TournamentController {
 
     // Check dates
     LocalDate today = LocalDate.now();
-    if (dto.registrationDeadline().isBefore(today)) {
+    if (dto.registrationDeadline().isBefore(today.atStartOfDay())) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Deadline cannot be in the past");
     }
     if (dto.endDate().isBefore(dto.startDate())) {
