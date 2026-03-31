@@ -1,10 +1,18 @@
-import { ListItem, ListItemText, IconButton, Tooltip } from '@mui/material';
+import {
+  ListItem,
+  ListItemText,
+  IconButton,
+  Tooltip,
+  Typography,
+  Stack,
+} from '@mui/material';
 import { NotificationDto } from '../types';
 import { useContext } from 'react';
 import { UserContext } from '../contexts/UserContext';
-import { MarkEmailReadOutlined } from '@mui/icons-material';
+import { Check } from '@mui/icons-material';
 import { formatRelativeTime } from '../utils/date';
 import { useNotifications } from '../hooks/useNotifications';
+import { NotificationContext } from '../contexts/NotificationContext';
 
 interface Props {
   notification: NotificationDto;
@@ -12,14 +20,39 @@ interface Props {
 
 export const NotificationItem = ({ notification }: Props) => {
   const { authenticatedUser } = useContext(UserContext);
+  const { handleNotificationClick } = useContext(NotificationContext);
   const { markAsRead } = useNotifications();
-  if (!authenticatedUser) return;
+
+  // Logic: Only clickable if it has a reference ID
+  const isClickable = !!notification.idReference;
+
+  if (!authenticatedUser) return null;
+
+  const contentParts = notification.content.split('\n');
+  const title = contentParts[0];
+  const description =
+    contentParts.length > 1 ? contentParts.slice(1).join('\n') : null;
+
   return (
     <ListItem
+      //  only trigger if there is a destination
+      onClick={
+        isClickable ? () => handleNotificationClick(notification) : undefined
+      }
       sx={{
+        alignItems: 'center',
+        transition: 'all 0.2s ease-in-out',
         backgroundColor: (theme) =>
           notification.isRead ? 'transparent' : theme.palette.background.s3,
-        alignItems: 'center',
+        cursor: isClickable ? 'pointer' : undefined,
+        '&:hover': {
+          backgroundColor: (theme) =>
+            isClickable && !notification.isRead
+              ? theme.palette.background.s4
+              : isClickable && notification.isRead
+                ? theme.palette.background.s3
+                : undefined,
+        },
       }}
       secondaryAction={
         !notification.isRead && (
@@ -27,36 +60,55 @@ export const NotificationItem = ({ notification }: Props) => {
             <IconButton
               size="small"
               color="primary"
-              onClick={() => markAsRead(notification.idNotification)}
+              onClick={(e) => {
+                // stops bubbling
+                e.stopPropagation();
+                markAsRead(notification.idNotification);
+              }}
             >
-              <MarkEmailReadOutlined />
+              <Check />
             </IconButton>
           </Tooltip>
         )
       }
     >
       <ListItemText
-        primary={notification.content}
-        secondary={formatRelativeTime(notification.dateTime)}
-        slotProps={{
-          primary: {
-            variant: 'h5',
-            color: 'text.primary',
-            sx: {
+        disableTypography
+        primary={
+          <Typography
+            variant="h5"
+            color="text.primary"
+            fontWeight={400}
+            sx={{
               textOverflow: 'ellipsis',
               overflow: 'hidden',
               whiteSpace: 'nowrap',
-            },
-          },
-          secondary: {
-            variant: 'body2',
-            sx: {
-              textOverflow: 'ellipsis',
-              overflow: 'hidden',
-              whiteSpace: 'nowrap',
-            },
-          },
-        }}
+            }}
+          >
+            {title}
+          </Typography>
+        }
+        secondary={
+          <>
+            {description && (
+              <Stack
+                padding="0.375rem 0.5rem"
+                borderRadius="0.375rem"
+                border={(theme) => `1px solid ${theme.palette.divider}`}
+                mt="0.5rem"
+                width="fit-content"
+                maxWidth="100%"
+              >
+                <Typography variant="h6" color="text.primary" fontWeight={400}>
+                  {description}
+                </Typography>
+              </Stack>
+            )}
+            <Typography variant="h6" color="text.secondary" mt="0.5rem">
+              {formatRelativeTime(notification.dateTime)}
+            </Typography>
+          </>
+        }
       />
     </ListItem>
   );

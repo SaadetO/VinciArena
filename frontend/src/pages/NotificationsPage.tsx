@@ -19,7 +19,7 @@ export const NotificationsPage = () => {
       >
         {notifications.length === 0 ? (
           <Stack
-            padding="4rem 1.5rem"
+            padding="3rem 1.5rem"
             spacing="0.25rem"
             alignItems="center"
             justifyContent="center"

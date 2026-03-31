@@ -54,9 +54,9 @@ public class TeamService {
   public TeamDetailsDto getTeamDetails(Long id, Member currentMember) {
     Team team = teamRepository.findById(id).orElse(null);
     if (team == null) {
-      return null;
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+          "La team n'existe pas ou n'est plus active.");
     }
-
 
     List<UserSummaryDto> managers = new ArrayList<>();
     if (team.getManager1() != null) {
@@ -70,10 +70,9 @@ public class TeamService {
         .map(memberService::getUserSummary)
         .collect(Collectors.toList());
 
-    boolean isManager = isManager(team, currentMember);
-
     List<JoinRequestDto> joinRequests = null;
-    if (isManager) {
+
+    if (currentMember != null && isManager(team, currentMember)) {
       joinRequests = joinRequestRepository.findAllByRequestedTeamAndStatus(team,
               RequestStatus.PENDING)
           .stream()
@@ -108,11 +107,12 @@ public class TeamService {
   @Transactional
   public Team createTeam(String teamName, Member creator) {
     if (teamRepository.existsByName(teamName)) {
-      return null;
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "Le nom de Team est déjà pris.");
     }
 
     if (creator.getTeam() != null) {
-      return null;
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+          "L'utilisateur fait déjà partie d'une équipe");
     }
 
     Team team = new Team();
@@ -190,24 +190,28 @@ public class TeamService {
   public Team designateSecondManager(Long teamId, Long memberId, Member currentMember) {
     Team team = teamRepository.findById(teamId).orElse(null);
     if (team == null) {
-      return null;
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+          "La team n'existe pas ou n'est plus active.");
     }
 
     // Check if currentMember is a manager
     boolean isManager = isManager(team, currentMember);
     if (!isManager) {
-      return null;
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+          "L'utilisateur n'a pas les droits de responsable.");
     }
 
     Member memberToDesignate = memberRepository.findById(memberId).orElse(null);
     if (memberToDesignate == null) {
-      return null;
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+          "L'utilisateur n'existe pas.");
     }
 
     // Check if member belongs to the team
     if (memberToDesignate.getTeam() == null || !memberToDesignate.getTeam().getIdTeam()
         .equals(teamId)) {
-      return null;
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+          "L'utilisateur ne fait pas partie de la Team.");
     }
 
     // Check if member is already a manager
@@ -222,7 +226,8 @@ public class TeamService {
     } else if (team.getManager2() == null) {
       team.setManager2(memberToDesignate);
     } else {
-      return null; // Both spots taken
+      throw new ResponseStatusException(HttpStatus.CONFLICT,
+          "Il n'y a plus de place de responsable libre dans l'équipe."); // Both spots taken
     }
 
     return teamRepository.save(team);
@@ -240,7 +245,6 @@ public class TeamService {
     if (currentMember.getTeam() == null) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
           "L'utilisateur ne fait pas partie de la Team.");
-
     }
 
     Team team = currentMember.getTeam();
@@ -274,6 +278,6 @@ public class TeamService {
     currentMember.setTeam(null);
     memberRepository.save(currentMember);
 
-    return;
+    teamRepository.save(team);
   }
 }

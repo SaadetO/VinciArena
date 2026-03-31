@@ -1,16 +1,19 @@
 package be.vinci.ipl.cae.demo.controllers;
 
+import be.vinci.ipl.cae.demo.models.dtos.MemberSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.PasswordUpdateDto;
 import be.vinci.ipl.cae.demo.models.dtos.ProfileDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.ProfileImage;
 import be.vinci.ipl.cae.demo.services.MemberService;
+import be.vinci.ipl.cae.demo.services.TeamService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,14 +27,28 @@ import org.springframework.web.server.ResponseStatusException;
 public class MemberController {
 
   private final MemberService memberService;
+  private final TeamService teamService;
 
   /**
    * Constructor for MemberController.
    *
    * @param memberService the injected MemberService.
+   * @param teamService   the injected TeamService.
    */
-  public MemberController(MemberService memberService) {
+  public MemberController(MemberService memberService, TeamService teamService) {
     this.memberService = memberService;
+    this.teamService = teamService;
+  }
+
+  /**
+   * Get all members as lightweight summaries (no sensitive data). Available to any authenticated
+   * user.
+   *
+   * @return an array of member summaries (id, tag, specialty, avatar).
+   */
+  @GetMapping({"/", ""})
+  public MemberSummaryDto[] getAllMemberSummaries() {
+    return memberService.getAllMemberSummaries();
   }
 
   /**
@@ -114,7 +131,7 @@ public class MemberController {
   /**
    * Update a member's specialty.
    *
-   * @param specialtyId the new profile image entity
+   * @param specialtyId   the new profile image entity
    * @param currentMember the currently authenticated member
    */
   @PreAuthorize("isAuthenticated()")
@@ -152,5 +169,16 @@ public class MemberController {
     if (!updated) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
+  }
+
+  /**
+   * Quit the current team.
+   *
+   * @param currentMember the authenticated member
+   */
+  @PostMapping("/me/quit-team")
+  @PreAuthorize("isAuthenticated()")
+  public void quitTeam(@AuthenticationPrincipal Member currentMember) {
+    teamService.quitTeam(currentMember);
   }
 }

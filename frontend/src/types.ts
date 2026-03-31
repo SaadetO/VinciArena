@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { ReactNode } from 'react';
 
 interface MainContext {}
@@ -80,6 +81,13 @@ interface UserSummaryDto {
   avatar: string | null;
 }
 
+interface MemberSummaryDto {
+  id: number;
+  tag: string;
+  specialty: string | null;
+  avatar: string | null;
+}
+
 interface Team {
   idTeam: number;
   name: string;
@@ -93,6 +101,7 @@ interface JoinRequestDto {
   status: 'PENDING' | 'ACCEPTED' | 'REJECTED';
   expirationDate: string;
   requester: UserSummaryDto;
+  rejectionReason?: string;
 }
 
 interface TeamDetailsInfoDto {
@@ -104,11 +113,18 @@ interface TeamDetailsInfoDto {
   joinRequests: JoinRequestDto[] | null;
 }
 
+export enum NotificationType {
+  TEAM = 'TEAM',
+  MATCH = 'MATCH',
+  TOURNAMENT = 'TOURNAMENT',
+}
 interface NotificationDto {
   idNotification: number;
   content: string;
   isRead: boolean;
   dateTime: Date;
+  type: NotificationType;
+  idReference: number | null;
 }
 
 interface StoredUser {
@@ -149,6 +165,32 @@ interface RegisterFormData {
   specialtyId: number | null;
   profileImageId: number | null;
 }
+interface TournamentDto {
+  idTournament: number;
+  name: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  registrationDeadline: string;
+  tournamentStatus:
+    | 'IN_PREPARATION'
+    | 'REGISTRATION_OPEN'
+    | 'REGISTRATION_CLOSED'
+    | 'PLANNED'
+    | 'IN_PROGRESS'
+    | 'DONE';
+  maxNbOfTeams: number;
+  teams?: Team[];
+}
+
+export class ApiError extends Error {
+  status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.status = status;
+    this.name = 'ApiError';
+  }
+}
 
 export type {
   MainContext,
@@ -164,9 +206,11 @@ export type {
   NotificationDto,
   StoredUser,
   Member,
+  MemberSummaryDto,
   SpecialtyDto,
   ProfilePicture,
   ModalConfig,
   RegisterFormData,
   UserSummaryDto,
+  TournamentDto,
 };
