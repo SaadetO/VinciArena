@@ -1,6 +1,5 @@
 import { useSnackbar } from './useSnackbar';
 import { useApi } from './useApi';
-import { TournamentDto } from '../types';
 import { useContext } from 'react';
 import { UserContext } from '../contexts/UserContext';
 import { TournamentDetailsInfoDto, TournamentDto } from '../types';
@@ -73,7 +72,7 @@ export const useTournament = (config: UseTournamentOptions) => {
 
   // insert new tournament
   const { execute: create } = useApi(
-    async (data: Partial<TournamentDto>) => {
+    async (data: Partial<TournamentDetailsInfoDto>) => {
       const response = await fetch('/api/tournaments/', {
         method: 'POST',
         headers: {
