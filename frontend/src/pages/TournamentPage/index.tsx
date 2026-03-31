@@ -5,6 +5,7 @@ import { useParams } from 'react-router-dom';
 import { Button } from '@mui/material';
 import { TournamentModal } from './modals/tournamentModal';
 
+// TEMP tournamaenet page
 export const TournamentPage = () => {
   const { id } = useParams();
   const [isTournamentModalOpen, setIsTournamentModalOpen] = useState(false);
@@ -13,6 +14,7 @@ export const TournamentPage = () => {
 
   useEffect(() => {
     id && getById(Number(id));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   return (
