@@ -1,12 +1,8 @@
 import { TournamentBanner } from './components/TournamentBanner';
-import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { TournamentDetailsInfoDto } from '../../types';
 import { useTournament } from '../../hooks/useTournament';
-import { TournamentDto } from '../../types';
 import { useParams } from 'react-router-dom';
-import { Button } from '@mui/material';
-import { TournamentModal } from './modals/tournamentModal';
 
 export const TournamentPage = () => {
   const { id } = useParams();

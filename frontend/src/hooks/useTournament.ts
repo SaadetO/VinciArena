@@ -3,10 +3,11 @@ import { useApi } from './useApi';
 import { TournamentDto } from '../types';
 import { useContext } from 'react';
 import { UserContext } from '../contexts/UserContext';
+import { TournamentDetailsInfoDto, TournamentDto } from '../types';
 
 interface UseTournamentOptions {
   setTournaments?: (tournaments: TournamentDto[]) => void;
-  setTournament?: (tournament: TournamentDto) => void;
+  setTournament?: (tournament: TournamentDetailsInfoDto) => void;
 }
 
 export const useTournament = (config: UseTournamentOptions) => {

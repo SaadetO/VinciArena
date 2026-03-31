@@ -172,7 +172,32 @@ interface TournamentDto {
   startDate: string;
   endDate: string;
   registrationDeadline: string;
-  tournamentStatus:
+  tournamentStatus: TournamentStatus;
+  nbMaxOfTeams: number;
+  teams?: Team[];
+}
+
+type TournamentStatus =
+  | 'IN_PREPARATION'
+  | 'REGISTRATION_OPEN'
+  | 'REGISTRATION_CLOSED'
+  | 'PLANNED'
+  | 'IN_PROGRESS'
+  | 'DONE';
+
+interface MatchTeamDto {
+  idTeam: number;
+  name: string;
+  score: number | null;
+  isWinner: boolean;
+  hasForfeited: boolean;
+}
+
+interface MatchSummaryDto {
+  idMatch: number;
+  dateHour: string;
+  turn: number;
+  status:
     | 'IN_PREPARATION'
     | 'REGISTRATION_OPEN'
     | 'REGISTRATION_CLOSED'
@@ -181,6 +206,27 @@ interface TournamentDto {
     | 'DONE';
   nbMaxOfTeams: number;
   teams: Team[];
+  isConfirmed: boolean;
+  team1: MatchTeamDto;
+  team2: MatchTeamDto;
+}
+
+interface TournamentDetailsInfoDto {
+  idTournament: number;
+  name: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  status: TournamentStatus;
+  nbMaxOfTeams: number;
+  registrationsCount: number;
+  teams: TeamSummaryDto[];
+  matches: MatchSummaryDto[];
+}
+
+interface TeamSummaryDto {
+  idTeam: number;
+  name: string;
 }
 
 export class ApiError extends Error {
@@ -213,4 +259,8 @@ export type {
   RegisterFormData,
   UserSummaryDto,
   TournamentDto,
+  MatchTeamDto,
+  MatchSummaryDto,
+  TournamentDetailsInfoDto,
+  TeamSummaryDto,
 };
