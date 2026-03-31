@@ -205,7 +205,6 @@ interface MatchSummaryDto {
     | 'PLANNED'
     | 'IN_PROGRESS'
     | 'DONE';
-  nbMaxOfTeams: number;
   teams: Team[];
   isConfirmed: boolean;
   team1: MatchTeamDto;
