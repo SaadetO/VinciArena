@@ -171,8 +171,8 @@ interface TournamentDto {
     | 'PLANNED'
     | 'IN_PROGRESS'
     | 'DONE';
-  maxNbOfTeams: number;
-  teams?: Team[];
+  nbMaxOfTeams: number;
+  teams: Team[];
 }
 
 export class ApiError extends Error {
