@@ -277,6 +277,44 @@ export const useMembers = (options?: UseMembersOptions) => {
     },
   );
 
+  const { execute: banMember } = useApi(
+    async (id: number) => {
+      const response = await fetch(`/api/members/${id}/ban`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: authenticatedUser?.token ?? '',
+        },
+      });
+
+      if (!response.ok) throw new Error('Échec du bannissement du membre.');
+    },
+    {
+      onOptimism: (id) => {
+        setPendingIds?.((prev) => [...prev, id]);
+      },
+      onSuccess: (_, id) => {
+        setPendingIds?.((prev) => prev.filter((pid) => pid !== id));
+        setUsers?.(
+          (prev) =>
+            prev?.map((u) => (u.id === id ? { ...u, deleted: true } : u)) ?? [],
+        );
+        showSnackbar({
+          message: 'Membre banni avec succès',
+          severity: 'success',
+        });
+      },
+      onError: (err, id) => {
+        setPendingIds?.((prev) => prev.filter((pid) => pid !== id));
+        showSnackbar({
+          message:
+            err instanceof Error ? err.message : 'Erreur lors du bannissement',
+          severity: 'error',
+        });
+      },
+    },
+  );
+
   return {
     getAll,
     getById,
@@ -287,5 +325,6 @@ export const useMembers = (options?: UseMembersOptions) => {
     isGettingUsers,
     getAllSummaries,
     isGettingSummaries,
+    banMember,
   };
 };

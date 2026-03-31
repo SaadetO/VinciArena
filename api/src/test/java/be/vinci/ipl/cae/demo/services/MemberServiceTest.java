@@ -163,6 +163,7 @@ class MemberServiceTest {
     Member member = new Member();
     member.setEmail(email);
     member.setPassword("encodedPassword");
+    member.setDeleted(false);
 
     when(memberRepository.findByEmail(email)).thenReturn(member);
     when(passwordEncoder.matches(password, "encodedPassword")).thenReturn(true);
@@ -185,6 +186,7 @@ class MemberServiceTest {
     Member member = new Member();
     member.setEmail(email);
     member.setPassword("encodedPassword");
+    member.setDeleted(false);
 
     when(memberRepository.findByEmail(email)).thenReturn(member);
     when(passwordEncoder.matches(password, "encodedPassword")).thenReturn(false);
@@ -209,4 +211,144 @@ class MemberServiceTest {
       memberService.login(email, password);
     });
   }
+
+  @Test
+  void loginMemberBanned(){
+
+    // Arrange
+    Member member = new Member();
+    member.setEmail("test@mail.com");
+    member.setPassword("encodedPassword");
+    member.setDeleted(true);
+
+    when(memberRepository.findByEmail("test@mail.com")).thenReturn(member);
+
+    // Act + Assert
+    assertThrows(ResponseStatusException.class, () -> {
+      memberService.login("test@mail.com", "Password1!");
+    });
+  }
+
+
+  @Test
+  void banMemberWhenRequesterIsAdmin(){
+
+    // Arrange
+    Member admin = new Member();
+    admin.setEmail("admin@mail.com");
+    admin.setAdmin(true);
+
+    Member target = new Member();
+    target.setIdMember(1L);
+    target.setDeleted(false);
+
+    when(memberRepository.findByEmail("admin@mail.com")).thenReturn(admin);
+    when(memberRepository.findById(1L)).thenReturn(java.util.Optional.of(target));
+
+    // Act
+    memberService.banMember(1L, "admin@mail.com");
+
+    // Assert
+    assertTrue(target.isDeleted());
+  }
+
+  @Test
+  void banMemberWithNonAdminRequester(){
+
+    // Arrange
+    Member user = new Member();
+    user.setEmail("user@mail.com");
+    user.setAdmin(false);
+
+    when(memberRepository.findByEmail("user@mail.com")).thenReturn(user);
+
+    // Act + Assert
+    assertThrows(ResponseStatusException.class, () -> {
+      memberService.banMember(1L, "user@mail.com");
+    });
+  }
+
+
+  @Test
+  void banMemberWithUnknownMember(){
+
+    // Arrange
+    Member admin = new Member();
+    admin.setEmail("admin@mail.com");
+    admin.setAdmin(true);
+
+    when(memberRepository.findByEmail("admin@mail.com")).thenReturn(admin);
+    when(memberRepository.findById(1L)).thenReturn(java.util.Optional.empty());
+
+    // Act + Assert
+    assertThrows(ResponseStatusException.class, () -> {
+      memberService.banMember(1L, "admin@mail.com");
+    });
+  }
+
+  @Test
+  void banMemberAlreadyBanned(){
+
+    // Arrange
+    Member admin = new Member();
+    admin.setEmail("admin@mail.com");
+    admin.setAdmin(true);
+
+    Member target = new Member();
+    target.setIdMember(1L);
+    target.setDeleted(true);
+
+    when(memberRepository.findByEmail("admin@mail.com")).thenReturn(admin);
+    when(memberRepository.findById(1L)).thenReturn(java.util.Optional.of(target));
+
+    // Act + Assert
+    assertThrows(ResponseStatusException.class, () -> {
+      memberService.banMember(1L, "admin@mail.com");
+    });
+  }
+
+  @Test
+  void banMemberSelfBan(){
+
+    // Arrange
+    Member admin = new Member();
+    admin.setEmail("admin@mail.com");
+    admin.setIdMember(1L);
+    admin.setAdmin(true);
+
+    when(memberRepository.findByEmail("admin@mail.com")).thenReturn(admin);
+    when(memberRepository.findById(1L)).thenReturn(java.util.Optional.of(admin));
+
+    // Act + Assert
+    assertThrows(ResponseStatusException.class, () -> {
+      memberService.banMember(1L, "admin@mail.com");
+    });
+  }
+
+
+  @Test
+  void banMemberTargetIsAdmin(){
+
+    // Arrange
+    Member admin = new Member();
+    admin.setEmail("admin@mail.com");
+    admin.setAdmin(true);
+
+    Member target = new Member();
+    target.setIdMember(1L);
+    target.setAdmin(true);
+
+    when(memberRepository.findByEmail("admin@mail.com")).thenReturn(admin);
+    when(memberRepository.findById(1L)).thenReturn(java.util.Optional.of(target));
+
+    // Act + Assert
+    assertThrows(ResponseStatusException.class, () -> {
+      memberService.banMember(1L, "admin@mail.com");
+    });
+  }
+
+
+
+
+
 }
