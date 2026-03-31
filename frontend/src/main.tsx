@@ -17,6 +17,7 @@ import { NotificationsPage } from './pages/NotificationsPage.tsx';
 import { TeamPage } from './pages/TeamPage/index.tsx';
 import { ModalContextProvider } from './contexts/ModalContext.tsx';
 import { SnackbarProvider } from './contexts/SnackbarContext.tsx';
+import { TournamentPage } from './pages/TournamentPage/index.tsx';
 
 const router = createBrowserRouter([
   {
@@ -48,6 +49,7 @@ const router = createBrowserRouter([
         path: 'notifications',
         element: <NotificationsPage></NotificationsPage>,
       },
+      { path: 'tournaments/:id', element: <TournamentPage /> },
     ],
   },
   {
