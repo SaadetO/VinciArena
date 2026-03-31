@@ -16,5 +16,4 @@ import java.time.LocalDateTime;
 public record NewTournament(String name, String description, LocalDate startDate,
                             LocalDate endDate, int nbMaxOfTeams,
                             LocalDateTime registrationDeadline) {
-
 }

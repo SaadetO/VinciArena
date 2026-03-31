@@ -30,7 +30,8 @@ export const useTeams = (options?: UseTeamsOptions) => {
 
   const { execute: getById, loading: isGettingTeam } = useApi(
     async (idTeam: number) => {
-      if (isNaN(idTeam) || idTeam <= 0) return;
+      if (isNaN(idTeam) || idTeam <= 0)
+        throw new ApiError('Identifiant invalide', 400);
 
       const response = await fetch(`/api/teams/${idTeam}/details`, {
         headers: {
@@ -59,7 +60,9 @@ export const useTeams = (options?: UseTeamsOptions) => {
           subtitle:
             status === 404
               ? "La team que vous cherchez n'existe pas ou a été désactivée."
-              : 'Une erreur est survenue lors de la récupération de la Team.',
+              : status === 400
+                ? "L'identifiant de la team doit être un nombre positif."
+                : 'Une erreur est survenue lors de la récupération de la Team.',
         });
       },
     },

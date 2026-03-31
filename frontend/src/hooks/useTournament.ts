@@ -1,10 +1,10 @@
 import { useSnackbar } from './useSnackbar';
 import { useApi } from './useApi';
-import { TournamentDto } from '../types';
+import { TournamentDetailsInfoDto, TournamentDto } from '../types';
 
 interface UseTournamentOptions {
   setTournaments?: (tournaments: TournamentDto[]) => void;
-  setTournament?: (tournament: TournamentDto) => void;
+  setTournament?: (tournament: TournamentDetailsInfoDto) => void;
 }
 
 export const useTournament = (config: UseTournamentOptions) => {

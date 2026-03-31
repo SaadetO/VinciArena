@@ -290,19 +290,19 @@ export const theme = createTheme({
           color: '#FFFFFF',
         },
         colorPrimary: {
-          background: `color-mix(in srgb, ${primaryColor} 10%, transparent)`,
+          background: `color-mix(in srgb, ${primaryColor} 10%, ${surfaceLevels.s3})`,
           color: primaryColor,
         },
         colorSuccess: {
-          background: 'color-mix(in srgb, #4CE59B 10%, transparent)',
+          background: `color-mix(in srgb, #4CE59B 10%, ${surfaceLevels.s3})`,
           color: '#4CE59B',
         },
         colorWarning: {
-          background: 'color-mix(in srgb, #F5B664 10%, transparent)',
+          background: `color-mix(in srgb, #F5B664 10%, ${surfaceLevels.s3})`,
           color: '#F5B664',
         },
         colorSecondary: {
-          background: 'color-mix(in srgb, #8C8C8C 10%, transparent)',
+          background: `color-mix(in srgb, #8C8C8C 10%, ${surfaceLevels.s3})`,
           color: '#8C8C8C',
         },
       },
