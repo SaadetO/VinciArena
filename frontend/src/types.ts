@@ -173,7 +173,7 @@ interface TournamentDto {
   endDate: string;
   registrationDeadline: string;
   tournamentStatus: TournamentStatus;
-  nbMaxOfTeams: number;
+  capacity: number;
   teams?: Team[];
 }
 
@@ -218,10 +218,11 @@ interface TournamentDetailsInfoDto {
   startDate: string;
   endDate: string;
   status: TournamentStatus;
-  nbMaxOfTeams: number;
+  capacity: number;
   registrationsCount: number;
   teams: TeamSummaryDto[];
   matches: MatchSummaryDto[];
+  registrationDeadline: string;
 }
 
 interface TeamSummaryDto {
