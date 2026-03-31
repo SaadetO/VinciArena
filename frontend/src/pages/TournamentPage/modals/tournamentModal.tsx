@@ -10,13 +10,13 @@ import { TournamentModalContent } from './tournamentModalContent';
 import { useSnackbar } from '../../../hooks/useSnackbar';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { TournamentDto } from '../../../types';
+import { TournamentDetailsInfoDto } from '../../../types';
 import { useTournament } from '../../../hooks/useTournament';
 
 interface TournamentModalProps {
   open: boolean;
   onClose: () => void;
-  tournament?: TournamentDto;
+  tournament?: TournamentDetailsInfoDto;
 }
 
 export const TournamentModal = ({
@@ -28,7 +28,8 @@ export const TournamentModal = ({
   const navigate = useNavigate();
 
   // track input data
-  const [formData, setFormData] = useState<Partial<TournamentDto> | null>(null);
+  const [formData, setFormData] =
+    useState<Partial<TournamentDetailsInfoDto> | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isEdit = !!tournament;
@@ -87,9 +88,9 @@ export const TournamentModal = ({
       >
         {isEdit ? 'Modifier le Tournoi' : 'Créer un nouveau Tournoi'}
       </DialogTitle>
-
       <DialogContent sx={{ px: 4, py: 3, overflowX: 'hidden' }}>
         <TournamentModalContent
+          key={tournament?.idTournament ?? 'new'}
           tournament={tournament}
           onDataChange={setFormData}
         />
