@@ -6,7 +6,6 @@ import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.models.entities.Tournament;
 import be.vinci.ipl.cae.demo.models.entities.TournamentStatus;
 import be.vinci.ipl.cae.demo.repositories.MatchLineupRepository;
-import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.TournamentRepository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -26,16 +25,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class TournamentService {
 
   private final TournamentRepository tournamentRepository;
-  private final MemberRepository memberRepository;
   private final MatchLineupRepository matchLineupRepository;
 
   /**
    * Constructor.
    */
   public TournamentService(TournamentRepository tournamentRepository,
-      MemberRepository memberRepository, MatchLineupRepository matchLineupRepository) {
+       MatchLineupRepository matchLineupRepository) {
     this.tournamentRepository = tournamentRepository;
-    this.memberRepository = memberRepository;
     this.matchLineupRepository = matchLineupRepository;
   }
 
