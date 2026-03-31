@@ -53,8 +53,8 @@ export const AdminManagementModal = ({
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [displayedUserIds, setDisplayedUserIds] = useState<number[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [, setCanScrollTop] = useState(false);
-  const [, setCanScrollBottom] = useState(false);
+  const [canScrollTop, setCanScrollTop] = useState(false);
+  const [canScrollBottom, setCanScrollBottom] = useState(false);
   const usersRef = useRef(users);
   usersRef.current = users;
 
@@ -112,11 +112,15 @@ export const AdminManagementModal = ({
     toggleAdmin(user.id, user.admin);
   };
 
-  const handleBan = (id: number) => {
+  const handleBan = (id: number, tag: string) => {
     openModal({
-      title: 'Bannir un membre',
-      subtitle: 'Êtes-vous sûr de vouloir bannir ce membre ?',
-      confirmLabel: 'Confirmer',
+      title: 'Bannir ' + tag,
+      subtitle:
+        'Êtes-vous sûr de vouloir bannir ' +
+        tag +
+        ' ? Cette action est irréversible.',
+      confirmLabel: 'Bannir',
+      confirmColor: 'error',
       cancelLabel: 'Annuler',
       onConfirm: async (close) => {
         await banMember(id);
@@ -143,7 +147,7 @@ export const AdminManagementModal = ({
   };
 
   const contentRef = useRef<HTMLDivElement>(null);
-  const [, setContentHeight] = useState<number | string>('auto');
+  const [contentHeight, setContentHeight] = useState<number | string>('auto');
 
   useLayoutEffect(() => {
     if (contentRef.current && open) {
@@ -229,21 +233,99 @@ export const AdminManagementModal = ({
         />
       </Stack>
 
-      <Stack>
-        <DialogContent ref={scrollRef} onScroll={handleScroll}>
-          <Stack ref={contentRef}>
-            <List>
-              {filteredUsers.map((user) => (
-                <UserItem
-                  key={user.id}
-                  user={user}
-                  handleToggleAdmin={handleToggleAdmin}
-                  handleBan={handleBan}
-                  authenticatedUser={authenticatedUser ?? null}
-                  isPending={pendingIds.includes(user.id)}
-                />
-              ))}
-            </List>
+      <Stack
+        sx={{
+          position: 'relative',
+          '&::before': {
+            content: '""',
+            display: 'block',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '2rem',
+            zIndex: 10,
+            background: (theme) =>
+              `linear-gradient(to bottom, ${theme.palette.background.s1}, transparent)`,
+            opacity: canScrollTop ? 1 : 0,
+            pointerEvents: 'none',
+          },
+          '&::after': {
+            content: '""',
+            display: 'block',
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: '2rem',
+            zIndex: 10,
+            background: (theme) =>
+              `linear-gradient(to top, ${theme.palette.background.s1}, transparent)`,
+            opacity: canScrollBottom ? 1 : 0,
+            pointerEvents: 'none',
+          },
+        }}
+      >
+        <DialogContent
+          ref={scrollRef}
+          onScroll={handleScroll}
+          sx={{
+            maxHeight: '22rem',
+            height: contentHeight,
+            overflowY: 'auto',
+            padding: 0,
+            transition: 'height 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          }}
+        >
+          <Stack ref={contentRef} sx={{ padding: '1rem' }}>
+            {isGettingUsers ? (
+              <List disablePadding sx={{ height: '100%' }}>
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <UserItem
+                    key={index}
+                    user={null}
+                    handleToggleAdmin={() => {}}
+                    authenticatedUser={null}
+                    isPending={false}
+                    handleBan={handleBan}
+                  />
+                ))}
+              </List>
+            ) : (
+              <List disablePadding sx={{ height: '100%' }}>
+                {filteredUsers.map((user) => (
+                  <UserItem
+                    key={user.id}
+                    user={user}
+                    handleToggleAdmin={handleToggleAdmin}
+                    authenticatedUser={authenticatedUser ?? null}
+                    isPending={pendingIds.includes(user.id)}
+                    handleBan={handleBan}
+                  />
+                ))}
+                {!isGettingUsers && filteredUsers.length === 0 && (
+                  <Stack
+                    padding="2rem 1.5rem"
+                    spacing="0.25rem"
+                    alignItems="center"
+                    justifyContent="center"
+                    height="100%"
+                  >
+                    <Typography variant="h5" textAlign="center">
+                      Aucun membre correspondant
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      textAlign="center"
+                      width="14rem"
+                      color="text.secondary"
+                    >
+                      Essayez de modifier votre recherche
+                    </Typography>
+                  </Stack>
+                )}
+              </List>
+            )}
           </Stack>
         </DialogContent>
       </Stack>

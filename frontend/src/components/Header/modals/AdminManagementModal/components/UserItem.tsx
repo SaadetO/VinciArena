@@ -14,7 +14,7 @@ import { Member, AuthenticatedUser } from '../../../../../types';
 interface UserItemProps {
   user: Member | null;
   handleToggleAdmin: (user: Member) => void;
-  handleBan: (id: number) => void;
+  handleBan: (id: number, tag: string) => void;
   authenticatedUser: AuthenticatedUser | null;
   isPending: boolean;
 }
@@ -61,7 +61,7 @@ export const UserItem = ({
       sx={{
         borderRadius: '0.5rem',
         mb: '0.25rem',
-        opacity: user.deleted ? 0.4 : 1,
+        opacity: user.deleted ? 0.6 : 1,
         filter: user.deleted ? 'grayscale(100%)' : 'none',
       }}
       secondaryAction={
@@ -70,15 +70,13 @@ export const UserItem = ({
             user.id !== authenticatedUser?.id &&
             !user.deleted && (
               <Tooltip title="Bannir" placement="left" arrow>
-                <span>
-                  <IconButton
-                    color="error"
-                    onClick={() => handleBan(user.id)}
-                    disabled={isPending || user.deleted}
-                  >
-                    <BlockIcon />
-                  </IconButton>
-                </span>
+                <IconButton
+                  size="small"
+                  onClick={() => handleBan(user.id, user.tag)}
+                  disabled={isPending || user.deleted}
+                >
+                  <BlockIcon sx={{ color: 'text.secondary' }} />
+                </IconButton>
               </Tooltip>
             )}
 
@@ -97,16 +95,14 @@ export const UserItem = ({
             placement="left"
             arrow
           >
-            <span>
-              <Switch
-                edge="end"
-                checked={user.admin}
-                onChange={() => !isPending && handleToggleAdmin(user)}
-                disabled={
-                  isPending || user.id === authenticatedUser?.id || user.deleted
-                }
-              />
-            </span>
+            <Switch
+              edge="end"
+              checked={user.admin}
+              onChange={() => !isPending && handleToggleAdmin(user)}
+              disabled={
+                isPending || user.id === authenticatedUser?.id || user.deleted
+              }
+            />
           </Tooltip>
         </span>
       }
@@ -119,13 +115,11 @@ export const UserItem = ({
       </ListItemAvatar>
 
       <ListItemText
-        primary={`${user.tag} ${user.deleted ? '(banni)' : ''}`}
+        primary={user.tag}
         secondary={
           <>
             {user.email}
-            {user.deleted && (
-              <span style={{ color: 'red', marginLeft: '8px' }}>(Banni)</span>
-            )}
+            {user.deleted && ' (Banni)'}
           </>
         }
         sx={{
