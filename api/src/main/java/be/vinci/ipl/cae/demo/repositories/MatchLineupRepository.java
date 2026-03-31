@@ -2,6 +2,7 @@ package be.vinci.ipl.cae.demo.repositories;
 
 import be.vinci.ipl.cae.demo.models.entities.MatchLineup;
 import be.vinci.ipl.cae.demo.models.entities.MatchLineupId;
+import java.util.Collection;
 import java.util.List;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
@@ -11,13 +12,19 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface MatchLineupRepository extends CrudRepository<MatchLineup, MatchLineupId> {
+  /**
+   * Get match lineups for a specific match.
+   *
+   * @param idMatch the id of the match
+   * @return a list of match lineups
+   */
+  List<MatchLineup> findByIdIdMatch(Long idMatch);
 
   /**
-   * Get matche lineups related to a certain member.
+   * Get a match by the id of the members.
    *
-   * @param memberIds id of the member
-   * @return a MatchLineup
+   * @param membersIdMembers the ids of the members
+   * @return an iterable of MatchLineups
    */
-  Iterable<MatchLineup> findByMembersIdMemberIn(List<Long> memberIds);
-
+  Iterable<MatchLineup> findByMembersIdMemberIn(Collection<Long> membersIdMembers);
 }

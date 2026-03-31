@@ -1,6 +1,7 @@
 package be.vinci.ipl.cae.demo.controllers;
 
 import be.vinci.ipl.cae.demo.models.dtos.NewTournament;
+import be.vinci.ipl.cae.demo.models.dtos.TournamentDetailsDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Tournament;
 import be.vinci.ipl.cae.demo.repositories.TournamentRepository;
@@ -58,14 +59,18 @@ public class TournamentController {
   }
 
   /**
-   * Get a tournament by its id.
+   * Get a tournament details by its id.
    *
    * @param id the id of the requested tournament.
-   * @return a tournament.
+   * @return a tournament details DTO.
    */
   @GetMapping("/{id}")
-  public Tournament getTournament(@PathVariable Long id) {
-    return tournamentRepo.findById(id).orElse(null);
+  public TournamentDetailsDto getTournament(@PathVariable Long id) {
+    TournamentDetailsDto details = tournamentService.getTournamentDetails(id);
+    if (details == null) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Tournament not found");
+    }
+    return details;
   }
 
   /**
