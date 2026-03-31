@@ -12,8 +12,10 @@ import be.vinci.ipl.cae.demo.repositories.TeamRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 /**
  * Team service.
@@ -234,9 +236,11 @@ public class TeamService {
    * @return the updated team, or null if member is not in a team
    */
   @Transactional
-  public Team quitTeam(Member currentMember) {
+  public void quitTeam(Member currentMember) {
     if (currentMember.getTeam() == null) {
-      return null;
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+          "L'utilisateur ne fait pas partie de la Team.");
+
     }
 
     Team team = currentMember.getTeam();
@@ -252,7 +256,8 @@ public class TeamService {
       } else if (
           1 < team.getMembers().size()
       ) {
-        return null;
+        throw new ResponseStatusException(HttpStatus.CONFLICT,
+            "Member cannot quit team as the last manager.");
       } else {
         team.setManager1(null);
       }
@@ -269,6 +274,6 @@ public class TeamService {
     currentMember.setTeam(null);
     memberRepository.save(currentMember);
 
-    return teamRepository.save(team);
+    return;
   }
 }
