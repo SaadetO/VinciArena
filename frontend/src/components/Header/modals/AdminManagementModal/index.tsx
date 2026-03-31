@@ -26,6 +26,7 @@ import { useModal } from '../../../../hooks/useModal';
 import { Member } from '../../../../types';
 import { UserItem } from './components/UserItem';
 import { useMembers } from '../../../../hooks/useMembers';
+import { banModal } from '../banModal';
 
 interface AdminManagementModalProps {
   open: boolean;
@@ -113,21 +114,15 @@ export const AdminManagementModal = ({
   };
 
   const handleBan = (id: number, tag: string) => {
-    openModal({
-      title: 'Bannir ' + tag,
-      subtitle:
-        'Êtes-vous sûr de vouloir bannir ' +
-        tag +
-        ' ? Cette action est irréversible.',
-      confirmLabel: 'Bannir',
-      confirmColor: 'error',
-      cancelLabel: 'Annuler',
-      onConfirm: async (close) => {
-        await banMember(id);
-        close();
-      },
-      onCancel: (close) => close(),
-    });
+    openModal(
+      banModal({
+        tag,
+        onConfirm: async (close) => {
+          await banMember(id);
+          close();
+        },
+      }),
+    );
   };
 
   const handleFilterClick = (event: React.MouseEvent<HTMLButtonElement>) => {

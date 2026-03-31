@@ -7,6 +7,7 @@ import {
   Switch,
   Tooltip,
   IconButton,
+  Stack,
 } from '@mui/material';
 import BlockIcon from '@mui/icons-material/Block';
 import { Member, AuthenticatedUser } from '../../../../../types';
@@ -65,7 +66,7 @@ export const UserItem = ({
         filter: user.deleted ? 'grayscale(100%)' : 'none',
       }}
       secondaryAction={
-        <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <Stack direction="row" alignItems="center" spacing="0.5rem">
           {!user.admin &&
             user.id !== authenticatedUser?.id &&
             !user.deleted && (
@@ -104,7 +105,7 @@ export const UserItem = ({
               }
             />
           </Tooltip>
-        </span>
+        </Stack>
       }
     >
       <ListItemAvatar>
@@ -127,7 +128,6 @@ export const UserItem = ({
             whiteSpace: 'nowrap',
             textOverflow: 'ellipsis',
             overflow: 'hidden',
-            color: user.deleted ? 'gray' : 'inherit',
           },
         }}
         slotProps={{
