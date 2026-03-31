@@ -57,7 +57,7 @@ public class Tournament {
   private TournamentStatus tournamentStatus = TournamentStatus.IN_PREPARATION;
 
   @Column(nullable = false)
-  private int maxNbOfTeams;
+  private int capacity;
 
   @ManyToMany
   @JoinTable(
@@ -70,13 +70,13 @@ public class Tournament {
   /**
    * Set max number of teams for the current tournament.
    *
-   * @param maxNbOfTeams max number of teams
+   * @param capacity max number of teams
    */
-  public void setMaxNbOfTeams(int maxNbOfTeams) {
-    if (maxNbOfTeams <= 0) {
+  public void setMaxNbOfTeams(int capacity) {
+    if (capacity <= 0) {
       throw new IllegalArgumentException("Max teams must be > 0");
     }
-    this.maxNbOfTeams = maxNbOfTeams;
+    this.capacity = capacity;
   }
 
   /**
@@ -127,7 +127,7 @@ public class Tournament {
     teams.add(team);
     team.joinTournament(this);
     // change status to REGISTRATIONS_CLOSED if tournament became full
-    if (getRegistrationsNumber() == maxNbOfTeams) {
+    if (getRegistrationsNumber() == capacity) {
       setTournamentStatus(TournamentStatus.REGISTRATION_CLOSED);
     }
     return true;

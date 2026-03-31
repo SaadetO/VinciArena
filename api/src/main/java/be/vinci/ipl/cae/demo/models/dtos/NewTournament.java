@@ -10,10 +10,10 @@ import java.time.LocalDateTime;
  * @param description description of the tournament
  * @param startDate stratDate of the tournament
  * @param endDate endDate of the tournament
- * @param nbMaxOfTeams nbMaxOfTeams of the tournament
+ * @param capacity nbMaxOfTeams of the tournament
  * @param registrationDeadline registrationDeadline of the tournament
  */
 public record NewTournament(String name, String description, LocalDate startDate,
-                            LocalDate endDate, int nbMaxOfTeams,
+                            LocalDate endDate, int capacity,
                             LocalDateTime registrationDeadline) {
 }

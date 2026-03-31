@@ -37,6 +37,8 @@ public class TournamentService {
   private final TournamentRepository tournamentRepository;
   private final MemberRepository memberRepository;
   private final MatchLineupRepository matchLineupRepository;
+  private final MatchRepository matchRepository;
+  private final MatchResultConfirmationRepository confirmationRepository;
 
   /**
    * Constructor.
@@ -47,6 +49,90 @@ public class TournamentService {
     this.tournamentRepository = tournamentRepository;
     this.memberRepository = memberRepository;
     this.matchLineupRepository = matchLineupRepository;
+    this.matchRepository = matchRepository;
+    this.confirmationRepository = confirmationRepository;
+  }
+
+  /**
+   * Get complete details of a tournament (teams, matches, scores).
+   */
+  public TournamentDetailsDto getTournamentDetails(Long idTournament) {
+    Tournament tournament = tournamentRepository.findById(idTournament).orElse(null);
+    if (tournament == null) {
+      return null;
+    }
+
+    // Map participating teams
+    List<TeamSummaryDto> teams = tournament.getTeams().stream()
+        .map(t -> new TeamSummaryDto(t.getIdTeam(), t.getName()))
+        .toList();
+
+    // Fetch and map matches
+    List<Match> matchesEntities = matchRepository.findByTournamentIdTournamentOrderByDateHourAsc(
+        idTournament);
+    List<MatchSummaryDto> matches = new ArrayList<>();
+
+    for (Match match : matchesEntities) {
+      // Fetch lineups for results
+      List<MatchLineup> lineups = matchLineupRepository.findByIdIdMatch(match.getIdMatch());
+
+      MatchTeamDto team1Dto = createMatchTeamDto(match.getTeam1(), lineups);
+      MatchTeamDto team2Dto = createMatchTeamDto(match.getTeam2(), lineups);
+
+      // Fetch confirmation status
+      Optional<MatchResultConfirmation> confirmation = confirmationRepository.findById(
+          match.getIdMatch());
+      boolean isConfirmed = confirmation.isPresent()
+          && Boolean.TRUE.equals(confirmation.get().getConfirmationTeam1())
+          && Boolean.TRUE.equals(confirmation.get().getConfirmationTeam2());
+
+      matches.add(new MatchSummaryDto(
+          match.getIdMatch(),
+          match.getDateHour(),
+          match.getTurn(),
+          match.getStatus(),
+          isConfirmed,
+          team1Dto,
+          team2Dto
+      ));
+    }
+
+    return new TournamentDetailsDto(
+        tournament.getIdTournament(),
+        tournament.getName(),
+        tournament.getDescription(),
+        tournament.getStartDate(),
+        tournament.getEndDate(),
+        tournament.getRegistrationDeadline(),
+        tournament.getTournamentStatus(),
+        tournament.getCapacity(),
+        tournament.getRegistrationsNumber(),
+        teams,
+        matches
+    );
+  }
+
+  private MatchTeamDto createMatchTeamDto(Team team, List<MatchLineup> lineups) {
+    if (team == null) {
+      return null;
+    }
+
+    MatchLineup lineup = lineups.stream()
+        .filter(l -> l.getTeam().getIdTeam().equals(team.getIdTeam()))
+        .findFirst()
+        .orElse(null);
+
+    if (lineup == null) {
+      return new MatchTeamDto(team.getIdTeam(), team.getName(), null, false, false);
+    }
+
+    return new MatchTeamDto(
+        team.getIdTeam(),
+        team.getName(),
+        lineup.getScore(),
+        lineup.isWinner(),
+        lineup.isHasForfeited()
+    );
   }
 
   /**
@@ -59,7 +145,7 @@ public class TournamentService {
     Tournament tournament = new Tournament();
     tournament.setName(newTournament.name());
     tournament.setDescription(newTournament.description());
-    tournament.setMaxNbOfTeams(newTournament.nbMaxOfTeams());
+    tournament.setMaxNbOfTeams(newTournament.capacity());
     tournament.setEndDate(newTournament.endDate());
     tournament.setStartDate(newTournament.startDate());
     tournament.setRegistrationDeadline(newTournament.registrationDeadline());

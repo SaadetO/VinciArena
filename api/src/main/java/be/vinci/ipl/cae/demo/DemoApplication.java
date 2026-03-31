@@ -12,6 +12,7 @@ import be.vinci.ipl.cae.demo.repositories.SpecialtyRepository;
 import be.vinci.ipl.cae.demo.repositories.TeamRepository;
 import be.vinci.ipl.cae.demo.repositories.TournamentRepository;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.boot.CommandLineRunner;
@@ -85,7 +86,9 @@ public class DemoApplication {
           boolean isAdmin,
           boolean isManager,
           String teamName
-      ) {}
+      ) {
+
+      }
 
       MemberMockData[] memberDataList = {
           new MemberMockData("lea@mail.com", "Lynx", "tacticien",
@@ -204,7 +207,7 @@ public class DemoApplication {
       Tournament t6 = new Tournament();
       t6.setName("Tournament Zeta");
       t6.setDescription("A completed tournament.");
-      t6.setRegistrationDeadline(LocalDate.of(2026, 1, 1).atStartOfDay());
+      t6.setRegistrationDeadline(LocalDateTime.of(2026, 1, 1, 20, 59));
       t6.setStartDate(LocalDate.of(2026, 2, 15));
       t6.setEndDate(LocalDate.of(2026, 2, 20));
       t6.setTournamentStatus(TournamentStatus.DONE);

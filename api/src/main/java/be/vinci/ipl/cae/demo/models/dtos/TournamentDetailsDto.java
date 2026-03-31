@@ -2,6 +2,7 @@ package be.vinci.ipl.cae.demo.models.dtos;
 
 import be.vinci.ipl.cae.demo.models.entities.TournamentStatus;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -13,8 +14,9 @@ public record TournamentDetailsDto(
     String description,
     LocalDate startDate,
     LocalDate endDate,
+    LocalDateTime registrationDeadline,
     TournamentStatus status,
-    int maxNbOfTeams,
+    int capacity,
     int registrationsCount,
     List<TeamSummaryDto> teams,
     List<MatchSummaryDto> matches

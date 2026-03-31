@@ -5,7 +5,7 @@ POST {{baseUrl}}/auths/login
 Content-Type: application/json
 
 {
-  "email": "ines@mail.com",
+  "email": "lea@mail.com",
   "password": "Password1!"
 }
 
@@ -19,8 +19,8 @@ Authorization: {{auth_token}}
 {
   "name": "Vinci Arena Opening",
   "description": "The very first tournament of the year.",
-  "nbMaxOfTeams": 16,
-  "registrationDeadline": "2026-04-15",
+  "capacity": 16,
+  "registrationDeadline": "2026-04-15T20:00:00",
   "startDate": "2026-04-20",
   "endDate": "2026-04-22"
 }
@@ -41,7 +41,7 @@ Authorization: {{auth_token}}
 {
   "name": "   ",
   "description": "Valid description",
-  "nbMaxOfTeams": 16,
+  "capacity": 16,
   "registrationDeadline": "2026-04-15",
   "startDate": "2026-04-20",
   "endDate": "2026-04-22"
@@ -55,7 +55,7 @@ Authorization: {{auth_token}}
 {
   "name": "Small Tournament",
   "description": "Testing max teams",
-  "nbMaxOfTeams": 0,
+  "capacity": 0,
   "registrationDeadline": "2026-04-15",
   "startDate": "2026-04-20",
   "endDate": "2026-04-22"
@@ -69,7 +69,7 @@ Authorization: {{auth_token}}
 {
   "name": "Past Tournament",
   "description": "This should fail",
-  "nbMaxOfTeams": 8,
+  "capacity": 8,
   "registrationDeadline": "2020-01-01",
   "startDate": "2026-04-20",
   "endDate": "2026-04-22"
@@ -83,7 +83,7 @@ Authorization: {{auth_token}}
 {
   "name": "Time Traveler Cup",
   "description": "Ends before it starts",
-  "nbMaxOfTeams": 8,
+  "capacity": 8,
   "registrationDeadline": "2026-04-15",
   "startDate": "2026-04-20",
   "endDate": "2026-04-18"
@@ -96,7 +96,7 @@ Content-Type: application/json
 {
   "name": "Anonymous Tournament",
   "description": "No token provided",
-  "nbMaxOfTeams": 16,
+  "capacity": 16,
   "registrationDeadline": "2026-04-15",
   "startDate": "2026-04-20",
   "endDate": "2026-04-22"
