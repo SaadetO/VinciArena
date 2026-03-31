@@ -61,8 +61,12 @@ export const useJoinRequests = (options?: UseJoinRequestsOptions) => {
   );
 
   const { execute: updateJoinRequestStatus, loading: isUpdatingJoinRequest } =
-    useApi(
-      async (joinRequest: JoinRequestDto, status: 'ACCEPTED' | 'REJECTED') => {
+    useApi<void, [JoinRequestDto, 'ACCEPTED' | 'REJECTED', string | undefined]>(
+      async (
+        joinRequest: JoinRequestDto,
+        status: 'ACCEPTED' | 'REJECTED',
+        rejectionReason?: string,
+      ) => {
         const response = await fetch(
           `/api/teams/join-requests/${joinRequest.idJoinRequest}`,
           {
@@ -71,7 +75,7 @@ export const useJoinRequests = (options?: UseJoinRequestsOptions) => {
               'Content-Type': 'application/json',
               Authorization: authenticatedUser?.token ?? '',
             },
-            body: JSON.stringify(status),
+            body: JSON.stringify({ status, rejectionReason }),
           },
         );
 

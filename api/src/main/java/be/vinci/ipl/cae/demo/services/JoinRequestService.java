@@ -48,7 +48,9 @@ public class JoinRequestService {
    *
    * @param teamId    the ID of the team to join
    * @param requester the member requesting to join
-   * @return the created JoinRequestDto, or null if the request is invalid
+   * @return the created JoinRequestDto
+   * @throws ResponseStatusException if team not found, user already in team or already has a
+   *                                 pending request for that team
    */
   public JoinRequestDto createJoinRequest(Long teamId, Member requester) {
     Team requestedTeam = teamRepository.findById(teamId).orElse(null);
@@ -89,24 +91,39 @@ public class JoinRequestService {
   /**
    * Update the status of a join request.
    *
-   * @param requestId the ID of the join request
-   * @param newStatus the new status (ACCEPTED or REJECTED)
-   * @param manager   the manager performing the action
+   * @param requestId       the ID of the join request
+   * @param newStatus       the new status (ACCEPTED or REJECTED)
+   * @param rejectionReason the reason for rejection (required if REJECTED)
+   * @param manager         the manager performing the action
    * @return the updated JoinRequestDto
    * @throws ResponseStatusException if the request doesn't exist, is not pending, or the user is
    *                                 not authorized
    */
   @Transactional
-  public JoinRequestDto updateJoinRequestStatus(Long requestId, RequestStatus newStatus,
-      Member manager) {
+  public JoinRequestDto updateJoinRequestStatus(Long requestId,
+      RequestStatus newStatus, String rejectionReason, Member manager) {
+
     JoinRequest joinRequest = joinRequestRepository.findById(requestId).orElse(null);
+
     if (joinRequest == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Demande d'adhésion non trouvée");
+    }
+
+    if (newStatus == null) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Le statut est obligatoire");
     }
 
     if (joinRequest.getStatus() != RequestStatus.PENDING) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
           "Cette demande n'est plus en attente");
+    }
+
+    if (newStatus == RequestStatus.REJECTED) {
+      if (rejectionReason == null || rejectionReason.isBlank()) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+            "Une raison est obligatoire pour refuser une demande");
+      }
+      joinRequest.setRejectionReason(rejectionReason);
     }
 
     Team team = joinRequest.getRequestedTeam();
@@ -124,7 +141,14 @@ public class JoinRequestService {
     joinRequestRepository.save(joinRequest);
 
     Member requester = joinRequest.getMember();
-    String decision = newStatus == RequestStatus.ACCEPTED ? "acceptée" : "rejetée";
+    String decision;
+
+    if (newStatus == RequestStatus.ACCEPTED) {
+      decision = "acceptée";
+    } else {
+      decision = "rejetée.\n" + rejectionReason;
+    }
+
     notificationService.notifyMember(requester.getIdMember(),
         "Votre demande pour rejoindre " + team.getName() + " a été " + decision,
         NotificationType.TEAM, null);
@@ -133,8 +157,6 @@ public class JoinRequestService {
       requester.setTeam(team);
       memberRepository.save(requester);
 
-      // Obsolete requests deletion: 
-      // Delete all other pending requests for this member as they are now in a team
       joinRequestRepository.deleteAllByMemberAndStatus(requester, RequestStatus.PENDING);
     }
 
@@ -144,6 +166,7 @@ public class JoinRequestService {
         .teamName(team.getName())
         .status(joinRequest.getStatus())
         .expirationDate(joinRequest.getExpirationDate())
+        .rejectionReason(joinRequest.getRejectionReason())
         .build();
   }
 }

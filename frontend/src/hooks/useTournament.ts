@@ -15,8 +15,19 @@ export const useTournament = (config: UseTournamentOptions) => {
   const { authenticatedUser } = useContext(UserContext);
 
   const { execute: getAll, loading: isGettingTournaments } = useApi(
-    async (timeframe?: string) => {
-      const query = timeframe ? `?timeframe=${timeframe}` : '';
+    async ({
+      timeframe,
+      members,
+      teams,
+    }: {
+      timeframe: 'past' | 'current' | 'future' | undefined;
+      members: number[] | undefined;
+      teams: number[] | undefined;
+    }) => {
+      let query = timeframe ? `?timeframe=${timeframe}` : '';
+      if (members)
+        query += (query ? '&' : '?') + 'membersIds=' + members.join(',');
+      if (teams) query += (query ? '&' : '?') + 'teamsIds=' + teams.join(',');
       const response = await fetch(`/api/tournaments${query}`);
       if (!response.ok) {
         throw new Error('Échec de la récupération des tournois !');

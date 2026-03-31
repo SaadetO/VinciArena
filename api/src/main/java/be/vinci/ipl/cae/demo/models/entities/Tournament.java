@@ -1,5 +1,6 @@
 package be.vinci.ipl.cae.demo.models.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -29,6 +30,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Tournament {
 
   @Id
@@ -99,7 +101,37 @@ public class Tournament {
 
     // Implied: registrationDeadline is before endDate
   }
-}
 
+  public int getRegistrationsNumber() {
+    return teams.size();
+  }
+
+  @Override
+  public String toString() {
+    return getName() + ": " + getTournamentStatus();
+  }
+
+  /**
+   * Registers a team and closes the tournament if it becomes full.
+   *
+   * @return true if registered, false if closed or deadline passed.
+   */
+  public boolean registerTeam(Team team) {
+    // checking dates
+    LocalDateTime now = LocalDateTime.now();
+    if (this.tournamentStatus != TournamentStatus.REGISTRATION_OPEN
+        || !registrationDeadline.isAfter(now)) {
+      return false;
+    }
+    // register team
+    teams.add(team);
+    team.joinTournament(this);
+    // change status to REGISTRATIONS_CLOSED if tournament became full
+    if (getRegistrationsNumber() == maxNbOfTeams) {
+      setTournamentStatus(TournamentStatus.REGISTRATION_CLOSED);
+    }
+    return true;
+  }
+}
 
 

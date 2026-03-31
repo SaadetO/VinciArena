@@ -5,7 +5,8 @@ import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Tournament;
 import be.vinci.ipl.cae.demo.repositories.TournamentRepository;
 import be.vinci.ipl.cae.demo.services.TournamentService;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -41,14 +42,19 @@ public class TournamentController {
   }
 
   /**
-   * Get all tournaments, optionally filtered by timeframe.
+   * Get all tournaments, optionally filtered by timeframe, teams, or members.
    *
    * @param timeframe past, current, or future.
+   * @param teamsIds a list of team IDs to filter tournaments by (OR filter).
+   * @param membersIds a list of member IDs whose teams filter the tournaments (OR filter).
    * @return the list of tournaments.
    */
   @GetMapping({"", "/"})
-  public Iterable<Tournament> getTournaments(@RequestParam(required = false) String timeframe) {
-    return tournamentService.getTournaments(timeframe);
+  public Iterable<Tournament> getTournaments(
+      @RequestParam(required = false) String timeframe,
+      @RequestParam(required = false) List<Long> teamsIds,
+      @RequestParam(required = false) List<Long> membersIds) {
+    return tournamentService.getTournaments(timeframe, teamsIds, membersIds);
   }
 
   /**
@@ -114,8 +120,7 @@ public class TournamentController {
     }
 
     // Check dates
-    LocalDate today = LocalDate.now();
-    if (dto.registrationDeadline().isBefore(today.atStartOfDay())) {
+    if (dto.registrationDeadline().isBefore(LocalDateTime.now())) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Deadline cannot be in the past");
     }
     if (dto.endDate().isBefore(dto.startDate())) {
