@@ -5,7 +5,7 @@ import { useParams } from 'react-router-dom';
 import { Button } from '@mui/material';
 import { TournamentModal } from './modals/tournamentModal';
 
-// TEMP tournamaenet page
+// TEMP tournament page
 export const TournamentPage = () => {
   const { id } = useParams();
   const [isTournamentModalOpen, setIsTournamentModalOpen] = useState(false);
