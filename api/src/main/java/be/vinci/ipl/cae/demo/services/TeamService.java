@@ -247,7 +247,8 @@ public class TeamService {
           "L'utilisateur ne fait pas partie de la Team.");
     }
 
-    Team team = currentMember.getTeam();
+    Team team = teamRepository.findById(currentMember.getTeam().getIdTeam())
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Team not found"));
 
     if (
         isManager1(team, currentMember)
