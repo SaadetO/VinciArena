@@ -22,6 +22,7 @@ import {
 } from 'react';
 import { UserContext } from '../../../../contexts/UserContext';
 import { useSnackbar } from '../../../../hooks/useSnackbar';
+import { useModal } from '../../../../hooks/useModal';
 import { Member } from '../../../../types';
 import { UserItem } from './components/UserItem';
 import { useMembers } from '../../../../hooks/useMembers';
@@ -37,20 +38,23 @@ export const AdminManagementModal = ({
 }: AdminManagementModalProps) => {
   const { authenticatedUser } = useContext(UserContext);
   const { showSnackbar } = useSnackbar();
+  const { openModal } = useModal();
+
   const [users, setUsers] = useState<Member[]>([]);
   const [pendingIds, setPendingIds] = useState<number[]>([]);
-  const { getAll, toggleAdmin, isGettingUsers } = useMembers({
+  const { getAll, toggleAdmin, isGettingUsers, banMember } = useMembers({
     setUsers,
     setPendingIds,
   });
+
   const [searchQuery, setSearchQuery] = useState('');
   const [filter, setFilter] = useState<'all' | 'members' | 'admins'>('all');
   const [filterVersion, setFilterVersion] = useState(0);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [displayedUserIds, setDisplayedUserIds] = useState<number[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [canScrollTop, setCanScrollTop] = useState(false);
-  const [canScrollBottom, setCanScrollBottom] = useState(false);
+  const [, setCanScrollTop] = useState(false);
+  const [, setCanScrollBottom] = useState(false);
   const usersRef = useRef(users);
   usersRef.current = users;
 
@@ -68,8 +72,6 @@ export const AdminManagementModal = ({
   }, [open, handleScroll, authenticatedUser?.token, getAll]);
 
   useLayoutEffect(() => {
-    // Only update the list membership when search, filter, filterVersion or length changes.
-    // Using a ref to not have to put users in the dependency array which would cause the effect we're looking to avoid.
     let result = usersRef.current;
 
     if (filter === 'members') {
@@ -110,6 +112,20 @@ export const AdminManagementModal = ({
     toggleAdmin(user.id, user.admin);
   };
 
+  const handleBan = (id: number) => {
+    openModal({
+      title: 'Bannir un membre',
+      subtitle: 'Êtes-vous sûr de vouloir bannir ce membre ?',
+      confirmLabel: 'Confirmer',
+      cancelLabel: 'Annuler',
+      onConfirm: async (close) => {
+        await banMember(id);
+        close();
+      },
+      onCancel: (close) => close(),
+    });
+  };
+
   const handleFilterClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -126,14 +142,13 @@ export const AdminManagementModal = ({
     handleFilterClose();
   };
 
-  // Dynamic height animation
   const contentRef = useRef<HTMLDivElement>(null);
-  const [contentHeight, setContentHeight] = useState<number | string>('auto');
+  const [, setContentHeight] = useState<number | string>('auto');
 
   useLayoutEffect(() => {
     if (contentRef.current && open) {
       const height = contentRef.current.scrollHeight;
-      setContentHeight(height + 2); // 2px buffer for rounding
+      setContentHeight(height + 2);
     }
   }, [filteredUsers.length, isGettingUsers, open, searchQuery]);
 
@@ -214,97 +229,21 @@ export const AdminManagementModal = ({
         />
       </Stack>
 
-      <Stack
-        sx={{
-          position: 'relative',
-          '&::before': {
-            content: '""',
-            display: 'block',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            height: '2rem',
-            zIndex: 10,
-            background: (theme) =>
-              `linear-gradient(to bottom, ${theme.palette.background.s1}, transparent)`,
-            opacity: canScrollTop ? 1 : 0,
-            pointerEvents: 'none',
-          },
-          '&::after': {
-            content: '""',
-            display: 'block',
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: '2rem',
-            zIndex: 10,
-            background: (theme) =>
-              `linear-gradient(to top, ${theme.palette.background.s1}, transparent)`,
-            opacity: canScrollBottom ? 1 : 0,
-            pointerEvents: 'none',
-          },
-        }}
-      >
-        <DialogContent
-          ref={scrollRef}
-          onScroll={handleScroll}
-          sx={{
-            maxHeight: '22rem',
-            height: contentHeight,
-            overflowY: 'auto',
-            padding: 0,
-            transition: 'height 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          }}
-        >
-          <Stack ref={contentRef} sx={{ padding: '1rem' }}>
-            {isGettingUsers ? (
-              <List disablePadding sx={{ height: '100%' }}>
-                {Array.from({ length: 4 }).map((_, index) => (
-                  <UserItem
-                    key={index}
-                    user={null}
-                    handleToggleAdmin={() => {}}
-                    authenticatedUser={null}
-                    isPending={false}
-                  />
-                ))}
-              </List>
-            ) : (
-              <List disablePadding sx={{ height: '100%' }}>
-                {filteredUsers.map((user) => (
-                  <UserItem
-                    key={user.id}
-                    user={user}
-                    handleToggleAdmin={handleToggleAdmin}
-                    authenticatedUser={authenticatedUser ?? null}
-                    isPending={pendingIds.includes(user.id)}
-                  />
-                ))}
-                {!isGettingUsers && filteredUsers.length === 0 && (
-                  <Stack
-                    padding="2rem 1.5rem"
-                    spacing="0.25rem"
-                    alignItems="center"
-                    justifyContent="center"
-                    height="100%"
-                  >
-                    <Typography variant="h5" textAlign="center">
-                      Aucun membre correspondant
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      textAlign="center"
-                      width="14rem"
-                      color="text.secondary"
-                    >
-                      Essayez de modifier votre recherche
-                    </Typography>
-                  </Stack>
-                )}
-              </List>
-            )}
+      <Stack>
+        <DialogContent ref={scrollRef} onScroll={handleScroll}>
+          <Stack ref={contentRef}>
+            <List>
+              {filteredUsers.map((user) => (
+                <UserItem
+                  key={user.id}
+                  user={user}
+                  handleToggleAdmin={handleToggleAdmin}
+                  handleBan={handleBan}
+                  authenticatedUser={authenticatedUser ?? null}
+                  isPending={pendingIds.includes(user.id)}
+                />
+              ))}
+            </List>
           </Stack>
         </DialogContent>
       </Stack>

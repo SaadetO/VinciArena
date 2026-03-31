@@ -26,6 +26,7 @@ interface User {
 }
 
 interface Member {
+  deleted: boolean;
   id: number;
   tag: string;
   email: string;
