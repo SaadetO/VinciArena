@@ -16,7 +16,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { ArrowForward } from '@mui/icons-material';
-import { TournamentDto } from '../../../types';
+import { TournamentDetailsInfoDto } from '../../../types';
 
 // même theme de datePicker que unavailablities
 const datePickerSx: SxProps<Theme> = {
@@ -31,8 +31,8 @@ const datePickerSx: SxProps<Theme> = {
 };
 
 interface TournamentModalContentProps {
-  tournament?: TournamentDto;
-  onDataChange: (data: Partial<TournamentDto> | null) => void;
+  tournament?: TournamentDetailsInfoDto;
+  onDataChange: (data: Partial<TournamentDetailsInfoDto> | null) => void;
 }
 export const TournamentModalContent = ({
   tournament,
@@ -40,28 +40,46 @@ export const TournamentModalContent = ({
 }: TournamentModalContentProps) => {
   const [tabIndex, setTabIndex] = useState(0);
 
-  // define default values for new tournament details
-  const [formData, setFormData] = useState<Partial<TournamentDto>>({
+  // default values
+  const [formData, setFormData] = useState<Partial<TournamentDetailsInfoDto>>({
     name: tournament?.name ?? '',
     description: tournament?.description ?? '',
-    // suggest ideal number of teams
-    nbMaxOfTeams: tournament?.nbMaxOfTeams ?? 16, // ideal number of teams
-
-    // suggest dates 1 week apart
+    capacity: tournament?.capacity ?? 16,
+    status: tournament?.status ?? 'IN_PREPARATION',
     registrationDeadline:
       tournament?.registrationDeadline ??
-      dayjs().add(7, 'day').hour(20).minute(0o0).toISOString(),
-
-    startDate: tournament?.startDate ?? dayjs().add(14, 'day').toISOString(),
-
-    endDate: tournament?.endDate ?? dayjs().add(20, 'day').toISOString(),
+      dayjs()
+        .add(7, 'day')
+        .hour(20)
+        .minute(0)
+        .second(0)
+        .format('YYYY-MM-DDTHH:mm:ss'),
+    startDate:
+      tournament?.startDate ?? dayjs().add(14, 'day').format('YYYY-MM-DD'),
+    endDate: tournament?.endDate ?? dayjs().add(20, 'day').format('YYYY-MM-DD'),
   });
-
+  // insert data recovered from the backend for modification mode
+  useEffect(() => {
+    if (tournament && tournament.idTournament) {
+      setFormData({
+        name: tournament.name ?? '',
+        description: tournament.description ?? '',
+        capacity: tournament.capacity,
+        status: tournament.status,
+        registrationDeadline: tournament.registrationDeadline,
+        startDate: tournament.startDate,
+        endDate: tournament.endDate,
+      });
+    }
+  }, [tournament]);
   useEffect(() => {
     onDataChange(formData);
   }, [formData, onDataChange]);
 
-  const handleChange = (field: keyof TournamentDto, value: unknown) => {
+  const handleChange = (
+    field: keyof TournamentDetailsInfoDto,
+    value: unknown,
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -103,13 +121,19 @@ export const TournamentModalContent = ({
               <DateTimePicker
                 label="Date Limite d'Inscription"
                 format="DD/MM/YYYY HH:mm"
-                value={dayjs(formData.registrationDeadline)}
+                value={
+                  formData.registrationDeadline
+                    ? dayjs(formData.registrationDeadline)
+                    : null
+                }
                 onChange={(date) =>
-                  handleChange('registrationDeadline', date?.toISOString())
+                  handleChange(
+                    'registrationDeadline',
+                    date ? date.format('YYYY-MM-DDTHH:mm:ss') : null,
+                  )
                 }
                 slotProps={{ textField: { sx: datePickerSx } }}
               />
-
               <Stack direction="row" spacing={2} alignItems="center">
                 <DatePicker
                   label="Début"
@@ -137,9 +161,9 @@ export const TournamentModalContent = ({
               <TextField
                 label="Capacité"
                 type="number"
-                value={formData.nbMaxOfTeams}
+                value={formData.capacity ?? ''}
                 onChange={(e) =>
-                  handleChange('nbMaxOfTeams', parseInt(e.target.value))
+                  handleChange('capacity', parseInt(e.target.value) || 0)
                 }
                 fullWidth
               />
