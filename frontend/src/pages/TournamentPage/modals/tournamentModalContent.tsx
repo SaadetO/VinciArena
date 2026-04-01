@@ -6,6 +6,8 @@ import {
   TextField,
   SxProps,
   Theme,
+  Button,
+  CircularProgress,
 } from '@mui/material';
 import {
   DatePicker,
@@ -33,10 +35,16 @@ const datePickerSx: SxProps<Theme> = {
 interface TournamentModalContentProps {
   tournament?: TournamentDetailsInfoDto;
   onDataChange: (data: Partial<TournamentDetailsInfoDto> | null) => void;
+  handleSave: () => void;
+  isSubmitting: boolean;
+  onClose: () => void;
 }
 export const TournamentModalContent = ({
   tournament,
   onDataChange,
+  handleSave,
+  isSubmitting,
+  onClose,
 }: TournamentModalContentProps) => {
   const [tabIndex, setTabIndex] = useState(0);
 
@@ -113,6 +121,33 @@ export const TournamentModalContent = ({
                 onChange={(e) => handleChange('description', e.target.value)}
                 fullWidth
               />
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  gap: 2,
+                  mt: 'auto',
+                  pt: 2,
+                }}
+              >
+                <Button onClick={onClose} sx={{ color: 'secondary' }}>
+                  Annuler
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={() => setTabIndex(1)}
+                  disabled={
+                    !formData.name?.trim() || !formData.description?.trim()
+                  }
+                  sx={{
+                    borderRadius: '30px',
+                    px: 4,
+                    backgroundColor: 'primary',
+                  }}
+                >
+                  Continuer
+                </Button>
+              </Box>
             </Stack>
           )}
 
@@ -170,6 +205,41 @@ export const TournamentModalContent = ({
                 }
                 fullWidth
               />
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  gap: 2,
+                  mt: 'auto',
+                  pt: 2,
+                }}
+              >
+                <Button onClick={onClose} sx={{ color: 'secondary' }}>
+                  Annuler
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={handleSave}
+                  disabled={
+                    isSubmitting ||
+                    !formData.name?.trim() ||
+                    !formData.description?.trim()
+                  }
+                  sx={{
+                    borderRadius: '30px',
+                    px: 4,
+                    backgroundColor: 'primary',
+                  }}
+                >
+                  {isSubmitting ? (
+                    <CircularProgress size={24} />
+                  ) : tournament ? (
+                    'Enregistrer'
+                  ) : (
+                    'Créer'
+                  )}
+                </Button>
+              </Box>
             </Stack>
           )}
         </Box>
