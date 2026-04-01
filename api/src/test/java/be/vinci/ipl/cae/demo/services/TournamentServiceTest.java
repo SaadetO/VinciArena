@@ -11,6 +11,9 @@ import be.vinci.ipl.cae.demo.models.dtos.NewTournament;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Tournament;
 import be.vinci.ipl.cae.demo.models.entities.TournamentStatus;
+import be.vinci.ipl.cae.demo.repositories.MatchLineupRepository;
+import be.vinci.ipl.cae.demo.repositories.MatchRepository;
+import be.vinci.ipl.cae.demo.repositories.MatchResultConfirmationRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.TournamentRepository;
 import java.time.LocalDate;
@@ -27,6 +30,14 @@ class TournamentServiceTest {
   @Mock
   private TournamentRepository tournamentRepository;
 
+  private MemberRepository memberRepository;
+
+  private MatchLineupRepository matchLineupRepository;
+
+  private MatchRepository matchRepository;
+
+  private MatchResultConfirmationRepository confirmationRepository;
+
   private TournamentService tournamentService;
 
   private Member memberAdmin;
@@ -37,7 +48,13 @@ class TournamentServiceTest {
 
   @BeforeEach
   void setUp() {
-    tournamentService = new TournamentService(tournamentRepository);
+    tournamentService = new TournamentService(
+        tournamentRepository,
+        memberRepository,
+        matchLineupRepository,
+        matchRepository,
+        confirmationRepository
+    );
 
     memberAdmin = new Member();
     memberAdmin.setAdmin(true);
@@ -46,7 +63,7 @@ class TournamentServiceTest {
         "un1", "ud1",
         LocalDate.of(2028, 1, 1),
         LocalDate.of(2028, 1, 31), 4,
-        LocalDate.of(2027, 12, 1)
+        LocalDate.of(2027, 12, 1).atStartOfDay()
     );
   }
 
@@ -117,7 +134,9 @@ class TournamentServiceTest {
     tournament.setDescription("d1");
     tournament.setStartDate(LocalDate.of(2027, 1, 1));
     tournament.setEndDate(LocalDate.of(2027, 1, 31));
-    tournament.setRegistrationDeadline(LocalDate.of(2026, 12, 1));
+    tournament.setRegistrationDeadline(
+        LocalDate.of(2026, 12, 1).atStartOfDay()
+    );
     tournament.setMaxNbOfTeams(8);
     tournament.setTournamentStatus(TournamentStatus.IN_PREPARATION);
 
@@ -136,7 +155,7 @@ class TournamentServiceTest {
         () -> assertEquals("ud1", result.getDescription()),
         () -> assertEquals(LocalDate.of(2028, 1, 1), result.getStartDate()),
         () -> assertEquals(LocalDate.of(2028, 1, 31), result.getEndDate()),
-        () -> assertEquals(4, result.getMaxNbOfTeams()),
+        () -> assertEquals(4, result.getCapacity()),
         () -> assertEquals(
             LocalDate.of(2027, 12, 1),result.getRegistrationDeadline()
         )
