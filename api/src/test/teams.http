@@ -23,13 +23,13 @@ Content-Type: application/json
 
 > {% client.global.set("tokenA", response.body.token); %}
 
-### 3: Create a team (expect 201)
+### 3: CREATE A TEAM (201)
 POST {{baseUrl}}/teams/
 Content-Type: application/json
-Authorization: {{auth_token}}
+Authorization: Bearer {{tokenA}}
 
 {
-  "name": "My Team"
+  "name": "TeamA"
 }
 
 ### 4: Create a team with duplicate name (expect 409)
