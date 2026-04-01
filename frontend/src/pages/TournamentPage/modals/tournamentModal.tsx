@@ -2,9 +2,10 @@ import { Dialog, DialogContent, DialogTitle } from '@mui/material';
 import { TournamentModalContent } from './tournamentModalContent';
 import { useSnackbar } from '../../../hooks/useSnackbar';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { TournamentDetailsInfoDto } from '../../../types';
 import { useTournament } from '../../../hooks/useTournament';
+import dayjs from 'dayjs';
 
 interface TournamentModalProps {
   open: boolean;
@@ -19,44 +20,55 @@ export const TournamentModal = ({
   const { showSnackbar } = useSnackbar();
   const navigate = useNavigate();
 
+  // TODO : externalise the logic
   // track input data
-  const [formData, setFormData] =
-    useState<Partial<TournamentDetailsInfoDto> | null>(null);
+  const [formData, setFormData] = useState<Partial<TournamentDetailsInfoDto>>(
+    {},
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const isEdit = !!tournament;
   const { create, update } = useTournament({});
+  useEffect(() => {
+    if (open) {
+      setFormData({
+        name: tournament?.name ?? '',
+        description: tournament?.description ?? '',
+        capacity: tournament?.capacity ?? 16,
+        registrationDeadline:
+          tournament?.registrationDeadline ??
+          dayjs().add(7, 'day').format('YYYY-MM-DDTHH:mm:ss'),
+        startDate:
+          tournament?.startDate ?? dayjs().add(14, 'day').format('YYYY-MM-DD'),
+        endDate:
+          tournament?.endDate ?? dayjs().add(20, 'day').format('YYYY-MM-DD'),
+      });
+    }
+  }, [tournament, open]);
 
   const handleSave = async () => {
-    // Basic safety check
-    if (!formData || !formData.name?.trim()) return;
-
+    let result;
+    if (!formData || !formData.name) return;
+    // set loading to true
     setIsSubmitting(true);
-    try {
-      if (isEdit && tournament?.idTournament) {
-        await update(tournament.idTournament, formData);
-        showSnackbar({ message: 'Tournoi mis à jour !', severity: 'success' });
-        onClose();
-      } else {
-        const result = await create(formData);
-        const newId = result?.idTournament;
+    if (isEdit && tournament?.idTournament) {
+      result = await update(tournament.idTournament, formData);
+      onClose();
+    } else {
+      const result = await create(formData);
 
-        if (newId) {
-          showSnackbar({
-            message: 'Tournoi créé avec succès !',
-            severity: 'success',
-          });
-          onClose();
-          navigate(`/tournaments/${newId}`);
-        } else {
-          throw new Error('Résultat non attendu.');
-        }
+      const newId = result?.idTournament;
+      // if succesfully created move navigate to the new tournaments page
+      if (newId) {
+        showSnackbar({ message: 'Succès !', severity: 'success' });
+        onClose();
+        navigate(`/tournaments/${newId}`);
+      } else {
+        throw new Error('Resultat non attendu.');
       }
-    } catch (error) {
-      console.error('Erreur lors de la sauvegarde:', error);
-    } finally {
-      setIsSubmitting(false);
     }
+    setFormData(result);
+    // set loading to false
+    setIsSubmitting(false);
   };
 
   return (
@@ -81,11 +93,10 @@ export const TournamentModal = ({
       <DialogTitle
         sx={{
           p: 4,
-          pb: 0, // Reduced bottom padding since Tabs are right below
+          pb: 2,
           fontSize: '1.75rem',
           fontWeight: 'bold',
           color: 'white',
-          paddingBlockEnd: 2,
         }}
       >
         {isEdit ? 'Modifier le Tournoi' : 'Créer un nouveau Tournoi'}
@@ -93,9 +104,10 @@ export const TournamentModal = ({
 
       <DialogContent sx={{ px: 4, py: 3, overflowX: 'hidden' }}>
         <TournamentModalContent
-          key={tournament?.idTournament ?? 'new'}
+          key={`${tournament?.idTournament ?? 'new'}-${open}`}
           tournament={tournament}
-          onDataChange={setFormData}
+          formData={formData} // Add this
+          setFormData={setFormData} // Add this
           handleSave={handleSave}
           isSubmitting={isSubmitting}
           onClose={onClose}

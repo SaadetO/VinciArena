@@ -16,7 +16,7 @@ import {
 } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { ArrowForward } from '@mui/icons-material';
 import { TournamentDetailsInfoDto } from '../../../types';
 
@@ -34,55 +34,23 @@ const datePickerSx: SxProps<Theme> = {
 
 interface TournamentModalContentProps {
   tournament?: TournamentDetailsInfoDto;
-  onDataChange: (data: Partial<TournamentDetailsInfoDto> | null) => void;
+  formData: Partial<TournamentDetailsInfoDto>; // Add this
+  setFormData: React.Dispatch<
+    React.SetStateAction<Partial<TournamentDetailsInfoDto>>
+  >;
   handleSave: () => void;
   isSubmitting: boolean;
   onClose: () => void;
 }
 export const TournamentModalContent = ({
   tournament,
-  onDataChange,
+  formData,
+  setFormData,
   handleSave,
   isSubmitting,
   onClose,
 }: TournamentModalContentProps) => {
   const [tabIndex, setTabIndex] = useState(0);
-
-  // default values
-  const [formData, setFormData] = useState<Partial<TournamentDetailsInfoDto>>({
-    name: tournament?.name ?? '',
-    description: tournament?.description ?? '',
-    capacity: tournament?.capacity ?? 16,
-    status: tournament?.status ?? 'IN_PREPARATION',
-    registrationDeadline:
-      tournament?.registrationDeadline ??
-      dayjs()
-        .add(7, 'day')
-        .hour(20)
-        .minute(0)
-        .second(0)
-        .format('YYYY-MM-DDTHH:mm:ss'),
-    startDate:
-      tournament?.startDate ?? dayjs().add(14, 'day').format('YYYY-MM-DD'),
-    endDate: tournament?.endDate ?? dayjs().add(20, 'day').format('YYYY-MM-DD'),
-  });
-  // insert data recovered from the backend for modification mode
-  useEffect(() => {
-    if (tournament && tournament.idTournament) {
-      setFormData({
-        name: tournament.name ?? '',
-        description: tournament.description ?? '',
-        capacity: tournament.capacity,
-        status: tournament.status,
-        registrationDeadline: tournament.registrationDeadline,
-        startDate: tournament.startDate,
-        endDate: tournament.endDate,
-      });
-    }
-  }, [tournament]);
-  useEffect(() => {
-    onDataChange(formData);
-  }, [formData, onDataChange]);
 
   const handleChange = (
     field: keyof TournamentDetailsInfoDto,
