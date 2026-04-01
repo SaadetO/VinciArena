@@ -32,6 +32,7 @@ export const TournamentModal = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isEdit = !!tournament;
   const { create, update } = useTournament({});
+
   useEffect(() => {
     if (open) {
       setFormData({
@@ -50,7 +51,6 @@ export const TournamentModal = ({
   }, [tournament, open]);
   const handleSave = async () => {
     if (!formData?.name?.trim()) return;
-
     setIsSubmitting(true); // 1. Start Loading
 
     try {
