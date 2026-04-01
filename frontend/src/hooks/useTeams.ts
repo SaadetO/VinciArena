@@ -310,7 +310,8 @@ export const useTeams = (options?: UseTeamsOptions) => {
     },
     {
       onSuccess: (data) => {
-        setTeam?.(data);
+        getById(data.idTeam);
+
         showSnackbar({
           message: 'Vous avez renoncé à votre rôle de responsable.',
           severity: 'success',

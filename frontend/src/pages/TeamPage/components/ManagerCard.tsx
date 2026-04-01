@@ -59,7 +59,7 @@ export const ManagerCard = ({
       <Typography variant="h4">Responsables</Typography>
       <Stack gap="0.75rem" direction="row" flexWrap="wrap">
         {team ? (
-          team.managers.map((manager) => (
+          team?.managers?.map((manager) => (
             <Chip
               sx={{
                 cursor: 'pointer',
