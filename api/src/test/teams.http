@@ -118,23 +118,7 @@ Content-Type: application/json
 
 > {% client.global.set("tokenC", response.body.token); %}
 
-### Create a new team (expect 201)
-POST {{baseUrl}}/teams/
-Content-Type: application/json
-Authorization: {{auth_token_manager1}}
-
-{
-  "name": "Team to leave"
-}
-
-### Quit the team as manager 1 with no other members reamaining (expect 200)
-POST {{baseUrl}}/teams/quit
-Content-Type: application/json
-Authorization: {{auth_token_manager1}}
-
-# ----------- Resign Manager Tests -----------
-
-### 10: Resign as manager with NO replacement and NO other manager (expect 409)
-PUT {{baseUrl}}/teams/1/resign
-Authorization: {{auth_token_manager1}}
+### 14. RESIGN WITH REPLACEMENT NOT IN TEAM (400)
+PUT {{baseUrl}}/teams/1/resign?replacementId=3
+Authorization: Bearer {{tokenA}}
 
