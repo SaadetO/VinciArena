@@ -198,9 +198,19 @@ export const TournamentModalContent = ({
                 label="Capacité"
                 type="number"
                 value={formData.capacity ?? ''}
-                onChange={(e) =>
-                  handleChange('capacity', parseInt(e.target.value) || 0)
-                }
+                onChange={(e) => {
+                  const val = parseInt(e.target.value);
+                  // On bloque à 2 minimum si l'utilisateur tape une valeur
+                  if (!isNaN(val)) {
+                    handleChange('capacity', Math.max(2, val));
+                  }
+                }}
+                slotProps={{
+                  htmlInput: {
+                    min: 2, // Bloque les flèches du navigateur (step up/down) à 2
+                  },
+                }}
+                fullWidth
               />
 
               {dateError && (
