@@ -157,7 +157,7 @@ class TournamentServiceTest {
         () -> assertEquals(LocalDate.of(2028, 1, 31), result.getEndDate()),
         () -> assertEquals(4, result.getCapacity()),
         () -> assertEquals(
-            LocalDate.of(2027, 12, 1),result.getRegistrationDeadline()
+            LocalDate.of(2027, 12, 1).atStartOfDay(),result.getRegistrationDeadline()
         )
     );
     verify(tournamentRepository, times(1)).save(tournament);
