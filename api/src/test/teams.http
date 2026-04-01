@@ -126,3 +126,9 @@ Authorization: {{auth_token_manager1}}
 POST {{baseUrl}}/teams/quit
 Content-Type: application/json
 Authorization: {{auth_token_manager1}}
+
+# ----------- Resign Manager Tests -----------
+
+### 10: Resign as manager with NO replacement and NO other manager (expect 409)
+PUT {{baseUrl}}/teams/1/resign
+Authorization: {{auth_token_manager1}}
