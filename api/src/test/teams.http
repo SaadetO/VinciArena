@@ -58,9 +58,8 @@ Authorization: {{auth_token}}
   "name": "  "
 }
 
-### 7: Get Team details as a visitor
+### 7: GET TEAM DETAILS AS VISITOR
 GET {{baseUrl}}/teams/1/details
-
 
 # ----------- Quiting team Tests -----------
 
