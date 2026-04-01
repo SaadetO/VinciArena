@@ -1,8 +1,10 @@
 import { TournamentBanner } from './components/TournamentBanner';
-import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { TournamentDetailsInfoDto } from '../../types';
 import { useTournament } from '../../hooks/useTournament';
+import { useParams } from 'react-router-dom';
+import { Button } from '@mui/material';
+import { TournamentModal } from './modals/tournamentModal';
 
 export const TournamentPage = () => {
   const { id } = useParams();
@@ -10,6 +12,7 @@ export const TournamentPage = () => {
   const [tournament, setTournament] = useState<
     TournamentDetailsInfoDto | undefined
   >(undefined);
+  const [isTournamentModalOpen, setIsTournamentModalOpen] = useState(false);
   const { getById } = useTournament({ setTournament });
 
   useEffect(() => {
@@ -20,6 +23,13 @@ export const TournamentPage = () => {
   return (
     <>
       <TournamentBanner tournament={tournament} />
+      <Button onClick={() => setIsTournamentModalOpen(true)}> Modifier</Button>
+      <Button>Publier</Button>
+      <TournamentModal
+        open={isTournamentModalOpen}
+        onClose={() => setIsTournamentModalOpen(false)}
+        tournament={tournament}
+      ></TournamentModal>
     </>
   );
 };

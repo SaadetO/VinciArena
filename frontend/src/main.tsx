@@ -45,10 +45,7 @@ const router = createBrowserRouter([
         path: 'notifications',
         element: <NotificationsPage></NotificationsPage>,
       },
-      {
-        path: 'tournaments/:id',
-        element: <TournamentPage />,
-      },
+      { path: 'tournaments/:id', element: <TournamentPage /> },
     ],
   },
   {

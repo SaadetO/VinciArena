@@ -103,8 +103,9 @@ public class TournamentService {
         tournament.getDescription(),
         tournament.getStartDate(),
         tournament.getEndDate(),
+        tournament.getRegistrationDeadline(),
         tournament.getTournamentStatus(),
-        tournament.getMaxNbOfTeams(),
+        tournament.getCapacity(),
         tournament.getRegistrationsNumber(),
         teams,
         matches
@@ -144,7 +145,7 @@ public class TournamentService {
     Tournament tournament = new Tournament();
     tournament.setName(newTournament.name());
     tournament.setDescription(newTournament.description());
-    tournament.setMaxNbOfTeams(newTournament.nbMaxOfTeams());
+    tournament.setMaxNbOfTeams(newTournament.capacity());
     tournament.setEndDate(newTournament.endDate());
     tournament.setStartDate(newTournament.startDate());
     tournament.setRegistrationDeadline(newTournament.registrationDeadline());

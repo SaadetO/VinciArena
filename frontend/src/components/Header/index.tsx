@@ -7,10 +7,12 @@ import { UserContext } from '../../contexts/UserContext';
 import { UserMenu } from './components/UserMenu';
 import { AdminManagementModal } from './modals/AdminManagementModal';
 import { useState } from 'react';
+import { TournamentModal } from '../../pages/TournamentPage/modals/tournamentModal';
 export const Header = () => {
   const location = useLocation();
   const { authenticatedUser } = useContext(UserContext);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+  const [isTournamentModalOpen, setIsTournamentModalOpen] = useState(false);
   return (
     <Stack
       component="header"
@@ -54,7 +56,16 @@ export const Header = () => {
         <Stack direction="row" spacing="1rem">
           {authenticatedUser?.admin && (
             <Stack direction="row" spacing="1rem">
-              <Button variant="contained">Créer un Tournoi</Button>
+              <Button
+                variant="contained"
+                onClick={() => setIsTournamentModalOpen(true)}
+              >
+                Créer un Tournoi
+              </Button>
+              <TournamentModal
+                open={isTournamentModalOpen}
+                onClose={() => setIsTournamentModalOpen(false)}
+              ></TournamentModal>
               <Button
                 variant="contained"
                 color="secondary"
