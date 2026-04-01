@@ -513,6 +513,29 @@ class TeamServiceTest {
         () -> teamService.resignManager(1L, creator, null));
   }
 
+  @Test
+  void resignManagerWithReplacement() {
+    // Arrange
+    Team team = new Team();
+    team.setIdTeam(1L);
+
+    Member replacement = new Member();
+    replacement.setIdMember(2L);
+    replacement.setTeam(team);
+
+    team.setManager1(creator);
+
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+    when(memberRepository.findById(2L)).thenReturn(Optional.of(replacement));
+    when(teamRepository.save(any())).thenReturn(team);
+
+    // Act
+    Team result = teamService.resignManager(1L, creator, 2L);
+
+    // Assert
+    assertEquals(replacement, result.getManager1());
+  }
+
 
 
 }
