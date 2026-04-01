@@ -107,16 +107,16 @@ Content-Type: application/json
   "tag": "UserC"
 }
 
-### Login with Mana1
+### 13. LOGIN USER C
 POST {{baseUrl}}/auths/login
 Content-Type: application/json
 
 {
-  "email": "mana1@test.com",
+  "email": "userC@test.com",
   "password": "Password123!"
 }
 
-> {% client.global.set("auth_token_manager1", response.body.token); %}
+> {% client.global.set("tokenC", response.body.token); %}
 
 ### Create a new team (expect 201)
 POST {{baseUrl}}/teams/
