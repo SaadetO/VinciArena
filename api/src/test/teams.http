@@ -32,13 +32,13 @@ Authorization: Bearer {{tokenA}}
   "name": "TeamA"
 }
 
-### 4: Create a team with duplicate name (expect 409)
+### 4: DUPLICATE TEAM (409)
 POST {{baseUrl}}/teams/
 Content-Type: application/json
-Authorization: {{auth_token}}
+Authorization: Bearer {{tokenA}}
 
 {
-  "name": "My Team"
+  "name": "TeamA"
 }
 
 ### 5: Create a team without auth (expect 403)
