@@ -238,7 +238,6 @@ public class TeamService {
    * deactivates the team if it's the last manager.
    *
    * @param currentMember the member leaving the team
-   * @return the updated team, or null if member is not in a team
    */
   @Transactional
   public void quitTeam(Member currentMember) {
