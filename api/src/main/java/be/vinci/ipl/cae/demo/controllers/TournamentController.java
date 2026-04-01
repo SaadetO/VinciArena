@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -119,6 +120,34 @@ public class TournamentController {
     }
 
     return updatedTournament;
+  }
+
+  /**
+   * Patch a tournament in the system.
+   * The patch is only possible if the tournament's status is IN_PREPARATION
+   * and the member is an admin.
+   *
+   * @param id the tournament id.
+   * @param currentMember the current member.
+   * @return the patched tournament
+   */
+  @PatchMapping("/{id}/publish")
+  @PreAuthorize("hasRole('ADMIN')")
+  public Tournament publishTournament(
+      @PathVariable Long id,
+      @AuthenticationPrincipal Member currentMember
+  ) {
+    if (!currentMember.isAdmin()) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+    }
+
+    Tournament publishedTournament = tournamentService.publishTournament(id, currentMember);
+
+    if (publishedTournament == null) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "Tournament cannot be published");
+    }
+
+    return publishedTournament;
   }
 
   private void validateNewTournament(NewTournament dto, Member currentMember) {

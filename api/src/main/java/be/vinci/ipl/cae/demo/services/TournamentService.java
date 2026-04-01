@@ -69,21 +69,18 @@ public class TournamentService {
   /**
    * Update a tournament's information.
    *
-   * @param tournamentId the id of the team to update
+   * @param tournamentId the id of the tournament to update
    * @param newTournament the tournament with the updated data
    * @param currentMember the current member
-   * @return the updated team if it has been updated, null otherwise.
+   * @return the updated tournament if it has been updated, null otherwise.
    */
   public Tournament updateTournament(
       Long tournamentId, NewTournament newTournament, Member currentMember
   ) {
-    Tournament tournament = tournamentRepository.findById(tournamentId).orElse(null);
+    Tournament tournament
+        = doesTournamentExistInTheGivenStatus(tournamentId, TournamentStatus.IN_PREPARATION);
 
     if (tournament == null) {
-      return null;
-    }
-
-    if (tournament.getTournamentStatus() != TournamentStatus.IN_PREPARATION) {
       return null;
     }
 
@@ -116,5 +113,47 @@ public class TournamentService {
     }
 
     return tournamentRepository.save(tournament);
+  }
+
+  /**
+   * Change a tournament status from IN_PREPARATION to REGISTRATION_OPEN.
+   *
+   * @param tournamentId the id of the tournament to update
+   * @param currentMember the current member
+   * @return the tournament if it's status has been changed to REGISTRATION_OPEN, null otherwise.
+   */
+  public Tournament publishTournament(Long tournamentId, Member currentMember) {
+    Tournament tournament
+        = doesTournamentExistInTheGivenStatus(tournamentId, TournamentStatus.IN_PREPARATION);
+
+    if (tournament == null) {
+      return null;
+    }
+
+    if (!currentMember.isAdmin()) {
+      return null;
+    }
+
+    tournament.setTournamentStatus(TournamentStatus.REGISTRATION_OPEN);
+
+    tournamentRepository.save(tournament);
+
+    return tournament;
+  }
+
+  private Tournament doesTournamentExistInTheGivenStatus(
+      Long tournamentId, TournamentStatus status
+  ) {
+    Tournament tournament = tournamentRepository.findById(tournamentId).orElse(null);
+
+    if (tournament == null) {
+      return null;
+    }
+
+    if (tournament.getTournamentStatus() != status) {
+      return null;
+    }
+
+    return tournament;
   }
 }
