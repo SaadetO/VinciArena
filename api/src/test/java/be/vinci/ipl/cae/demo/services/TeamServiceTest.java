@@ -498,4 +498,21 @@ class TeamServiceTest {
     assertNull(result.getManager1());
   }
 
+  @Test
+  void resignManagerWithoutReplacementAndNoOtherManager() {
+    // Arrange
+    Team team = new Team();
+    team.setIdTeam(1L);
+
+    team.setManager1(creator);
+
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+
+    // Act + Assert
+    assertThrows(ResponseStatusException.class,
+        () -> teamService.resignManager(1L, creator, null));
+  }
+
+
+
 }
