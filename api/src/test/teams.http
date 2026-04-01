@@ -49,7 +49,7 @@ Content-Type: application/json
   "name": "NoAuth"
 }
 
-### 6: Create a team with blank name (expect 400)
+### 6: BLANK NAME (400)
 POST {{baseUrl}}/teams/
 Content-Type: application/json
 Authorization: {{auth_token}}
