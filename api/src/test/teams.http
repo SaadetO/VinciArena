@@ -26,7 +26,7 @@ Content-Type: application/json
 ### 3: CREATE A TEAM (201)
 POST {{baseUrl}}/teams/
 Content-Type: application/json
-Authorization: Bearer {{tokenA}}
+Authorization: {{tokenA}}
 
 {
   "name": "TeamA"
@@ -35,7 +35,7 @@ Authorization: Bearer {{tokenA}}
 ### 4: DUPLICATE TEAM (409)
 POST {{baseUrl}}/teams/
 Content-Type: application/json
-Authorization: Bearer {{tokenA}}
+Authorization: {{tokenA}}
 
 {
   "name": "TeamA"
@@ -86,16 +86,15 @@ Content-Type: application/json
 
 ### 10. QUIT TEAM WITHOUT BEING IN ONE (400)
 POST {{baseUrl}}/teams/quit
-Authorization: Bearer {{tokenB}}
+Authorization: {{tokenB}}
 
 # ----------- RESIGN MANAGER -----------
 
 ### 11. RESIGN WITHOUT REPLACEMENT ( ONLY manager ) -> 409
 PUT {{baseUrl}}/teams/1/resign
-Authorization: Bearer {{tokenA}}
+Authorization: {{tokenA}}
 
 # ----------- ADVANCED RESIGN (WITH REPLACEMENT) -----------
-
 
 ### 12. REGISTER USER C
 POST {{baseUrl}}/auths/register
@@ -120,5 +119,4 @@ Content-Type: application/json
 
 ### 14. RESIGN WITH REPLACEMENT NOT IN TEAM (400)
 PUT {{baseUrl}}/teams/1/resign?replacementId=3
-Authorization: Bearer {{tokenA}}
-
+Authorization: {{tokenA}}
