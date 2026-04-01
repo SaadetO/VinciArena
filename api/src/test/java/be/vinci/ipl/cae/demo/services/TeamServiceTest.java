@@ -473,4 +473,29 @@ class TeamServiceTest {
         () -> assertNull(team.getManager2())
     );
   }
+
+
+  @Test
+  void resignManagerWithOtherManager() {
+    // Arrange
+    Team team = new Team();
+    team.setIdTeam(1L);
+
+    Member manager1 = creator;
+    Member manager2 = new Member();
+    manager2.setIdMember(2L);
+
+    team.setManager1(manager1);
+    team.setManager2(manager2);
+
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+    when(teamRepository.save(any())).thenReturn(team);
+
+    // Act
+    Team result = teamService.resignManager(1L, manager1, null);
+
+    // Assert
+    assertNull(result.getManager1());
+  }
+
 }
