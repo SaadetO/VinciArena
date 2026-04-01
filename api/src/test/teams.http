@@ -94,18 +94,17 @@ Authorization: Bearer {{tokenB}}
 PUT {{baseUrl}}/teams/1/resign
 Authorization: Bearer {{tokenA}}
 
+# ----------- ADVANCED RESIGN (WITH REPLACEMENT) -----------
 
 
-
-### 9: Quit team successfully (expect 200)
-## Register a new member
+### 12. REGISTER USER C
 POST {{baseUrl}}/auths/register
 Content-Type: application/json
 
 {
-  "email": "mana1@test.com",
+  "email": "userC@test.com",
   "password": "Password123!",
-  "tag": "Mana1"
+  "tag": "UserC"
 }
 
 ### Login with Mana1
