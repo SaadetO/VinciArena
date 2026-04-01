@@ -133,6 +133,7 @@ export const TournamentModalContent = ({
                   )
                 }
                 slotProps={{ textField: { sx: datePickerSx } }}
+                disablePast
               />
               <Stack direction="row" spacing={2} alignItems="center">
                 <DatePicker
@@ -143,6 +144,7 @@ export const TournamentModalContent = ({
                     handleChange('startDate', date?.toISOString())
                   }
                   slotProps={{ textField: { sx: datePickerSx } }}
+                  disablePast
                 />
 
                 <ArrowForward sx={{ color: 'text.secondary' }} />
@@ -155,6 +157,7 @@ export const TournamentModalContent = ({
                     handleChange('endDate', date?.toISOString())
                   }
                   slotProps={{ textField: { sx: datePickerSx } }}
+                  disablePast
                 />
               </Stack>
 
