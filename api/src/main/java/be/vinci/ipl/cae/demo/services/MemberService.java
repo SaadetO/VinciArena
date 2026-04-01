@@ -1,6 +1,7 @@
 package be.vinci.ipl.cae.demo.services;
 
 import be.vinci.ipl.cae.demo.models.dtos.AuthenticatedUser;
+import be.vinci.ipl.cae.demo.models.dtos.MemberSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.NewMember;
 import be.vinci.ipl.cae.demo.models.dtos.ProfileDto;
 import be.vinci.ipl.cae.demo.models.dtos.UserSummaryDto;
@@ -14,6 +15,7 @@ import be.vinci.ipl.cae.demo.repositories.SpecialtyRepository;
 import be.vinci.ipl.cae.demo.repositories.UnavailabilityRepository;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import jakarta.transaction.Transactional;
 import java.util.Date;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -118,9 +120,14 @@ public class MemberService {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Identifiants invalides");
     }
 
+    if (member.isDeleted()) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Compte banni");
+    }
+
     if (!passwordEncoder.matches(password, member.getPassword())) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Identifiants invalides");
     }
+
 
     return createJwtToken(email);
   }
@@ -351,7 +358,72 @@ public class MemberService {
     return true;
   }
 
-  public Member[] getAllMembers() {
-    return memberRepository.findAllByIsDeletedOrderByTagAsc(false);
+  public Iterable<Member> getAllMembers() {
+    return memberRepository.findAll();
+  }
+
+  /**
+   * Get all members as lightweight summaries (no sensitive data).
+   *
+   * @return array of MemberSummaryDto
+   */
+  public MemberSummaryDto[] getAllMemberSummaries() {
+    Member[] members = memberRepository.findAllByIsDeletedOrderByTagAsc(false);
+    MemberSummaryDto[] summaries = new MemberSummaryDto[members.length];
+    for (int i = 0; i < members.length; i++) {
+      Member m = members[i];
+      summaries[i] = MemberSummaryDto.builder()
+          .id(m.getIdMember())
+          .tag(m.getTag())
+          .specialty(m.getSpecialty() != null ? m.getSpecialty().getName() : null)
+          .avatar(m.getProfileImage() != null ? m.getProfileImage().getPath() : null)
+          .build();
+    }
+    return summaries;
+  }
+
+  /**
+   * Ban a member from the platform (soft delete).
+   *
+   * @param id             the ID of the member to ban
+   * @param requesterEmail the email of the authenticated user
+   * @throws ResponseStatusException if the user is not authenticated,
+   *                                 not admin, or if the operation is invalid
+   */
+  @Transactional
+  public void banMember(Long id, String requesterEmail) {
+    Member requester = memberRepository.findByEmail(requesterEmail);
+
+    if (requester == null) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+          "Utilisateur non authentifié");
+    }
+
+    if (!requester.isAdmin()) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+          "Accès réservé aux admins");
+    }
+
+    Member member = memberRepository.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            "Membre introuvable"));
+
+    if (member.isAdmin()) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+          "Impossible de bannir un admin");
+    }
+
+    if (member.isDeleted()) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+          "Membre déjà banni");
+    }
+
+    if (member.getIdMember().equals(requester.getIdMember())) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+          "Tu ne peux pas te bannir toi-même");
+    }
+
+    member.setDeleted(true);
+    memberRepository.save(member);
   }
 }

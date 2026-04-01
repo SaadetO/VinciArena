@@ -54,13 +54,14 @@ const surfaceLevels = {
   s4: '#262626',
 };
 
+const primaryColor = '#0088F6';
+
 export const theme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#00C8FF',
-      contrastText: '#111111',
-      dark: 'hsla(193, 100%, 40%, 1)',
+      main: primaryColor,
+      contrastText: '#FFFFFF',
     },
     success: {
       main: '#4CE59B',
@@ -182,12 +183,12 @@ export const theme = createTheme({
           },
         },
         containedPrimary: {
-          color: '#111111',
+          color: '#FFFFFF',
           '&:hover': {
-            background: 'color-mix(in srgb, #00C8FF 60%, #FFFFFF 40%)',
+            background: `color-mix(in srgb, ${primaryColor} 60%, #FFFFFF 40%)`,
           },
           '&:active': {
-            background: 'color-mix(in srgb, #00C8FF 40%, #FFFFFF 60%)',
+            background: `color-mix(in srgb, ${primaryColor} 40%, #FFFFFF 60%)`,
           },
         },
         containedSecondary: {
@@ -235,7 +236,8 @@ export const theme = createTheme({
           textTransform: 'none',
           fontWeight: '600',
           fontSize: '0.875rem',
-          borderRadius: '0.75rem',
+          borderRadius: '0.5rem',
+          flexShrink: 0,
           '& .MuiChip-label': {
             padding: '0',
           },
@@ -265,8 +267,8 @@ export const theme = createTheme({
           },
         },
         deleteIcon: {
-          width: '1.5rem',
-          height: '1.5rem',
+          width: '1.125rem',
+          height: '1.125rem',
           marginLeft: '0.5rem',
           marginRight: '-0.25rem',
           color: '#8C8C8C',
@@ -288,19 +290,19 @@ export const theme = createTheme({
           color: '#FFFFFF',
         },
         colorPrimary: {
-          background: 'color-mix(in srgb, #00C8FF 10%, transparent)',
-          color: '#00C8FF',
+          background: `color-mix(in srgb, ${primaryColor} 10%, ${surfaceLevels.s3})`,
+          color: primaryColor,
         },
         colorSuccess: {
-          background: 'color-mix(in srgb, #4CE59B 10%, transparent)',
+          background: `color-mix(in srgb, #4CE59B 10%, ${surfaceLevels.s3})`,
           color: '#4CE59B',
         },
         colorWarning: {
-          background: 'color-mix(in srgb, #F5B664 10%, transparent)',
+          background: `color-mix(in srgb, #F5B664 10%, ${surfaceLevels.s3})`,
           color: '#F5B664',
         },
         colorSecondary: {
-          background: 'color-mix(in srgb, #8C8C8C 10%, transparent)',
+          background: `color-mix(in srgb, #8C8C8C 10%, ${surfaceLevels.s3})`,
           color: '#8C8C8C',
         },
       },
@@ -324,8 +326,8 @@ export const theme = createTheme({
         {
           props: { variant: 'active' },
           style: {
-            border: '2px solid #00C8FF',
-            color: '#00C8FF',
+            border: `2px solid ${primaryColor}`,
+            color: primaryColor,
           },
         },
         {
@@ -399,7 +401,7 @@ export const theme = createTheme({
         sizeMedium: {
           width: '2.75rem',
           height: '2.75rem',
-          borderRadius: '0.25rem',
+          borderRadius: '1.125rem',
         },
         sizeSmall: {
           width: '2rem',
@@ -475,6 +477,16 @@ export const theme = createTheme({
         },
       },
     },
+    MuiInputBase: {
+      styleOverrides: {
+        root: {
+          fontSize: '1rem',
+          '& input::placeholder': {
+            color: '#8C8C8C',
+          },
+        },
+      },
+    },
     MuiTextField: {
       defaultProps: {
         variant: 'outlined',
@@ -488,7 +500,8 @@ export const theme = createTheme({
             marginRight: '-0.375rem',
           },
           '& .MuiInputBase-root': {
-            borderRadius: '0.5rem',
+            borderRadius: '0.75rem',
+            backgroundColor: surfaceLevels.s3,
           },
           '& .MuiInputBase-input': {
             height: '3rem',
@@ -498,10 +511,27 @@ export const theme = createTheme({
             color: '#FFFFFF',
           },
           '& .MuiOutlinedInput-notchedOutline': {
-            border: '1px solid #252525',
+            border: 'none',
           },
+          '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline':
+            {
+              border: `2px solid ${primaryColor}`,
+            },
           '& input::placeholder': {
             color: '#8C8C8C',
+            opacity: 0.75,
+          },
+          '& textarea': {
+            padding: '0 1rem !important',
+            fontSize: '1rem',
+            color: '#FFFFFF',
+            '&::placeholder': {
+              color: '#8C8C8C',
+              opacity: 0.75,
+            },
+          },
+          '& .MuiInputBase-multiline': {
+            padding: '0.875rem 0',
           },
           '& input[type="password"]': {
             fontFamily: 'monospace',
@@ -585,10 +615,47 @@ export const theme = createTheme({
     MuiAutocomplete: {
       styleOverrides: {
         root: {
+          '&.Mui-focused:has(.MuiChip-root) .MuiAutocomplete-input:not(:placeholder-shown)':
+            {
+              minWidth: '5rem !important',
+              padding: '0 0.375rem !important',
+            },
+          '&:has(.MuiChip-root) .MuiOutlinedInput-root': {
+            paddingLeft: '0.625rem',
+          },
           '& .MuiOutlinedInput-root': {
-            padding: '0 0 0 1rem',
+            padding: '0.375rem 3rem 0.375rem 1rem',
+            flexWrap: 'wrap',
+            rowGap: '0',
+            columnGap: '0.375rem',
             '& .MuiAutocomplete-input': {
               padding: '0',
+              height: 'auto',
+              minHeight: '2.25rem',
+              minWidth: '0',
+              flex: 1,
+            },
+            '& .MuiChip-root': {
+              margin: 0,
+              width: 'fit-content',
+              height: '1.75rem',
+              padding: '0.5rem',
+              background: surfaceLevels.s4,
+              marginTop: '0.25rem',
+              marginBottom: '0.25rem',
+              color: '#FFFFFF',
+              pointerEvents: 'none',
+              '& .MuiChip-avatar': {
+                width: '1.25rem',
+                height: '1.25rem',
+              },
+              '& .MuiChip-deleteIconSmall': {
+                width: '1rem',
+                height: '1rem',
+                marginRight: '-0.25rem',
+                pointerEvents: 'auto',
+                cursor: 'pointer',
+              },
             },
           },
           '& .MuiButtonBase-root': {
@@ -600,17 +667,80 @@ export const theme = createTheme({
             color: '#8C8C8C',
           },
         },
+        popper: {
+          '&[data-popper-placement*="bottom"] .MuiAutocomplete-paper': {
+            marginTop: '0.375rem',
+          },
+          '&[data-popper-placement*="top"] .MuiAutocomplete-paper': {
+            marginBottom: '0.375rem',
+          },
+        },
+        paper: {
+          borderRadius: '1.25rem',
+          backgroundColor: surfaceLevels.s2,
+          border: '1px solid #252525',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+          backgroundImage: 'none',
+        },
+        listbox: {
+          padding: '0.5rem',
+          display: 'flex',
+          flexDirection: 'column',
+          '& .MuiAutocomplete-option': {
+            borderRadius: '0.75rem',
+            padding: '0.25rem 0.5rem',
+            minHeight: '2.5rem',
+            '&[aria-selected="true"]': {
+              background: 'none',
+              position: 'relative',
+              '&::after': {
+                content: '""',
+                position: 'absolute',
+                right: '1rem',
+                top: '50%',
+                transform: 'translateY(-60%) rotate(45deg)',
+                width: '5px',
+                height: '9px',
+                border: '2px solid #FFFFFF',
+                borderTop: 'none',
+                borderLeft: 'none',
+              },
+            },
+            '&.Mui-focused, &.Mui-focusVisible, &[aria-selected="true"].Mui-focused, &[aria-selected="true"].Mui-focusVisible':
+              {
+                backgroundColor: surfaceLevels.s3,
+              },
+          },
+        },
       },
     },
     MuiMenu: {
       styleOverrides: {
+        paper: {
+          borderRadius: '1rem',
+          backgroundColor: surfaceLevels.s2,
+          border: '1px solid #252525',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+          backgroundImage: 'none',
+          margin: '0.375rem',
+        },
+        list: {
+          padding: '0.375rem',
+          display: 'flex',
+          flexDirection: 'column',
+        },
+      },
+    },
+    MuiMenuItem: {
+      styleOverrides: {
         root: {
-          '& .MuiMenu-paper': {
-            borderRadius: '0.75rem',
-            background: surfaceLevels.s2,
-            backgroundImage: 'none',
-            width: '25rem',
-            marginTop: '0.375rem',
+          borderRadius: '0.5rem',
+          padding: '0.375rem 0.75rem',
+          minHeight: '2.25rem',
+          backgroundColor: 'transparent',
+          transition: 'background-color 0.2s',
+          '&:hover, &.Mui-focusVisible, &.Mui-selected, &.Mui-selected:hover': {
+            backgroundColor: surfaceLevels.s3,
           },
         },
       },
@@ -643,6 +773,17 @@ export const theme = createTheme({
           fontWeight: 'bold',
         },
       },
+      variants: [
+        {
+          props: { overlap: 'circular' },
+          style: {
+            '& .MuiBadge-badge': {
+              top: '12.5%',
+              right: '12.5%',
+            },
+          },
+        },
+      ],
     },
     MuiAlert: {
       defaultProps: {
@@ -693,9 +834,54 @@ export const theme = createTheme({
       },
     },
     MuiCheckbox: {
+      defaultProps: {
+        disableRipple: true,
+        icon: <span className="custom-checkbox" />,
+        checkedIcon: (
+          <span className="custom-checkbox custom-checkbox--checked" />
+        ),
+      },
       styleOverrides: {
         root: {
-          color: '#252525',
+          padding: '0.375rem',
+          '& .custom-checkbox': {
+            width: '16px',
+            height: '16px',
+            border: '2px solid #252525',
+            borderRadius: '0.25rem',
+            backgroundColor: 'transparent',
+            transition: 'all 0.15s ease',
+            position: 'relative',
+          },
+          '& .custom-checkbox--checked': {
+            backgroundColor: primaryColor,
+            borderColor: primaryColor,
+            '&::after': {
+              content: '""',
+              position: 'absolute',
+              width: '5px',
+              height: '9px',
+              border: '2px solid #FFFFFF',
+              borderTop: 'none',
+              borderLeft: 'none',
+              transform: 'translate(-50%, -60%) rotate(45deg)',
+              top: '50%',
+              left: '50%',
+            },
+          },
+        },
+      },
+    },
+    MuiTooltip: {
+      styleOverrides: {
+        tooltip: {
+          backgroundColor: surfaceLevels.s2,
+          color: '#FFFFFF',
+          borderRadius: '0.75rem',
+          padding: '0.25rem 0.75rem',
+        },
+        arrow: {
+          color: surfaceLevels.s2,
         },
       },
     },

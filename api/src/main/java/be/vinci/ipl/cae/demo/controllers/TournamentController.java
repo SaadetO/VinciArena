@@ -1,11 +1,14 @@
 package be.vinci.ipl.cae.demo.controllers;
 
 import be.vinci.ipl.cae.demo.models.dtos.NewTournament;
+import be.vinci.ipl.cae.demo.models.dtos.TournamentDetailsDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Tournament;
 import be.vinci.ipl.cae.demo.repositories.TournamentRepository;
 import be.vinci.ipl.cae.demo.services.TournamentService;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -29,39 +32,46 @@ import org.springframework.web.server.ResponseStatusException;
 public class TournamentController {
 
   private final TournamentService tournamentService;
-  private final TournamentRepository tournamentRepo;
 
   /**
    * Constructor.
    *
    * @param tournamentService the unavailability service
    */
-  public TournamentController(TournamentService tournamentService,
-      TournamentRepository tournamentRepo) {
+  public TournamentController(TournamentService tournamentService) {
     this.tournamentService = tournamentService;
-    this.tournamentRepo = tournamentRepo;
+
   }
 
   /**
-   * Get all tournaments, optionally filtered by timeframe.
+   * Get all tournaments, optionally filtered by timeframe, teams, or members.
    *
    * @param timeframe past, current, or future.
+   * @param teamsIds a list of team IDs to filter tournaments by (OR filter).
+   * @param membersIds a list of member IDs whose teams filter the tournaments (OR filter).
    * @return the list of tournaments.
    */
   @GetMapping({"", "/"})
-  public Iterable<Tournament> getTournaments(@RequestParam(required = false) String timeframe) {
-    return tournamentService.getTournaments(timeframe);
+  public Iterable<Tournament> getTournaments(
+      @RequestParam(required = false) String timeframe,
+      @RequestParam(required = false) List<Long> teamsIds,
+      @RequestParam(required = false) List<Long> membersIds) {
+    return tournamentService.getTournaments(timeframe, teamsIds, membersIds);
   }
 
   /**
-   * Get a tournament by its id.
+   * Get a tournament details by its id.
    *
    * @param id the id of the requested tournament.
-   * @return a tournament.
+   * @return a tournament details DTO.
    */
   @GetMapping("/{id}")
-  public Tournament getTournament(@PathVariable Long id) {
-    return tournamentRepo.findById(id).orElse(null);
+  public TournamentDetailsDto getTournament(@PathVariable Long id) {
+    TournamentDetailsDto details = tournamentService.getTournamentDetails(id);
+    if (details == null) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Tournament not found");
+    }
+    return details;
   }
 
   /**
@@ -168,7 +178,7 @@ public class TournamentController {
     }
 
     // Check numbers
-    if (dto.nbMaxOfTeams() <= 0) {
+    if (dto.capacity() <= 0) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Max teams must be positive");
     }
 
@@ -177,12 +187,12 @@ public class TournamentController {
   }
 
   private void checkDateRange(
-      LocalDate registrationDeadline,
+      LocalDateTime registrationDeadline,
       LocalDate startDate,
       LocalDate endDate
   ) {
     LocalDate today = LocalDate.now();
-    if (registrationDeadline.isBefore(today)) {
+    if (registrationDeadline.isBefore(today.atStartOfDay())) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Deadline cannot be in the past");
     }
     if (endDate.isBefore(startDate)) {

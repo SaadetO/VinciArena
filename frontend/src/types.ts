@@ -26,6 +26,7 @@ interface User {
 }
 
 interface Member {
+  deleted: boolean;
   id: number;
   tag: string;
   email: string;
@@ -81,6 +82,13 @@ interface UserSummaryDto {
   avatar: string | null;
 }
 
+interface MemberSummaryDto {
+  id: number;
+  tag: string;
+  specialty: string | null;
+  avatar: string | null;
+}
+
 interface Team {
   idTeam: number;
   name: string;
@@ -94,6 +102,7 @@ interface JoinRequestDto {
   status: 'PENDING' | 'ACCEPTED' | 'REJECTED';
   expirationDate: string;
   requester: UserSummaryDto;
+  rejectionReason?: string;
 }
 
 interface TeamDetailsInfoDto {
@@ -164,15 +173,61 @@ interface TournamentDto {
   startDate: string;
   endDate: string;
   registrationDeadline: string;
-  tournamentStatus:
+  tournamentStatus: TournamentStatus;
+  capacity: number;
+  teams?: Team[];
+}
+
+type TournamentStatus =
+  | 'IN_PREPARATION'
+  | 'REGISTRATION_OPEN'
+  | 'REGISTRATION_CLOSED'
+  | 'PLANNED'
+  | 'IN_PROGRESS'
+  | 'DONE';
+
+interface MatchTeamDto {
+  idTeam: number;
+  name: string;
+  score: number | null;
+  isWinner: boolean;
+  hasForfeited: boolean;
+}
+
+interface MatchSummaryDto {
+  idMatch: number;
+  dateHour: string;
+  turn: number;
+  status:
     | 'IN_PREPARATION'
     | 'REGISTRATION_OPEN'
     | 'REGISTRATION_CLOSED'
     | 'PLANNED'
     | 'IN_PROGRESS'
     | 'DONE';
-  maxNbOfTeams: number;
-  teams?: Team[];
+  teams: Team[];
+  isConfirmed: boolean;
+  team1: MatchTeamDto;
+  team2: MatchTeamDto;
+}
+
+interface TournamentDetailsInfoDto {
+  idTournament: number;
+  name: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  status: TournamentStatus;
+  capacity: number;
+  registrationsCount: number;
+  teams: TeamSummaryDto[];
+  matches: MatchSummaryDto[];
+  registrationDeadline: string;
+}
+
+interface TeamSummaryDto {
+  idTeam: number;
+  name: string;
 }
 
 export class ApiError extends Error {
@@ -198,10 +253,15 @@ export type {
   NotificationDto,
   StoredUser,
   Member,
+  MemberSummaryDto,
   SpecialtyDto,
   ProfilePicture,
   ModalConfig,
   RegisterFormData,
   UserSummaryDto,
   TournamentDto,
+  MatchTeamDto,
+  MatchSummaryDto,
+  TournamentDetailsInfoDto,
+  TeamSummaryDto,
 };

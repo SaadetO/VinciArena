@@ -1,7 +1,13 @@
 import { useApi } from './useApi';
 import { Dispatch, SetStateAction, useContext, useRef } from 'react';
 import { UserContext } from '../contexts/UserContext';
-import { Member, ProfilePicture, ProfileInfoDto, SpecialtyDto } from '../types';
+import {
+  Member,
+  ProfilePicture,
+  ProfileInfoDto,
+  SpecialtyDto,
+  MemberSummaryDto,
+} from '../types';
 import { useSnackbar } from './useSnackbar';
 
 interface UseMembersOptions {
@@ -12,15 +18,42 @@ interface UseMembersOptions {
     >
   >;
   setUsers?: Dispatch<SetStateAction<Member[]>>;
+  setSummaries?: Dispatch<SetStateAction<MemberSummaryDto[]>>;
   setPendingIds?: Dispatch<SetStateAction<number[]>>;
 }
 
 export const useMembers = (options?: UseMembersOptions) => {
-  const { setUser, setError, setUsers, setPendingIds } = options ?? {};
+  const { setUser, setError, setUsers, setSummaries, setPendingIds } =
+    options ?? {};
   const { authenticatedUser } = useContext(UserContext);
   const { showSnackbar } = useSnackbar();
 
   const response = useRef<Response | undefined>(undefined);
+
+  const { execute: getAllSummaries, loading: isGettingSummaries } = useApi(
+    async () => {
+      const response = await fetch(`/api/members`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: authenticatedUser?.token ?? '',
+        },
+      });
+      if (!response.ok)
+        throw new Error('Échec de la récupération des membres.');
+      return response.json();
+    },
+    {
+      onSuccess: (data) => setSummaries?.(data),
+      onError: (err) =>
+        showSnackbar({
+          message:
+            err instanceof Error
+              ? err.message
+              : 'Une erreur est survenue lors de la récupération des membres.',
+          severity: 'error',
+        }),
+    },
+  );
 
   const { execute: getAll, loading: isGettingUsers } = useApi(
     async () => {
@@ -244,6 +277,44 @@ export const useMembers = (options?: UseMembersOptions) => {
     },
   );
 
+  const { execute: banMember } = useApi(
+    async (id: number) => {
+      const response = await fetch(`/api/members/${id}/ban`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: authenticatedUser?.token ?? '',
+        },
+      });
+
+      if (!response.ok) throw new Error('Échec du bannissement du membre.');
+    },
+    {
+      onOptimism: (id) => {
+        setPendingIds?.((prev) => [...prev, id]);
+      },
+      onSuccess: (_, id) => {
+        setPendingIds?.((prev) => prev.filter((pid) => pid !== id));
+        setUsers?.(
+          (prev) =>
+            prev?.map((u) => (u.id === id ? { ...u, deleted: true } : u)) ?? [],
+        );
+        showSnackbar({
+          message: 'Membre banni avec succès',
+          severity: 'success',
+        });
+      },
+      onError: (err, id) => {
+        setPendingIds?.((prev) => prev.filter((pid) => pid !== id));
+        showSnackbar({
+          message:
+            err instanceof Error ? err.message : 'Erreur lors du bannissement',
+          severity: 'error',
+        });
+      },
+    },
+  );
+
   return {
     getAll,
     getById,
@@ -252,5 +323,8 @@ export const useMembers = (options?: UseMembersOptions) => {
     updateSpecialty,
     toggleAdmin,
     isGettingUsers,
+    getAllSummaries,
+    isGettingSummaries,
+    banMember,
   };
 };

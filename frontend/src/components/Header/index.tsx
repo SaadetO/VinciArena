@@ -1,17 +1,18 @@
 import { Button, Stack, Tab, Tabs, Typography } from '@mui/material';
 import logo from '../../assets/images/Logo.svg';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { SyntheticEvent, useContext } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { useContext } from 'react';
 import { NotificationMenu } from './components/NotificationMenu';
 import { UserContext } from '../../contexts/UserContext';
 import { UserMenu } from './components/UserMenu';
 import { AdminManagementModal } from './modals/AdminManagementModal';
 import { useState } from 'react';
+import { TournamentModal } from '../../pages/TournamentPage/modals/tournamentModal';
 export const Header = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const { authenticatedUser } = useContext(UserContext);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+  const [isTournamentModalOpen, setIsTournamentModalOpen] = useState(false);
   return (
     <Stack
       component="header"
@@ -42,19 +43,29 @@ export const Header = () => {
             ? '/'
             : location.pathname.startsWith('/teams')
               ? '/teams'
-              : false
+              : location.pathname.startsWith('/tournaments')
+                ? '/'
+                : false
         }
         sx={{ flex: 1 }}
-        onChange={(_e: SyntheticEvent, newValue: string) => navigate(newValue)}
       >
-        <Tab label="Tournois" value="/" />
-        <Tab label="Teams" value="/teams" />
+        <Tab label="Tournois" value="/" component={Link} to="/" />
+        <Tab label="Teams" value="/teams" component={Link} to="/teams" />
       </Tabs>
       <Stack direction="row" spacing="1.5rem">
         <Stack direction="row" spacing="1rem">
           {authenticatedUser?.admin && (
             <Stack direction="row" spacing="1rem">
-              <Button variant="contained">Créer un Tournoi</Button>
+              <Button
+                variant="contained"
+                onClick={() => setIsTournamentModalOpen(true)}
+              >
+                Créer un Tournoi
+              </Button>
+              <TournamentModal
+                open={isTournamentModalOpen}
+                onClose={() => setIsTournamentModalOpen(false)}
+              ></TournamentModal>
               <Button
                 variant="contained"
                 color="secondary"

@@ -30,7 +30,8 @@ export const useTeams = (options?: UseTeamsOptions) => {
 
   const { execute: getById, loading: isGettingTeam } = useApi(
     async (idTeam: number) => {
-      if (isNaN(idTeam) || idTeam <= 0) return;
+      if (isNaN(idTeam) || idTeam <= 0)
+        throw new ApiError('Identifiant invalide', 400);
 
       const response = await fetch(`/api/teams/${idTeam}/details`, {
         headers: {
@@ -59,16 +60,17 @@ export const useTeams = (options?: UseTeamsOptions) => {
           subtitle:
             status === 404
               ? "La team que vous cherchez n'existe pas ou a été désactivée."
-              : 'Une erreur est survenue lors de la récupération de la Team.',
+              : status === 400
+                ? "L'identifiant de la team doit être un nombre positif."
+                : 'Une erreur est survenue lors de la récupération de la Team.',
         });
       },
     },
   );
 
-  const { execute: getAll } = useApi(
+  const { execute: getAll, loading: isGettingAllTeams } = useApi(
     async () => {
       const response = await fetch('/api/teams', {
-        method: 'GET',
         headers: {
           Authorization: authenticatedUser?.token ?? '',
         },
@@ -164,6 +166,9 @@ export const useTeams = (options?: UseTeamsOptions) => {
             response.status,
           );
         }
+        if (response.status === 409) {
+          throw new ApiError('Dernier manager de la Team', response.status);
+        }
         throw new ApiError('Échec du départ de la team.', response.status);
       }
     },
@@ -181,7 +186,9 @@ export const useTeams = (options?: UseTeamsOptions) => {
         const message =
           status === 400
             ? 'Vous ne faites déjà plus partie de cette équipe.'
-            : 'Une erreur est survenue en quittant la team.';
+            : status === 409
+              ? "Veuillez d'abord désigner un nouveau responsable"
+              : 'Une erreur est survenue en quittant la team.';
         showSnackbar({
           message,
           severity: 'error',
@@ -277,6 +284,7 @@ export const useTeams = (options?: UseTeamsOptions) => {
     createTeam,
     quitTeam,
     promoteToManager,
+    isGettingAllTeams,
     isGettingTeam,
     isQuittingTeam,
   };

@@ -1,5 +1,6 @@
 package be.vinci.ipl.cae.demo.controllers;
 
+import be.vinci.ipl.cae.demo.models.dtos.MemberSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.PasswordUpdateDto;
 import be.vinci.ipl.cae.demo.models.dtos.ProfileDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
@@ -31,8 +32,8 @@ public class MemberController {
   /**
    * Constructor for MemberController.
    *
-   * @param memberService the injected MemberService.
-   * @param teamService   the injected TeamService.
+   * @param memberService the injected MemberService
+   * @param teamService   the injected TeamService
    */
   public MemberController(MemberService memberService, TeamService teamService) {
     this.memberService = memberService;
@@ -40,14 +41,24 @@ public class MemberController {
   }
 
   /**
+   * Get all members as lightweight summaries.
+   *
+   * @return an array of member summaries
+   */
+  @GetMapping({"/", ""})
+  public MemberSummaryDto[] getAllMemberSummaries() {
+    return memberService.getAllMemberSummaries();
+  }
+
+  /**
    * Get all members private data.
    *
-   * @param currentMember the currently authenticated member (can be null if not logged in).
-   * @return an array of all the users and their private information.
+   * @param currentMember the authenticated member
+   * @return all members
    */
   @PreAuthorize("isAuthenticated()")
   @GetMapping("/full")
-  public Member[] getAllMembers(@AuthenticationPrincipal Member currentMember) {
+  public Iterable<Member> getAllMembers(@AuthenticationPrincipal Member currentMember) {
     if (!currentMember.isAdmin()) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
     }
@@ -57,12 +68,13 @@ public class MemberController {
   /**
    * Read one member's profile.
    *
-   * @param id            the ID of the requested member profile.
-   * @param currentMember the currently authenticated member (can be null if not logged in).
-   * @return the profile information (filtered based on privacy rules).
+   * @param id            the member ID
+   * @param currentMember the authenticated member
+   * @return the profile
    */
   @GetMapping("/{id}")
-  public ProfileDto readOne(@PathVariable Long id, @AuthenticationPrincipal Member currentMember) {
+  public ProfileDto readOne(@PathVariable Long id,
+      @AuthenticationPrincipal Member currentMember) {
     String authenticatedEmail = currentMember != null ? currentMember.getEmail() : null;
     ProfileDto profile = memberService.getProfile(id, authenticatedEmail);
 
@@ -74,10 +86,10 @@ public class MemberController {
   }
 
   /**
-   * Update a member's password.
+   * Update password.
    *
-   * @param passwordDto   the new password DTO.
-   * @param currentMember the currently authenticated member.
+   * @param passwordDto   the password DTO
+   * @param currentMember the authenticated member
    */
   @PreAuthorize("isAuthenticated()")
   @PatchMapping("/me/password")
@@ -87,22 +99,20 @@ public class MemberController {
 
     if (passwordDto == null
         || passwordDto.getPassword() == null
-        || passwordDto.getPassword().trim().isEmpty()
-    ) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password cannot be empty");
+        || passwordDto.getPassword().trim().isEmpty()) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+          "Password cannot be empty");
     }
 
-    boolean updated = memberService.updatePassword(currentMember, passwordDto.getPassword());
+    boolean updated = memberService.updatePassword(currentMember,
+        passwordDto.getPassword());
     if (!updated) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
   }
 
   /**
-   * Update a member's profile image.
-   *
-   * @param profileImage  the new profile image entity
-   * @param currentMember the currently authenticated member
+   * Update avatar.
    */
   @PreAuthorize("isAuthenticated()")
   @PatchMapping("/me/avatar")
@@ -112,47 +122,44 @@ public class MemberController {
 
     boolean updated = memberService.updateAvatar(currentMember, profileImage);
     if (!updated) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid profile image");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+          "Invalid profile image");
     }
   }
 
   /**
-   * Update a member's specialty.
-   *
-   * @param specialtyId the new profile image entity
-   * @param currentMember the currently authenticated member
+   * Update specialty.
    */
   @PreAuthorize("isAuthenticated()")
   @PatchMapping("/me/specialty")
-  public void updateAvatar(
+  public void updateSpecialty(
       @RequestBody Long specialtyId,
       @AuthenticationPrincipal Member currentMember) {
 
     boolean updated = memberService.updateSpecialty(currentMember, specialtyId);
     if (!updated) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid profile image");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+          "Invalid profile image");
     }
   }
 
   /**
-   * Updates the isAdmin property. (we assume we want to change it so we toggle it since it's a
-   * boolean)
-   *
-   * @param id            id of the target member
-   * @param currentMember authenticated member
+   * Toggle admin.
    */
   @PreAuthorize("isAuthenticated()")
   @PatchMapping("/{id}/admin")
-  public void toggleAdmin(@PathVariable Long id, @AuthenticationPrincipal Member currentMember) {
+  public void toggleAdmin(@PathVariable Long id,
+      @AuthenticationPrincipal Member currentMember) {
+
     if (!currentMember.isAdmin()) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
     }
+
     if (currentMember.getIdMember().equals(id)) {
-      throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST,
-          "You cannot change your own admin status"
-      );
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+          "You cannot change your own admin status");
     }
+
     boolean updated = memberService.toggleAdmin(id);
     if (!updated) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -160,13 +167,28 @@ public class MemberController {
   }
 
   /**
-   * Quit the current team.
-   *
-   * @param currentMember the authenticated member
+   * Quit team.
    */
   @PostMapping("/me/quit-team")
   @PreAuthorize("isAuthenticated()")
   public void quitTeam(@AuthenticationPrincipal Member currentMember) {
     teamService.quitTeam(currentMember);
+  }
+
+  /**
+   * Ban a member.
+   *
+   * @param id            the member ID
+   * @param currentMember the authenticated member
+   */
+  @PatchMapping("/{id}/ban")
+  public void banMember(@PathVariable Long id,
+      @AuthenticationPrincipal Member currentMember) {
+
+    if (currentMember == null) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+    }
+
+    memberService.banMember(id, currentMember.getEmail());
   }
 }

@@ -22,9 +22,11 @@ import {
 } from 'react';
 import { UserContext } from '../../../../contexts/UserContext';
 import { useSnackbar } from '../../../../hooks/useSnackbar';
+import { useModal } from '../../../../hooks/useModal';
 import { Member } from '../../../../types';
 import { UserItem } from './components/UserItem';
 import { useMembers } from '../../../../hooks/useMembers';
+import { banModal } from '../banModal';
 
 interface AdminManagementModalProps {
   open: boolean;
@@ -37,12 +39,15 @@ export const AdminManagementModal = ({
 }: AdminManagementModalProps) => {
   const { authenticatedUser } = useContext(UserContext);
   const { showSnackbar } = useSnackbar();
+  const { openModal } = useModal();
+
   const [users, setUsers] = useState<Member[]>([]);
   const [pendingIds, setPendingIds] = useState<number[]>([]);
-  const { getAll, toggleAdmin, isGettingUsers } = useMembers({
+  const { getAll, toggleAdmin, isGettingUsers, banMember } = useMembers({
     setUsers,
     setPendingIds,
   });
+
   const [searchQuery, setSearchQuery] = useState('');
   const [filter, setFilter] = useState<'all' | 'members' | 'admins'>('all');
   const [filterVersion, setFilterVersion] = useState(0);
@@ -68,8 +73,6 @@ export const AdminManagementModal = ({
   }, [open, handleScroll, authenticatedUser?.token, getAll]);
 
   useLayoutEffect(() => {
-    // Only update the list membership when search, filter, filterVersion or length changes.
-    // Using a ref to not have to put users in the dependency array which would cause the effect we're looking to avoid.
     let result = usersRef.current;
 
     if (filter === 'members') {
@@ -110,6 +113,18 @@ export const AdminManagementModal = ({
     toggleAdmin(user.id, user.admin);
   };
 
+  const handleBan = (id: number, tag: string) => {
+    openModal(
+      banModal({
+        tag,
+        onConfirm: async (close) => {
+          await banMember(id);
+          close();
+        },
+      }),
+    );
+  };
+
   const handleFilterClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -126,14 +141,13 @@ export const AdminManagementModal = ({
     handleFilterClose();
   };
 
-  // Dynamic height animation
   const contentRef = useRef<HTMLDivElement>(null);
   const [contentHeight, setContentHeight] = useState<number | string>('auto');
 
   useLayoutEffect(() => {
     if (contentRef.current && open) {
       const height = contentRef.current.scrollHeight;
-      setContentHeight(height + 2); // 2px buffer for rounding
+      setContentHeight(height + 2);
     }
   }, [filteredUsers.length, isGettingUsers, open, searchQuery]);
 
@@ -164,6 +178,7 @@ export const AdminManagementModal = ({
                       flexShrink: 0,
                       maxWidth: 'none',
                       width: 'fit-content !important',
+                      background: (theme) => theme.palette.background.s4,
                       color: (theme) =>
                         `${theme.palette.text.primary} !important`,
                     }}
@@ -181,6 +196,14 @@ export const AdminManagementModal = ({
                   <Menu
                     anchorEl={anchorEl}
                     open={Boolean(anchorEl)}
+                    anchorOrigin={{
+                      vertical: 'bottom',
+                      horizontal: 'right',
+                    }}
+                    transformOrigin={{
+                      vertical: 'top',
+                      horizontal: 'right',
+                    }}
                     sx={{
                       '& .MuiPaper-root': {
                         width: 'fit-content',
@@ -259,6 +282,7 @@ export const AdminManagementModal = ({
                     handleToggleAdmin={() => {}}
                     authenticatedUser={null}
                     isPending={false}
+                    handleBan={handleBan}
                   />
                 ))}
               </List>
@@ -271,6 +295,7 @@ export const AdminManagementModal = ({
                     handleToggleAdmin={handleToggleAdmin}
                     authenticatedUser={authenticatedUser ?? null}
                     isPending={pendingIds.includes(user.id)}
+                    handleBan={handleBan}
                   />
                 ))}
                 {!isGettingUsers && filteredUsers.length === 0 && (

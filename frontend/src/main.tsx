@@ -4,7 +4,7 @@ import './index.css';
 
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { App } from './App.tsx';
-import { HomePage } from './pages/HomePage.tsx';
+import { HomePage } from './pages/HomePage/index.tsx';
 import { RegisterPage } from './pages/RegisterPage/index.tsx';
 import { LoginPage } from './pages/LoginPage.tsx';
 import { UserContextProvider } from './contexts/UserContext.tsx';
@@ -17,6 +17,7 @@ import { NotificationsPage } from './pages/NotificationsPage.tsx';
 import { TeamPage } from './pages/TeamPage/index.tsx';
 import { ModalContextProvider } from './contexts/ModalContext.tsx';
 import { SnackbarProvider } from './contexts/SnackbarContext.tsx';
+import { TournamentPage } from './pages/TournamentPage/index.tsx';
 
 const router = createBrowserRouter([
   {
@@ -31,10 +32,6 @@ const router = createBrowserRouter([
         path: 'teams',
         children: [
           {
-            path: '',
-            element: 'teams',
-          },
-          {
             path: ':id',
             element: <TeamPage />,
           },
@@ -48,6 +45,7 @@ const router = createBrowserRouter([
         path: 'notifications',
         element: <NotificationsPage></NotificationsPage>,
       },
+      { path: 'tournaments/:id', element: <TournamentPage /> },
     ],
   },
   {

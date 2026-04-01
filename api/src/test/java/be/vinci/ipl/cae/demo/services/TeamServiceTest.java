@@ -1,6 +1,8 @@
 package be.vinci.ipl.cae.demo.services;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -204,5 +206,271 @@ class TeamServiceTest {
     assertNotNull(result.getJoinRequests());
     assertEquals(1, result.getJoinRequests().size());
     assertEquals(100L, result.getJoinRequests().getFirst().getIdJoinRequest());
+  }
+
+  @Test
+  void isManager1Manager1() {
+    // Arrange
+    Team team = new Team();
+    team.setIdTeam(1L);
+    team.setName("Team 1");
+    team.setIsActive(true);
+
+    team.setManager1(creator);
+    creator.setTeam(team);
+
+    team.setMembers(List.of(creator));
+
+    // Act
+    boolean result = teamService.isManager1(team, creator);
+
+    // Assert
+    assertTrue(result);
+  }
+
+  @Test
+  void isManager1Manager2WithUnexistingManager2() {
+    // Arrange
+    Team team = new Team();
+    team.setIdTeam(1L);
+    team.setName("Team 1");
+    team.setIsActive(true);
+    team.setManager1(creator);
+
+    creator.setTeam(team);
+
+    team.setMembers(List.of(creator));
+
+    // Act
+    boolean result = teamService.isManager2(team, creator);
+
+    // Assert
+    assertFalse(result);
+  }
+
+  @Test
+  void isManager1Manager2WithExistingManager2() {
+    // Arrange
+    Team team = new Team();
+    team.setIdTeam(1L);
+    team.setName("Team 1");
+    team.setIsActive(true);
+
+    team.setManager1(creator);
+    creator.setTeam(team);
+
+    Member manager2 = new Member();
+    manager2.setIdMember(2L);
+    manager2.setTeam(team);
+    team.setManager2(manager2);
+
+    team.setMembers(List.of(creator, manager2));
+
+    // Act
+    boolean result = teamService.isManager2(team, creator);
+
+    // Assert
+    assertFalse(result);
+  }
+
+  @Test
+  void isManager2Manager2() {
+    // Arrange
+    Team team = new Team();
+    team.setIdTeam(1L);
+    team.setName("Team 1");
+    team.setIsActive(true);
+    team.setManager2(creator);
+
+    Member manager1 = new Member();
+    manager1.setIdMember(2L);
+    manager1.setTeam(team);
+    team.setManager1(manager1);
+
+    team.setMembers(List.of(creator, manager1));
+
+    creator.setTeam(team);
+
+    // Act
+    boolean result = teamService.isManager2(team, creator);
+
+    // Assert
+    assertTrue(result);
+  }
+
+  @Test
+  void isManager2Manager1() {
+    // Arrange
+    Team team = new Team();
+    team.setIdTeam(1L);
+    team.setName("Team 1");
+    team.setIsActive(true);
+    team.setManager2(creator);
+
+    Member manager1 = new Member();
+    manager1.setIdMember(2L);
+    manager1.setTeam(team);
+    team.setManager1(manager1);
+
+    team.setMembers(List.of(creator, manager1));
+
+    creator.setTeam(team);
+
+    // Act
+    boolean result = teamService.isManager1(team, creator);
+
+    // Assert
+    assertFalse(result);
+  }
+
+  @Test
+  void quitTeamWithMemberWithNoTeam() {
+    // Arrange
+
+    // Act
+
+    // Assert
+    assertThrows(ResponseStatusException.class, () -> teamService.quitTeam(creator));
+  }
+
+  @Test
+  void quitTeamAsNonManager() {
+    // Arrange
+    Team team = new Team();
+    team.setIdTeam(1L);
+    team.setName("Team 1");
+    team.setIsActive(true);
+    creator.setTeam(team);
+    team.setMembers(List.of(creator));
+
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+    when(teamRepository.save(any(Team.class))).thenReturn(team);
+
+    // Act
+    teamService.quitTeam(creator);
+
+    // Assert
+    assertNull(creator.getTeam());
+  }
+
+  @Test
+  void quitTeamAsManager2() {
+    // Arrange
+    Team team = new Team();
+    team.setIdTeam(1L);
+    team.setName("Team 1");
+    team.setIsActive(true);
+    team.setManager2(creator);
+    creator.setTeam(team);
+
+    Member manager1 = new Member();
+    manager1.setIdMember(2L);
+    manager1.setTeam(team);
+    team.setManager1(manager1);
+
+    team.setMembers(List.of(creator, manager1));
+
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+    when(teamRepository.save(any(Team.class))).thenReturn(team);
+    when(memberRepository.save(any(Member.class))).thenReturn(manager1);
+
+    // Act
+    teamService.quitTeam(creator);
+
+    // Assert
+    assertAll(
+        () -> assertNull(creator.getTeam()),
+        () -> assertNull(team.getManager2())
+    );
+
+  }
+
+  @Test
+  void quitTeamAsManager1WithNoOtherMembers() {
+    // Arrange
+    Team team = new Team();
+    team.setIdTeam(1L);
+    team.setName("Team 1");
+    team.setIsActive(true);
+    team.setManager1(creator);
+    creator.setTeam(team);
+    team.setMembers(List.of(creator));
+
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+    when(teamRepository.save(any(Team.class))).thenReturn(team);
+
+    // Act
+    //Team result = teamService.quitTeam(creator);
+    teamService.quitTeam(creator);
+
+    // Assert
+    assertAll(
+        () -> assertNull(team.getManager1()),
+        () -> assertNull(creator.getTeam()),
+        () -> assertFalse(team.getIsActive())
+    );
+
+  }
+
+  @Test
+  void quitTeamAsManager1WithOtherMembers () {
+    // Arrange
+    Team team = new Team();
+    team.setIdTeam(1L);
+    team.setName("Team 1");
+    team.setIsActive(true);
+
+    team.setManager1(creator);
+    creator.setTeam(team);
+
+    Member m2 = new Member();
+    m2.setIdMember(2L);
+    m2.setTeam(team);
+
+    Member m3 = new Member();
+    m3.setIdMember(3L);
+    m3.setTeam(team);
+
+    team.setMembers(List.of(creator, m2, m3));
+
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+
+    // Act
+
+    // Assert
+    //assertNull(result);
+    assertThrows(ResponseStatusException.class, () -> teamService.quitTeam(creator));
+  }
+
+  @Test
+  void quitTeamAsManager1WithExistingManager2 () {
+    // Arrange
+    Team team = new Team();
+    team.setIdTeam(1L);
+    team.setName("Team 1");
+    team.setIsActive(true);
+    team.setManager1(creator);
+
+    creator.setTeam(team);
+
+    Member manager2 = new Member();
+    manager2.setIdMember(2L);
+    manager2.setTeam(team);
+    team.setManager2(manager2);
+
+    team.setMembers(List.of(creator, manager2));
+
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+    when(teamRepository.save(any(Team.class))).thenReturn(team);
+
+    // Act
+    teamService.quitTeam(creator);
+
+    // Assert
+    assertAll(
+        () -> assertNull(creator.getTeam()),
+        () -> assertEquals(team.getManager1(), manager2),
+        () -> assertNull(team.getManager2())
+    );
   }
 }
