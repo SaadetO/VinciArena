@@ -12,16 +12,16 @@ Content-Type: application/json
   "tag": "UserA"
 }
 
-### 2: Login to get JWT token (stored in auth_token)
+### 2: LOGIN USER A
 POST {{baseUrl}}/auths/login
 Content-Type: application/json
 
 {
-  "email": "player@test.com",
+  "email": "userA@test.com",
   "password": "Password123!"
 }
 
-> {% client.global.set("auth_token", response.body.token); %}
+> {% client.global.set("tokenA", response.body.token); %}
 
 ### 3: Create a team (expect 201)
 POST {{baseUrl}}/teams/
