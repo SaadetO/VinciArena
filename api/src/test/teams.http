@@ -61,17 +61,16 @@ Authorization: {{auth_token}}
 ### 7: GET TEAM DETAILS AS VISITOR
 GET {{baseUrl}}/teams/1/details
 
-# ----------- Quiting team Tests -----------
+# ----------- QUIT TEAM -----------
 
-### 8: Quit team without being in a team (expect 400)
-# Register a new member with no team
+### 8. REGISTER USER B (no team)
 POST {{baseUrl}}/auths/register
 Content-Type: application/json
 
 {
-  "email": "lonely@test.com",
+  "email": "userB@test.com",
   "password": "Password123!",
-  "tag": "LonelyUser"
+  "tag": "UserB"
 }
 
 ### Login with the new member
