@@ -5,14 +5,17 @@ import be.vinci.ipl.cae.demo.models.dtos.TournamentDetailsDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Tournament;
 import be.vinci.ipl.cae.demo.services.TournamentService;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -99,6 +102,63 @@ public class TournamentController {
     return createdTournament;
   }
 
+  /**
+   * Updates a tournament in the system.
+   * The update is only possible if the tournament's status is IN_PREPARATION
+   * and the member is an admin.
+   *
+   * @param id the tournament id.
+   * @param newTournament the new tournament data.
+   * @param currentMember the current member.
+   * @return the updated tournament
+   */
+  @PutMapping("/{id}")
+  @PreAuthorize("hasRole('ADMIN')")
+  public Tournament updateTournament(
+      @PathVariable Long id,
+      @RequestBody NewTournament newTournament,
+      @AuthenticationPrincipal Member currentMember
+  ) {
+    validateNewTournament(newTournament, currentMember);
+
+    Tournament updatedTournament =
+        tournamentService.updateTournament(id, newTournament, currentMember);
+
+    if (updatedTournament == null) {
+      throw  new ResponseStatusException(HttpStatus.CONFLICT, "Tournament cannot be updated");
+    }
+
+    return updatedTournament;
+  }
+
+  /**
+   * Patch a tournament in the system.
+   * The patch is only possible if the tournament's status is IN_PREPARATION
+   * and the member is an admin.
+   *
+   * @param id the tournament id.
+   * @param currentMember the current member.
+   * @return the patched tournament
+   */
+  @PatchMapping("/{id}/publish")
+  @PreAuthorize("hasRole('ADMIN')")
+  public Tournament publishTournament(
+      @PathVariable Long id,
+      @AuthenticationPrincipal Member currentMember
+  ) {
+    if (!currentMember.isAdmin()) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+    }
+
+    Tournament publishedTournament = tournamentService.publishTournament(id, currentMember);
+
+    if (publishedTournament == null) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "Tournament cannot be published");
+    }
+
+    return publishedTournament;
+  }
+
   private void validateNewTournament(NewTournament dto, Member currentMember) {
     // check null
     if (dto == null) {
@@ -122,10 +182,19 @@ public class TournamentController {
     }
 
     // Check dates
-    if (dto.registrationDeadline().isBefore(LocalDateTime.now())) {
+    checkDateRange(dto.registrationDeadline(), dto.startDate(), dto.endDate());
+  }
+
+  private void checkDateRange(
+      LocalDateTime registrationDeadline,
+      LocalDate startDate,
+      LocalDate endDate
+  ) {
+    LocalDate today = LocalDate.now();
+    if (registrationDeadline.isBefore(today.atStartOfDay())) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Deadline cannot be in the past");
     }
-    if (dto.endDate().isBefore(dto.startDate())) {
+    if (endDate.isBefore(startDate)) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
           "End date must be after start date");
     }
