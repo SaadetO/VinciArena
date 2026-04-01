@@ -73,7 +73,7 @@ Content-Type: application/json
   "tag": "UserB"
 }
 
-### LOGIN USER B
+### 9. LOGIN USER B
 POST {{baseUrl}}/auths/login
 Content-Type: application/json
 
@@ -84,9 +84,18 @@ Content-Type: application/json
 
 > {% client.global.set("tokenB", response.body.token); %}
 
-### QUIT TEAM WITHOUT BEING IN ONE (400)
+### 10. QUIT TEAM WITHOUT BEING IN ONE (400)
 POST {{baseUrl}}/teams/quit
 Authorization: Bearer {{tokenB}}
+
+# ----------- RESIGN MANAGER -----------
+
+### 11. RESIGN WITHOUT REPLACEMENT ( ONLY manager ) -> 409
+PUT {{baseUrl}}/teams/1/resign
+Authorization: Bearer {{tokenA}}
+
+
+
 
 ### 9: Quit team successfully (expect 200)
 ## Register a new member
