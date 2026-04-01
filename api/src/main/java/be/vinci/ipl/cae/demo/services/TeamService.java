@@ -249,10 +249,8 @@ public class TeamService {
     Team team = teamRepository.findById(currentMember.getTeam().getIdTeam())
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Team not found"));
 
-
-
     if (
-        isManager1(team, currentMember)
+         isManager1(team, currentMember)
     ) {
       if (
           team.getManager2() != null
@@ -281,5 +279,71 @@ public class TeamService {
     memberRepository.save(currentMember);
 
     teamRepository.save(team);
+  }
+
+  /**
+   * Allow a manager to resign from their role, optionally designating a replacement.
+   *
+   * @param teamId        the team ID
+   * @param currentMember the manager who wants to resign
+   * @param replacementId the ID of the replacement member (required if no other manager remains)
+   * @return the updated team
+   */
+  @Transactional
+  public Team resignManager(Long teamId, Member currentMember, Long replacementId) {
+
+    Team team = teamRepository.findById(teamId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            "La team n'existe pas."));
+
+    // Vérifier que c’est bien un manager
+    if (!isManager(team, currentMember)) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+          "L'utilisateur n'est pas responsable de cette team.");
+    }
+
+    boolean isManager1 = isManager1(team, currentMember);
+    boolean isManager2 = isManager2(team, currentMember);
+
+    boolean hasOtherManager =
+        (isManager1 && team.getManager2() != null) ||
+            (isManager2 && team.getManager1() != null);
+
+    if (!hasOtherManager && replacementId == null) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT,
+          "Un remplaçant est obligatoire pour quitter le rôle de responsable.");
+    }
+
+    if (replacementId != null) {
+      Member replacement = memberRepository.findById(replacementId)
+          .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+              "Le remplaçant n'existe pas."));
+
+      if (replacement.getTeam() == null ||
+          !replacement.getTeam().getIdTeam().equals(teamId)) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+            "Le remplaçant doit appartenir à la team.");
+      }
+
+      if (isManager(team, replacement)) {
+        throw new ResponseStatusException(HttpStatus.CONFLICT,
+            "Ce membre est déjà responsable.");
+      }
+
+      if (isManager1) {
+        team.setManager1(replacement);
+      } else {
+        team.setManager2(replacement);
+      }
+
+    } else {
+      if (isManager1) {
+        team.setManager1(null);
+      } else {
+        team.setManager2(null);
+      }
+    }
+
+    return teamRepository.save(team);
   }
 }
