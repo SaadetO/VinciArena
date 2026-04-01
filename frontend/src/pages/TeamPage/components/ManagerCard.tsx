@@ -23,7 +23,7 @@ export const ManagerCard = ({
 }) => {
   const { authenticatedUser } = useContext(UserContext);
   const { openModal } = useModal();
-  const { promoteToManager } = useTeams({ setTeam });
+  const { promoteToManager, resignManager } = useTeams({ setTeam });
 
   const handlePromote = () => {
     let selectedManager: UserSummaryDto | null = null;
@@ -41,6 +41,19 @@ export const ManagerCard = ({
 
     openModal(managerModal({ team, onSelect, onConfirm }));
   };
+
+  const handleResign = async () => {
+    if (!team) return;
+
+    try {
+      await resignManager(team.idTeam);
+    } catch (error: any) {
+      if (error.response?.status === 409) {
+        alert('Tu dois désigner un remplaçant avant de quitter ton rôle.');
+      }
+    }
+  };
+
   return (
     <Stack
       sx={{ background: (theme) => theme.palette.background.s1 }}
@@ -95,12 +108,23 @@ export const ManagerCard = ({
           </>
         )}
       </Stack>
+
       {team?.managers?.length &&
         team.managers.length < 2 &&
         team.managers.some((manager) => manager.id === authenticatedUser?.id) &&
         team.members.length > 1 && (
           <Button variant="contained" color="secondary" onClick={handlePromote}>
             Désigner un Responsable
+          </Button>
+        )}
+
+      {/* 👇 AJOUT DU BOUTON */}
+      {team?.managers?.length &&
+        team.managers.some(
+          (manager) => manager.id === authenticatedUser?.id,
+        ) && (
+          <Button variant="contained" color="error" onClick={handleResign}>
+            Renoncer à mon rôle
           </Button>
         )}
     </Stack>
