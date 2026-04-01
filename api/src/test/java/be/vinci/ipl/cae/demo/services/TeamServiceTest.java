@@ -536,6 +536,25 @@ class TeamServiceTest {
     assertEquals(replacement, result.getManager1());
   }
 
+  @Test
+  void resignManagerWithReplacementNotInTeam() {
+    // Arrange
+    Team team = new Team();
+    team.setIdTeam(1L);
+
+    Member replacement = new Member();
+    replacement.setIdMember(2L);
+    replacement.setTeam(null);
+
+    team.setManager1(creator);
+
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+    when(memberRepository.findById(2L)).thenReturn(Optional.of(replacement));
+
+    // Act + Assert
+    assertThrows(ResponseStatusException.class,
+        () -> teamService.resignManager(1L, creator, 2L));
+  }
 
 
 }
