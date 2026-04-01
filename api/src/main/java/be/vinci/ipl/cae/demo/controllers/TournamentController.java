@@ -47,7 +47,7 @@ public class TournamentController {
    * @param membersIds a list of member IDs whose teams filter the tournaments (OR filter).
    * @return the list of tournaments.
    */
-  @GetMapping({"", "/"})
+  @GetMapping({"", "/", "/tournaments"})
   public Iterable<Tournament> getTournaments(
       @RequestParam(required = false) String timeframe,
       @RequestParam(required = false) List<Long> teamsIds,
