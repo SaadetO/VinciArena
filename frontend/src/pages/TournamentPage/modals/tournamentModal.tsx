@@ -11,11 +11,15 @@ interface TournamentModalProps {
   open: boolean;
   onClose: () => void;
   tournament?: TournamentDetailsInfoDto;
+  setTournament?: React.Dispatch<
+    React.SetStateAction<TournamentDetailsInfoDto | undefined>
+  >;
 }
 export const TournamentModal = ({
   open,
   onClose,
   tournament,
+  setTournament,
 }: TournamentModalProps) => {
   const { showSnackbar } = useSnackbar();
   const navigate = useNavigate();
@@ -44,33 +48,35 @@ export const TournamentModal = ({
       });
     }
   }, [tournament, open]);
-
   const handleSave = async () => {
-    let result;
-    if (!formData || !formData.name) return;
-    // set loading to true
-    setIsSubmitting(true);
-    if (isEdit && tournament?.idTournament) {
-      result = await update(tournament.idTournament, formData);
-      onClose();
-    } else {
-      const result = await create(formData);
+    if (!formData?.name?.trim()) return;
 
-      const newId = result?.idTournament;
-      // if succesfully created move navigate to the new tournaments page
-      if (newId) {
-        showSnackbar({ message: 'Succès !', severity: 'success' });
+    setIsSubmitting(true); // 1. Start Loading
+
+    try {
+      let result;
+      if (isEdit && tournament?.idTournament) {
+        result = await update(tournament.idTournament, formData);
+        setFormData(result);
+        if (setTournament) {
+          setTournament(result);
+        }
+        showSnackbar({ message: 'Tournoi modifié !', severity: 'success' });
         onClose();
-        navigate(`/tournaments/${newId}`);
       } else {
-        throw new Error('Resultat non attendu.');
+        result = await create(formData);
+        if (result?.idTournament) {
+          showSnackbar({ message: 'Tournoi crée !', severity: 'success' });
+          onClose();
+          navigate(`/tournaments/${result.idTournament}`);
+        }
       }
+    } catch (error) {
+      console.error('Submission failed', error);
+    } finally {
+      setIsSubmitting(false);
     }
-    setFormData(result);
-    // set loading to false
-    setIsSubmitting(false);
   };
-
   return (
     <Dialog
       open={open}
