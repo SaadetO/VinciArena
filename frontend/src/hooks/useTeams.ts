@@ -278,6 +278,64 @@ export const useTeams = (options?: UseTeamsOptions) => {
     },
   );
 
+  const { execute: resignManager } = useApi(
+    async (idTeam: number) => {
+      const response = await fetch(`/api/teams/${idTeam}/resign`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: authenticatedUser?.token ?? '',
+        },
+      });
+
+      if (!response.ok) {
+        if (response.status === 409) {
+          throw new ApiError(
+            'Remplaçant obligatoire pour quitter le rôle.',
+            response.status,
+          );
+        } else if (response.status === 403) {
+          throw new ApiError(
+            "Vous n'êtes pas responsable de cette équipe.",
+            response.status,
+          );
+        } else if (response.status === 404) {
+          throw new ApiError('Equipe introuvable.', response.status);
+        }
+
+        throw new ApiError('Échec de la démission.', response.status);
+      }
+
+      return response.json();
+    },
+    {
+      onSuccess: (data) => {
+        setTeam?.(data);
+        showSnackbar({
+          message: 'Vous avez renoncé à votre rôle de responsable.',
+          severity: 'success',
+        });
+      },
+      onError: (err) => {
+        const status = err instanceof ApiError ? err.status : 500;
+
+        const message =
+          status === 409
+            ? 'Veuillez désigner un remplaçant avant de quitter votre rôle.'
+            : status === 403
+              ? "Vous n'avez pas les droits nécessaires."
+              : status === 404
+                ? "L'équipe est introuvable."
+                : 'Une erreur est survenue lors de la démission.';
+
+        showSnackbar({
+          message,
+          severity: 'error',
+        });
+      },
+    },
+  );
+
   return {
     getAll,
     getById,
@@ -287,5 +345,6 @@ export const useTeams = (options?: UseTeamsOptions) => {
     isGettingAllTeams,
     isGettingTeam,
     isQuittingTeam,
+    resignManager,
   };
 };
