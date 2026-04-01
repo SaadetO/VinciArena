@@ -28,10 +28,31 @@ export const TournamentItem = ({ tournament }: TournamentItemProps) => {
         },
       }}
     >
-      <Stack alignItems="center" justifyContent="center" height="4rem">
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="center"
+        height="4rem"
+        gap="1rem"
+      >
+        <Stack direction="row" flex={1} pl="0.75rem"></Stack>
         <Typography variant="h3" textAlign="center">
           {tournament.name}
         </Typography>
+        <Stack direction="row" flex={1} justifyContent="flex-end" pr="0.75rem">
+          <Stack
+            padding="0 0.75rem"
+            borderRadius="0.5rem"
+            border="1px solid"
+            borderColor="divider"
+            height="2rem"
+            justifyContent="center"
+          >
+            <Typography variant="h6" color="text.secondary">
+              {tournament.registrationsCount} / {tournament.capacity}
+            </Typography>
+          </Stack>
+        </Stack>
       </Stack>
       <Stack
         width="100%"

@@ -70,7 +70,6 @@ export const useTournament = (config: UseTournamentOptions) => {
     },
   );
 
-  // insert new tournament
   const { execute: create } = useApi(
     async (data: Partial<TournamentDetailsInfoDto>) => {
       const response = await fetch('/api/tournaments/', {
@@ -85,7 +84,7 @@ export const useTournament = (config: UseTournamentOptions) => {
         const errorText = await response.text();
         throw new Error(errorText || 'Échec de la création');
       }
-      return await response.json();
+      return response.json();
     },
     {
       onSuccess: (data) => setTournament?.(data),
@@ -101,8 +100,6 @@ export const useTournament = (config: UseTournamentOptions) => {
     },
   );
 
-  // update existing tournament (TO BE TESTED)
-  // METHOD PUT TO BE IMPLEMENTED IN THE BACKEND
   const { execute: update } = useApi(
     async (id, data) => {
       const response = await fetch(`/api/tournaments/${id}`, {
@@ -119,7 +116,7 @@ export const useTournament = (config: UseTournamentOptions) => {
         throw new Error(errorData.message || 'Échec de la mise à jour');
       }
 
-      return await response.json();
+      return response.json();
     },
     {
       onSuccess: (data) => setTournament?.(data),

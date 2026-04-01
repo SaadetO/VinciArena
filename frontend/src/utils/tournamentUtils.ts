@@ -101,6 +101,7 @@ export const groupTournamentsByYearAndMonth = (
 export const getFormattedDate = (
   startDate: string,
   endDate: string,
+  forceMonth: boolean = true,
 ): string => {
   const start = dayjs(startDate);
   const end = dayjs(endDate);
@@ -109,12 +110,16 @@ export const getFormattedDate = (
 
   // if the both dates are in the same month we display the Label of the day
   // else we display the day and the month
-  const formatStr = isSameMonth ? 'ddd D' : 'D MMM';
+  const formatStr = forceMonth
+    ? 'dddd D MMM'
+    : isSameMonth
+      ? 'ddd D'
+      : 'ddd D MMM';
 
   return (
-    formatAndCapitalize(start, formatStr, isSameMonth) +
+    formatAndCapitalize(start, formatStr) +
     ' - ' +
-    formatAndCapitalize(end, formatStr, isSameMonth)
+    formatAndCapitalize(end, formatStr)
   );
 };
 
@@ -122,24 +127,20 @@ export const getFormattedDate = (
  * Formats a date and capitalizes the first letter of the day label or the month label.
  * @param {dayjs.Dayjs} d The date to format.
  * @param {string} formatStr The format string.
- * @param {boolean} isSameMonth Whether the date is in the same month.
  * @return {string} The formatted date.
  */
 export const formatAndCapitalize = (
   d: dayjs.Dayjs,
   formatStr: string,
-  isSameMonth: boolean,
 ): string => {
   const formatted = d.format(formatStr);
 
   // capitalize the first letter of the day label or the month label
-  if (isSameMonth)
-    return formatted.charAt(0).toUpperCase() + formatted.slice(1);
-  else {
-    const parts = formatted.split(' ');
-    if (parts.length > 1)
-      parts[1] = parts[1].charAt(0).toUpperCase() + parts[1].slice(1);
 
-    return parts.join(' ');
+  const parts = formatted.split(' ');
+  for (let i = 0; i < parts.length; i++) {
+    parts[i] = parts[i].charAt(0).toUpperCase() + parts[i].slice(1);
   }
+
+  return parts.join(' ');
 };

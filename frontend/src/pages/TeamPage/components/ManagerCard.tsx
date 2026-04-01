@@ -48,7 +48,26 @@ export const ManagerCard = ({
       borderRadius="1.5rem"
       spacing="1.25rem"
     >
-      <Typography variant="h4">Responsables</Typography>
+      <Stack direction="row" alignItems="center">
+        <Typography variant="h4" flex={1}>
+          Responsables
+        </Typography>
+        {team?.managers?.length &&
+          team.managers.length < 2 &&
+          team.managers.some(
+            (manager) => manager.id === authenticatedUser?.id,
+          ) &&
+          team.members.length > 1 && (
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={handlePromote}
+              sx={{ my: '-0.25rem' }}
+            >
+              Désigner
+            </Button>
+          )}
+      </Stack>
       <Stack gap="0.75rem" direction="row" flexWrap="wrap">
         {team ? (
           team.managers.map((manager) => (
@@ -95,14 +114,6 @@ export const ManagerCard = ({
           </>
         )}
       </Stack>
-      {team?.managers?.length &&
-        team.managers.length < 2 &&
-        team.managers.some((manager) => manager.id === authenticatedUser?.id) &&
-        team.members.length > 1 && (
-          <Button variant="contained" color="secondary" onClick={handlePromote}>
-            Désigner un Responsable
-          </Button>
-        )}
     </Stack>
   );
 };

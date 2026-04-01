@@ -37,10 +37,10 @@ export const TeamPage = () => {
           container
           spacing={3}
           padding="1.5rem 0 4rem"
-          direction={{ xs: 'column-reverse', lg: 'row' }}
+          direction={{ xs: 'column-reverse', md: 'row' }}
           justifyContent="center"
         >
-          <Grid2 size={{ xs: 12, lg: 7 }}>
+          <Grid2 size={{ xs: 12, md: 6.5, lg: 7.5 }}>
             <Stack spacing="1.5rem">
               <Stack
                 sx={{ background: (theme) => theme.palette.background.s1 }}
@@ -53,7 +53,7 @@ export const TeamPage = () => {
               </Stack>
             </Stack>
           </Grid2>
-          <Grid2 size={{ xs: 12, lg: 5 }}>
+          <Grid2 size={{ xs: 12, md: 5.5, lg: 4.5 }}>
             <Stack spacing="1.5rem">
               <ManagerCard team={team} setTeam={setTeam} />
               <MembersCard team={team} />

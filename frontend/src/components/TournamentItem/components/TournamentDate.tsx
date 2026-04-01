@@ -16,7 +16,7 @@ export const TournamentDate = ({
   if (component === 'Typography') {
     return (
       <Typography variant="h5" color="text.secondary" flex={1}>
-        {getFormattedDate(startDate, endDate)}
+        {getFormattedDate(startDate, endDate, false)}
       </Typography>
     );
   }

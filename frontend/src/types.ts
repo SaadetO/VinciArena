@@ -175,7 +175,7 @@ interface TournamentDto {
   registrationDeadline: string;
   tournamentStatus: TournamentStatus;
   capacity: number;
-  teams?: Team[];
+  registrationsCount: number;
 }
 
 type TournamentStatus =
