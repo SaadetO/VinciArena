@@ -250,6 +250,8 @@ public class TeamService {
     Team team = teamRepository.findById(currentMember.getTeam().getIdTeam())
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Team not found"));
 
+
+
     if (
         isManager1(team, currentMember)
     ) {

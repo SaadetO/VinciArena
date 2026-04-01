@@ -326,16 +326,11 @@ class TeamServiceTest {
   @Test
   void quitTeamWithMemberWithNoTeam() {
     // Arrange
-    //when(creator.getTeam()).thenReturn(null);
 
     // Act
-    //Team result = teamService.quitTeam(creator);
 
     // Assert
-    //assertNull(result);
-    assertThrows(ResponseStatusException.class, () -> {
-      teamService.quitTeam(creator);
-    });
+    assertThrows(ResponseStatusException.class, () -> teamService.quitTeam(creator));
   }
 
   @Test
@@ -348,17 +343,13 @@ class TeamServiceTest {
     creator.setTeam(team);
     team.setMembers(List.of(creator));
 
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
     when(teamRepository.save(any(Team.class))).thenReturn(team);
 
     // Act
-    //Team result = teamService.quitTeam(creator);
     teamService.quitTeam(creator);
 
     // Assert
-    //assertAll(
-        //() -> assertNull(creator.getTeam()),
-        //() -> assertEquals(team, result)
-    //);
     assertNull(creator.getTeam());
   }
 
@@ -371,24 +362,26 @@ class TeamServiceTest {
     team.setIsActive(true);
     team.setManager2(creator);
     creator.setTeam(team);
+
     Member manager1 = new Member();
     manager1.setIdMember(2L);
     manager1.setTeam(team);
     team.setManager1(manager1);
+
     team.setMembers(List.of(creator, manager1));
 
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
     when(teamRepository.save(any(Team.class))).thenReturn(team);
     when(memberRepository.save(any(Member.class))).thenReturn(manager1);
 
     // Act
-    //Team result = teamService.quitTeam(creator);
     teamService.quitTeam(creator);
 
     // Assert
     assertAll(
         () -> assertNull(creator.getTeam()),
         () -> assertNull(team.getManager2())
-   );
+    );
 
   }
 
@@ -403,6 +396,7 @@ class TeamServiceTest {
     creator.setTeam(team);
     team.setMembers(List.of(creator));
 
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
     when(teamRepository.save(any(Team.class))).thenReturn(team);
 
     // Act
@@ -439,15 +433,13 @@ class TeamServiceTest {
 
     team.setMembers(List.of(creator, m2, m3));
 
-    // Act
-    //Team result = teamService.quitTeam(creator);
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
 
+    // Act
 
     // Assert
     //assertNull(result);
-    assertThrows(ResponseStatusException.class, () -> {
-      teamService.quitTeam(creator);
-    });
+    assertThrows(ResponseStatusException.class, () -> teamService.quitTeam(creator));
   }
 
   @Test
@@ -468,10 +460,10 @@ class TeamServiceTest {
 
     team.setMembers(List.of(creator, manager2));
 
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
     when(teamRepository.save(any(Team.class))).thenReturn(team);
 
     // Act
-    //Team result = teamService.quitTeam(creator);
     teamService.quitTeam(creator);
 
     // Assert
