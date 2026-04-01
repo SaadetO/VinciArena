@@ -144,11 +144,19 @@ public class TournamentController {
     }
 
     // Check dates
+    checkDateRange(dto.registrationDeadline(), dto.startDate(), dto.endDate());
+  }
+
+  private void checkDateRange(
+      LocalDate registrationDeadline,
+      LocalDate startDate,
+      LocalDate endDate
+  ) {
     LocalDate today = LocalDate.now();
-    if (dto.registrationDeadline().isBefore(today)) {
+    if (registrationDeadline.isBefore(today)) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Deadline cannot be in the past");
     }
-    if (dto.endDate().isBefore(dto.startDate())) {
+    if (endDate.isBefore(startDate)) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
           "End date must be after start date");
     }
