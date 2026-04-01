@@ -59,7 +59,8 @@ Authorization: {{auth_token}}
 }
 
 ### 7: GET TEAM DETAILS AS VISITOR
-GET {{baseUrl}}/teams/1/details
+GET {{baseUrl}}/teams/4/details
+
 
 # ----------- QUIT TEAM -----------
 
@@ -88,11 +89,13 @@ Content-Type: application/json
 POST {{baseUrl}}/teams/quit
 Authorization: {{tokenB}}
 
-# ----------- RESIGN MANAGER -----------
 
-### 11. RESIGN WITHOUT REPLACEMENT ( ONLY manager ) -> 409
-PUT {{baseUrl}}/teams/1/resign
+### ----------- RESIGN MANAGER -----------
+
+### 11. RESIGN WITHOUT REPLACEMENT (ONLY manager) -> 409
+PUT {{baseUrl}}/teams/4/resign
 Authorization: {{tokenA}}
+
 
 # ----------- ADVANCED RESIGN (WITH REPLACEMENT) -----------
 
@@ -118,5 +121,5 @@ Content-Type: application/json
 > {% client.global.set("tokenC", response.body.token); %}
 
 ### 14. RESIGN WITH REPLACEMENT NOT IN TEAM (400)
-PUT {{baseUrl}}/teams/1/resign?replacementId=3
+PUT {{baseUrl}}/teams/4/resign?replacementId=3
 Authorization: {{tokenA}}
