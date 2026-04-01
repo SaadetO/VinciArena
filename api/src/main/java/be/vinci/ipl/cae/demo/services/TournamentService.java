@@ -5,6 +5,7 @@ import be.vinci.ipl.cae.demo.models.dtos.MatchTeamDto;
 import be.vinci.ipl.cae.demo.models.dtos.NewTournament;
 import be.vinci.ipl.cae.demo.models.dtos.TeamSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.TournamentDetailsDto;
+import be.vinci.ipl.cae.demo.models.dtos.TournamentSummaryDto;
 import be.vinci.ipl.cae.demo.models.entities.Match;
 import be.vinci.ipl.cae.demo.models.entities.MatchLineup;
 import be.vinci.ipl.cae.demo.models.entities.MatchResultConfirmation;
@@ -236,7 +237,7 @@ public class TournamentService {
    * @param membersIds a list of specific member ids whose team will be used
    * @return the filtered and sorted list of tournaments.
    */
-  public Iterable<Tournament> getTournaments(String timeframe, List<Long> teamsIds,
+  public Iterable<TournamentSummaryDto> getTournaments(String timeframe, List<Long> teamsIds,
       List<Long> membersIds) {
     Set<Long> filteredTeamIds = new HashSet<>();
     if (teamsIds != null && !teamsIds.isEmpty()) {
@@ -274,12 +275,9 @@ public class TournamentService {
       };
     }
 
-    if (!hasFilters) {
-      return allTournaments;
-    }
 
     // Additional filtering
-    List<Tournament> result = new ArrayList<>();
+    List<TournamentSummaryDto> result = new ArrayList<>();
     for (Tournament t : allTournaments) {
       boolean matchMember = tournamentIdsFromMembers.contains(t.getIdTournament());
       boolean matchTeam = false;
@@ -290,11 +288,25 @@ public class TournamentService {
         }
       }
 
-      if (matchTeam || matchMember) {
-        result.add(t);
+      if (!hasFilters || matchTeam || matchMember) {
+        result.add(mapToSummaryDto(t));
       }
     }
 
     return result;
+  }
+
+  private TournamentSummaryDto mapToSummaryDto(Tournament t) {
+    return new TournamentSummaryDto(
+        t.getIdTournament(),
+        t.getName(),
+        t.getDescription(),
+        t.getStartDate(),
+        t.getEndDate(),
+        t.getRegistrationDeadline(),
+        t.getTournamentStatus(),
+        t.getCapacity(),
+        t.getRegistrationsNumber()
+    );
   }
 }

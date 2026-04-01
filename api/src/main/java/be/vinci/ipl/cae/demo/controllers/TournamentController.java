@@ -2,6 +2,7 @@ package be.vinci.ipl.cae.demo.controllers;
 
 import be.vinci.ipl.cae.demo.models.dtos.NewTournament;
 import be.vinci.ipl.cae.demo.models.dtos.TournamentDetailsDto;
+import be.vinci.ipl.cae.demo.models.dtos.TournamentSummaryDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Tournament;
 import be.vinci.ipl.cae.demo.services.TournamentService;
@@ -48,7 +49,7 @@ public class TournamentController {
    * @return the list of tournaments.
    */
   @GetMapping({"", "/"})
-  public Iterable<Tournament> getTournaments(
+  public Iterable<TournamentSummaryDto> getTournaments(
       @RequestParam(required = false) String timeframe,
       @RequestParam(required = false) List<Long> teamsIds,
       @RequestParam(required = false) List<Long> membersIds) {
