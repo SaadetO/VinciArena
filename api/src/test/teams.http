@@ -41,12 +41,12 @@ Authorization: Bearer {{tokenA}}
   "name": "TeamA"
 }
 
-### 5: Create a team without auth (expect 403)
+### 5: NO AUTH (403)
 POST {{baseUrl}}/teams/
 Content-Type: application/json
 
 {
-  "name": "No Auth Team"
+  "name": "NoAuth"
 }
 
 ### 6: Create a team with blank name (expect 400)
