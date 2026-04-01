@@ -166,6 +166,9 @@ export const useTeams = (options?: UseTeamsOptions) => {
             response.status,
           );
         }
+        if (response.status === 409) {
+          throw new ApiError('Dernier manager de la Team', response.status);
+        }
         throw new ApiError('Échec du départ de la team.', response.status);
       }
     },
@@ -183,7 +186,9 @@ export const useTeams = (options?: UseTeamsOptions) => {
         const message =
           status === 400
             ? 'Vous ne faites déjà plus partie de cette équipe.'
-            : 'Une erreur est survenue en quittant la team.';
+            : status === 409
+              ? "Veuillez d'abord désigner un nouveau responsable"
+              : 'Une erreur est survenue en quittant la team.';
         showSnackbar({
           message,
           severity: 'error',

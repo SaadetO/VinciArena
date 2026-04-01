@@ -60,3 +60,69 @@ Authorization: {{auth_token}}
 
 ### 7: Get Team details as a visitor
 GET {{baseUrl}}/teams/1/details
+
+
+# ----------- Quiting team Tests -----------
+
+### 8: Quit team without being in a team (expect 400)
+# Register a new member with no team
+POST {{baseUrl}}/auths/register
+Content-Type: application/json
+
+{
+  "email": "lonely@test.com",
+  "password": "Password123!",
+  "tag": "LonelyUser"
+}
+
+### Login with the new member
+POST {{baseUrl}}/auths/login
+Content-Type: application/json
+
+{
+  "email": "lonely@test.com",
+  "password": "Password123!"
+}
+
+> {% client.global.set("auth_token_no_team", response.body.token); %}
+
+### Try to quit a team whit no team (expect 400)
+POST {{baseUrl}}/teams/quit
+Content-Type: application/json
+Authorization: {{auth_token_no_team}}
+
+### 9: Quit team successfully (expect 200)
+## Register a new member
+POST {{baseUrl}}/auths/register
+Content-Type: application/json
+
+{
+  "email": "mana1@test.com",
+  "password": "Password123!",
+  "tag": "Mana1"
+}
+
+### Login with Mana1
+POST {{baseUrl}}/auths/login
+Content-Type: application/json
+
+{
+  "email": "mana1@test.com",
+  "password": "Password123!"
+}
+
+> {% client.global.set("auth_token_manager1", response.body.token); %}
+
+### Create a new team (expect 201)
+POST {{baseUrl}}/teams/
+Content-Type: application/json
+Authorization: {{auth_token_manager1}}
+
+{
+  "name": "Team to leave"
+}
+
+### Quit the team as manager 1 with no other members reamaining (expect 200)
+POST {{baseUrl}}/teams/quit
+Content-Type: application/json
+Authorization: {{auth_token_manager1}}

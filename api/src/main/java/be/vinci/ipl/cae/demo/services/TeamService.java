@@ -146,6 +146,30 @@ public class TeamService {
   }
 
   /**
+   * Check if member is a manager1 of a given team.
+   *
+   * @param team   the given team
+   * @param member the member to check for manager1 status
+   * @return true is member is a manager1; false otherwise
+   */
+  public boolean isManager1(Team team, Member member) {
+    return team.getManager1() != null && team.getManager1().getIdMember()
+        .equals(member.getIdMember());
+  }
+
+  /**
+   * Check if member is a manager2 of a given team.
+   *
+   * @param team   the given team
+   * @param member the member to check for manager2 status
+   * @return true is member is a manager2; false otherwise
+   */
+  public boolean isManager2(Team team, Member member) {
+    return team.getManager2() != null && team.getManager2().getIdMember()
+        .equals(member.getIdMember());
+  }
+
+  /**
    * Get all active teams.
    *
    * @return an iterable containing all active teams
@@ -222,15 +246,30 @@ public class TeamService {
           "L'utilisateur ne fait pas partie de la Team.");
     }
 
-    Team team = currentMember.getTeam();
+    Team team = teamRepository.findById(currentMember.getTeam().getIdTeam())
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Team not found"));
+
+
 
     if (
-        team.getManager1() != null
-            && team.getManager1().getIdMember().equals(currentMember.getIdMember())
+        isManager1(team, currentMember)
     ) {
-      team.setManager1(null);
-    } else if (team.getManager2() != null && team.getManager2().getIdMember()
-        .equals(currentMember.getIdMember())) {
+      if (
+          team.getManager2() != null
+      ) {
+        team.setManager1(team.getManager2());
+        team.setManager2(null);
+      } else if (
+          1 < team.getMembers().size()
+      ) {
+        throw new ResponseStatusException(HttpStatus.CONFLICT,
+            "Member cannot quit team as the last manager.");
+      } else {
+        team.setManager1(null);
+      }
+    } else if (
+        isManager2(team, currentMember)
+    ) {
       team.setManager2(null);
     }
 
