@@ -555,6 +555,4 @@ class TeamServiceTest {
     assertThrows(ResponseStatusException.class,
         () -> teamService.resignManager(1L, creator, 2L));
   }
-
-
 }
