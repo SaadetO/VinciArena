@@ -84,10 +84,9 @@ Content-Type: application/json
 
 > {% client.global.set("tokenB", response.body.token); %}
 
-### Try to quit a team whit no team (expect 400)
+### QUIT TEAM WITHOUT BEING IN ONE (400)
 POST {{baseUrl}}/teams/quit
-Content-Type: application/json
-Authorization: {{auth_token_no_team}}
+Authorization: Bearer {{tokenB}}
 
 ### 9: Quit team successfully (expect 200)
 ## Register a new member
