@@ -1,8 +1,14 @@
 import { Stack } from '@mui/material';
 import { TournamentSearchBar } from './TournamentSearchBar';
-import { TournamentTimeFrameTabs } from './TournamentTimeFrameTabs';
+import { Tabs, TabOption } from '../../../components/Tabs';
 import { TournamentFilterButton } from './TournamentFilterButton';
 import { TournamentFilters } from '../../../utils/tournamentUtils';
+
+const timeframeOptions: TabOption<'past' | 'current' | 'future'>[] = [
+  { label: 'À venir', value: 'future' },
+  { label: 'En cours', value: 'current' },
+  { label: 'Passés', value: 'past' },
+];
 
 interface TournamentControlsProps {
   filters: TournamentFilters;
@@ -40,9 +46,10 @@ export const TournamentControls = ({
         outlineColor: 'background.s0',
       }}
     >
-      <TournamentTimeFrameTabs
-        timeFrame={filters.timeFrame}
-        setTimeFrame={(timeFrame) =>
+      <Tabs
+        options={timeframeOptions}
+        value={filters.timeFrame}
+        onChange={(timeFrame) =>
           setFilters({ ...filters, timeFrame, statuses: [] })
         }
       />

@@ -1,16 +1,24 @@
-import { Box, Stack } from '@mui/material';
+import { Box, Stack, Button } from '@mui/material';
 import { useEffect, useRef, useState } from 'react';
-import { TournamentTab } from './TournamentTab';
 
-interface TournamentTimeFrameTabsProps {
-  timeFrame: 'future' | 'current' | 'past';
-  setTimeFrame: (timeFrame: 'future' | 'current' | 'past') => void;
+export interface TabOption<T extends string | number> {
+  label: string;
+  value: T;
 }
 
-export const TournamentTimeFrameTabs = ({
-  timeFrame,
-  setTimeFrame,
-}: TournamentTimeFrameTabsProps) => {
+interface TabsProps<T extends string | number> {
+  options: TabOption<T>[];
+  value: T;
+  onChange: (value: T) => void;
+  fullWidth?: boolean;
+}
+
+export const Tabs = <T extends string | number>({
+  options,
+  value,
+  onChange,
+  fullWidth = false,
+}: TabsProps<T>) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [indicatorStyle, setIndicatorStyle] = useState({
     left: 0,
@@ -22,7 +30,7 @@ export const TournamentTimeFrameTabs = ({
   useEffect(() => {
     if (!containerRef.current) return;
     const selectedEl = containerRef.current.querySelector(
-      `button[data-value="${timeFrame}"]`,
+      `button[data-value="${value}"]`,
     ) as HTMLButtonElement | null;
 
     if (selectedEl) {
@@ -33,7 +41,7 @@ export const TournamentTimeFrameTabs = ({
         height: selectedEl.offsetHeight,
       });
     }
-  }, [timeFrame]);
+  }, [value, options]);
 
   return (
     <Stack
@@ -45,6 +53,7 @@ export const TournamentTimeFrameTabs = ({
       bgcolor="background.s2"
       height="fit-content"
       alignItems="center"
+      width={fullWidth ? '100%' : 'fit-content'}
     >
       {indicatorStyle.width > 0 && (
         <Box
@@ -60,24 +69,27 @@ export const TournamentTimeFrameTabs = ({
           }}
         />
       )}
-      <TournamentTab
-        selected={timeFrame}
-        setSelected={setTimeFrame}
-        label="À venir"
-        value="future"
-      />
-      <TournamentTab
-        selected={timeFrame}
-        setSelected={setTimeFrame}
-        label="En cours"
-        value="current"
-      />
-      <TournamentTab
-        selected={timeFrame}
-        setSelected={setTimeFrame}
-        label="Passés"
-        value="past"
-      />
+      {options.map((option) => (
+        <Button
+          key={option.value}
+          data-value={option.value}
+          size="large"
+          sx={{
+            flex: fullWidth ? 1 : 'none',
+            color: value === option.value ? 'text.primary' : 'text.secondary',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            pointerEvents: value === option.value ? 'none' : 'auto',
+            zIndex: 1,
+            '&:hover': {
+              opacity: 0.6,
+              background: 'none',
+            },
+          }}
+          onClick={() => onChange(option.value)}
+        >
+          {option.label}
+        </Button>
+      ))}
     </Stack>
   );
 };
