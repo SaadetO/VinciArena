@@ -63,5 +63,8 @@ public interface TournamentRepository extends CrudRepository<Tournament, Long> {
    */
   Iterable<Tournament> findAllByTournamentStatusIn(Collection<TournamentStatus> tournamentStatuses);
 
+  /**
+   * Checks if a member exists by name.
+   */
   boolean existsByName(String name);
 }
