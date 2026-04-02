@@ -133,7 +133,7 @@ export const useTeams = (options?: UseTeamsOptions) => {
         setUser?.((prev) => (prev ? { ...prev, team } : prev));
         showSnackbar({
           message: 'Team créée avec succès !',
-            severity: 'success',
+          severity: 'success',
         });
       },
 
