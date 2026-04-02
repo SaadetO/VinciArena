@@ -18,6 +18,9 @@ import { TeamPage } from './pages/TeamPage/index.tsx';
 import { ModalContextProvider } from './contexts/ModalContext.tsx';
 import { SnackbarProvider } from './contexts/SnackbarContext.tsx';
 import { TournamentPage } from './pages/TournamentPage/index.tsx';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import 'dayjs/locale/fr';
 
 const router = createBrowserRouter([
   {
@@ -65,15 +68,17 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <SnackbarProvider>
-        <ModalContextProvider>
-          <UserContextProvider>
-            <RouterProvider router={router} />
-          </UserContextProvider>
-        </ModalContextProvider>
-      </SnackbarProvider>
-    </ThemeProvider>
+    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="fr">
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <SnackbarProvider>
+          <ModalContextProvider>
+            <UserContextProvider>
+              <RouterProvider router={router} />
+            </UserContextProvider>
+          </ModalContextProvider>
+        </SnackbarProvider>
+      </ThemeProvider>
+    </LocalizationProvider>
   </React.StrictMode>,
 );

@@ -1,5 +1,5 @@
 import { ArrowForward } from '@mui/icons-material';
-import { Stack, SxProps, Tooltip } from '@mui/material';
+import { Stack, Tooltip } from '@mui/material';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
@@ -7,31 +7,7 @@ import { Theme } from '@mui/material/styles';
 import { useEffect, useState } from 'react';
 import { checkOverlap, getDurationString } from '../../../utils/date';
 import { useModalController } from '../../../hooks/useModalController';
-
-const datePickerSx: SxProps<Theme> = {
-  '& .MuiPickersSectionList-root': {
-    height: '3rem',
-    padding: '0',
-    alignItems: 'center',
-  },
-  '& .MuiPickersInputBase-root': {
-    borderRadius: '0.75rem',
-    fontSize: '1rem',
-    letterSpacing: '0.25%',
-    backgroundColor: (theme: Theme) => theme.palette.background.s3,
-  },
-  '& .MuiPickersOutlinedInput-notchedOutline': {
-    border: 'none',
-  },
-  '& .MuiButtonBase-root': {
-    width: '2rem',
-    height: '2rem',
-    color: (theme: Theme) => theme.palette.text.secondary,
-  },
-  '& .MuiInputAdornment-root': {
-    marginRight: '0.375rem',
-  },
-};
+import { datePickerSx } from '../../../themes';
 
 interface UnavailabilitiesModalContentProps {
   unavailabilities: { id: number; startDate: string; endDate: string }[] | null;
@@ -110,7 +86,7 @@ export const UnavailabilitiesModalContent = ({
 
   return (
     <Stack
-      spacing="1rem"
+      spacing="0.75rem"
       direction="row"
       alignItems="center"
       justifyContent="center"

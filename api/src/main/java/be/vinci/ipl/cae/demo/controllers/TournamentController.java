@@ -95,13 +95,13 @@ public class TournamentController {
   @PostMapping("/")
   @ResponseStatus(HttpStatus.CREATED)
   @PreAuthorize("hasRole('ADMIN')") // Security handled here
-  public Tournament createTournament(@RequestBody NewTournament newTournament,
+  public TournamentDetailsDto createTournament(@RequestBody NewTournament newTournament,
       @AuthenticationPrincipal Member currentMember) {
     if (tournamentRepo.existsByName(newTournament.name())) {
       throw new ResponseStatusException(HttpStatus.CONFLICT, "Tournament name already exists");
     }
 
-    validateNewTournament(newTournament, currentMember); // Removed currentMember check here
+    validateNewTournament(newTournament, currentMember, null); // Removed currentMember check here
 
     Tournament createdTournament = tournamentService.createTournament(newTournament);
 
@@ -109,7 +109,7 @@ public class TournamentController {
       throw new ResponseStatusException(HttpStatus.CONFLICT, "Tournament already exists");
     }
 
-    return createdTournament;
+    return tournamentService.getTournamentDetails(createdTournament.getIdTournament());
   }
 
   /**
@@ -123,12 +123,12 @@ public class TournamentController {
    */
   @PutMapping("/{id}")
   @PreAuthorize("hasRole('ADMIN')")
-  public Tournament updateTournament(
+  public TournamentDetailsDto updateTournament(
       @PathVariable Long id,
       @RequestBody NewTournament newTournament,
       @AuthenticationPrincipal Member currentMember
   ) {
-    validateNewTournament(newTournament, currentMember);
+    validateNewTournament(newTournament, currentMember, id);
 
     Tournament updatedTournament =
         tournamentService.updateTournament(id, newTournament, currentMember);
@@ -136,8 +136,8 @@ public class TournamentController {
     if (updatedTournament == null) {
       throw new ResponseStatusException(HttpStatus.CONFLICT, "Tournament cannot be updated");
     }
-    System.out.println(updatedTournament);
-    return updatedTournament;
+
+    return tournamentService.getTournamentDetails(updatedTournament.getIdTournament());
   }
 
   /**
@@ -150,7 +150,7 @@ public class TournamentController {
    */
   @PatchMapping("/{id}/publish")
   @PreAuthorize("hasRole('ADMIN')")
-  public Tournament publishTournament(
+  public TournamentDetailsDto publishTournament(
       @PathVariable Long id,
       @AuthenticationPrincipal Member currentMember
   ) {
@@ -164,10 +164,10 @@ public class TournamentController {
       throw new ResponseStatusException(HttpStatus.CONFLICT, "Tournament cannot be published");
     }
 
-    return publishedTournament;
+    return tournamentService.getTournamentDetails(publishedTournament.getIdTournament());
   }
 
-  private void validateNewTournament(NewTournament dto, Member currentMember) {
+  private void validateNewTournament(NewTournament dto, Member currentMember, Long id) {
     // check null
     if (dto == null) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Payload is missing");
@@ -188,8 +188,10 @@ public class TournamentController {
     if (dto.capacity() <= 0) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Max teams must be positive");
     }
-
-
+    Tournament existing = tournamentRepo.findByName(dto.name());
+    if (existing != null && (!existing.getIdTournament().equals(id))) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "Tournament name already exists");
+    }
 
     // Check dates
     checkDateRange(dto.registrationDeadline(), dto.startDate(), dto.endDate());

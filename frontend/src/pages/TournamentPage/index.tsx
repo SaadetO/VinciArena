@@ -4,11 +4,12 @@ import { TournamentDetailsInfoDto } from '../../types';
 import { useTournament } from '../../hooks/useTournaments';
 import { useParams } from 'react-router-dom';
 import { Container, Grid2, Stack, Typography } from '@mui/material';
-import { TournamentModal } from './modals/tournamentModal';
 import { TeamsCard } from './components/TeamsCard';
 import { UserContext } from '../../contexts/UserContext';
 import { NotFoundPage } from '../NotFoundPage';
 import { AdminActionCard } from './components/AdminActionCard';
+
+import { useTournamentModal } from '../../hooks/useTournamentModal';
 
 export const TournamentPage = () => {
   const { id } = useParams();
@@ -20,7 +21,7 @@ export const TournamentPage = () => {
     { code: number; message: string; subtitle?: string } | undefined
   >(undefined);
   const { authenticatedUser } = useContext(UserContext);
-  const [isTournamentModalOpen, setIsTournamentModalOpen] = useState(false);
+  const { openEditModal } = useTournamentModal();
 
   const { getById, publish, isGettingTournamentById } = useTournament({
     setTournament,
@@ -77,10 +78,7 @@ export const TournamentPage = () => {
 
   return (
     <>
-      <TournamentBanner
-        tournament={tournament}
-        setIsTournamentModalOpen={setIsTournamentModalOpen}
-      />
+      <TournamentBanner tournament={tournament} />
       <Container maxWidth="lg">
         <Grid2
           container
@@ -95,7 +93,8 @@ export const TournamentPage = () => {
                 {authenticatedUser?.admin && tournament?.status && (
                   <AdminActionCard
                     status={tournament.status}
-                    onAction={handleAdminAction}
+                    onAction={() => {}}
+                    onAction2={() => openEditModal(tournament!, setTournament)}
                   />
                 )}
                 {(!authenticatedUser?.admin ||
@@ -136,12 +135,6 @@ export const TournamentPage = () => {
           )}
         </Grid2>
       </Container>
-      <TournamentModal
-        open={isTournamentModalOpen}
-        onClose={() => setIsTournamentModalOpen(false)}
-        tournament={tournament}
-        setTournament={setTournament}
-      ></TournamentModal>
     </>
   );
 };

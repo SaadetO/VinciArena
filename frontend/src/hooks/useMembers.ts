@@ -1,5 +1,5 @@
 import { useApi } from './useApi';
-import { Dispatch, SetStateAction, useContext, useRef } from 'react';
+import { Dispatch, SetStateAction, useContext } from 'react';
 import { UserContext } from '../contexts/UserContext';
 import {
   Member,
@@ -7,6 +7,7 @@ import {
   ProfileInfoDto,
   SpecialtyDto,
   MemberSummaryDto,
+  ApiError,
 } from '../types';
 import { useSnackbar } from './useSnackbar';
 
@@ -28,8 +29,6 @@ export const useMembers = (options?: UseMembersOptions) => {
   const { authenticatedUser } = useContext(UserContext);
   const { showSnackbar } = useSnackbar();
 
-  const response = useRef<Response | undefined>(undefined);
-
   const { execute: getAllSummaries, loading: isGettingSummaries } = useApi(
     async () => {
       const response = await fetch(`/api/members`, {
@@ -38,8 +37,13 @@ export const useMembers = (options?: UseMembersOptions) => {
           Authorization: authenticatedUser?.token ?? '',
         },
       });
-      if (!response.ok)
-        throw new Error('Échec de la récupération des membres.');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new ApiError(
+          errorData.message || 'Échec de la récupération des membres.',
+          response.status,
+        );
+      }
       return response.json();
     },
     {
@@ -47,9 +51,8 @@ export const useMembers = (options?: UseMembersOptions) => {
       onError: (err) =>
         showSnackbar({
           message:
-            err instanceof Error
-              ? err.message
-              : 'Une erreur est survenue lors de la récupération des membres.',
+            err.message ||
+            'Une erreur est survenue lors de la récupération des membres.',
           severity: 'error',
         }),
     },
@@ -63,8 +66,13 @@ export const useMembers = (options?: UseMembersOptions) => {
           Authorization: authenticatedUser?.token ?? '',
         },
       });
-      if (!response.ok)
-        throw new Error('Échec de la récupération des membres.');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new ApiError(
+          errorData.message || 'Échec de la récupération des membres.',
+          response.status,
+        );
+      }
       return response.json();
     },
     {
@@ -72,9 +80,8 @@ export const useMembers = (options?: UseMembersOptions) => {
       onError: (err) =>
         showSnackbar({
           message:
-            err instanceof Error
-              ? err.message
-              : 'Une erreur est survenue lors de la récupération des membres.',
+            err.message ||
+            'Une erreur est survenue lors de la récupération des membres.',
           severity: 'error',
         }),
     },
@@ -84,26 +91,32 @@ export const useMembers = (options?: UseMembersOptions) => {
     async (id: number) => {
       if (isNaN(id) || id <= 0) return;
 
-      response.current = await fetch(`/api/members/${id}`, {
+      const response = await fetch(`/api/members/${id}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: authenticatedUser?.token ?? '',
         },
       });
-      if (!response.current.ok)
-        throw new Error('Échec de la récupération du profil.');
-      return response.current.json();
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new ApiError(
+          errorData.message || 'Échec de la récupération du profil.',
+          response.status,
+        );
+      }
+      return response.json();
     },
     {
       onSuccess: (data) => setUser?.(data),
-      onError: (err) =>
+      onError: (err) => {
+        const status = err instanceof ApiError ? err.status : 500;
         setError?.({
-          code: response.current?.status ?? 500,
-          message:
-            err instanceof Error ? err.message : 'Une erreur est survenue',
+          code: status,
+          message: err.message || 'Une erreur est survenue',
           subtitle:
             'Une erreur est survenue lors de la récupération du profil.',
-        }),
+        });
+      },
     },
   );
 
@@ -119,8 +132,13 @@ export const useMembers = (options?: UseMembersOptions) => {
           password: newPassword,
         }),
       });
-      if (!response.ok)
-        throw new Error('Échec de la mise à jour du mot de passe.');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new ApiError(
+          errorData.message || 'Échec de la mise à jour du mot de passe.',
+          response.status,
+        );
+      }
     },
     {
       onSuccess: () => {
@@ -132,9 +150,8 @@ export const useMembers = (options?: UseMembersOptions) => {
       onError: (err) =>
         showSnackbar({
           message:
-            err instanceof Error
-              ? err.message
-              : 'Une erreur est survenue lors de la mise à jour du mot de passe.',
+            err.message ||
+            'Une erreur est survenue lors de la mise à jour du mot de passe.',
           severity: 'error',
         }),
     },
@@ -151,8 +168,13 @@ export const useMembers = (options?: UseMembersOptions) => {
         },
         body: JSON.stringify(avatar),
       });
-      if (!response.ok)
-        throw new Error("Échec de la mise à jour de l'image de profil");
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new ApiError(
+          errorData.message || "Échec de la mise à jour de l'image de profil",
+          response.status,
+        );
+      }
     },
     {
       onOptimism: (avatar) => {
@@ -161,7 +183,7 @@ export const useMembers = (options?: UseMembersOptions) => {
           return { ...prev, avatar: avatar.path };
         });
       },
-      onRollback: (_avatar, previousAvatar) => {
+      onRollback: (_, previousAvatar) => {
         setUser?.((prev) => {
           if (!prev) return prev;
           return { ...prev, avatar: previousAvatar };
@@ -176,9 +198,8 @@ export const useMembers = (options?: UseMembersOptions) => {
       onError: (err) =>
         showSnackbar({
           message:
-            err instanceof Error
-              ? err.message
-              : "Une erreur est survenue lors de la mise à jour de l'image de profil.",
+            err.message ||
+            "Une erreur est survenue lors de la mise à jour de l'image de profil.",
           severity: 'error',
         }),
     },
@@ -195,8 +216,13 @@ export const useMembers = (options?: UseMembersOptions) => {
         },
         body: JSON.stringify(specialty.id),
       });
-      if (!response.ok)
-        throw new Error('Échec de la mise à jour de la spécialité.');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new ApiError(
+          errorData.message || 'Échec de la mise à jour de la spécialité.',
+          response.status,
+        );
+      }
     },
     {
       onOptimism: (specialty) => {
@@ -220,9 +246,8 @@ export const useMembers = (options?: UseMembersOptions) => {
       onError: (err) =>
         showSnackbar({
           message:
-            err instanceof Error
-              ? err.message
-              : 'Une erreur est survenue lors de la mise à jour de la spécialité.',
+            err.message ||
+            'Une erreur est survenue lors de la mise à jour de la spécialité.',
           severity: 'error',
         }),
     },
@@ -238,8 +263,14 @@ export const useMembers = (options?: UseMembersOptions) => {
           Authorization: authenticatedUser?.token ?? '',
         },
       });
-      if (!response.ok)
-        throw new Error('Échec de la mise à jour du statut administrateur.');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new ApiError(
+          errorData.message ||
+            'Échec de la mise à jour du statut administrateur.',
+          response.status,
+        );
+      }
     },
     {
       onOptimism: (id) => {
@@ -268,9 +299,8 @@ export const useMembers = (options?: UseMembersOptions) => {
         setPendingIds?.((prev) => prev.filter((pid) => pid !== id));
         showSnackbar({
           message:
-            err instanceof Error
-              ? err.message
-              : 'Une erreur est survenue lors de la mise à jour du statut administrateur.',
+            err.message ||
+            'Une erreur est survenue lors de la mise à jour du statut administrateur.',
           severity: 'error',
         });
       },
@@ -287,7 +317,13 @@ export const useMembers = (options?: UseMembersOptions) => {
         },
       });
 
-      if (!response.ok) throw new Error('Échec du bannissement du membre.');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new ApiError(
+          errorData.message || 'Échec du bannissement du membre.',
+          response.status,
+        );
+      }
     },
     {
       onOptimism: (id) => {
@@ -307,8 +343,7 @@ export const useMembers = (options?: UseMembersOptions) => {
       onError: (err, id) => {
         setPendingIds?.((prev) => prev.filter((pid) => pid !== id));
         showSnackbar({
-          message:
-            err instanceof Error ? err.message : 'Erreur lors du bannissement',
+          message: err.message || 'Erreur lors du bannissement',
           severity: 'error',
         });
       },

@@ -3,6 +3,7 @@ import { useApi } from './useApi';
 import { Dispatch, SetStateAction, useContext } from 'react';
 import { UserContext } from '../contexts/UserContext';
 import { ApiError, TournamentDetailsInfoDto, TournamentDto } from '../types';
+import { useNavigate } from 'react-router-dom';
 
 interface UseTournamentOptions {
   setTournaments?: (tournaments: TournamentDto[]) => void;
@@ -14,12 +15,15 @@ interface UseTournamentOptions {
       { code: number; message: string; subtitle?: string } | undefined
     >
   >;
+  onSuccess?: (data: TournamentDetailsInfoDto) => void;
+  onError?: (err: Error) => void;
 }
 
 export const useTournament = (config: UseTournamentOptions) => {
-  const { setTournaments, setTournament, setError } = config;
+  const { setTournaments, setTournament, setError, onError, onSuccess } = config;
   const { showSnackbar } = useSnackbar();
   const { authenticatedUser } = useContext(UserContext);
+  const navigate = useNavigate();
 
   const { execute: getAll, loading: isGettingTournaments } = useApi(
     async ({
@@ -45,18 +49,24 @@ export const useTournament = (config: UseTournamentOptions) => {
         `/api/tournaments${params.size > 0 ? '?' : ''}${params.toString()}`,
       );
       if (!response.ok) {
-        throw new Error('Échec de la récupération des tournois !');
+        throw new ApiError(
+          'Échec de la récupération des tournois !',
+          response.status,
+        );
       }
       return response.json();
     },
     {
-      onSuccess: (data) => setTournaments?.(data),
+      onSuccess: (data) => {
+        setTournaments?.(data);
+        config.onSuccess?.(data as any);
+      },
       onError: (err) => {
+        config.onError?.(err);
         showSnackbar({
           message:
-            err instanceof Error
-              ? err.message
-              : 'Une erreur est survenue lors de la récupération des tournois !',
+            err.message ||
+            'Une erreur est survenue lors de la récupération des tournois !',
           severity: 'error',
         });
       },
@@ -82,8 +92,7 @@ export const useTournament = (config: UseTournamentOptions) => {
         const status = err instanceof ApiError ? err.status : 500;
         setError?.({
           code: status,
-          message:
-            err instanceof ApiError ? err.message : 'Une erreur est survenue',
+          message: err.message || 'Une erreur est survenue',
           subtitle:
             status === 404
               ? "Le tournoi que vous cherchez n'existe pas ou a été supprimé."
@@ -105,23 +114,29 @@ export const useTournament = (config: UseTournamentOptions) => {
       });
 
       if (!response.ok) {
-        const errorText = await response.text().catch(() => '');
+        const errorData = await response.json().catch(() => ({}));
         throw new ApiError(
-          errorText || 'Échec de la création',
+          errorData.message || 'Échec de la création',
           response.status,
         );
       }
       return response.json();
     },
     {
-      onSuccess: (data) => setTournament?.(data),
+      onSuccess: (data) => {
+        setTournament?.(data);
+        onSuccess?.(data);
+        if (data.idTournament) {
+          navigate(`/tournaments/${data.idTournament}`);
+        }
+      },
       onError: (err) => {
+        onError?.(err);
         const status = err instanceof ApiError ? err.status : 500;
 
         setError?.({
           code: status,
-          message:
-            status === 409 ? 'Nom déjà utilisé' : 'Une erreur est survenue',
+          message: err.message || 'Une erreur est survenue',
           subtitle:
             status === 409
               ? 'Ce nom de tournoi est déjà pris. Choisis-en un autre pour continuer.'
@@ -129,8 +144,7 @@ export const useTournament = (config: UseTournamentOptions) => {
         });
 
         showSnackbar({
-          message:
-            status === 409 ? 'Nom déjà utilisé' : 'Erreur lors de la création',
+          message: err.message || 'Erreur lors de la création',
           severity: 'error',
         });
       },
@@ -138,7 +152,7 @@ export const useTournament = (config: UseTournamentOptions) => {
   );
 
   const { execute: update } = useApi(
-    async (id, data) => {
+    async (id: number, data: Partial<TournamentDetailsInfoDto>) => {
       const response = await fetch(`/api/tournaments/${id}`, {
         method: 'PUT',
         headers: {
@@ -150,19 +164,30 @@ export const useTournament = (config: UseTournamentOptions) => {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Échec de la mise à jour');
+        throw new ApiError(
+          errorData.message || 'Échec de la mise à jour',
+          response.status,
+        );
       }
 
       return response.json();
     },
     {
-      onSuccess: (data) => setTournament?.(data),
+      onSuccess: (data) => {
+        setTournament?.(data);
+        onSuccess?.(data);
+      },
       onError: (err) => {
+        onError?.(err);
+        const status = err instanceof ApiError ? err.status : 500;
+        setError?.({
+          code: status,
+          message: err.message || 'Une erreur est survenue',
+          subtitle:
+            'Une erreur est survenue lors de la mise au jour du tournoi.',
+        });
         showSnackbar({
-          message:
-            err instanceof Error
-              ? err.message
-              : 'Une erreur est survenue lors de la mise au jour du tournoi !',
+          message: err.message || 'Erreur lors de la mise à jour',
           severity: 'error',
         });
       },

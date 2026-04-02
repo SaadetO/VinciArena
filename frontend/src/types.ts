@@ -229,6 +229,15 @@ interface TournamentDetailsInfoDto {
   registrationDeadline: string;
 }
 
+interface TournamentFormData {
+  name: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  registrationDeadline: string;
+  capacity: number;
+}
+
 interface TeamSummaryDto {
   idTeam: number;
   name: string;
@@ -269,4 +278,5 @@ export type {
   TournamentDetailsInfoDto,
   TeamSummaryDto,
   TournamentStatus,
+  TournamentFormData,
 };

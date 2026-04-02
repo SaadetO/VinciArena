@@ -1,6 +1,7 @@
 import { Check, CloseRounded } from '@mui/icons-material';
-import { createTheme } from '@mui/material/styles';
+import { createTheme, SxProps } from '@mui/material/styles';
 import { ZoomTransition } from './components/ZoomTransition';
+import { Theme } from '@emotion/react';
 
 declare module '@mui/material/styles' {
   interface TypeBackground {
@@ -72,7 +73,7 @@ export const theme = createTheme({
     error: {
       main: '#EF7D7D',
     },
-    divider: '#252525',
+    divider: '#303030',
     background: {
       ...surfaceLevels,
       default: surfaceLevels.s0,
@@ -475,7 +476,7 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: '0.5rem',
-          border: '1px solid #252525 !important',
+          border: '1px solid #303030 !important',
           '& .MuiSvgIcon-root': {
             color: '#8C8C8C',
           },
@@ -591,7 +592,7 @@ export const theme = createTheme({
             backgroundImage: 'none',
             // width: '25rem',
             maxWidth: '25rem',
-            // border: '1px solid #252525',
+            // border: '1px solid #303030',
           },
         },
       },
@@ -684,7 +685,7 @@ export const theme = createTheme({
         paper: {
           borderRadius: '1.25rem',
           backgroundColor: surfaceLevels.s2,
-          border: '1px solid #252525',
+          border: '1px solid #303030',
           boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
           backgroundImage: 'none',
         },
@@ -725,7 +726,7 @@ export const theme = createTheme({
         paper: {
           borderRadius: '1rem',
           backgroundColor: surfaceLevels.s2,
-          border: '1px solid #252525',
+          border: '1px solid #303030',
           boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
           backgroundImage: 'none',
           margin: '0.375rem',
@@ -853,7 +854,7 @@ export const theme = createTheme({
           '& .custom-checkbox': {
             width: '16px',
             height: '16px',
-            border: '2px solid #252525',
+            border: '2px solid #303030',
             borderRadius: '0.25rem',
             backgroundColor: 'transparent',
             transition: 'all 0.15s ease',
@@ -893,3 +894,28 @@ export const theme = createTheme({
     },
   },
 });
+
+export const datePickerSx: SxProps<Theme> = {
+  '& .MuiPickersSectionList-root': {
+    height: '3rem',
+    padding: '0',
+    alignItems: 'center',
+  },
+  '& .MuiPickersInputBase-root': {
+    borderRadius: '0.75rem',
+    fontSize: '1rem',
+    letterSpacing: '0.25%',
+    backgroundColor: theme.palette.background.s3,
+  },
+  '& .MuiPickersOutlinedInput-notchedOutline': {
+    border: 'none',
+  },
+  '& .MuiButtonBase-root': {
+    width: '2rem',
+    height: '2rem',
+    color: theme.palette.text.secondary,
+  },
+  '& .MuiInputAdornment-root': {
+    marginRight: '0.375rem',
+  },
+};

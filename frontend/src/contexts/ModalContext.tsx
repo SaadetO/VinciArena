@@ -159,7 +159,7 @@ const ModalContextProvider = ({ children }: { children: ReactNode }) => {
             </Stack>
             {error && (
               <Stack padding="0 1rem 1rem">
-                <Alert severity="error" size="small" align="center">
+                <Alert severity="error" size="small">
                   {error}
                 </Alert>
               </Stack>

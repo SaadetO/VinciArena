@@ -4,9 +4,10 @@ import { TournamentStatus } from '../../../types';
 interface AdminActionCardProps {
   status: TournamentStatus;
   onAction: (status: TournamentStatus) => void;
+  onAction2?: (status: TournamentStatus) => void;
 }
 
-export const AdminActionCard = ({ status, onAction }: AdminActionCardProps) => {
+export const AdminActionCard = ({ status, onAction, onAction2 }: AdminActionCardProps) => {
   const getStatusContent = () => {
     switch (status) {
       case 'IN_PREPARATION':
@@ -14,7 +15,8 @@ export const AdminActionCard = ({ status, onAction }: AdminActionCardProps) => {
           title: 'Préparation du tournoi',
           description:
             "Le tournoi est actuellement en mode privé. Profitez de cet espace pour ajuster les derniers détails avant d'ouvrir les inscriptions.",
-          buttonLabel: 'Publier le tournoi',
+          buttonLabel: 'Publier',
+          secondaryButtonLabel: 'Modifier',
         };
       case 'REGISTRATION_CLOSED':
         return {
@@ -53,11 +55,22 @@ export const AdminActionCard = ({ status, onAction }: AdminActionCardProps) => {
       >
         {content.description}
       </Typography>
-      <Stack padding="1rem">
+      <Stack padding="1rem" direction="row" spacing="0.75rem">
+        {content.secondaryButtonLabel && (
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={() => onAction2?.(status)}
+            fullWidth
+          >
+            {content.secondaryButtonLabel}
+          </Button>
+        )}
         <Button
           variant="contained"
           color="primary"
           onClick={() => onAction(status)}
+          fullWidth
         >
           {content.buttonLabel}
         </Button>

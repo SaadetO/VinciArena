@@ -154,7 +154,7 @@ export const AdminManagementModal = ({
   return (
     <Dialog open={open} onClose={onClose} fullWidth>
       <DialogTitle variant="h2">Gérer les Membres</DialogTitle>
-      <Typography textAlign="center" color="secondary" sx={{ mb: 2 }}>
+      <Typography textAlign="center" color="secondary" padding="0 2rem 1rem">
         Recherchez et gérez les privilèges d'administrateur
       </Typography>
 

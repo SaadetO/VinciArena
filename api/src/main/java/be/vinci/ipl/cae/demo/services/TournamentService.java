@@ -318,14 +318,13 @@ public class TournamentService {
   public Tournament updateTournament(
       Long tournamentId, NewTournament newTournament, Member currentMember
   ) {
-    Tournament tournament
-        = doesTournamentExistInTheGivenStatus(tournamentId, TournamentStatus.IN_PREPARATION);
-
-    if (tournament == null) {
+    if (!currentMember.isAdmin()) {
       return null;
     }
 
-    if (!currentMember.isAdmin()) {
+    Tournament tournament = tournamentRepository.findById(tournamentId).orElse(null);
+
+    if (tournament == null) {
       return null;
     }
 
@@ -352,7 +351,6 @@ public class TournamentService {
     if (newTournament.registrationDeadline() != null) {
       tournament.setRegistrationDeadline(newTournament.registrationDeadline());
     }
-    tournament.setStatus(TournamentStatus.IN_PREPARATION);
     return tournamentRepository.save(tournament);
   }
 
