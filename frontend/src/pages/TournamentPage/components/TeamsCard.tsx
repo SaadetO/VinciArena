@@ -1,0 +1,142 @@
+import { Button, Chip, Skeleton, Stack, Typography } from '@mui/material';
+import { TeamSummaryDto } from '../../../types';
+import { Link } from 'react-router-dom';
+import { useMemo } from 'react';
+
+export const TeamsCard = ({
+  teams,
+  capacity,
+  status,
+  managedTeamId,
+}: {
+  teams?: TeamSummaryDto[];
+  capacity?: number;
+  status?: string;
+  managedTeamId?: number;
+}) => {
+  const isUserTeamRegistered = useMemo(() => {
+    if (!managedTeamId || !teams) return false;
+    return teams.some((t) => t.idTeam === managedTeamId);
+  }, [managedTeamId, teams]);
+
+  const onRegister = () => {
+    console.log('register');
+  };
+
+  const onUnregister = () => {
+    console.log('unregister');
+  };
+
+  return (
+    <Stack
+      sx={{ background: (theme) => theme.palette.background.s1 }}
+      padding="1.25rem 1rem 1rem"
+      borderRadius="1.5rem"
+      spacing="1.25rem"
+    >
+      <Stack direction="row" alignItems="center">
+        <Stack direction="row" gap="0.75rem" flex={1} alignItems="baseline">
+          <Typography variant="h4">
+            {teams ? (
+              'Teams participantes'
+            ) : (
+              <Skeleton variant="text" width="10rem" />
+            )}
+          </Typography>
+          {capacity && (
+            <Typography variant="h5" color="text.secondary">
+              {teams?.length || 0}/{capacity}
+            </Typography>
+          )}
+        </Stack>
+        {managedTeamId &&
+          (teams && capacity ? (
+            capacity > (teams?.length || 0) &&
+            status === 'REGISTRATION_OPEN' && (
+              <Button
+                variant="contained"
+                color="secondary"
+                sx={{ my: '-0.25rem' }}
+                onClick={isUserTeamRegistered ? onUnregister : onRegister}
+              >
+                {isUserTeamRegistered ? 'Se retirer' : "S'inscrire"}
+              </Button>
+            )
+          ) : (
+            <Skeleton
+              variant="rounded"
+              width="6rem"
+              height="2rem"
+              sx={{ borderRadius: '0.75rem', my: '-0.25rem' }}
+            />
+          ))}
+      </Stack>
+      <Stack gap="0.75rem" direction="row" flexWrap="wrap">
+        {teams ? (
+          teams.length > 0 ? (
+            teams.map((team) => (
+              <Chip
+                sx={{
+                  cursor: 'pointer',
+                  '&:hover': {
+                    background: (theme) => theme.palette.background.s4,
+                  },
+                }}
+                key={team.idTeam}
+                component={Link}
+                to={`/teams/${team.idTeam}`}
+                label={team.name}
+                variant="filled"
+              />
+            ))
+          ) : (
+            <Stack
+              padding="2rem 1.5rem"
+              spacing="0.25rem"
+              alignItems="center"
+              width="100%"
+              sx={{
+                background: (theme) => theme.palette.background.s2,
+              }}
+              borderRadius="0.75rem"
+            >
+              <Typography variant="h5" textAlign="center">
+                Aucune équipe inscrite
+              </Typography>
+              <Typography
+                variant="body2"
+                textAlign="center"
+                color="text.secondary"
+              >
+                Il n'y a pas encore d'équipes enregistrées pour ce tournoi.
+              </Typography>
+            </Stack>
+          )
+        ) : (
+          <>
+            {Array.from({ length: 4 }).map((_, index) => (
+              <Stack
+                key={index}
+                direction="row"
+                gap="0.5rem"
+                alignItems="center"
+                height="2.75rem"
+                padding="0 1rem 0 0.75rem"
+                sx={{
+                  background: (theme) => theme.palette.background.s2,
+                }}
+                borderRadius="0.75rem"
+              >
+                <Skeleton
+                  variant="text"
+                  width={`${4 + (index % 3) * 1.5}rem`}
+                  height={22}
+                />
+              </Stack>
+            ))}
+          </>
+        )}
+      </Stack>
+    </Stack>
+  );
+};

@@ -126,7 +126,9 @@ export const useTeams = (options?: UseTeamsOptions) => {
         const team = {
           id: data.idTeam,
           name: data.name,
-          isManager: true,
+          manager: true,
+          membersCount: 1,
+          hasOtherManager: false,
         };
         setUser?.((prev) => (prev ? { ...prev, team } : prev));
         showSnackbar({
@@ -309,6 +311,18 @@ export const useTeams = (options?: UseTeamsOptions) => {
       return response.json();
     },
     {
+      onOptimism: () => {
+        setTeam?.((prev) =>
+          prev
+            ? {
+                ...prev,
+                managers: prev.managers.filter(
+                  (m) => m.id !== authenticatedUser?.id,
+                ),
+              }
+            : undefined,
+        );
+      },
       onSuccess: (data) => {
         getById(data.idTeam);
 
@@ -334,6 +348,19 @@ export const useTeams = (options?: UseTeamsOptions) => {
           severity: 'error',
         });
       },
+      onRollback: () => {
+        setTeam?.((prev) => {
+          if (!prev) return undefined;
+          const currentUser = prev.members.find(
+            (m) => m.id === authenticatedUser?.id,
+          );
+          if (!currentUser) return prev;
+          return {
+            ...prev,
+            managers: [...prev.managers, currentUser],
+          };
+        });
+      },
     },
   );
 
@@ -343,9 +370,9 @@ export const useTeams = (options?: UseTeamsOptions) => {
     createTeam,
     quitTeam,
     promoteToManager,
+    resignManager,
     isGettingAllTeams,
     isGettingTeam,
     isQuittingTeam,
-    resignManager,
   };
 };

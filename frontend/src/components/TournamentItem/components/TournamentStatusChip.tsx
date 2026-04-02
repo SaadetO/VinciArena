@@ -22,7 +22,7 @@ export const TournamentStatusChip = ({ status }: TournamentStatusChipProps) => {
       label = 'Fini';
       break;
     case 'IN_PREPARATION':
-      label = 'Préparation';
+      label = 'En préparation';
       break;
     case 'REGISTRATION_CLOSED':
       label = 'Inscriptions closes';
@@ -31,6 +31,9 @@ export const TournamentStatusChip = ({ status }: TournamentStatusChipProps) => {
     case 'PLANNED':
       label = 'Planifié';
       color = 'primary';
+      break;
+    case 'CANCELLED':
+      label = 'Annulé';
       break;
     default:
       label = status;

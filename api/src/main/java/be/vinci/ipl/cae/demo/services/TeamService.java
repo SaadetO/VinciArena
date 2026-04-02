@@ -250,7 +250,7 @@ public class TeamService {
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Team not found"));
 
     if (
-         isManager1(team, currentMember)
+        isManager1(team, currentMember)
     ) {
       if (
           team.getManager2() != null
@@ -306,8 +306,8 @@ public class TeamService {
     boolean isManager2 = isManager2(team, currentMember);
 
     boolean hasOtherManager =
-        (isManager1 && team.getManager2() != null) ||
-            (isManager2 && team.getManager1() != null);
+        (isManager1 && team.getManager2() != null)
+            || (isManager2 && team.getManager1() != null);
 
     if (!hasOtherManager && replacementId == null) {
       throw new ResponseStatusException(HttpStatus.CONFLICT,
@@ -319,8 +319,7 @@ public class TeamService {
           .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
               "Le remplaçant n'existe pas."));
 
-      if (replacement.getTeam() == null ||
-          !replacement.getTeam().getIdTeam().equals(teamId)) {
+      if (replacement.getTeam() == null || !replacement.getTeam().getIdTeam().equals(teamId)) {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
             "Le remplaçant doit appartenir à la team.");
       }

@@ -2,8 +2,10 @@ package be.vinci.ipl.cae.demo.controllers;
 
 import be.vinci.ipl.cae.demo.models.dtos.NewTournament;
 import be.vinci.ipl.cae.demo.models.dtos.TournamentDetailsDto;
+import be.vinci.ipl.cae.demo.models.dtos.TournamentSummaryDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Tournament;
+import be.vinci.ipl.cae.demo.models.entities.TournamentStatus;
 import be.vinci.ipl.cae.demo.services.TournamentService;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -45,17 +47,20 @@ public class TournamentController {
   /**
    * Get all tournaments, optionally filtered by timeframe, teams, or members.
    *
-   * @param timeframe past, current, or future.
+   * @param statuses a list of statuses to filter by (OR filter)
    * @param teamsIds a list of team IDs to filter tournaments by (OR filter).
    * @param membersIds a list of member IDs whose teams filter the tournaments (OR filter).
+   * @param search a search query to match
+   *
    * @return the list of tournaments.
    */
   @GetMapping({"", "/"})
-  public Iterable<Tournament> getTournaments(
-      @RequestParam(required = false) String timeframe,
+  public Iterable<TournamentSummaryDto> getTournaments(
+      @RequestParam(required = false) List<TournamentStatus> statuses,
       @RequestParam(required = false) List<Long> teamsIds,
-      @RequestParam(required = false) List<Long> membersIds) {
-    return tournamentService.getTournaments(timeframe, teamsIds, membersIds);
+      @RequestParam(required = false) List<Long> membersIds,
+      @RequestParam(required = false) String search) {
+    return tournamentService.getTournaments(statuses, teamsIds, membersIds, search);
   }
 
   /**

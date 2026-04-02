@@ -4,7 +4,7 @@ import { useSnackbar } from '../../../hooks/useSnackbar';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { TournamentDetailsInfoDto } from '../../../types';
-import { useTournament } from '../../../hooks/useTournament';
+import { useTournament } from '../../../hooks/useTournaments';
 
 import dayjs from 'dayjs';
 

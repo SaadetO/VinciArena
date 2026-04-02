@@ -35,6 +35,9 @@ class MemberServiceTest {
   @Mock
   private ProfileImageRepository profileImageRepository;
 
+  @Mock
+  private be.vinci.ipl.cae.demo.repositories.TeamRepository teamRepository;
+
   @Test
   void registerMemberWithValidEmail() {
 
@@ -167,6 +170,8 @@ class MemberServiceTest {
 
     when(memberRepository.findByEmail(email)).thenReturn(member);
     when(passwordEncoder.matches(password, "encodedPassword")).thenReturn(true);
+    when(teamRepository.findFirstByManager1OrManager2(member, member))
+        .thenReturn(java.util.Optional.empty());
 
     // Act
     AuthenticatedUser result = memberService.login(email, password);

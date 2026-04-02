@@ -421,11 +421,16 @@ export const theme = createTheme({
         colorSecondary: {
           color: '#FFFFFF',
           background: surfaceLevels.s3,
+          transition: 'opacity .2s cubic-bezier(0.4, 0, 0.2, 1)',
           '&:hover': {
             background: `color-mix(in srgb, ${surfaceLevels.s3} 92%, #FFFFFF 8%)`,
           },
           '&:active': {
             background: `color-mix(in srgb, ${surfaceLevels.s3} 88%, #FFFFFF 12%)`,
+          },
+          '&:disabled': {
+            opacity: 0.5,
+            background: surfaceLevels.s3,
           },
         },
       },
@@ -586,6 +591,7 @@ export const theme = createTheme({
             backgroundImage: 'none',
             // width: '25rem',
             maxWidth: '25rem',
+            // border: '1px solid #252525',
           },
         },
       },
