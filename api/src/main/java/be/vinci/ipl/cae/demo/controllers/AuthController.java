@@ -110,13 +110,7 @@ public class AuthController {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Identifiants invalides");
     }
 
-    AuthenticatedUser user = new AuthenticatedUser();
-    user.setId(member.getIdMember());
-    user.setEmail(member.getEmail());
-    user.setTag(member.getTag());
-    user.setToken(token);
-
-    return user;
+    return memberService.toAuthenticatedUser(member, token);
   }
 
   /**
