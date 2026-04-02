@@ -73,6 +73,7 @@ interface AuthenticatedUser {
   id: number;
   admin: boolean;
   tag: string;
+  managedTeamId?: number;
   token: string;
 }
 
@@ -184,7 +185,8 @@ type TournamentStatus =
   | 'REGISTRATION_CLOSED'
   | 'PLANNED'
   | 'IN_PROGRESS'
-  | 'DONE';
+  | 'DONE'
+  | 'CANCELLED';
 
 interface MatchTeamDto {
   idTeam: number;
@@ -264,4 +266,5 @@ export type {
   MatchSummaryDto,
   TournamentDetailsInfoDto,
   TeamSummaryDto,
+  TournamentStatus,
 };
