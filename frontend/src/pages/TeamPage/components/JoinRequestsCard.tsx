@@ -25,7 +25,7 @@ export const JoinRequestsCard = ({
             0 ? (
             team.joinRequests
               .filter((jr) => jr.status === 'PENDING')
-              .map((jr) => (
+              ?.map((jr) => (
                 <JoinRequestItem
                   key={jr.idJoinRequest}
                   joinRequest={jr}
