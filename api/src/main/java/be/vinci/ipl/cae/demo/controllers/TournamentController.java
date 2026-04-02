@@ -6,6 +6,7 @@ import be.vinci.ipl.cae.demo.models.dtos.TournamentSummaryDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Tournament;
 import be.vinci.ipl.cae.demo.models.entities.TournamentStatus;
+import be.vinci.ipl.cae.demo.repositories.TournamentRepository;
 import be.vinci.ipl.cae.demo.services.TournamentService;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -33,15 +34,16 @@ import org.springframework.web.server.ResponseStatusException;
 public class TournamentController {
 
   private final TournamentService tournamentService;
+  private final TournamentRepository tournamentRepo;
 
   /**
    * Constructor.
    *
    * @param tournamentService the unavailability service
    */
-  public TournamentController(TournamentService tournamentService) {
+  public TournamentController(TournamentService tournamentService, TournamentRepository tournamentrepo) {
     this.tournamentService = tournamentService;
-
+    this.tournamentRepo= tournamentrepo;
   }
 
   /**
@@ -184,6 +186,10 @@ public class TournamentController {
     // Check numbers
     if (dto.capacity() <= 0) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Max teams must be positive");
+    }
+
+    if (tournamentRepo.existsByName(dto.name())) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "Tournament name already exists");
     }
 
     // Check dates
