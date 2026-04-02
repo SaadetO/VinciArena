@@ -378,7 +378,7 @@ public class TournamentService {
     tournament.setStatus(TournamentStatus.REGISTRATION_OPEN);
 
     tournamentRepository.save(tournament);
-    notificationService.notifyAllMembers("Nouveau Tournoi !"
+    notificationService.notifyAllMembers("Nouveau Tournoi ! "
             + tournament.getName() + " vient d'ouvrir ses portes.", NotificationType.TOURNAMENT,
         tournamentId);
 

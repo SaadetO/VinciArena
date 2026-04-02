@@ -106,3 +106,18 @@ Content-Type: application/json
 # This should move status from IN_PREPARATION to REGISTRATION_OPEN (or OPEN)
 PATCH {{baseUrl}}/tournaments/8/publish
 Authorization: {{auth_token}}
+
+### Update
+# Updates the tournament with the "Elite" description we picked
+PUT {{baseUrl}}/tournaments/16
+Content-Type: application/json
+Authorization: {{auth_token}}
+
+{
+  "name": "Vinci Masters Invitational 2026",
+  "description": "The premier annual indoor competition for regional qualifiers. This year’s Masters features a double-elimination bracket on synthetic courts. High-intensity matches, professional refereeing, and a €500 prize pool.",
+  "capacity": 32,
+  "registrationDeadline": "2026-04-15T20:00:00",
+  "startDate": "2026-04-20",
+  "endDate": "2026-04-25"
+}

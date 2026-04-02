@@ -97,6 +97,9 @@ public class TournamentController {
   @PreAuthorize("hasRole('ADMIN')") // Security handled here
   public Tournament createTournament(@RequestBody NewTournament newTournament,
       @AuthenticationPrincipal Member currentMember) {
+    if (tournamentRepo.existsByName(newTournament.name())) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "Tournament name already exists");
+    }
 
     validateNewTournament(newTournament, currentMember); // Removed currentMember check here
 
@@ -186,9 +189,7 @@ public class TournamentController {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Max teams must be positive");
     }
 
-    if (tournamentRepo.existsByName(dto.name())) {
-      throw new ResponseStatusException(HttpStatus.CONFLICT, "Tournament name already exists");
-    }
+
 
     // Check dates
     checkDateRange(dto.registrationDeadline(), dto.startDate(), dto.endDate());
