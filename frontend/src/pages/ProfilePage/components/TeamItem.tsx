@@ -66,12 +66,24 @@ export const TeamItem = ({ user, setUser }: TeamItemProps) => {
   };
 
   const handleQuit = () => {
+    if (!user?.team) return;
+
     const onConfirm = async (close: () => void) => {
       close();
-      if (!user?.team) return;
       await quitTeam();
     };
-    openModal(quitConfirmationModal({ onConfirm }));
+
+    openModal(
+      quitConfirmationModal({
+        onConfirm,
+        state:
+          user.team.manager && !user.team.hasOtherManager
+            ? user.team.membersCount > 1
+              ? 'MANAGER_BLOCKED'
+              : 'DISSOLVE'
+            : 'NORMAL',
+      }),
+    );
   };
 
   return (

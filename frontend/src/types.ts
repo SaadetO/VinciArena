@@ -58,7 +58,9 @@ interface ProfileInfoDto {
   team: {
     id: number;
     name: string;
-    isManager: boolean; // Calculated based on if Member is manager1 or manager2 in Team
+    manager: boolean; // Calculated based on if Member is manager1 or manager2 in Team
+    membersCount: number;
+    hasOtherManager: boolean;
   } | null; // User might not have a team yet
   unavailabilities:
     | {

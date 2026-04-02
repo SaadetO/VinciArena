@@ -126,12 +126,14 @@ export const useTeams = (options?: UseTeamsOptions) => {
         const team = {
           id: data.idTeam,
           name: data.name,
-          isManager: true,
+          manager: true,
+          membersCount: 1,
+          hasOtherManager: false,
         };
         setUser?.((prev) => (prev ? { ...prev, team } : prev));
         showSnackbar({
           message: 'Team créée avec succès !',
-          severity: 'success',
+            severity: 'success',
         });
       },
 
