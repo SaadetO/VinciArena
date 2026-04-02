@@ -22,10 +22,22 @@ export const TournamentPage = () => {
   const { authenticatedUser } = useContext(UserContext);
   const [isTournamentModalOpen, setIsTournamentModalOpen] = useState(false);
 
-  const { getById, isGettingTournamentById } = useTournament({
+  const { getById, publish, isGettingTournamentById } = useTournament({
     setTournament,
     setError,
   });
+
+  const handleAdminAction = async (status: string) => {
+    if (!idNbr) return;
+
+    if (status === 'IN_PREPARATION') {
+      // call patch
+      await publish(idNbr);
+    } else if (status === 'REGISTRATION_CLOSED') {
+      // TODO
+      console.log('Generating matches...');
+    }
+  };
 
   const canCol1 = useMemo(() => {
     if (isGettingTournamentById) return true;
@@ -83,7 +95,7 @@ export const TournamentPage = () => {
                 {authenticatedUser?.admin && tournament?.status && (
                   <AdminActionCard
                     status={tournament.status}
-                    onAction={() => {}}
+                    onAction={handleAdminAction}
                   />
                 )}
                 {(!authenticatedUser?.admin ||
