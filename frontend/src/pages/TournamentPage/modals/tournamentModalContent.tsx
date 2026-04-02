@@ -6,6 +6,11 @@ import {
   TextField,
   SxProps,
   Theme,
+  Button,
+  CircularProgress,
+  IconButton,
+  InputAdornment,
+  Alert,
 } from '@mui/material';
 import {
   DatePicker,
@@ -14,8 +19,8 @@ import {
 } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
-import { useEffect, useState } from 'react';
-import { ArrowForward } from '@mui/icons-material';
+import { useCallback, useState } from 'react';
+import { Add, ArrowForward, Remove } from '@mui/icons-material';
 import { TournamentDetailsInfoDto } from '../../../types';
 
 // même theme de datePicker que unavailablities
@@ -32,49 +37,44 @@ const datePickerSx: SxProps<Theme> = {
 
 interface TournamentModalContentProps {
   tournament?: TournamentDetailsInfoDto;
-  onDataChange: (data: Partial<TournamentDetailsInfoDto> | null) => void;
+  formData: Partial<TournamentDetailsInfoDto>; // Add this
+  setFormData: React.Dispatch<
+    React.SetStateAction<Partial<TournamentDetailsInfoDto>>
+  >;
+  handleSave: () => void;
+  isSubmitting: boolean;
+  onClose: () => void;
 }
 export const TournamentModalContent = ({
   tournament,
-  onDataChange,
+  formData,
+  setFormData,
+  handleSave,
+  isSubmitting,
+  onClose,
 }: TournamentModalContentProps) => {
   const [tabIndex, setTabIndex] = useState(0);
 
-  // default values
-  const [formData, setFormData] = useState<Partial<TournamentDetailsInfoDto>>({
-    name: tournament?.name ?? '',
-    description: tournament?.description ?? '',
-    capacity: tournament?.capacity ?? 16,
-    status: tournament?.status ?? 'IN_PREPARATION',
-    registrationDeadline:
-      tournament?.registrationDeadline ??
-      dayjs()
-        .add(7, 'day')
-        .hour(20)
-        .minute(0)
-        .second(0)
-        .format('YYYY-MM-DDTHH:mm:ss'),
-    startDate:
-      tournament?.startDate ?? dayjs().add(14, 'day').format('YYYY-MM-DD'),
-    endDate: tournament?.endDate ?? dayjs().add(20, 'day').format('YYYY-MM-DD'),
-  });
-  // insert data recovered from the backend for modification mode
-  useEffect(() => {
-    if (tournament && tournament.idTournament) {
-      setFormData({
-        name: tournament.name ?? '',
-        description: tournament.description ?? '',
-        capacity: tournament.capacity,
-        status: tournament.status,
-        registrationDeadline: tournament.registrationDeadline,
-        startDate: tournament.startDate,
-        endDate: tournament.endDate,
-      });
-    }
-  }, [tournament]);
-  useEffect(() => {
-    onDataChange(formData);
-  }, [formData, onDataChange]);
+  const calculateValidationError = useCallback(() => {
+    const { registrationDeadline, startDate, endDate } = formData;
+    if (!registrationDeadline || !startDate || !endDate) return null;
+
+    const deadline = dayjs(registrationDeadline);
+    const start = dayjs(startDate);
+    const end = dayjs(endDate);
+    const now = dayjs().startOf('day');
+
+    if (deadline.isBefore(now))
+      return 'La date limite ne peut pas être dans le passé.';
+    if (start.isBefore(deadline))
+      return 'Le début doit être après la date limite.';
+    if (end.isBefore(start) || end.isSame(start))
+      return 'La fin doit être après le début.';
+
+    return null;
+  }, [formData]);
+
+  const dateError = calculateValidationError();
 
   const handleChange = (
     field: keyof TournamentDetailsInfoDto,
@@ -90,7 +90,6 @@ export const TournamentModalContent = ({
           value={tabIndex}
           onChange={(_, v) => setTabIndex(v)}
           variant="fullWidth"
-          sx={{ borderBottom: 1, borderColor: 'divider' }}
         >
           <Tab label="1. Informations" />
           <Tab label="2. Détails" />
@@ -101,7 +100,7 @@ export const TournamentModalContent = ({
             <Stack spacing={3}>
               <TextField
                 label="Nom du Tournoi"
-                value={formData.name}
+                value={formData.name || ''}
                 onChange={(e) => handleChange('name', e.target.value)}
                 fullWidth
               />
@@ -109,10 +108,25 @@ export const TournamentModalContent = ({
                 label="Description"
                 multiline
                 rows={6}
-                value={formData.description}
+                value={formData.description || ''}
                 onChange={(e) => handleChange('description', e.target.value)}
                 fullWidth
               />
+
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+                <Button onClick={onClose} sx={{ color: 'secondary' }}>
+                  Annuler
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={() => setTabIndex(1)}
+                  disabled={
+                    !formData.name?.trim() || !formData.description?.trim()
+                  }
+                >
+                  Continuer
+                </Button>
+              </Box>
             </Stack>
           )}
 
@@ -127,34 +141,46 @@ export const TournamentModalContent = ({
                     : null
                 }
                 onChange={(date) =>
-                  handleChange(
-                    'registrationDeadline',
-                    date ? date.format('YYYY-MM-DDTHH:mm:ss') : null,
-                  )
+                  handleChange('registrationDeadline', date?.toISOString())
                 }
-                slotProps={{ textField: { sx: datePickerSx } }}
+                slotProps={{
+                  textField: {
+                    sx: datePickerSx,
+                    inputProps: { readOnly: true },
+                  },
+                }}
+                disablePast
               />
+
               <Stack direction="row" spacing={2} alignItems="center">
                 <DatePicker
                   label="Début"
-                  format="DD/MM/YYYY"
-                  value={dayjs(formData.startDate)}
+                  value={formData.startDate ? dayjs(formData.startDate) : null}
                   onChange={(date) =>
                     handleChange('startDate', date?.toISOString())
                   }
-                  slotProps={{ textField: { sx: datePickerSx } }}
+                  slotProps={{
+                    textField: {
+                      sx: datePickerSx,
+                      inputProps: { readOnly: true },
+                    },
+                  }}
+                  disablePast
                 />
-
                 <ArrowForward sx={{ color: 'text.secondary' }} />
-
                 <DatePicker
                   label="Fin"
-                  format="DD/MM/YYYY"
-                  value={dayjs(formData.endDate)}
+                  value={formData.endDate ? dayjs(formData.endDate) : null}
                   onChange={(date) =>
                     handleChange('endDate', date?.toISOString())
                   }
-                  slotProps={{ textField: { sx: datePickerSx } }}
+                  slotProps={{
+                    textField: {
+                      sx: datePickerSx,
+                      inputProps: { readOnly: true },
+                    },
+                  }}
+                  disablePast
                 />
               </Stack>
 
@@ -162,11 +188,98 @@ export const TournamentModalContent = ({
                 label="Capacité"
                 type="number"
                 value={formData.capacity ?? ''}
-                onChange={(e) =>
-                  handleChange('capacity', parseInt(e.target.value) || 0)
-                }
+                onChange={(e) => {
+                  const val = parseInt(e.target.value);
+                  handleChange('capacity', isNaN(val) ? 2 : Math.max(2, val));
+                }}
                 fullWidth
+                sx={{
+                  // hide default buttons : chrome, etc
+                  '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button':
+                    {
+                      display: 'none',
+                    },
+                  // hide default buttons : firefox
+                  '& input[type=number]': {
+                    MozAppearance: 'textfield',
+                  },
+                  '& .MuiInputBase-root': {
+                    borderRadius: '0.5rem',
+                  },
+                }}
+                // custom buttons with - and +
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <Stack direction="row" spacing={0.5}>
+                          {/* minus sign configuration*/}
+                          <IconButton
+                            size="small"
+                            onClick={() =>
+                              handleChange(
+                                'capacity',
+                                Math.max(2, (formData.capacity || 2) - 1), // decrements down to 2
+                              )
+                            }
+                            sx={{ color: 'text.secondary' }}
+                          >
+                            <Remove fontSize="small"></Remove>
+                          </IconButton>
+
+                          <IconButton
+                            size="small"
+                            onClick={() =>
+                              handleChange(
+                                'capacity',
+                                (formData.capacity || 2) + 1, // increments
+                              )
+                            }
+                            sx={{ color: 'text.secondary' }}
+                          >
+                            <Add fontSize="small" />
+                          </IconButton>
+                        </Stack>
+                      </InputAdornment>
+                    ),
+                  },
+                }}
               />
+
+              {dateError && (
+                <Stack padding="0 1rem 1rem">
+                  <Alert
+                    sx={{ backgroundColor: '#180F0F !important' }}
+                    severity="error"
+                    size="small"
+                    align="center"
+                  >
+                    {dateError}
+                  </Alert>
+                </Stack>
+              )}
+
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+                <Button onClick={onClose} sx={{ color: 'secondary' }}>
+                  Annuler
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={handleSave}
+                  disabled={
+                    isSubmitting || !formData.name?.trim() || !!dateError
+                  }
+                  sx={{ borderRadius: '30px', px: 4 }}
+                >
+                  {isSubmitting ? (
+                    <CircularProgress size={24} />
+                  ) : tournament ? (
+                    'Enregistrer'
+                  ) : (
+                    'Créer'
+                  )}
+                </Button>
+              </Box>
             </Stack>
           )}
         </Box>

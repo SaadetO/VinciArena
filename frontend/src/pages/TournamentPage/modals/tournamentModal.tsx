@@ -1,63 +1,87 @@
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  CircularProgress,
-} from '@mui/material';
+import { Dialog, DialogContent, DialogTitle } from '@mui/material';
 import { TournamentModalContent } from './tournamentModalContent';
 import { useSnackbar } from '../../../hooks/useSnackbar';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { TournamentDetailsInfoDto } from '../../../types';
 import { useTournament } from '../../../hooks/useTournaments';
+
+import dayjs from 'dayjs';
 
 interface TournamentModalProps {
   open: boolean;
   onClose: () => void;
   tournament?: TournamentDetailsInfoDto;
+  setTournament?: React.Dispatch<
+    React.SetStateAction<TournamentDetailsInfoDto | undefined>
+  >;
 }
-
 export const TournamentModal = ({
   open,
   onClose,
   tournament,
+  setTournament,
 }: TournamentModalProps) => {
   const { showSnackbar } = useSnackbar();
   const navigate = useNavigate();
 
+  // TODO : externalise the logic
   // track input data
-  const [formData, setFormData] =
-    useState<Partial<TournamentDetailsInfoDto> | null>(null);
+  const [formData, setFormData] = useState<Partial<TournamentDetailsInfoDto>>(
+    {},
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const isEdit = !!tournament;
   const { create, update } = useTournament({});
-  const handleSave = async () => {
-    if (!formData || !formData.name) return;
-    // set loading to true
-    setIsSubmitting(true);
-    if (isEdit && tournament?.idTournament) {
-      await update(tournament.idTournament, formData);
-      onClose();
-    } else {
-      const result = await create(formData);
 
-      const newId = result?.idTournament;
-      // if succesfully created move navigate to the new tournaments page
-      if (newId) {
-        showSnackbar({ message: 'Succès !', severity: 'success' });
-        onClose();
-        navigate(`/tournaments/${newId}`);
-      } else {
-        throw new Error('Resultat non attendu.');
-      }
+  useEffect(() => {
+    if (open) {
+      setFormData({
+        name: tournament?.name ?? '',
+        description: tournament?.description ?? '',
+        capacity: tournament?.capacity ?? 16,
+        registrationDeadline:
+          tournament?.registrationDeadline ??
+          dayjs()
+            .add(7, 'day')
+            .set('hour', 20)
+            .set('minute', 0)
+            .format('YYYY-MM-DDTHH:mm:ss'),
+        startDate:
+          tournament?.startDate ?? dayjs().add(14, 'day').format('YYYY-MM-DD'),
+        endDate:
+          tournament?.endDate ?? dayjs().add(20, 'day').format('YYYY-MM-DD'),
+      });
     }
-    // set loading to false
-    setIsSubmitting(false);
-  };
+  }, [tournament, open]);
+  const handleSave = async () => {
+    if (!formData?.name?.trim()) return;
+    setIsSubmitting(true); // 1. Start Loading
 
+    try {
+      let result;
+      if (isEdit && tournament?.idTournament) {
+        result = await update(tournament.idTournament, formData);
+        setFormData(result);
+        if (setTournament) {
+          setTournament(result);
+        }
+        showSnackbar({ message: 'Tournoi modifié !', severity: 'success' });
+        onClose();
+      } else {
+        result = await create(formData);
+        if (result?.idTournament) {
+          showSnackbar({ message: 'Tournoi crée !', severity: 'success' });
+          onClose();
+          navigate(`/tournaments/${result.idTournament}`);
+        }
+      }
+    } catch (error) {
+      console.error('Submission failed', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   return (
     <Dialog
       open={open}
@@ -68,11 +92,10 @@ export const TournamentModal = ({
           '& .MuiPaper-root': {
             width: '100%',
             maxWidth: '900px',
-            minHeight: '500px',
+            minHeight: 'auto',
+            height: 'auto',
             backgroundColor: '#121212',
-            backgroundImage: 'none',
             borderRadius: '20px',
-            boxShadow: '0px 8px 32px rgba(0,0,0,0.8)',
           },
         },
       }}
@@ -80,7 +103,7 @@ export const TournamentModal = ({
       <DialogTitle
         sx={{
           p: 4,
-          pb: 3,
+          pb: 2,
           fontSize: '1.75rem',
           fontWeight: 'bold',
           color: 'white',
@@ -88,50 +111,18 @@ export const TournamentModal = ({
       >
         {isEdit ? 'Modifier le Tournoi' : 'Créer un nouveau Tournoi'}
       </DialogTitle>
+
       <DialogContent sx={{ px: 4, py: 3, overflowX: 'hidden' }}>
         <TournamentModalContent
-          key={tournament?.idTournament ?? 'new'}
+          key={`${tournament?.idTournament ?? 'new'}-${open}`}
           tournament={tournament}
-          onDataChange={setFormData}
+          formData={formData}
+          setFormData={setFormData}
+          handleSave={handleSave}
+          isSubmitting={isSubmitting}
+          onClose={onClose}
         />
       </DialogContent>
-
-      <DialogActions sx={{ p: 4, pt: 0, gap: 2 }}>
-        <Button
-          onClick={onClose}
-          disabled={isSubmitting}
-          sx={{
-            color: 'rgba(255,255,255,0.6)',
-            textTransform: 'none',
-            fontSize: '1rem',
-          }}
-        >
-          Annuler
-        </Button>
-        <Button
-          onClick={handleSave}
-          variant="contained"
-          disabled={!formData?.name || isSubmitting}
-          sx={{
-            borderRadius: '30px',
-            px: 6,
-            py: 1.5,
-            textTransform: 'none',
-            fontWeight: 'bold',
-            backgroundColor: '#00B4D8',
-            '&:hover': { backgroundColor: '#0096B4' },
-            minWidth: '150px',
-          }}
-        >
-          {isSubmitting ? (
-            <CircularProgress size={24} sx={{ color: 'white' }} />
-          ) : isEdit ? (
-            'Enregistrer'
-          ) : (
-            'Créer le tournoi'
-          )}
-        </Button>
-      </DialogActions>
     </Dialog>
   );
 };

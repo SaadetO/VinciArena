@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, test, expect, vi, beforeEach } from 'vitest';
-import { ModalControllerContext } from '../../../contexts/ModalControllerContext';
-import { CreateTeamModalContent } from './CreateTeamModalContent';
+import { ModalControllerContext } from '../contexts/ModalControllerContext';
+import { CreateTeamModalContent } from '../pages/ProfilePage/modals/CreateTeamModalContent';
 
 describe('CreateTeamModalContent', () => {
   const setErrorMock = vi.fn();

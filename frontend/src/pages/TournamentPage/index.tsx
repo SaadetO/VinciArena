@@ -128,6 +128,7 @@ export const TournamentPage = () => {
         open={isTournamentModalOpen}
         onClose={() => setIsTournamentModalOpen(false)}
         tournament={tournament}
+        setTournament={setTournament}
       ></TournamentModal>
     </>
   );
