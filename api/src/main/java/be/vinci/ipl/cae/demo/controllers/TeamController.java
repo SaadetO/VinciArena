@@ -114,5 +114,4 @@ public class TeamController {
     return teamService.resignManager(id, currentMember, replacementId);
   }
 
-
 }
