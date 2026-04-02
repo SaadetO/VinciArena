@@ -155,7 +155,7 @@ public class DemoApplication {
       t1.setRegistrationDeadline(LocalDate.of(2026, 10, 1).atStartOfDay());
       t1.setStartDate(LocalDate.of(2026, 10, 15));
       t1.setEndDate(LocalDate.of(2026, 10, 20));
-      t1.setTournamentStatus(TournamentStatus.IN_PREPARATION);
+      t1.setStatus(TournamentStatus.IN_PREPARATION);
       t1.setMaxNbOfTeams(8);
       tournamentRepo.save(t1);
 
@@ -166,7 +166,7 @@ public class DemoApplication {
       t2.setRegistrationDeadline(LocalDate.of(2026, 11, 1).atStartOfDay());
       t2.setStartDate(LocalDate.of(2026, 11, 15));
       t2.setEndDate(LocalDate.of(2026, 11, 20));
-      t2.setTournamentStatus(TournamentStatus.REGISTRATION_OPEN);
+      t2.setStatus(TournamentStatus.REGISTRATION_OPEN);
       t2.setMaxNbOfTeams(16);
       tournamentRepo.save(t2);
 
@@ -177,7 +177,7 @@ public class DemoApplication {
       t3.setRegistrationDeadline(LocalDate.of(2026, 3, 1).atStartOfDay());
       t3.setStartDate(LocalDate.of(2026, 4, 15));
       t3.setEndDate(LocalDate.of(2026, 4, 20));
-      t3.setTournamentStatus(TournamentStatus.REGISTRATION_CLOSED);
+      t3.setStatus(TournamentStatus.REGISTRATION_CLOSED);
       t3.setMaxNbOfTeams(8);
       tournamentRepo.save(t3);
 
@@ -188,7 +188,7 @@ public class DemoApplication {
       t4.setRegistrationDeadline(LocalDate.of(2026, 3, 1).atStartOfDay());
       t4.setStartDate(LocalDate.of(2026, 5, 15));
       t4.setEndDate(LocalDate.of(2026, 5, 20));
-      t4.setTournamentStatus(TournamentStatus.PLANNED);
+      t4.setStatus(TournamentStatus.PLANNED);
       t4.setMaxNbOfTeams(12);
       tournamentRepo.save(t4);
 
@@ -199,7 +199,7 @@ public class DemoApplication {
       t5.setRegistrationDeadline(LocalDate.of(2026, 2, 1).atStartOfDay());
       t5.setStartDate(LocalDate.of(2026, 3, 20));
       t5.setEndDate(LocalDate.of(2026, 5, 30));
-      t5.setTournamentStatus(TournamentStatus.IN_PROGRESS);
+      t5.setStatus(TournamentStatus.IN_PROGRESS);
       t5.setMaxNbOfTeams(4);
       tournamentRepo.save(t5);
 
@@ -210,7 +210,7 @@ public class DemoApplication {
       t6.setRegistrationDeadline(LocalDateTime.of(2026, 1, 1, 20, 59));
       t6.setStartDate(LocalDate.of(2026, 2, 15));
       t6.setEndDate(LocalDate.of(2026, 2, 20));
-      t6.setTournamentStatus(TournamentStatus.DONE);
+      t6.setStatus(TournamentStatus.DONE);
       t6.setMaxNbOfTeams(8);
       tournamentRepo.save(t6);
     };

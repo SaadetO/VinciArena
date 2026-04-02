@@ -17,7 +17,7 @@ Content-Type: application/json
 Authorization: {{auth_token}}
 
 {
-  "name": "Vinci Arena Opening",
+  "name": "Vincii Arena Opening",
   "description": "The very first tournament of the year.",
   "capacity": 16,
   "registrationDeadline": "2026-04-15T20:00:00",
@@ -101,3 +101,8 @@ Content-Type: application/json
   "startDate": "2026-04-20",
   "endDate": "2026-04-22"
 }
+
+### 5. Publish Tournament (The new Patch)
+# This should move status from IN_PREPARATION to REGISTRATION_OPEN (or OPEN)
+PATCH {{baseUrl}}/tournaments/8/publish
+Authorization: {{auth_token}}

@@ -54,7 +54,7 @@ public class Tournament {
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private TournamentStatus tournamentStatus = TournamentStatus.IN_PREPARATION;
+  private TournamentStatus status = TournamentStatus.IN_PREPARATION;
 
   @Column(nullable = false)
   private int capacity;
@@ -108,7 +108,7 @@ public class Tournament {
 
   @Override
   public String toString() {
-    return getName() + ": " + getTournamentStatus();
+    return getName() + ": " + getStatus();
   }
 
   /**
@@ -119,7 +119,7 @@ public class Tournament {
   public boolean registerTeam(Team team) {
     // checking dates
     LocalDateTime now = LocalDateTime.now();
-    if (this.tournamentStatus != TournamentStatus.REGISTRATION_OPEN
+    if (this.status != TournamentStatus.REGISTRATION_OPEN
         || !registrationDeadline.isAfter(now)) {
       return false;
     }
@@ -128,7 +128,7 @@ public class Tournament {
     team.joinTournament(this);
     // change status to REGISTRATIONS_CLOSED if tournament became full
     if (getRegistrationsNumber() == capacity) {
-      setTournamentStatus(TournamentStatus.REGISTRATION_CLOSED);
+      setStatus(TournamentStatus.REGISTRATION_CLOSED);
     }
     return true;
   }
