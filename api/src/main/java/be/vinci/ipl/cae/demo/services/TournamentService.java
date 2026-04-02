@@ -232,13 +232,14 @@ public class TournamentService {
   /**
    * Get all tournaments optionally filtered by timeframe, teams or members.
    *
-   * @param timeframe  past, future, current, or null/empty for all.
+   * @param statuses   a list of specific statuses to filter by
    * @param teamsIds   a list of specific team ids
    * @param membersIds a list of specific member ids whose team will be used
+   * @param search     a search string to filter tournaments by name
    * @return the filtered and sorted list of tournaments.
    */
-  public Iterable<TournamentSummaryDto> getTournaments(String timeframe, List<Long> teamsIds,
-      List<Long> membersIds) {
+  public Iterable<TournamentSummaryDto> getTournaments(List<TournamentStatus> statuses,
+      List<Long> teamsIds, List<Long> membersIds, String search) {
     Set<Long> filteredTeamIds = new HashSet<>();
     if (teamsIds != null && !teamsIds.isEmpty()) {
       filteredTeamIds.addAll(teamsIds);
@@ -256,23 +257,12 @@ public class TournamentService {
     boolean hasTeamFilter = teamsIds != null && !teamsIds.isEmpty();
     boolean hasMemberFilter = membersIds != null && !membersIds.isEmpty();
     boolean hasFilters = hasTeamFilter || hasMemberFilter;
-    boolean hasTimeframe = timeframe != null && !timeframe.isBlank();
-    Iterable<Tournament> allTournaments;
 
-    // Filter by time frame first
-    if (!hasTimeframe) {
+    Iterable<Tournament> allTournaments;
+    if (statuses == null || statuses.isEmpty()) {
       allTournaments = tournamentRepository.findAllByOrderByStartDateDesc();
     } else {
-      allTournaments = switch (timeframe.toLowerCase(java.util.Locale.ROOT)) {
-        case "past" ->
-            tournamentRepository.findByTournamentStatusOrderByStartDateDesc(TournamentStatus.DONE);
-        case "current" -> tournamentRepository.findByTournamentStatusOrderByStartDateDesc(
-            TournamentStatus.IN_PROGRESS);
-        case "future" -> tournamentRepository.findByTournamentStatusNotInOrderByStartDateDesc(
-            List.of(TournamentStatus.DONE, TournamentStatus.IN_PROGRESS)
-        );
-        default -> tournamentRepository.findAllByOrderByStartDateDesc();
-      };
+      allTournaments = tournamentRepository.findAllByTournamentStatusInOrderByStartDateDesc(statuses);
     }
 
 
@@ -288,7 +278,10 @@ public class TournamentService {
         }
       }
 
-      if (!hasFilters || matchTeam || matchMember) {
+      boolean matchSearch = search == null || search.isBlank()
+          || t.getName().toLowerCase().contains(search.toLowerCase());
+          
+      if ((!hasFilters || matchTeam || matchMember) && matchSearch) {
         result.add(mapToSummaryDto(t));
       }
     }

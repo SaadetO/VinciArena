@@ -30,12 +30,13 @@ public interface TournamentRepository extends CrudRepository<Tournament, Long> {
       Collection<TournamentStatus> statuses);
 
   /**
-   * Get all tournaments by specific statuses.
+   * Get all tournaments by specific statuses, ordered by start date.
    *
    * @param tournamentStatuses a list of statuses
    * @return a list of tournaments
    */
-  List<Tournament> findAllByTournamentStatusIn(List<TournamentStatus> tournamentStatuses);
+  List<Tournament> findAllByTournamentStatusInOrderByStartDateDesc(
+      Collection<TournamentStatus> tournamentStatuses);
 
   /**
    * Get all tournaments where at least one of the given teams
@@ -56,4 +57,6 @@ public interface TournamentRepository extends CrudRepository<Tournament, Long> {
    */
   Iterable<Tournament> findDistinctByTeamsIdTeamInAndTournamentStatusNotInOrderByStartDateDesc(
       Collection<Long> teamIds, Collection<TournamentStatus> statuses);
+
+  Iterable<Tournament> findAllByTournamentStatusIn(Collection<TournamentStatus> tournamentStatuses);
 }
