@@ -348,7 +348,7 @@ public class TournamentService {
     if (newTournament.registrationDeadline() != null) {
       tournament.setRegistrationDeadline(newTournament.registrationDeadline());
     }
-
+    tournament.setTournamentStatus(TournamentStatus.IN_PREPARATION);
     return tournamentRepository.save(tournament);
   }
 

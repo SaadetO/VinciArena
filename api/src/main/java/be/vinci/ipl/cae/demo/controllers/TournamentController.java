@@ -132,7 +132,7 @@ public class TournamentController {
     if (updatedTournament == null) {
       throw  new ResponseStatusException(HttpStatus.CONFLICT, "Tournament cannot be updated");
     }
-
+    System.out.println(updatedTournament);
     return updatedTournament;
   }
 

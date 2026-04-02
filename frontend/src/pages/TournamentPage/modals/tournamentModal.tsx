@@ -59,12 +59,20 @@ export const TournamentModal = ({
     setIsSubmitting(true); // 1. Start Loading
 
     try {
-      let result;
+      let result: TournamentDetailsInfoDto | undefined;
       if (isEdit && tournament?.idTournament) {
         result = await update(tournament.idTournament, formData);
-        setFormData(result);
-        if (setTournament) {
-          setTournament(result);
+        console.log(result);
+        if (result) {
+          setFormData(result);
+          if (setTournament) {
+            if (setTournament) {
+              setTournament((prev) => {
+                if (!prev) return result;
+                return { ...prev, ...result };
+              });
+            }
+          }
         }
         showSnackbar({ message: 'Tournoi modifié !', severity: 'success' });
         onClose();
