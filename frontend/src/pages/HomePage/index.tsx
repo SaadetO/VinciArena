@@ -43,10 +43,7 @@ export const HomePage = () => {
     const backendStatuses =
       filters.statuses.length > 0
         ? filters.statuses
-        : getStatusesForTimeframe(
-            filters.timeFrame,
-            authenticatedUser?.admin,
-          );
+        : getStatusesForTimeframe(filters.timeFrame, authenticatedUser?.admin);
 
     getAll({
       statuses: backendStatuses,

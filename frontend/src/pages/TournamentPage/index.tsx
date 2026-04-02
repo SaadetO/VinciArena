@@ -59,7 +59,7 @@ export const TournamentPage = () => {
         subtitle: "Ce tournoi n'est pas encore ouvert au public.",
       });
     }
-  }, [tournament?.status, authenticatedUser?.admin, setError]);
+  }, [tournament?.status, authenticatedUser, setError]);
 
   if (error && !isGettingTournamentById) return <NotFoundPage error={error} />;
 

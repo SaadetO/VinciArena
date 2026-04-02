@@ -6,7 +6,9 @@ import { ApiError, TournamentDetailsInfoDto, TournamentDto } from '../types';
 
 interface UseTournamentOptions {
   setTournaments?: (tournaments: TournamentDto[]) => void;
-  setTournament?: Dispatch<SetStateAction<TournamentDetailsInfoDto | undefined>>;
+  setTournament?: Dispatch<
+    SetStateAction<TournamentDetailsInfoDto | undefined>
+  >;
   setError?: Dispatch<
     SetStateAction<
       { code: number; message: string; subtitle?: string } | undefined

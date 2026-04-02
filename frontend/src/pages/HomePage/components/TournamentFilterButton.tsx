@@ -44,9 +44,7 @@ export const TournamentFilterButton = ({
 
   const activeFilterCount = onlyStatusFilter
     ? filters.statuses.length
-    : filters.teams.length +
-      filters.members.length +
-      filters.statuses.length;
+    : filters.teams.length + filters.members.length + filters.statuses.length;
 
   const handleOpenFilterModal = () => {
     filtersRef.current = {

@@ -28,8 +28,12 @@ export const TIMEFRAME_STATUS_MAP: Record<string, string[]> = {
 };
 
 /**
- * Returns the list of statuses for a given timeframe, conditionally including
- * 'IN_PREPARATION' if the user is an admin for the 'future' timeframe.
+ * Gets the list of statuses for a given timeframe.
+ * @param {string} timeFrame The timeframe to get statuses for.
+ * @param {boolean} isAdmin Whether the user is an admin.
+ * @return {string[]} Returns the list of statuses for a given
+ * timeframe, conditionally including 'IN_PREPARATION' if the user
+ * is an admin for the 'future' timeframe.
  */
 export const getStatusesForTimeframe = (
   timeFrame: string,
@@ -118,6 +122,7 @@ export const groupTournamentsByYearAndMonth = (
  * Formats the start and end dates of a tournament.
  * @param {string} startDate The start date.
  * @param {string} endDate The end date.
+ * @param {boolean} forceMonth Whether to force the month to be displayed.
  * @return {string} A string representing the formatted dates.
  */
 export const getFormattedDate = (
