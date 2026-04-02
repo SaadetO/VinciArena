@@ -310,9 +310,12 @@ public class MemberService {
 
     Team team = requestedMember.getTeam();
     if (team != null) {
-      boolean isManager1 = team.getManager1() != null && team.getManager1().getIdMember().equals(requestedId);
-      boolean isManager2 = team.getManager2() != null && team.getManager2().getIdMember().equals(requestedId);
-      boolean hasOtherManager = (isManager1 && team.getManager2() != null) || (isManager2 && team.getManager1() != null);
+      boolean isManager1 = team.getManager1()
+          != null && team.getManager1().getIdMember().equals(requestedId);
+      boolean isManager2 = team.getManager2()
+          != null && team.getManager2().getIdMember().equals(requestedId);
+      boolean hasOtherManager =
+          (isManager1 && team.getManager2() != null) || (isManager2 && team.getManager1() != null);
 
       builder.team(ProfileDto.TeamDto.builder()
           .id(team.getIdTeam())
