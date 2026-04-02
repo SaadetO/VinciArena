@@ -151,7 +151,7 @@ export const TeamPage = () => {
             <Stack spacing="1.5rem" pt="1.5rem">
               <ManagerCard team={team} setTeam={setTeam} />
               <MembersCard team={team} />
-              {team?.managers.find((e) => e.id === authenticatedUser?.id) && (
+              {team?.managers?.find((e) => e.id === authenticatedUser?.id) && (
                 <JoinRequestsCard
                   isLoading={isGettingTeam}
                   team={team}

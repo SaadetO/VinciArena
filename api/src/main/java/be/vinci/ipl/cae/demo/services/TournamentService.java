@@ -9,6 +9,7 @@ import be.vinci.ipl.cae.demo.models.dtos.TournamentSummaryDto;
 import be.vinci.ipl.cae.demo.models.entities.Match;
 import be.vinci.ipl.cae.demo.models.entities.MatchLineup;
 import be.vinci.ipl.cae.demo.models.entities.MatchResultConfirmation;
+import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.models.entities.Tournament;
 import be.vinci.ipl.cae.demo.models.entities.TournamentStatus;
@@ -300,5 +301,96 @@ public class TournamentService {
         t.getCapacity(),
         t.getRegistrationsNumber()
     );
+  }
+
+  /**
+   * Update a tournament's information.
+   *
+   * @param tournamentId the id of the tournament to update
+   * @param newTournament the tournament with the updated data
+   * @param currentMember the current member
+   * @return the updated tournament if it has been updated, null otherwise.
+   */
+  public Tournament updateTournament(
+      Long tournamentId, NewTournament newTournament, Member currentMember
+  ) {
+    Tournament tournament
+        = doesTournamentExistInTheGivenStatus(tournamentId, TournamentStatus.IN_PREPARATION);
+
+    if (tournament == null) {
+      return null;
+    }
+
+    if (!currentMember.isAdmin()) {
+      return null;
+    }
+
+    if (newTournament.name() != null) {
+      tournament.setName(newTournament.name());
+    }
+
+    if (newTournament.description() != null) {
+      tournament.setDescription(newTournament.description());
+    }
+
+    if (newTournament.startDate() != null) {
+      tournament.setStartDate(newTournament.startDate());
+    }
+
+    if (newTournament.endDate() != null) {
+      tournament.setEndDate(newTournament.endDate());
+    }
+
+    if (newTournament.capacity() != tournament.getCapacity()) {
+      tournament.setMaxNbOfTeams(newTournament.capacity());
+    }
+
+    if (newTournament.registrationDeadline() != null) {
+      tournament.setRegistrationDeadline(newTournament.registrationDeadline());
+    }
+
+    return tournamentRepository.save(tournament);
+  }
+
+  /**
+   * Change a tournament status from IN_PREPARATION to REGISTRATION_OPEN.
+   *
+   * @param tournamentId the id of the tournament to update
+   * @param currentMember the current member
+   * @return the tournament if it's status has been changed to REGISTRATION_OPEN, null otherwise.
+   */
+  public Tournament publishTournament(Long tournamentId, Member currentMember) {
+    Tournament tournament
+        = doesTournamentExistInTheGivenStatus(tournamentId, TournamentStatus.IN_PREPARATION);
+
+    if (tournament == null) {
+      return null;
+    }
+
+    if (!currentMember.isAdmin()) {
+      return null;
+    }
+
+    tournament.setTournamentStatus(TournamentStatus.REGISTRATION_OPEN);
+
+    tournamentRepository.save(tournament);
+
+    return tournament;
+  }
+
+  private Tournament doesTournamentExistInTheGivenStatus(
+      Long tournamentId, TournamentStatus status
+  ) {
+    Tournament tournament = tournamentRepository.findById(tournamentId).orElse(null);
+
+    if (tournament == null) {
+      return null;
+    }
+
+    if (tournament.getTournamentStatus() != status) {
+      return null;
+    }
+
+    return tournament;
   }
 }

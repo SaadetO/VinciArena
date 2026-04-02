@@ -473,4 +473,86 @@ class TeamServiceTest {
         () -> assertNull(team.getManager2())
     );
   }
+
+
+  @Test
+  void resignManagerWithOtherManager() {
+    // Arrange
+    Team team = new Team();
+    team.setIdTeam(1L);
+
+    Member manager1 = creator;
+    Member manager2 = new Member();
+    manager2.setIdMember(2L);
+
+    team.setManager1(manager1);
+    team.setManager2(manager2);
+
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+    when(teamRepository.save(any())).thenReturn(team);
+
+    // Act
+    Team result = teamService.resignManager(1L, manager1, null);
+
+    // Assert
+    assertNull(result.getManager1());
+  }
+
+  @Test
+  void resignManagerWithoutReplacementAndNoOtherManager() {
+    // Arrange
+    Team team = new Team();
+    team.setIdTeam(1L);
+
+    team.setManager1(creator);
+
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+
+    // Act + Assert
+    assertThrows(ResponseStatusException.class,
+        () -> teamService.resignManager(1L, creator, null));
+  }
+
+  @Test
+  void resignManagerWithReplacement() {
+    // Arrange
+    Team team = new Team();
+    team.setIdTeam(1L);
+
+    Member replacement = new Member();
+    replacement.setIdMember(2L);
+    replacement.setTeam(team);
+
+    team.setManager1(creator);
+
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+    when(memberRepository.findById(2L)).thenReturn(Optional.of(replacement));
+    when(teamRepository.save(any())).thenReturn(team);
+
+    // Act
+    Team result = teamService.resignManager(1L, creator, 2L);
+
+    // Assert
+    assertEquals(replacement, result.getManager1());
+  }
+
+  @Test
+  void resignManagerWithReplacementNotInTeam() {
+    // Arrange
+    Team team = new Team();
+    team.setIdTeam(1L);
+
+    Member replacement = new Member();
+    replacement.setIdMember(2L);
+    replacement.setTeam(null);
+
+    team.setManager1(creator);
+
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+    when(memberRepository.findById(2L)).thenReturn(Optional.of(replacement));
+
+    // Act + Assert
+    assertThrows(ResponseStatusException.class,
+        () -> teamService.resignManager(1L, creator, 2L));
+  }
 }
