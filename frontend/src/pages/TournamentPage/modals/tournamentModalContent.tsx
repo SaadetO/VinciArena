@@ -8,7 +8,9 @@ import {
   Theme,
   Button,
   CircularProgress,
-  Typography,
+  IconButton,
+  InputAdornment,
+  Alert,
 } from '@mui/material';
 import {
   DatePicker,
@@ -17,10 +19,9 @@ import {
 } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
-import { useCallback, useEffect, useState } from 'react';
-import { ArrowForward, ErrorOutline } from '@mui/icons-material';
+import { useCallback, useState } from 'react';
+import { Add, ArrowForward, Remove } from '@mui/icons-material';
 import { TournamentDetailsInfoDto } from '../../../types';
-import { useModalController } from '../../../hooks/useModalController';
 
 // même theme de datePicker que unavailablities
 const datePickerSx: SxProps<Theme> = {
@@ -53,9 +54,7 @@ export const TournamentModalContent = ({
   onClose,
 }: TournamentModalContentProps) => {
   const [tabIndex, setTabIndex] = useState(0);
-  const { setError } = useModalController();
 
-  // 1. Wrap in useCallback to stabilize the function
   const calculateValidationError = useCallback(() => {
     const { registrationDeadline, startDate, endDate } = formData;
     if (!registrationDeadline || !startDate || !endDate) return null;
@@ -73,17 +72,8 @@ export const TournamentModalContent = ({
       return 'La fin doit être après le début.';
 
     return null;
-  }, [formData]); // Only changes when formData changes
+  }, [formData]);
 
-  // 2. Sync with the Modal Controller
-  useEffect(() => {
-    const error = calculateValidationError();
-    setError(error);
-
-    return () => setError(null);
-  }, [calculateValidationError, setError]); // Linter is now happy
-
-  // 3. Define local variable for button locking
   const dateError = calculateValidationError();
 
   const handleChange = (
@@ -200,30 +190,72 @@ export const TournamentModalContent = ({
                 value={formData.capacity ?? ''}
                 onChange={(e) => {
                   const val = parseInt(e.target.value);
-                  // On bloque à 2 minimum si l'utilisateur tape une valeur
-                  if (!isNaN(val)) {
-                    handleChange('capacity', Math.max(2, val));
-                  }
-                }}
-                slotProps={{
-                  htmlInput: {
-                    min: 2, // Bloque les flèches du navigateur (step up/down) à 2
-                  },
+                  handleChange('capacity', isNaN(val) ? 2 : Math.max(2, val));
                 }}
                 fullWidth
+                sx={{
+                  // hide default buttons : chrome, etc
+                  '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button':
+                    {
+                      display: 'none',
+                    },
+                  // hide default buttons : firefox
+                  '& input[type=number]': {
+                    MozAppearance: 'textfield',
+                  },
+                  '& .MuiInputBase-root': {
+                    borderRadius: '0.5rem',
+                  },
+                }}
+                // custom buttons with - and +
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <Stack direction="row" spacing={0.5}>
+                          {/* minus sign configuration*/}
+                          <IconButton
+                            size="small"
+                            onClick={() =>
+                              handleChange(
+                                'capacity',
+                                Math.max(2, (formData.capacity || 2) - 1), // decrements down to 2
+                              )
+                            }
+                            sx={{ color: 'text.secondary' }}
+                          >
+                            <Remove fontSize="small"></Remove>
+                          </IconButton>
+
+                          <IconButton
+                            size="small"
+                            onClick={() =>
+                              handleChange(
+                                'capacity',
+                                (formData.capacity || 2) + 1, // increments
+                              )
+                            }
+                            sx={{ color: 'text.secondary' }}
+                          >
+                            <Add fontSize="small" />
+                          </IconButton>
+                        </Stack>
+                      </InputAdornment>
+                    ),
+                  },
+                }}
               />
 
               {dateError && (
-                <Stack direction="row" spacing={1.5} alignItems="center">
-                  <ErrorOutline
-                    sx={{
-                      color: 'error.main',
-                      fontSize: '20px', // Matches the size you had
-                    }}
-                  />
-                  <Typography color="error" variant="body2">
+                <Stack padding="0 1rem 1rem">
+                  <Alert
+                    sx={{ backgroundColor: '#180F0F !important' }}
+                    severity="error"
+                    size="small"
+                    align="center"
+                  >
                     {dateError}
-                  </Typography>
+                  </Alert>
                 </Stack>
               )}
 
