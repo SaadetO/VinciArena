@@ -13,6 +13,7 @@ import { UserContext } from '../../../contexts/UserContext';
 import { useModal } from '../../../hooks/useModal';
 import { managerModal } from '../modals/managerModal';
 import { useTeams } from '../../../hooks/useTeams';
+import { resignManagerModal } from '../modals/resignManagerModal';
 
 export const ManagerCard = ({
   team,
@@ -23,7 +24,7 @@ export const ManagerCard = ({
 }) => {
   const { authenticatedUser } = useContext(UserContext);
   const { openModal } = useModal();
-  const { promoteToManager, resignManager } = useTeams({ setTeam }); // 👈 AJOUT
+  const { promoteToManager, resignManager } = useTeams({ setTeam });
 
   const handlePromote = () => {
     let selectedManager: UserSummaryDto | null = null;
@@ -36,17 +37,19 @@ export const ManagerCard = ({
       if (!selectedManager || !team) return;
       close();
 
-      await promoteToManager(team.idTeam, selectedManager);
+      promoteToManager(team.idTeam, selectedManager);
     };
 
     openModal(managerModal({ team, onSelect, onConfirm }));
   };
 
   const handleResign = async () => {
-    // 👈 AJOUT
-    if (!team) return;
-
-    await resignManager(team.idTeam);
+    const onConfirm = async (close: () => void) => {
+      if (!team || team.managers.length < 2) return;
+      close();
+      await resignManager(team.idTeam);
+    };
+    openModal(resignManagerModal({ onConfirm }));
   };
 
   return (
@@ -61,7 +64,6 @@ export const ManagerCard = ({
           Responsables
         </Typography>
         {team?.managers?.length &&
-          team.managers.length < 2 &&
           team.managers.some(
             (manager) => manager.id === authenticatedUser?.id,
           ) &&
@@ -69,10 +71,10 @@ export const ManagerCard = ({
             <Button
               variant="contained"
               color="secondary"
-              onClick={handlePromote}
+              onClick={team.managers.length < 2 ? handlePromote : handleResign}
               sx={{ my: '-0.25rem' }}
             >
-              Désigner
+              {team.managers.length < 2 ? 'Désigner' : 'Renoncer'}
             </Button>
           )}
       </Stack>
@@ -122,24 +124,6 @@ export const ManagerCard = ({
           </>
         )}
       </Stack>
-
-      {team?.managers?.length &&
-        team.managers.length < 2 &&
-        team.managers.some((manager) => manager.id === authenticatedUser?.id) &&
-        team.members.length > 1 && (
-          <Button variant="contained" color="secondary" onClick={handlePromote}>
-            Désigner un Responsable
-          </Button>
-        )}
-
-      {team?.managers?.length &&
-        team.managers.some(
-          (manager) => manager.id === authenticatedUser?.id,
-        ) && (
-          <Button variant="contained" color="error" onClick={handleResign}>
-            Renoncer à mon rôle
-          </Button>
-        )}
     </Stack>
   );
 };
