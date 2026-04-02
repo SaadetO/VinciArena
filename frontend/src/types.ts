@@ -58,7 +58,9 @@ interface ProfileInfoDto {
   team: {
     id: number;
     name: string;
-    isManager: boolean; // Calculated based on if Member is manager1 or manager2 in Team
+    manager: boolean; // Calculated based on if Member is manager1 or manager2 in Team
+    membersCount: number;
+    hasOtherManager: boolean;
   } | null; // User might not have a team yet
   unavailabilities:
     | {
@@ -73,6 +75,7 @@ interface AuthenticatedUser {
   id: number;
   admin: boolean;
   tag: string;
+  managedTeamId?: number;
   token: string;
 }
 
@@ -175,7 +178,7 @@ interface TournamentDto {
   registrationDeadline: string;
   tournamentStatus: TournamentStatus;
   capacity: number;
-  teams?: Team[];
+  registrationsCount: number;
 }
 
 type TournamentStatus =
@@ -184,7 +187,8 @@ type TournamentStatus =
   | 'REGISTRATION_CLOSED'
   | 'PLANNED'
   | 'IN_PROGRESS'
-  | 'DONE';
+  | 'DONE'
+  | 'CANCELLED';
 
 interface MatchTeamDto {
   idTeam: number;
@@ -264,4 +268,5 @@ export type {
   MatchSummaryDto,
   TournamentDetailsInfoDto,
   TeamSummaryDto,
+  TournamentStatus,
 };

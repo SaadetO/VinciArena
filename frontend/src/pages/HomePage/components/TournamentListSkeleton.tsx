@@ -10,10 +10,25 @@ const TournamentItemSkeleton = () => {
       borderColor="divider"
       sx={{ '&:hover': { cursor: 'default' } }}
     >
-      <Stack alignItems="center" justifyContent="center" height="4rem">
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="center"
+        height="4rem"
+        gap="1rem"
+      >
+        <Stack direction="row" flex={1} pl="0.75rem" />
         <Typography variant="h3" width="30%">
           <Skeleton variant="text" />
         </Typography>
+        <Stack direction="row" flex={1} justifyContent="flex-end" pr="0.75rem">
+          <Skeleton
+            variant="rounded"
+            width="4rem"
+            height="2rem"
+            sx={{ borderRadius: '0.5rem' }}
+          />
+        </Stack>
       </Stack>
       <Stack
         width="100%"

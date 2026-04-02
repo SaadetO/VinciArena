@@ -14,7 +14,7 @@ interface FilterAutocompleteProps<T> {
   loading: boolean;
   placeholder: string;
   getOptionLabel: (option: T) => string;
-  getOptionId: (option: T) => number;
+  getOptionId: (option: T) => number | string;
   getOptionAvatar?: (option: T) => string | undefined;
 }
 

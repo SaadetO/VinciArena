@@ -14,5 +14,6 @@ public class AuthenticatedUser {
   private String email;
   private boolean isAdmin;
   private String tag;
+  private Long managedTeamId;
   private String token;
 }

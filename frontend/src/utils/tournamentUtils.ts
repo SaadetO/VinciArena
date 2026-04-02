@@ -18,7 +18,33 @@ export interface TournamentFilters {
   teams: number[];
   members: number[];
   timeFrame: 'past' | 'current' | 'future';
+  statuses: string[];
 }
+
+export const TIMEFRAME_STATUS_MAP: Record<string, string[]> = {
+  past: ['DONE'],
+  current: ['IN_PROGRESS'],
+  future: ['REGISTRATION_OPEN', 'REGISTRATION_CLOSED', 'PLANNED', 'CANCELLED'],
+};
+
+/**
+ * Gets the list of statuses for a given timeframe.
+ * @param {string} timeFrame The timeframe to get statuses for.
+ * @param {boolean} isAdmin Whether the user is an admin.
+ * @return {string[]} Returns the list of statuses for a given
+ * timeframe, conditionally including 'IN_PREPARATION' if the user
+ * is an admin for the 'future' timeframe.
+ */
+export const getStatusesForTimeframe = (
+  timeFrame: string,
+  isAdmin?: boolean,
+): string[] => {
+  const statuses = [...(TIMEFRAME_STATUS_MAP[timeFrame] || [])];
+  if (timeFrame === 'future' && isAdmin) {
+    statuses.push('IN_PREPARATION');
+  }
+  return statuses;
+};
 
 /**
  * Groups tournaments by year and month.
@@ -96,11 +122,13 @@ export const groupTournamentsByYearAndMonth = (
  * Formats the start and end dates of a tournament.
  * @param {string} startDate The start date.
  * @param {string} endDate The end date.
+ * @param {boolean} forceMonth Whether to force the month to be displayed.
  * @return {string} A string representing the formatted dates.
  */
 export const getFormattedDate = (
   startDate: string,
   endDate: string,
+  forceMonth: boolean = true,
 ): string => {
   const start = dayjs(startDate);
   const end = dayjs(endDate);
@@ -109,12 +137,16 @@ export const getFormattedDate = (
 
   // if the both dates are in the same month we display the Label of the day
   // else we display the day and the month
-  const formatStr = isSameMonth ? 'ddd D' : 'D MMM';
+  const formatStr = forceMonth
+    ? 'dddd D MMM'
+    : isSameMonth
+      ? 'ddd D'
+      : 'ddd D MMM';
 
   return (
-    formatAndCapitalize(start, formatStr, isSameMonth) +
+    formatAndCapitalize(start, formatStr) +
     ' - ' +
-    formatAndCapitalize(end, formatStr, isSameMonth)
+    formatAndCapitalize(end, formatStr)
   );
 };
 
@@ -122,24 +154,20 @@ export const getFormattedDate = (
  * Formats a date and capitalizes the first letter of the day label or the month label.
  * @param {dayjs.Dayjs} d The date to format.
  * @param {string} formatStr The format string.
- * @param {boolean} isSameMonth Whether the date is in the same month.
  * @return {string} The formatted date.
  */
 export const formatAndCapitalize = (
   d: dayjs.Dayjs,
   formatStr: string,
-  isSameMonth: boolean,
 ): string => {
   const formatted = d.format(formatStr);
 
   // capitalize the first letter of the day label or the month label
-  if (isSameMonth)
-    return formatted.charAt(0).toUpperCase() + formatted.slice(1);
-  else {
-    const parts = formatted.split(' ');
-    if (parts.length > 1)
-      parts[1] = parts[1].charAt(0).toUpperCase() + parts[1].slice(1);
 
-    return parts.join(' ');
+  const parts = formatted.split(' ');
+  for (let i = 0; i < parts.length; i++) {
+    parts[i] = parts[i].charAt(0).toUpperCase() + parts[i].slice(1);
   }
+
+  return parts.join(' ');
 };

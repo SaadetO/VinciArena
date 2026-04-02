@@ -7,11 +7,21 @@ import { TournamentFilters } from '../../../utils/tournamentUtils';
 interface TournamentControlsProps {
   filters: TournamentFilters;
   setFilters: (filters: TournamentFilters) => void;
+  showFilterButton?: boolean;
+  disabledFilter?: boolean;
+  disabledFilterTooltip?: string;
+  onlyStatusFilter?: boolean;
+  isAdmin?: boolean;
 }
 
 export const TournamentControls = ({
   filters,
   setFilters,
+  showFilterButton = true,
+  disabledFilter = false,
+  disabledFilterTooltip,
+  onlyStatusFilter = false,
+  isAdmin = false,
 }: TournamentControlsProps) => {
   return (
     <Stack
@@ -32,7 +42,9 @@ export const TournamentControls = ({
     >
       <TournamentTimeFrameTabs
         timeFrame={filters.timeFrame}
-        setTimeFrame={(timeFrame) => setFilters({ ...filters, timeFrame })}
+        setTimeFrame={(timeFrame) =>
+          setFilters({ ...filters, timeFrame, statuses: [] })
+        }
       />
       <Stack direction="row" alignItems="center" spacing="0.75rem">
         <TournamentSearchBar
@@ -41,7 +53,16 @@ export const TournamentControls = ({
             setFilters({ ...filters, searchQuery })
           }
         />
-        <TournamentFilterButton filters={filters} setFilters={setFilters} />
+        {showFilterButton && (
+          <TournamentFilterButton
+            filters={filters}
+            setFilters={setFilters}
+            disabled={disabledFilter}
+            disabledTooltip={disabledFilterTooltip}
+            onlyStatusFilter={onlyStatusFilter}
+            isAdmin={isAdmin}
+          />
+        )}
       </Stack>
     </Stack>
   );

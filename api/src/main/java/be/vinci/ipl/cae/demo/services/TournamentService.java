@@ -5,6 +5,7 @@ import be.vinci.ipl.cae.demo.models.dtos.MatchTeamDto;
 import be.vinci.ipl.cae.demo.models.dtos.NewTournament;
 import be.vinci.ipl.cae.demo.models.dtos.TeamSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.TournamentDetailsDto;
+import be.vinci.ipl.cae.demo.models.dtos.TournamentSummaryDto;
 import be.vinci.ipl.cae.demo.models.entities.Match;
 import be.vinci.ipl.cae.demo.models.entities.MatchLineup;
 import be.vinci.ipl.cae.demo.models.entities.MatchResultConfirmation;
@@ -156,8 +157,8 @@ public class TournamentService {
   }
 
   /**
-   * Periodically updates tournament statuses based on dates and registration numbers.
-   * Runs every 60 seconds to synchronize database state with the current time.
+   * Periodically updates tournament statuses based on dates and registration numbers. Runs every 60
+   * seconds to synchronize database state with the current time.
    */
   @Scheduled(initialDelay = 5000, fixedDelay = 60000)
   @Transactional
@@ -192,8 +193,8 @@ public class TournamentService {
   }
 
   /**
-   * Determines the next status for a tournament based on its current state and timeline.
-   * * @param t The tournament to evaluate
+   * Determines the next status for a tournament based on its current state and timeline. * @param t
+   * The tournament to evaluate
    *
    * @return The calculated TournamentStatus
    */
@@ -218,12 +219,10 @@ public class TournamentService {
       case REGISTRATION_CLOSED ->
           (!t.getStartDate().isAfter(today)) ? TournamentStatus.CANCELLED : status;
       // start tournament if its planned and startDate arrives
-      case PLANNED ->
-          (!t.getStartDate().isAfter(today)) ? TournamentStatus.IN_PROGRESS : status;
+      case PLANNED -> (!t.getStartDate().isAfter(today)) ? TournamentStatus.IN_PROGRESS : status;
 
       // finish tournament if endDate arrives
-      case IN_PROGRESS ->
-          (!t.getEndDate().isAfter(today)) ? TournamentStatus.DONE : status;
+      case IN_PROGRESS -> (!t.getEndDate().isAfter(today)) ? TournamentStatus.DONE : status;
 
       default -> status;
     };
@@ -232,13 +231,14 @@ public class TournamentService {
   /**
    * Get all tournaments optionally filtered by timeframe, teams or members.
    *
-   * @param timeframe  past, future, current, or null/empty for all.
+   * @param statuses   a list of specific statuses to filter by
    * @param teamsIds   a list of specific team ids
    * @param membersIds a list of specific member ids whose team will be used
+   * @param search     a search string to filter tournaments by name
    * @return the filtered and sorted list of tournaments.
    */
-  public Iterable<Tournament> getTournaments(String timeframe, List<Long> teamsIds,
-      List<Long> membersIds) {
+  public Iterable<TournamentSummaryDto> getTournaments(List<TournamentStatus> statuses,
+      List<Long> teamsIds, List<Long> membersIds, String search) {
     Set<Long> filteredTeamIds = new HashSet<>();
     if (teamsIds != null && !teamsIds.isEmpty()) {
       filteredTeamIds.addAll(teamsIds);
@@ -256,31 +256,17 @@ public class TournamentService {
     boolean hasTeamFilter = teamsIds != null && !teamsIds.isEmpty();
     boolean hasMemberFilter = membersIds != null && !membersIds.isEmpty();
     boolean hasFilters = hasTeamFilter || hasMemberFilter;
-    boolean hasTimeframe = timeframe != null && !timeframe.isBlank();
-    Iterable<Tournament> allTournaments;
 
-    // Filter by time frame first
-    if (!hasTimeframe) {
+    Iterable<Tournament> allTournaments;
+    if (statuses == null || statuses.isEmpty()) {
       allTournaments = tournamentRepository.findAllByOrderByStartDateDesc();
     } else {
-      allTournaments = switch (timeframe.toLowerCase(java.util.Locale.ROOT)) {
-        case "past" ->
-            tournamentRepository.findByTournamentStatusOrderByStartDateDesc(TournamentStatus.DONE);
-        case "current" -> tournamentRepository.findByTournamentStatusOrderByStartDateDesc(
-            TournamentStatus.IN_PROGRESS);
-        case "future" -> tournamentRepository.findByTournamentStatusNotInOrderByStartDateDesc(
-            List.of(TournamentStatus.DONE, TournamentStatus.IN_PROGRESS)
-        );
-        default -> tournamentRepository.findAllByOrderByStartDateDesc();
-      };
-    }
-
-    if (!hasFilters) {
-      return allTournaments;
+      allTournaments =
+          tournamentRepository.findAllByTournamentStatusInOrderByStartDateDesc(statuses);
     }
 
     // Additional filtering
-    List<Tournament> result = new ArrayList<>();
+    List<TournamentSummaryDto> result = new ArrayList<>();
     for (Tournament t : allTournaments) {
       boolean matchMember = tournamentIdsFromMembers.contains(t.getIdTournament());
       boolean matchTeam = false;
@@ -291,12 +277,30 @@ public class TournamentService {
         }
       }
 
-      if (matchTeam || matchMember) {
-        result.add(t);
+      boolean matchSearch = search == null || search.isBlank()
+          || t.getName().toLowerCase(java.util.Locale.ROOT)
+          .contains(search.toLowerCase(java.util.Locale.ROOT));
+
+      if ((!hasFilters || matchTeam || matchMember) && matchSearch) {
+        result.add(mapToSummaryDto(t));
       }
     }
 
     return result;
+  }
+
+  private TournamentSummaryDto mapToSummaryDto(Tournament t) {
+    return new TournamentSummaryDto(
+        t.getIdTournament(),
+        t.getName(),
+        t.getDescription(),
+        t.getStartDate(),
+        t.getEndDate(),
+        t.getRegistrationDeadline(),
+        t.getTournamentStatus(),
+        t.getCapacity(),
+        t.getRegistrationsNumber()
+    );
   }
 
   /**

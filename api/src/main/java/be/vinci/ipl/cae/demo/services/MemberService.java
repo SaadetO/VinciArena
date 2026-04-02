@@ -12,6 +12,7 @@ import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.ProfileImageRepository;
 import be.vinci.ipl.cae.demo.repositories.SpecialtyRepository;
+import be.vinci.ipl.cae.demo.repositories.TeamRepository;
 import be.vinci.ipl.cae.demo.repositories.UnavailabilityRepository;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -40,6 +41,7 @@ public class MemberService {
   private final UnavailabilityRepository unavailabilityRepository;
   private final SpecialtyRepository specialtyRepository;
   private final ProfileImageRepository profileImageRepository;
+  private final TeamRepository teamRepository;
 
   /**
    * Constructor.
@@ -50,15 +52,36 @@ public class MemberService {
    * @param specialtyRepository      the specialty repository
    * @param profileImageRepository   the profile image repository
    */
-  public MemberService(BCryptPasswordEncoder passwordEncoder,
-      MemberRepository memberRepository,
+  public MemberService(BCryptPasswordEncoder passwordEncoder, MemberRepository memberRepository,
       UnavailabilityRepository unavailabilityRepository, SpecialtyRepository specialtyRepository,
-      ProfileImageRepository profileImageRepository) {
+      ProfileImageRepository profileImageRepository, TeamRepository teamRepository) {
     this.passwordEncoder = passwordEncoder;
     this.memberRepository = memberRepository;
     this.unavailabilityRepository = unavailabilityRepository;
     this.specialtyRepository = specialtyRepository;
     this.profileImageRepository = profileImageRepository;
+    this.teamRepository = teamRepository;
+  }
+
+  /**
+   * Create an AuthenticatedUser based on a member and a token.
+   *
+   * @param member the member
+   * @param token  the token
+   * @return the authenticated user
+   */
+  public AuthenticatedUser toAuthenticatedUser(Member member, String token) {
+    AuthenticatedUser authenticatedUser = new AuthenticatedUser();
+    authenticatedUser.setId(member.getIdMember());
+    authenticatedUser.setEmail(member.getEmail());
+    authenticatedUser.setTag(member.getTag());
+    authenticatedUser.setToken(token);
+    authenticatedUser.setAdmin(member.isAdmin());
+
+    teamRepository.findFirstByManager1OrManager2(member, member)
+        .ifPresent(team -> authenticatedUser.setManagedTeamId(team.getIdTeam()));
+
+    return authenticatedUser;
   }
 
   /**
@@ -76,15 +99,8 @@ public class MemberService {
         .withExpiresAt(new Date(System.currentTimeMillis() + lifetimeJwt))
         .sign(algorithm);
 
-    AuthenticatedUser authenticatedUser = new AuthenticatedUser();
     Member member = memberRepository.findByEmail(email);
-    authenticatedUser.setId(member.getIdMember());
-    authenticatedUser.setEmail(email);
-    authenticatedUser.setTag(member.getTag());
-    authenticatedUser.setToken(token);
-    authenticatedUser.setAdmin(member.isAdmin());
-
-    return authenticatedUser;
+    return toAuthenticatedUser(member, token);
   }
 
   /**
@@ -127,7 +143,6 @@ public class MemberService {
     if (!passwordEncoder.matches(password, member.getPassword())) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Identifiants invalides");
     }
-
 
     return createJwtToken(email);
   }
@@ -242,7 +257,7 @@ public class MemberService {
   /**
    * Update a member's profile image.
    *
-   * @param member       the member
+   * @param member      the member
    * @param specialtyId the new profile image
    * @return true if updated, false if the image is invalid
    */
@@ -295,14 +310,19 @@ public class MemberService {
 
     Team team = requestedMember.getTeam();
     if (team != null) {
-      boolean isManager =
-          (team.getManager1() != null && team.getManager1().getIdMember().equals(requestedId))
-              || (team.getManager2() != null && team.getManager2().getIdMember()
-              .equals(requestedId));
+      boolean isManager1 = team.getManager1()
+          != null && team.getManager1().getIdMember().equals(requestedId);
+      boolean isManager2 = team.getManager2()
+          != null && team.getManager2().getIdMember().equals(requestedId);
+      boolean hasOtherManager =
+          (isManager1 && team.getManager2() != null) || (isManager2 && team.getManager1() != null);
+
       builder.team(ProfileDto.TeamDto.builder()
           .id(team.getIdTeam())
           .name(team.getName())
-          .isManager(isManager)
+          .isManager(isManager1 || isManager2)
+          .membersCount(team.getMembers().size())
+          .hasOtherManager(hasOtherManager)
           .build());
     }
 
@@ -387,8 +407,8 @@ public class MemberService {
    *
    * @param id             the ID of the member to ban
    * @param requesterEmail the email of the authenticated user
-   * @throws ResponseStatusException if the user is not authenticated,
-   *                                 not admin, or if the operation is invalid
+   * @throws ResponseStatusException if the user is not authenticated, not admin, or if the
+   *                                 operation is invalid
    */
   @Transactional
   public void banMember(Long id, String requesterEmail) {

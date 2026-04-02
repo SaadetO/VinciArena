@@ -1,34 +1,49 @@
 import { useSnackbar } from './useSnackbar';
 import { useApi } from './useApi';
-import { useContext } from 'react';
+import { Dispatch, SetStateAction, useContext } from 'react';
 import { UserContext } from '../contexts/UserContext';
-import { TournamentDetailsInfoDto, TournamentDto } from '../types';
+import { ApiError, TournamentDetailsInfoDto, TournamentDto } from '../types';
 
 interface UseTournamentOptions {
   setTournaments?: (tournaments: TournamentDto[]) => void;
-  setTournament?: (tournament: TournamentDetailsInfoDto) => void;
+  setTournament?: Dispatch<
+    SetStateAction<TournamentDetailsInfoDto | undefined>
+  >;
+  setError?: Dispatch<
+    SetStateAction<
+      { code: number; message: string; subtitle?: string } | undefined
+    >
+  >;
 }
 
 export const useTournament = (config: UseTournamentOptions) => {
-  const { setTournaments, setTournament } = config;
+  const { setTournaments, setTournament, setError } = config;
   const { showSnackbar } = useSnackbar();
   const { authenticatedUser } = useContext(UserContext);
 
   const { execute: getAll, loading: isGettingTournaments } = useApi(
     async ({
-      timeframe,
+      statuses,
       members,
       teams,
+      searchQuery,
     }: {
-      timeframe: 'past' | 'current' | 'future' | undefined;
+      statuses: string[] | undefined;
       members: number[] | undefined;
       teams: number[] | undefined;
+      searchQuery?: string | undefined;
     }) => {
-      let query = timeframe ? `?timeframe=${timeframe}` : '';
-      if (members)
-        query += (query ? '&' : '?') + 'membersIds=' + members.join(',');
-      if (teams) query += (query ? '&' : '?') + 'teamsIds=' + teams.join(',');
-      const response = await fetch(`/api/tournaments${query}`);
+      const params = new URLSearchParams();
+      if (statuses && statuses.length > 0)
+        params.append('statuses', statuses.join(','));
+      if (members && members.length > 0)
+        params.append('membersIds', members.join(','));
+      if (teams && teams.length > 0) params.append('teamsIds', teams.join(','));
+      if (searchQuery) params.append('search', searchQuery);
+
+      const response = await fetch(
+        `/api/tournaments${params.size > 0 ? '?' : ''}${params.toString()}`,
+      );
       if (!response.ok) {
         throw new Error('Échec de la récupération des tournois !');
       }
@@ -52,25 +67,32 @@ export const useTournament = (config: UseTournamentOptions) => {
     async (id: number) => {
       const response = await fetch(`/api/tournaments/${id}`);
       if (!response.ok) {
-        throw new Error('Échec de la récupération du tournoi !');
+        if (response.status === 404)
+          throw new ApiError('Tournoi introuvable', response.status);
+        throw new ApiError(
+          'Échec de la récupération du tournoi !',
+          response.status,
+        );
       }
       return response.json();
     },
     {
       onSuccess: (data) => setTournament?.(data),
       onError: (err) => {
-        showSnackbar({
+        const status = err instanceof ApiError ? err.status : 500;
+        setError?.({
+          code: status,
           message:
-            err instanceof Error
-              ? err.message
-              : 'Une erreur est survenue lors de la récupération du tournoi !',
-          severity: 'error',
+            err instanceof ApiError ? err.message : 'Une erreur est survenue',
+          subtitle:
+            status === 404
+              ? "Le tournoi que vous cherchez n'existe pas ou a été supprimé."
+              : 'Une erreur est survenue lors de la récupération du tournoi.',
         });
       },
     },
   );
 
-  // insert new tournament
   const { execute: create } = useApi(
     async (data: Partial<TournamentDetailsInfoDto>) => {
       const response = await fetch('/api/tournaments/', {
@@ -85,7 +107,7 @@ export const useTournament = (config: UseTournamentOptions) => {
         const errorText = await response.text();
         throw new Error(errorText || 'Échec de la création');
       }
-      return await response.json();
+      return response.json();
     },
     {
       onSuccess: (data) => setTournament?.(data),
@@ -101,8 +123,6 @@ export const useTournament = (config: UseTournamentOptions) => {
     },
   );
 
-  // update existing tournament (TO BE TESTED)
-  // METHOD PUT TO BE IMPLEMENTED IN THE BACKEND
   const { execute: update } = useApi(
     async (id, data) => {
       const response = await fetch(`/api/tournaments/${id}`, {
@@ -119,7 +139,7 @@ export const useTournament = (config: UseTournamentOptions) => {
         throw new Error(errorData.message || 'Échec de la mise à jour');
       }
 
-      return await response.json();
+      return response.json();
     },
     {
       onSuccess: (data) => setTournament?.(data),
