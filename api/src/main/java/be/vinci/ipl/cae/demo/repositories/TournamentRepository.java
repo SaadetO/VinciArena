@@ -21,12 +21,12 @@ public interface TournamentRepository extends CrudRepository<Tournament, Long> {
   /**
    * Get all tournaments of a certain status from a certain date on.
    */
-  Iterable<Tournament> findByTournamentStatusOrderByStartDateDesc(TournamentStatus status);
+  Iterable<Tournament> findByStatusOrderByStartDateDesc(TournamentStatus status);
 
   /**
    * Get all tournaments not of a certain status from a certain date on.
    */
-  Iterable<Tournament> findByTournamentStatusNotInOrderByStartDateDesc(
+  Iterable<Tournament> findByStatusNotInOrderByStartDateDesc(
       Collection<TournamentStatus> statuses);
 
   /**
@@ -35,7 +35,7 @@ public interface TournamentRepository extends CrudRepository<Tournament, Long> {
    * @param tournamentStatuses a list of statuses
    * @return a list of tournaments
    */
-  List<Tournament> findAllByTournamentStatusInOrderByStartDateDesc(
+  List<Tournament> findAllByStatusInOrderByStartDateDesc(
       Collection<TournamentStatus> tournamentStatuses);
 
   /**
@@ -48,20 +48,20 @@ public interface TournamentRepository extends CrudRepository<Tournament, Long> {
    * Get all tournaments of a certain status where at least one
    * of the given teams participates, from a certain date on.
    */
-  Iterable<Tournament> findDistinctByTeamsIdTeamInAndTournamentStatusOrderByStartDateDesc(
+  Iterable<Tournament> findDistinctByTeamsIdTeamInAndStatusOrderByStartDateDesc(
       Collection<Long> teamIds, TournamentStatus status);
 
   /**
    * Get all tournaments not of a certain status where at least
    * one of the given teams participates, from a certain date on.
    */
-  Iterable<Tournament> findDistinctByTeamsIdTeamInAndTournamentStatusNotInOrderByStartDateDesc(
+  Iterable<Tournament> findDistinctByTeamsIdTeamInAndStatusNotInOrderByStartDateDesc(
       Collection<Long> teamIds, Collection<TournamentStatus> statuses);
 
   /**
    * Get all tournaments of a certain status.
    */
-  Iterable<Tournament> findAllByTournamentStatusIn(Collection<TournamentStatus> tournamentStatuses);
+  Iterable<Tournament> findAllByStatusIn(Collection<TournamentStatus> tournamentStatuses);
 
   /**
    * Checks if a member exists by name.

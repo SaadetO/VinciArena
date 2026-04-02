@@ -50,11 +50,10 @@ public class TournamentController {
   /**
    * Get all tournaments, optionally filtered by timeframe, teams, or members.
    *
-   * @param statuses a list of statuses to filter by (OR filter)
-   * @param teamsIds a list of team IDs to filter tournaments by (OR filter).
+   * @param statuses   a list of statuses to filter by (OR filter)
+   * @param teamsIds   a list of team IDs to filter tournaments by (OR filter).
    * @param membersIds a list of member IDs whose teams filter the tournaments (OR filter).
-   * @param search a search query to match
-   *
+   * @param search     a search query to match
    * @return the list of tournaments.
    */
   @GetMapping({"", "/"})
@@ -98,6 +97,9 @@ public class TournamentController {
   @PreAuthorize("hasRole('ADMIN')") // Security handled here
   public Tournament createTournament(@RequestBody NewTournament newTournament,
       @AuthenticationPrincipal Member currentMember) {
+    if (tournamentRepo.existsByName(newTournament.name())) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "Tournament name already exists");
+    }
 
     validateNewTournament(newTournament, currentMember); // Removed currentMember check here
 
@@ -111,11 +113,10 @@ public class TournamentController {
   }
 
   /**
-   * Updates a tournament in the system.
-   * The update is only possible if the tournament's status is IN_PREPARATION
-   * and the member is an admin.
+   * Updates a tournament in the system. The update is only possible if the tournament's status is
+   * IN_PREPARATION and the member is an admin.
    *
-   * @param id the tournament id.
+   * @param id            the tournament id.
    * @param newTournament the new tournament data.
    * @param currentMember the current member.
    * @return the updated tournament
@@ -133,18 +134,17 @@ public class TournamentController {
         tournamentService.updateTournament(id, newTournament, currentMember);
 
     if (updatedTournament == null) {
-      throw  new ResponseStatusException(HttpStatus.CONFLICT, "Tournament cannot be updated");
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "Tournament cannot be updated");
     }
     System.out.println(updatedTournament);
     return updatedTournament;
   }
 
   /**
-   * Patch a tournament in the system.
-   * The patch is only possible if the tournament's status is IN_PREPARATION
-   * and the member is an admin.
+   * Patch a tournament in the system. The patch is only possible if the tournament's status is
+   * IN_PREPARATION and the member is an admin.
    *
-   * @param id the tournament id.
+   * @param id            the tournament id.
    * @param currentMember the current member.
    * @return the patched tournament
    */
@@ -189,9 +189,7 @@ public class TournamentController {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Max teams must be positive");
     }
 
-    if (tournamentRepo.existsByName(dto.name())) {
-      throw new ResponseStatusException(HttpStatus.CONFLICT, "Tournament name already exists");
-    }
+
 
     // Check dates
     checkDateRange(dto.registrationDeadline(), dto.startDate(), dto.endDate());

@@ -14,7 +14,7 @@ public record TournamentSummaryDto(
     LocalDate startDate,
     LocalDate endDate,
     LocalDateTime registrationDeadline,
-    TournamentStatus tournamentStatus,
+    TournamentStatus status,
     int capacity,
     int registrationsCount
 ) {}

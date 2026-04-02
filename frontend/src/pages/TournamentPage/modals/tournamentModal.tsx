@@ -46,6 +46,7 @@ export const TournamentModal = ({
             .add(7, 'day')
             .set('hour', 20)
             .set('minute', 0)
+            .set('second', 0)
             .format('YYYY-MM-DDTHH:mm:ss'),
         startDate:
           tournament?.startDate ?? dayjs().add(14, 'day').format('YYYY-MM-DD'),

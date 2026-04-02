@@ -110,7 +110,7 @@ public class TournamentService {
         tournament.getStartDate(),
         tournament.getEndDate(),
         tournament.getRegistrationDeadline(),
-        tournament.getTournamentStatus(),
+        tournament.getStatus(),
         tournament.getCapacity(),
         tournament.getRegistrationsNumber(),
         teams,
@@ -174,16 +174,16 @@ public class TournamentService {
         TournamentStatus.IN_PROGRESS, TournamentStatus.REGISTRATION_OPEN,
         TournamentStatus.REGISTRATION_CLOSED);
 
-    Iterable<Tournament> activeTournaments = tournamentRepository.findAllByTournamentStatusIn(
+    Iterable<Tournament> activeTournaments = tournamentRepository.findAllByStatusIn(
         activeStatuses);
     List<Tournament> updatedTournaments = new ArrayList<>();
 
     for (Tournament t : activeTournaments) {
-      TournamentStatus currentStatus = t.getTournamentStatus();
+      TournamentStatus currentStatus = t.getStatus();
       TournamentStatus newStatus = determineNewStatus(t);
 
       if (currentStatus != newStatus) {
-        t.setTournamentStatus(newStatus);
+        t.setStatus(newStatus);
         updatedTournaments.add(t);
       }
     }
@@ -205,7 +205,7 @@ public class TournamentService {
   private TournamentStatus determineNewStatus(Tournament t) {
     LocalDateTime now = LocalDateTime.now();
     LocalDate today = now.toLocalDate();
-    TournamentStatus status = t.getTournamentStatus();
+    TournamentStatus status = t.getStatus();
 
     return switch (status) {
 
@@ -266,7 +266,7 @@ public class TournamentService {
       allTournaments = tournamentRepository.findAllByOrderByStartDateDesc();
     } else {
       allTournaments =
-          tournamentRepository.findAllByTournamentStatusInOrderByStartDateDesc(statuses);
+          tournamentRepository.findAllByStatusInOrderByStartDateDesc(statuses);
     }
 
     // Additional filtering
@@ -301,7 +301,7 @@ public class TournamentService {
         t.getStartDate(),
         t.getEndDate(),
         t.getRegistrationDeadline(),
-        t.getTournamentStatus(),
+        t.getStatus(),
         t.getCapacity(),
         t.getRegistrationsNumber()
     );
@@ -352,7 +352,7 @@ public class TournamentService {
     if (newTournament.registrationDeadline() != null) {
       tournament.setRegistrationDeadline(newTournament.registrationDeadline());
     }
-    tournament.setTournamentStatus(TournamentStatus.IN_PREPARATION);
+    tournament.setStatus(TournamentStatus.IN_PREPARATION);
     return tournamentRepository.save(tournament);
   }
 
@@ -375,10 +375,10 @@ public class TournamentService {
       return null;
     }
 
-    tournament.setTournamentStatus(TournamentStatus.REGISTRATION_OPEN);
+    tournament.setStatus(TournamentStatus.REGISTRATION_OPEN);
 
     tournamentRepository.save(tournament);
-    notificationService.notifyAllMembers("Nouveau Tournoi !\n"
+    notificationService.notifyAllMembers("Nouveau Tournoi ! "
             + tournament.getName() + " vient d'ouvrir ses portes.", NotificationType.TOURNAMENT,
         tournamentId);
 
@@ -394,7 +394,7 @@ public class TournamentService {
       return null;
     }
 
-    if (tournament.getTournamentStatus() != status) {
+    if (tournament.getStatus() != status) {
       return null;
     }
 

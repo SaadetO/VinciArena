@@ -90,7 +90,7 @@ class TournamentServiceTest {
 
     tournament = new Tournament();
     tournament.setIdTournament(1L);
-    tournament.setTournamentStatus(TournamentStatus.REGISTRATION_OPEN);
+    tournament.setStatus(TournamentStatus.REGISTRATION_OPEN);
 
     when(tournamentRepository.findById(1L)).thenReturn(Optional.of(tournament));
 
@@ -113,7 +113,7 @@ class TournamentServiceTest {
 
     tournament = new Tournament();
     tournament.setIdTournament(1L);
-    tournament.setTournamentStatus(TournamentStatus.IN_PREPARATION);
+    tournament.setStatus(TournamentStatus.IN_PREPARATION);
 
     when(tournamentRepository.findById(1L)).thenReturn(Optional.of(tournament));
 
@@ -140,7 +140,7 @@ class TournamentServiceTest {
         LocalDate.of(2026, 12, 1).atStartOfDay()
     );
     tournament.setMaxNbOfTeams(8);
-    tournament.setTournamentStatus(TournamentStatus.IN_PREPARATION);
+    tournament.setStatus(TournamentStatus.IN_PREPARATION);
 
     when(tournamentRepository.findById(1L)).thenReturn(Optional.of(tournament));
     when(tournamentRepository.save(any(Tournament.class))).thenReturn(tournament);
