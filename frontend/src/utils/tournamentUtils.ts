@@ -18,7 +18,29 @@ export interface TournamentFilters {
   teams: number[];
   members: number[];
   timeFrame: 'past' | 'current' | 'future';
+  statuses: string[];
 }
+
+export const TIMEFRAME_STATUS_MAP: Record<string, string[]> = {
+  past: ['DONE'],
+  current: ['IN_PROGRESS'],
+  future: ['REGISTRATION_OPEN', 'REGISTRATION_CLOSED', 'PLANNED', 'CANCELLED'],
+};
+
+/**
+ * Returns the list of statuses for a given timeframe, conditionally including
+ * 'IN_PREPARATION' if the user is an admin for the 'future' timeframe.
+ */
+export const getStatusesForTimeframe = (
+  timeFrame: string,
+  isAdmin?: boolean,
+): string[] => {
+  const statuses = [...(TIMEFRAME_STATUS_MAP[timeFrame] || [])];
+  if (timeFrame === 'future' && isAdmin) {
+    statuses.push('IN_PREPARATION');
+  }
+  return statuses;
+};
 
 /**
  * Groups tournaments by year and month.
