@@ -42,7 +42,11 @@ export const TournamentModal = ({
         capacity: tournament?.capacity ?? 16,
         registrationDeadline:
           tournament?.registrationDeadline ??
-          dayjs().add(7, 'day').format('YYYY-MM-DDTHH:mm:ss'),
+          dayjs()
+            .add(7, 'day')
+            .set('hour', 20)
+            .set('minute', 0)
+            .format('YYYY-MM-DDTHH:mm:ss'),
         startDate:
           tournament?.startDate ?? dayjs().add(14, 'day').format('YYYY-MM-DD'),
         endDate:
