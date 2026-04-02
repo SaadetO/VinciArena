@@ -72,8 +72,8 @@ public class Tournament {
    *
    * @param capacity max number of teams
    */
-  public void setMaxNbOfTeams(int capacity) {
-    if (capacity <= 0) {
+  public void setCapacity(int capacity) {
+    if (capacity <= 1) {
       throw new IllegalArgumentException("Max teams must be > 0");
     }
     this.capacity = capacity;
