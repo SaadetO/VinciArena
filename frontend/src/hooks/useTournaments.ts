@@ -169,11 +169,54 @@ export const useTournament = (config: UseTournamentOptions) => {
     },
   );
 
+  const { execute: publish } = useApi(
+    async (id: number) => {
+      const response = await fetch(`/api/tournaments/${id}/publish`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: authenticatedUser?.token ?? '',
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new ApiError(
+          errorData.message || 'Impossible de publier le tournoi',
+          response.status,
+        );
+      }
+
+      return response.json();
+    },
+    {
+      // update current tournament with the new info
+      onSuccess: (data) => {
+        setTournament?.((prev) => {
+          if (!prev) return data;
+          return { ...prev, ...data };
+        });
+      },
+      onError: (err) => {
+        const status = err instanceof ApiError ? err.status : 500;
+        console.error('API Error logic:', err);
+        setError?.({
+          code: status,
+          message: 'Erreur de publication',
+          subtitle:
+            status === 409
+              ? 'Le tournoi ne peut pas être publié dans son état actuel.'
+              : 'Une erreur est survenue lors de la publication.',
+        });
+      },
+    },
+  );
+
   return {
     getAll,
     getById,
     create,
     update,
+    publish,
     isGettingTournaments,
     isGettingTournamentById,
   };
