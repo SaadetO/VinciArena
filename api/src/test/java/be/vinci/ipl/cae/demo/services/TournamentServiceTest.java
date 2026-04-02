@@ -45,6 +45,7 @@ class TournamentServiceTest {
   private Tournament tournament;
 
   private NewTournament newTournament;
+  private NotificationService notificationService;
 
   @BeforeEach
   void setUp() {
@@ -53,7 +54,8 @@ class TournamentServiceTest {
         memberRepository,
         matchLineupRepository,
         matchRepository,
-        confirmationRepository
+        confirmationRepository,
+        notificationService
     );
 
     memberAdmin = new Member();
@@ -83,7 +85,7 @@ class TournamentServiceTest {
   }
 
   @Test
-  void updateTournamentAsAdminWithTournamentStatusNotInPreparation () {
+  void updateTournamentAsAdminWithTournamentStatusNotInPreparation() {
     // Arrange
 
     tournament = new Tournament();
@@ -157,7 +159,7 @@ class TournamentServiceTest {
         () -> assertEquals(LocalDate.of(2028, 1, 31), result.getEndDate()),
         () -> assertEquals(4, result.getCapacity()),
         () -> assertEquals(
-            LocalDate.of(2027, 12, 1).atStartOfDay(),result.getRegistrationDeadline()
+            LocalDate.of(2027, 12, 1).atStartOfDay(), result.getRegistrationDeadline()
         )
     );
     verify(tournamentRepository, times(1)).save(tournament);

@@ -49,7 +49,8 @@ public class TournamentService {
    */
   public TournamentService(TournamentRepository tournamentRepository,
       MemberRepository memberRepository, MatchLineupRepository matchLineupRepository,
-      MatchRepository matchRepository, MatchResultConfirmationRepository confirmationRepository, NotificationService notificationService) {
+      MatchRepository matchRepository, MatchResultConfirmationRepository confirmationRepository,
+      NotificationService notificationService) {
     this.tournamentRepository = tournamentRepository;
     this.memberRepository = memberRepository;
     this.matchLineupRepository = matchLineupRepository;
@@ -309,7 +310,7 @@ public class TournamentService {
   /**
    * Update a tournament's information.
    *
-   * @param tournamentId the id of the tournament to update
+   * @param tournamentId  the id of the tournament to update
    * @param newTournament the tournament with the updated data
    * @param currentMember the current member
    * @return the updated tournament if it has been updated, null otherwise.
@@ -358,7 +359,7 @@ public class TournamentService {
   /**
    * Change a tournament status from IN_PREPARATION to REGISTRATION_OPEN.
    *
-   * @param tournamentId the id of the tournament to update
+   * @param tournamentId  the id of the tournament to update
    * @param currentMember the current member
    * @return the tournament if it's status has been changed to REGISTRATION_OPEN, null otherwise.
    */
@@ -378,7 +379,8 @@ public class TournamentService {
 
     tournamentRepository.save(tournament);
     notificationService.notifyAllMembers("Nouveau Tournoi !\n"
-        + tournament.getName() + " vient d'ouvrir ses portes.", NotificationType.TOURNAMENT, tournamentId);
+            + tournament.getName() + " vient d'ouvrir ses portes.", NotificationType.TOURNAMENT,
+        tournamentId);
 
     return tournament;
   }

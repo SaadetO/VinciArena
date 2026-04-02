@@ -103,20 +103,34 @@ export const useTournament = (config: UseTournamentOptions) => {
         },
         body: JSON.stringify(data),
       });
+
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || 'Échec de la création');
+        const errorText = await response.text().catch(() => '');
+        throw new ApiError(
+          errorText || 'Échec de la création',
+          response.status,
+        );
       }
       return response.json();
     },
     {
       onSuccess: (data) => setTournament?.(data),
       onError: (err) => {
+        const status = err instanceof ApiError ? err.status : 500;
+
+        setError?.({
+          code: status,
+          message:
+            status === 409 ? 'Nom déjà utilisé' : 'Une erreur est survenue',
+          subtitle:
+            status === 409
+              ? 'Ce nom de tournoi est déjà pris. Choisis-en un autre pour continuer.'
+              : 'Une erreur est survenue lors de la création du tournoi.',
+        });
+
         showSnackbar({
           message:
-            err instanceof Error
-              ? err.message
-              : 'Une erreur est survenue lors de la creation du tournoi !',
+            status === 409 ? 'Nom déjà utilisé' : 'Erreur lors de la création',
           severity: 'error',
         });
       },
