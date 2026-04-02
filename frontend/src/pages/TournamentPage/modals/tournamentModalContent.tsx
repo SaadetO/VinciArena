@@ -140,7 +140,10 @@ export const TournamentModalContent = ({
                     : null
                 }
                 onChange={(date) =>
-                  handleChange('registrationDeadline', date?.toISOString())
+                  handleChange(
+                    'registrationDeadline',
+                    date?.format('YYYY-MM-DDTHH:mm:ss'),
+                  )
                 }
                 slotProps={{
                   textField: {
@@ -154,9 +157,10 @@ export const TournamentModalContent = ({
               <Stack direction="row" spacing={2} alignItems="center">
                 <DatePicker
                   label="Début"
+                  format="DD/MM/YYYY"
                   value={formData.startDate ? dayjs(formData.startDate) : null}
                   onChange={(date) =>
-                    handleChange('startDate', date?.toISOString())
+                    handleChange('startDate', date?.format('YYYY-MM-DD'))
                   }
                   slotProps={{
                     textField: {
@@ -169,9 +173,10 @@ export const TournamentModalContent = ({
                 <ArrowForward sx={{ color: 'text.secondary' }} />
                 <DatePicker
                   label="Fin"
+                  format="DD/MM/YYYY"
                   value={formData.endDate ? dayjs(formData.endDate) : null}
                   onChange={(date) =>
-                    handleChange('endDate', date?.toISOString())
+                    handleChange('endDate', date?.format('YYYY-MM-DD'))
                   }
                   slotProps={{
                     textField: {
