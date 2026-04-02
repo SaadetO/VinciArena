@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { TournamentDetailsInfoDto } from '../../../types';
 import { useTournament } from '../../../hooks/useTournament';
+
 import dayjs from 'dayjs';
 
 interface TournamentModalProps {
@@ -87,11 +88,10 @@ export const TournamentModal = ({
           '& .MuiPaper-root': {
             width: '100%',
             maxWidth: '900px',
-            minHeight: '500px',
+            minHeight: 'auto',
+            height: 'auto',
             backgroundColor: '#121212',
-            backgroundImage: 'none',
             borderRadius: '20px',
-            boxShadow: '0px 8px 32px rgba(0,0,0,0.8)',
           },
         },
       }}
@@ -112,8 +112,8 @@ export const TournamentModal = ({
         <TournamentModalContent
           key={`${tournament?.idTournament ?? 'new'}-${open}`}
           tournament={tournament}
-          formData={formData} // Add this
-          setFormData={setFormData} // Add this
+          formData={formData}
+          setFormData={setFormData}
           handleSave={handleSave}
           isSubmitting={isSubmitting}
           onClose={onClose}
