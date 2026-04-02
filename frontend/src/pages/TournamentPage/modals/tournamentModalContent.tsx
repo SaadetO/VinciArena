@@ -1,8 +1,6 @@
 import {
   Box,
   Stack,
-  Tab,
-  Tabs,
   TextField,
   SxProps,
   Theme,
@@ -12,6 +10,7 @@ import {
   InputAdornment,
   Alert,
 } from '@mui/material';
+import { Tabs } from '../../../components/Tabs';
 import {
   DatePicker,
   DateTimePicker,
@@ -53,7 +52,7 @@ export const TournamentModalContent = ({
   isSubmitting,
   onClose,
 }: TournamentModalContentProps) => {
-  const [tabIndex, setTabIndex] = useState('0');
+  const [tabIndex, setTabIndex] = useState(0);
 
   const calculateValidationError = useCallback(() => {
     const { registrationDeadline, startDate, endDate } = formData;
@@ -87,16 +86,16 @@ export const TournamentModalContent = ({
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Stack spacing={4} sx={{ width: '100%' }}>
         <Tabs
+          options={[
+            { label: 'Informations', value: 0 },
+            { label: 'Détails', value: 1 },
+          ]}
           value={tabIndex}
-          onChange={(_, v) => setTabIndex(v)}
-          variant="fullWidth"
-        >
-          <Tab label="1. Informations" value="0" />
-          <Tab label="2. Détails" value="1" />
-        </Tabs>
-
+          onChange={(v) => setTabIndex(v)}
+          fullWidth
+        />
         <Box sx={{ minHeight: '300px' }}>
-          {tabIndex === '0' && (
+          {tabIndex === 0 && (
             <Stack spacing={3}>
               <TextField
                 label="Nom du Tournoi"
@@ -119,7 +118,7 @@ export const TournamentModalContent = ({
                 </Button>
                 <Button
                   variant="contained"
-                  onClick={() => setTabIndex('1')}
+                  onClick={() => setTabIndex(1)}
                   disabled={
                     !formData.name?.trim() || !formData.description?.trim()
                   }
@@ -130,7 +129,7 @@ export const TournamentModalContent = ({
             </Stack>
           )}
 
-          {tabIndex === '1' && (
+          {tabIndex === 1 && (
             <Stack spacing={4}>
               <DateTimePicker
                 label="Date Limite d'Inscription"

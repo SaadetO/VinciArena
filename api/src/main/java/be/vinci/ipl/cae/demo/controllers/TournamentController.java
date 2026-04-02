@@ -41,8 +41,8 @@ public class TournamentController {
    *
    * @param tournamentService the unavailability service
    */
-  public TournamentController(TournamentService tournamentService,
-      TournamentRepository tournamentrepo) {
+  public TournamentController(
+      TournamentService tournamentService, TournamentRepository tournamentrepo) {
     this.tournamentService = tournamentService;
     this.tournamentRepo = tournamentrepo;
   }
