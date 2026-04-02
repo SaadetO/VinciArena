@@ -277,7 +277,8 @@ public class TournamentService {
       }
 
       boolean matchSearch = search == null || search.isBlank()
-          || t.getName().toLowerCase().contains(search.toLowerCase());
+          || t.getName().toLowerCase(java.util.Locale.ROOT)
+          .contains(search.toLowerCase(java.util.Locale.ROOT));
 
       if ((!hasFilters || matchTeam || matchMember) && matchSearch) {
         result.add(mapToSummaryDto(t));
