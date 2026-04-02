@@ -11,7 +11,7 @@ import { useSnackbar } from '../../../hooks/useSnackbar';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { TournamentDetailsInfoDto } from '../../../types';
-import { useTournament } from '../../../hooks/useTournament';
+import { useTournament } from '../../../hooks/useTournaments';
 
 interface TournamentModalProps {
   open: boolean;

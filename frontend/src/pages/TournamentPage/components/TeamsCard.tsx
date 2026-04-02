@@ -1,8 +1,32 @@
 import { Button, Chip, Skeleton, Stack, Typography } from '@mui/material';
 import { TeamSummaryDto } from '../../../types';
 import { Link } from 'react-router-dom';
+import { useMemo } from 'react';
 
-export const TeamsCard = ({ teams }: { teams?: TeamSummaryDto[] }) => {
+export const TeamsCard = ({
+  teams,
+  capacity,
+  status,
+  managedTeamId,
+}: {
+  teams?: TeamSummaryDto[];
+  capacity?: number;
+  status?: string;
+  managedTeamId?: number;
+}) => {
+  const isUserTeamRegistered = useMemo(() => {
+    if (!managedTeamId || !teams) return false;
+    return teams.some((t) => t.idTeam === managedTeamId);
+  }, [managedTeamId, teams]);
+
+  const onRegister = () => {
+    console.log('register');
+  };
+
+  const onUnregister = () => {
+    console.log('unregister');
+  };
+
   return (
     <Stack
       sx={{ background: (theme) => theme.palette.background.s1 }}
@@ -11,17 +35,41 @@ export const TeamsCard = ({ teams }: { teams?: TeamSummaryDto[] }) => {
       spacing="1.25rem"
     >
       <Stack direction="row" alignItems="center">
-        <Typography variant="h4" flex={1}>
-          Teams participantes
-        </Typography>
-        <Button
-          variant="contained"
-          color="secondary"
-          sx={{ my: '-0.25rem' }}
-          onClick={() => {}}
-        >
-          S'inscrire
-        </Button>
+        <Stack direction="row" gap="0.75rem" flex={1} alignItems="baseline">
+          <Typography variant="h4">
+            {teams ? (
+              'Teams participantes'
+            ) : (
+              <Skeleton variant="text" width="10rem" />
+            )}
+          </Typography>
+          {capacity && (
+            <Typography variant="h5" color="text.secondary">
+              {teams?.length || 0}/{capacity}
+            </Typography>
+          )}
+        </Stack>
+        {managedTeamId &&
+          (teams && capacity ? (
+            capacity > (teams?.length || 0) &&
+            status === 'REGISTRATION_OPEN' && (
+              <Button
+                variant="contained"
+                color="secondary"
+                sx={{ my: '-0.25rem' }}
+                onClick={isUserTeamRegistered ? onUnregister : onRegister}
+              >
+                {isUserTeamRegistered ? 'Se retirer' : "S'inscrire"}
+              </Button>
+            )
+          ) : (
+            <Skeleton
+              variant="rounded"
+              width="6rem"
+              height="2rem"
+              sx={{ borderRadius: '0.75rem', my: '-0.25rem' }}
+            />
+          ))}
       </Stack>
       <Stack gap="0.75rem" direction="row" flexWrap="wrap">
         {teams ? (
@@ -66,7 +114,7 @@ export const TeamsCard = ({ teams }: { teams?: TeamSummaryDto[] }) => {
           )
         ) : (
           <>
-            {Array.from({ length: 2 }).map((_, index) => (
+            {Array.from({ length: 4 }).map((_, index) => (
               <Stack
                 key={index}
                 direction="row"
@@ -79,7 +127,6 @@ export const TeamsCard = ({ teams }: { teams?: TeamSummaryDto[] }) => {
                 }}
                 borderRadius="0.75rem"
               >
-                <Skeleton variant="circular" width="1.5rem" height="1.5rem" />
                 <Skeleton
                   variant="text"
                   width={`${4 + (index % 3) * 1.5}rem`}

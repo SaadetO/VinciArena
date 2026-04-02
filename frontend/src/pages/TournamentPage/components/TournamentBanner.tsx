@@ -1,4 +1,4 @@
-import { Skeleton, Stack, Typography } from '@mui/material';
+import { Button, Skeleton, Stack, Typography } from '@mui/material';
 import { TournamentDetailsInfoDto } from '../../../types';
 import tournamentHeroHeader from '../../../assets/images/tournament_hero_header.jpg';
 import { TournamentStatusChip } from '../../../components/TournamentItem/components/TournamentStatusChip';
@@ -6,11 +6,14 @@ import { TournamentDate } from '../../../components/TournamentItem/components/To
 
 export const TournamentBanner = ({
   tournament,
+  setIsTournamentModalOpen,
 }: {
   tournament?: TournamentDetailsInfoDto;
+  setIsTournamentModalOpen: (open: boolean) => void;
 }) => {
   return (
     <Stack
+      position="relative"
       sx={{
         background: `linear-gradient(0, rgba(0, 0, 0, 0.4)), url("${tournamentHeroHeader}") no-repeat center/cover`,
       }}
@@ -50,13 +53,27 @@ export const TournamentBanner = ({
           </>
         )}
       </Stack>
-      <Typography variant="h5">
+      <Typography variant="h5" flex={1}>
         {tournament ? (
           tournament.description
         ) : (
           <Skeleton variant="text" width="20rem" />
         )}
       </Typography>
+      {tournament?.status === 'IN_PREPARATION' && (
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={() => setIsTournamentModalOpen(true)}
+          sx={{
+            position: 'absolute',
+            bottom: '5rem',
+            right: '5rem',
+          }}
+        >
+          Modifier
+        </Button>
+      )}
     </Stack>
   );
 };
