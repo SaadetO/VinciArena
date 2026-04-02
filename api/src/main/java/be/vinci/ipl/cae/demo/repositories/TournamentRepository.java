@@ -58,5 +58,8 @@ public interface TournamentRepository extends CrudRepository<Tournament, Long> {
   Iterable<Tournament> findDistinctByTeamsIdTeamInAndTournamentStatusNotInOrderByStartDateDesc(
       Collection<Long> teamIds, Collection<TournamentStatus> statuses);
 
+  /**
+   * Get all tournaments of a certain status.
+   */
   Iterable<Tournament> findAllByTournamentStatusIn(Collection<TournamentStatus> tournamentStatuses);
 }

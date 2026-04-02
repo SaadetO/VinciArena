@@ -156,8 +156,8 @@ public class TournamentService {
   }
 
   /**
-   * Periodically updates tournament statuses based on dates and registration numbers.
-   * Runs every 60 seconds to synchronize database state with the current time.
+   * Periodically updates tournament statuses based on dates and registration numbers. Runs every 60
+   * seconds to synchronize database state with the current time.
    */
   @Scheduled(initialDelay = 5000, fixedDelay = 60000)
   @Transactional
@@ -192,8 +192,8 @@ public class TournamentService {
   }
 
   /**
-   * Determines the next status for a tournament based on its current state and timeline.
-   * * @param t The tournament to evaluate
+   * Determines the next status for a tournament based on its current state and timeline. * @param t
+   * The tournament to evaluate
    *
    * @return The calculated TournamentStatus
    */
@@ -218,12 +218,10 @@ public class TournamentService {
       case REGISTRATION_CLOSED ->
           (!t.getStartDate().isAfter(today)) ? TournamentStatus.CANCELLED : status;
       // start tournament if its planned and startDate arrives
-      case PLANNED ->
-          (!t.getStartDate().isAfter(today)) ? TournamentStatus.IN_PROGRESS : status;
+      case PLANNED -> (!t.getStartDate().isAfter(today)) ? TournamentStatus.IN_PROGRESS : status;
 
       // finish tournament if endDate arrives
-      case IN_PROGRESS ->
-          (!t.getEndDate().isAfter(today)) ? TournamentStatus.DONE : status;
+      case IN_PROGRESS -> (!t.getEndDate().isAfter(today)) ? TournamentStatus.DONE : status;
 
       default -> status;
     };
@@ -262,9 +260,9 @@ public class TournamentService {
     if (statuses == null || statuses.isEmpty()) {
       allTournaments = tournamentRepository.findAllByOrderByStartDateDesc();
     } else {
-      allTournaments = tournamentRepository.findAllByTournamentStatusInOrderByStartDateDesc(statuses);
+      allTournaments =
+          tournamentRepository.findAllByTournamentStatusInOrderByStartDateDesc(statuses);
     }
-
 
     // Additional filtering
     List<TournamentSummaryDto> result = new ArrayList<>();
@@ -280,7 +278,7 @@ public class TournamentService {
 
       boolean matchSearch = search == null || search.isBlank()
           || t.getName().toLowerCase().contains(search.toLowerCase());
-          
+
       if ((!hasFilters || matchTeam || matchMember) && matchSearch) {
         result.add(mapToSummaryDto(t));
       }
