@@ -6,9 +6,11 @@ import static org.mockito.Mockito.when;
 import be.vinci.ipl.cae.demo.models.dtos.AuthenticatedUser;
 import be.vinci.ipl.cae.demo.models.dtos.NewMember;
 import be.vinci.ipl.cae.demo.models.entities.Member;
+import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.ProfileImageRepository;
 import be.vinci.ipl.cae.demo.repositories.SpecialtyRepository;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -247,14 +249,19 @@ class MemberServiceTest {
     target.setIdMember(1L);
     target.setDeleted(false);
 
+    Team team = new Team();
+    team.setIdTeam(1L);
+    target.setTeam(team);
+
     when(memberRepository.findByEmail("admin@mail.com")).thenReturn(admin);
-    when(memberRepository.findById(1L)).thenReturn(java.util.Optional.of(target));
+    when(memberRepository.findById(1L)).thenReturn(Optional.of(target));
 
     // Act
     memberService.banMember(1L, "admin@mail.com");
 
     // Assert
     assertTrue(target.isDeleted());
+    assertNull(target.getTeam());
   }
 
   @Test
