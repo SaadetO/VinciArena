@@ -38,9 +38,8 @@ export const useMembers = (options?: UseMembersOptions) => {
         },
       });
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
         throw new ApiError(
-          errorData.message || 'Échec de la récupération des membres.',
+          'Échec de la récupération des membres.',
           response.status,
         );
       }
@@ -51,8 +50,9 @@ export const useMembers = (options?: UseMembersOptions) => {
       onError: (err) =>
         showSnackbar({
           message:
-            err.message ||
-            'Une erreur est survenue lors de la récupération des membres.',
+            err instanceof ApiError
+              ? err.message
+              : 'Une erreur est survenue lors de la récupération des membres.',
           severity: 'error',
         }),
     },
@@ -67,9 +67,8 @@ export const useMembers = (options?: UseMembersOptions) => {
         },
       });
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
         throw new ApiError(
-          errorData.message || 'Échec de la récupération des membres.',
+          'Échec de la récupération des membres.',
           response.status,
         );
       }
@@ -80,8 +79,9 @@ export const useMembers = (options?: UseMembersOptions) => {
       onError: (err) =>
         showSnackbar({
           message:
-            err.message ||
-            'Une erreur est survenue lors de la récupération des membres.',
+            err instanceof ApiError
+              ? err.message
+              : 'Une erreur est survenue lors de la récupération des membres.',
           severity: 'error',
         }),
     },
@@ -98,9 +98,8 @@ export const useMembers = (options?: UseMembersOptions) => {
         },
       });
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
         throw new ApiError(
-          errorData.message || 'Échec de la récupération du profil.',
+          'Échec de la récupération du profil.',
           response.status,
         );
       }
@@ -112,7 +111,8 @@ export const useMembers = (options?: UseMembersOptions) => {
         const status = err instanceof ApiError ? err.status : 500;
         setError?.({
           code: status,
-          message: err.message || 'Une erreur est survenue',
+          message:
+            err instanceof ApiError ? err.message : 'Une erreur est survenue',
           subtitle:
             'Une erreur est survenue lors de la récupération du profil.',
         });
@@ -133,9 +133,8 @@ export const useMembers = (options?: UseMembersOptions) => {
         }),
       });
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
         throw new ApiError(
-          errorData.message || 'Échec de la mise à jour du mot de passe.',
+          'Échec de la mise à jour du mot de passe.',
           response.status,
         );
       }
@@ -150,8 +149,9 @@ export const useMembers = (options?: UseMembersOptions) => {
       onError: (err) =>
         showSnackbar({
           message:
-            err.message ||
-            'Une erreur est survenue lors de la mise à jour du mot de passe.',
+            err instanceof ApiError
+              ? err.message
+              : 'Une erreur est survenue lors de la mise à jour du mot de passe.',
           severity: 'error',
         }),
     },
@@ -169,9 +169,8 @@ export const useMembers = (options?: UseMembersOptions) => {
         body: JSON.stringify(avatar),
       });
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
         throw new ApiError(
-          errorData.message || "Échec de la mise à jour de l'image de profil",
+          "Échec de la mise à jour de l'image de profil",
           response.status,
         );
       }
@@ -198,8 +197,9 @@ export const useMembers = (options?: UseMembersOptions) => {
       onError: (err) =>
         showSnackbar({
           message:
-            err.message ||
-            "Une erreur est survenue lors de la mise à jour de l'image de profil.",
+            err instanceof ApiError
+              ? err.message
+              : "Une erreur est survenue lors de la mise à jour de l'image de profil.",
           severity: 'error',
         }),
     },
@@ -217,9 +217,8 @@ export const useMembers = (options?: UseMembersOptions) => {
         body: JSON.stringify(specialty.id),
       });
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
         throw new ApiError(
-          errorData.message || 'Échec de la mise à jour de la spécialité.',
+          'Échec de la mise à jour de la spécialité.',
           response.status,
         );
       }
@@ -246,8 +245,9 @@ export const useMembers = (options?: UseMembersOptions) => {
       onError: (err) =>
         showSnackbar({
           message:
-            err.message ||
-            'Une erreur est survenue lors de la mise à jour de la spécialité.',
+            err instanceof ApiError
+              ? err.message
+              : 'Une erreur est survenue lors de la mise à jour de la spécialité.',
           severity: 'error',
         }),
     },
@@ -264,10 +264,8 @@ export const useMembers = (options?: UseMembersOptions) => {
         },
       });
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
         throw new ApiError(
-          errorData.message ||
-            'Échec de la mise à jour du statut administrateur.',
+          'Échec de la mise à jour du statut administrateur.',
           response.status,
         );
       }

@@ -7,19 +7,17 @@ const StyledNumericTextField = styled(TextField)(({ theme }) => ({
     padding: 0,
     backgroundColor: theme.palette.background.s3,
     borderRadius: '0.75rem',
-    // Removed overflow: 'hidden' to prevent focus border clipping
   },
   '& .MuiInputBase-input': {
     padding: '0 1rem',
-    height: '2.75rem', // Match current application height
+    height: '2.75rem',
     boxSizing: 'border-box',
-    // Hide native arrows
     '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
-      '-webkit-appearance': 'none',
+      WebkitAppearance: 'none',
       margin: 0,
     },
     '&[type=number]': {
-      '-moz-appearance': 'textfield',
+      MozAppearance: 'textfield',
     },
   },
   '& .MuiInputAdornment-root': {

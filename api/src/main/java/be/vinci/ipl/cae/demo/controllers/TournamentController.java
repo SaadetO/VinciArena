@@ -213,4 +213,19 @@ public class TournamentController {
     return s == null || s.isBlank();
   }
 
+  /**
+   * Registers a team to a tournament.
+   *
+   * @param id The ID of the tournament
+   * @param currentMember The currently authenticated user, who must be a manager of an active team.
+   */
+  @PostMapping("/{id}/register")
+  @ResponseStatus(HttpStatus.OK)
+  @PreAuthorize("isAuthenticated()")
+  public void registerTeamToTournament(
+      @PathVariable Long id,
+      @AuthenticationPrincipal Member currentMember) {
+    tournamentService.registerTeam(id, currentMember);
+  }
+
 }
