@@ -671,8 +671,12 @@ export const theme = createTheme({
             borderRadius: '0.5rem',
           },
           '& .MuiAutocomplete-endAdornment': {
-            width: '2rem',
+            minWidth: '2rem',
+            width: 'fit-content',
             right: '0.375rem',
+            '& .MuiButtonBase-root:last-child': {
+              marginRight: '0',
+            },
           },
           '& .MuiButtonBase-root:last-child': {
             color: '#8C8C8C',
