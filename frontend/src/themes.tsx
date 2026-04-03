@@ -668,7 +668,11 @@ export const theme = createTheme({
           '& .MuiButtonBase-root': {
             width: '2rem',
             height: '2rem',
-            marginRight: '0',
+            borderRadius: '0.5rem',
+          },
+          '& .MuiAutocomplete-endAdornment': {
+            width: '2rem',
+            right: '0.375rem',
           },
           '& .MuiButtonBase-root:last-child': {
             color: '#8C8C8C',
