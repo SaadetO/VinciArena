@@ -418,7 +418,7 @@ public class TournamentService {
    * @param currentMember the member requesting to register the team
    */
   @Transactional
-  public void registerTeam(Long idTournament, Member currentMember) {
+  public boolean registerTeam(Long idTournament, Member currentMember) {
     Team team = currentMember.getTeam();
     if (team == null || !team.getIsActive()) {
       throw new InactiveTeamException("User is not in an active team");
@@ -444,5 +444,6 @@ public class TournamentService {
     }
 
     tournamentRepository.save(tournament);
+    return true;
   }
 }
