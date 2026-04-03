@@ -444,6 +444,7 @@ public class MemberService {
     }
 
     member.setDeleted(true);
+    member.setTeam(null);
     memberRepository.save(member);
   }
 }
