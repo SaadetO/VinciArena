@@ -7,7 +7,11 @@ interface AdminActionCardProps {
   onAction2?: (status: TournamentStatus) => void;
 }
 
-export const AdminActionCard = ({ status, onAction, onAction2 }: AdminActionCardProps) => {
+export const AdminActionCard = ({
+  status,
+  onAction,
+  onAction2,
+}: AdminActionCardProps) => {
   const getStatusContent = () => {
     switch (status) {
       case 'IN_PREPARATION':

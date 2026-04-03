@@ -17,6 +17,19 @@ import dayjs from 'dayjs';
 import { useTournamentModal } from '../../hooks/useTournamentModal';
 import { useTournament } from '../../hooks/useTournaments';
 
+const defaultReg = dayjs().add(1, 'week');
+const defaultStart = defaultReg.add(3, 'day');
+const defaultEnd = defaultStart.add(14, 'day');
+
+const initialFormData: TournamentFormData = {
+  name: '',
+  description: '',
+  startDate: defaultStart.format('YYYY-MM-DD'),
+  endDate: defaultEnd.format('YYYY-MM-DD'),
+  registrationDeadline: defaultReg.format('YYYY-MM-DDTHH:mm:ss'),
+  capacity: 2,
+};
+
 export const TournamentModal = () => {
   const { isOpen, closeModal, tournamentToEdit, onSuccess } =
     useTournamentModal();
@@ -24,19 +37,6 @@ export const TournamentModal = () => {
   const contentRef = useRef<HTMLDivElement>(null);
   const [contentHeight, setContentHeight] = useState<number | string>('auto');
   const [error, setError] = useState<string | undefined>(undefined);
-
-  const defaultReg = dayjs().add(1, 'week');
-  const defaultStart = defaultReg.add(3, 'day');
-  const defaultEnd = defaultStart.add(14, 'day');
-
-  const initialFormData: TournamentFormData = {
-    name: '',
-    description: '',
-    startDate: defaultStart.format('YYYY-MM-DD'),
-    endDate: defaultEnd.format('YYYY-MM-DD'),
-    registrationDeadline: defaultReg.format('YYYY-MM-DDTHH:mm:ss'),
-    capacity: 2,
-  };
 
   const [formData, setFormData] = useState<TournamentFormData>(initialFormData);
 
@@ -159,7 +159,10 @@ export const TournamentModal = () => {
     }
   };
 
-  const handleChange = (field: keyof TournamentFormData, val: any) => {
+  const handleChange = (
+    field: keyof TournamentFormData,
+    val: string | number,
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: val }));
     if (error) setError(undefined);
   };

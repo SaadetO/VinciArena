@@ -1,4 +1,10 @@
-import { createContext, ReactNode, useState, useCallback, useMemo } from 'react';
+import {
+  createContext,
+  ReactNode,
+  useState,
+  useCallback,
+  useMemo,
+} from 'react';
 import { TournamentDetailsInfoDto } from '../types';
 import { TournamentModal } from '../modals/TournamentModal';
 
@@ -6,7 +12,9 @@ interface TournamentModalContextType {
   isOpen: boolean;
   tournamentToEdit: TournamentDetailsInfoDto | null;
   onSuccess: ((tournament: TournamentDetailsInfoDto) => void) | null;
-  openCreateModal: (onSuccess?: (tournament: TournamentDetailsInfoDto) => void) => void;
+  openCreateModal: (
+    onSuccess?: (tournament: TournamentDetailsInfoDto) => void,
+  ) => void;
   openEditModal: (
     tournament: TournamentDetailsInfoDto,
     onSuccess?: (tournament: TournamentDetailsInfoDto) => void,
@@ -14,14 +22,11 @@ interface TournamentModalContextType {
   closeModal: () => void;
 }
 
-export const TournamentModalContext =
-  createContext<TournamentModalContextType | null>(null);
+const TournamentModalContext = createContext<TournamentModalContextType | null>(
+  null,
+);
 
-export const TournamentModalProvider = ({
-  children,
-}: {
-  children: ReactNode;
-}) => {
+const TournamentModalProvider = ({ children }: { children: ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [tournamentToEdit, setTournamentToEdit] =
     useState<TournamentDetailsInfoDto | null>(null);
@@ -63,7 +68,14 @@ export const TournamentModalProvider = ({
       openEditModal,
       closeModal,
     }),
-    [isOpen, tournamentToEdit, onSuccess, openCreateModal, openEditModal, closeModal],
+    [
+      isOpen,
+      tournamentToEdit,
+      onSuccess,
+      openCreateModal,
+      openEditModal,
+      closeModal,
+    ],
   );
 
   return (
@@ -73,3 +85,5 @@ export const TournamentModalProvider = ({
     </TournamentModalContext.Provider>
   );
 };
+
+export { TournamentModalContext, TournamentModalProvider };

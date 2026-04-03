@@ -4,7 +4,7 @@ import { Label } from './Label';
 
 interface BaseTabProps {
   formData: TournamentFormData;
-  onChange: (field: keyof TournamentFormData, value: any) => void;
+  onChange: (field: keyof TournamentFormData, value: number | string) => void;
   error?: string;
 }
 

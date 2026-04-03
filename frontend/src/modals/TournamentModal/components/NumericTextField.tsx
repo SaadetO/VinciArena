@@ -39,8 +39,10 @@ const AdornmentButton = styled(IconButton)(
     flexShrink: 0,
     borderRadius:
       position === 'start' ? '0.75rem 0 0 0.75rem' : '0 0.75rem 0.75rem 0',
-    borderRight: position === 'start' ? `1px solid ${theme.palette.divider}` : 'none',
-    borderLeft: position === 'end' ? `1px solid ${theme.palette.divider}` : 'none',
+    borderRight:
+      position === 'start' ? `1px solid ${theme.palette.divider}` : 'none',
+    borderLeft:
+      position === 'end' ? `1px solid ${theme.palette.divider}` : 'none',
   }),
 );
 

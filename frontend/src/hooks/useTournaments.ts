@@ -20,7 +20,8 @@ interface UseTournamentOptions {
 }
 
 export const useTournament = (config: UseTournamentOptions) => {
-  const { setTournaments, setTournament, setError, onError, onSuccess } = config;
+  const { setTournaments, setTournament, setError, onError, onSuccess } =
+    config;
   const { showSnackbar } = useSnackbar();
   const { authenticatedUser } = useContext(UserContext);
   const navigate = useNavigate();
@@ -59,7 +60,7 @@ export const useTournament = (config: UseTournamentOptions) => {
     {
       onSuccess: (data) => {
         setTournaments?.(data);
-        config.onSuccess?.(data as any);
+        config.onSuccess?.(data);
       },
       onError: (err) => {
         config.onError?.(err);
