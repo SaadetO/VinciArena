@@ -67,6 +67,7 @@ public class TeamService {
     }
 
     List<UserSummaryDto> members = team.getMembers().stream()
+        .filter(member -> !member.isDeleted())
         .map(memberService::getUserSummary)
         .collect(Collectors.toList());
 
