@@ -4,7 +4,7 @@ import { TournamentStatus } from '../../../types';
 interface AdminActionCardProps {
   status: TournamentStatus;
   onAction: (status: TournamentStatus) => void;
-  onAction2?: (status: TournamentStatus) => void;
+  onAction2?: () => void;
 }
 
 export const AdminActionCard = ({
@@ -64,7 +64,7 @@ export const AdminActionCard = ({
           <Button
             variant="contained"
             color="secondary"
-            onClick={() => onAction2?.(status)}
+            onClick={() => onAction2?.()}
             fullWidth
           >
             {content.secondaryButtonLabel}

@@ -93,7 +93,7 @@ export const TournamentPage = () => {
                 {authenticatedUser?.admin && tournament?.status && (
                   <AdminActionCard
                     status={tournament.status}
-                    onAction={() => {}}
+                    onAction={() => handleAdminAction(tournament.status)}
                     onAction2={() => openEditModal(tournament!, setTournament)}
                   />
                 )}

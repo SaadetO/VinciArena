@@ -97,9 +97,6 @@ public class TournamentController {
   @PreAuthorize("hasRole('ADMIN')") // Security handled here
   public TournamentDetailsDto createTournament(@RequestBody NewTournament newTournament,
       @AuthenticationPrincipal Member currentMember) {
-    if (tournamentRepo.existsByName(newTournament.name())) {
-      throw new ResponseStatusException(HttpStatus.CONFLICT, "Tournament name already exists");
-    }
 
     validateNewTournament(newTournament, currentMember, null); // Removed currentMember check here
 
