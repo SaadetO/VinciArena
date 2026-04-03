@@ -38,6 +38,7 @@ class TournamentServiceTest {
   @Mock
   private TournamentRepository tournamentRepository;
 
+  @Mock
   private MemberRepository memberRepository;
 
   private MatchLineupRepository matchLineupRepository;
@@ -97,6 +98,8 @@ class TournamentServiceTest {
     team.setIsActive(true);
     team.setManager1(manager);
     manager.setTeam(team);
+
+    when(memberRepository.findById(1L)).thenReturn(Optional.of(manager));
 
     Member m2 = new Member(); m2.setIdMember(2L);
     Member m3 = new Member(); m3.setIdMember(3L);
