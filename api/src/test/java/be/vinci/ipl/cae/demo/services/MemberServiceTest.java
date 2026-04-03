@@ -5,7 +5,9 @@ import static org.mockito.Mockito.when;
 
 import be.vinci.ipl.cae.demo.models.dtos.AuthenticatedUser;
 import be.vinci.ipl.cae.demo.models.dtos.NewMember;
+import be.vinci.ipl.cae.demo.models.dtos.ProfileDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
+import be.vinci.ipl.cae.demo.models.entities.Specialty;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.ProfileImageRepository;
@@ -337,7 +339,6 @@ class MemberServiceTest {
     });
   }
 
-
   @Test
   void banMemberTargetIsAdmin(){
 
@@ -359,8 +360,58 @@ class MemberServiceTest {
     });
   }
 
+  @Test
+  void getProfileOfUnexistingMember() {
+    // Arrange
+    when(memberRepository.findById(1L)).thenReturn(Optional.empty());
 
+    // Act
+    ProfileDto result = memberService.getProfile(1L, "no@mail.com");
 
+    // Assert
+    assertNull(result);
+  }
 
+  @Test
+  void getProfileWithoutTeamSpecialtyOrAvatar() {
+    // Arrange
+    Member m = new Member();
+    m.setIdMember(1L);
+    m.setTag("M1");
 
+    when(memberRepository.findById(1L)).thenReturn(Optional.of(m));
+
+    // Act
+    ProfileDto result = memberService.getProfile(1L, "someone@mail.com");
+
+    // Assert
+    assertAll(
+        () -> assertEquals(1L, result.getId()),
+        () -> assertEquals("M1", result.getTag()),
+        () -> assertNull(result.getSpecialty()),
+        () -> assertNull(result.getAvatar()),
+        () -> assertNull(result.getTeam()),
+        () -> assertNull(result.getEmail())
+    );
+  }
+
+  @Test
+  void getProfileWithSpecialty() {
+    // Arrange
+    Specialty s = new Specialty();
+    s.setName("gardien");
+
+    Member m = new Member();
+    m.setIdMember(1L);
+    m.setTag("M1");
+    m.setSpecialty(s);
+
+    when(memberRepository.findById(1L)).thenReturn(Optional.of(m));
+
+    // Act
+    ProfileDto result =  memberService.getProfile(1L, "someone@mail.com");
+
+    // Assert
+    assertEquals("gardien", result.getSpecialty());
+  }
 }
