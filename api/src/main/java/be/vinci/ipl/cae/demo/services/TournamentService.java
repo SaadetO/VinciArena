@@ -1,5 +1,11 @@
 package be.vinci.ipl.cae.demo.services;
 
+import be.vinci.ipl.cae.demo.exceptions.DuplicateRegistrationException;
+import be.vinci.ipl.cae.demo.exceptions.InactiveTeamException;
+import be.vinci.ipl.cae.demo.exceptions.InsufficientTeamMembersException;
+import be.vinci.ipl.cae.demo.exceptions.NotManagerException;
+import be.vinci.ipl.cae.demo.exceptions.RegistrationClosedException;
+import be.vinci.ipl.cae.demo.exceptions.TournamentNotFoundException;
 import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.MatchTeamDto;
 import be.vinci.ipl.cae.demo.models.dtos.NewTournament;
@@ -43,6 +49,7 @@ public class TournamentService {
   private final MatchRepository matchRepository;
   private final MatchResultConfirmationRepository confirmationRepository;
   private final NotificationService notificationService;
+  private final TeamService teamService;
 
   /**
    * Constructor.
@@ -50,13 +57,14 @@ public class TournamentService {
   public TournamentService(TournamentRepository tournamentRepository,
       MemberRepository memberRepository, MatchLineupRepository matchLineupRepository,
       MatchRepository matchRepository, MatchResultConfirmationRepository confirmationRepository,
-      NotificationService notificationService) {
+      TeamService teamService, NotificationService notificationService) {
     this.tournamentRepository = tournamentRepository;
     this.memberRepository = memberRepository;
     this.matchLineupRepository = matchLineupRepository;
     this.matchRepository = matchRepository;
     this.confirmationRepository = confirmationRepository;
     this.notificationService = notificationService;
+    this.teamService = teamService;
   }
 
   /**
@@ -401,5 +409,40 @@ public class TournamentService {
     }
 
     return tournament;
+  }
+
+  /**
+   * Register a team to a tournament.
+   *
+   * @param idTournament  the tournament id
+   * @param currentMember the member requesting to register the team
+   */
+  @Transactional
+  public void registerTeam(Long idTournament, Member currentMember) {
+    Team team = currentMember.getTeam();
+    if (team == null || !team.getIsActive()) {
+      throw new InactiveTeamException("User is not in an active team");
+    }
+
+    if (!teamService.isManager(team, currentMember)) {
+      throw new NotManagerException("Only a team manager can register the team");
+    }
+
+    if (team.getMembers().size() < 4) {
+      throw new InsufficientTeamMembersException("Team must have at least 4 members to register");
+    }
+
+    Tournament tournament = tournamentRepository.findById(idTournament)
+        .orElseThrow(() -> new TournamentNotFoundException("Tournament not found"));
+
+    if (team.getTournaments().contains(tournament)) {
+      throw new DuplicateRegistrationException("Team is already registered for this tournament");
+    }
+
+    if (!tournament.registerTeam(team)) {
+      throw new RegistrationClosedException("Registration closed or deadline passed");
+    }
+
+    tournamentRepository.save(tournament);
   }
 }
