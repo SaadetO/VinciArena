@@ -230,12 +230,52 @@ export const useTournament = (config: UseTournamentOptions) => {
     },
   );
 
+  const { execute: register } = useApi(
+    async (id: number) => {
+      const response = await fetch(`/api/tournaments/${id}/register`, {
+        method: 'POST',
+        headers: {
+          Authorization: authenticatedUser?.token ?? '',
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new ApiError(
+          errorData?.message || "Échec de l'inscription au tournoi",
+          response.status
+        );
+      }
+
+      return await response.json();
+    },
+    {
+      onSuccess: (data) => {
+        setTournament?.(data);
+        showSnackbar({
+          message: 'Votre équipe a été inscrite avec succès !',
+          severity: 'success',
+        });
+      },
+      onError: (err) => {
+        showSnackbar({
+          message:
+            err instanceof ApiError
+              ? err.message
+              : "Une erreur est survenue lors de l'inscription.",
+          severity: 'error',
+        });
+      },
+    }
+  );
+
   return {
     getAll,
     getById,
     create,
     update,
     publish,
+    register,
     isGettingTournaments,
     isGettingTournamentById,
   };
