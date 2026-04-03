@@ -1,8 +1,8 @@
 import { Chip, ChipProps } from '@mui/material';
-import { TournamentDto } from '../../../types';
+import { TournamentStatus } from '../../../types';
 
 interface TournamentStatusChipProps {
-  status: TournamentDto['tournamentStatus'];
+  status: TournamentStatus;
 }
 
 export const TournamentStatusChip = ({ status }: TournamentStatusChipProps) => {

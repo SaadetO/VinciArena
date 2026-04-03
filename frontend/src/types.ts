@@ -176,7 +176,7 @@ interface TournamentDto {
   startDate: string;
   endDate: string;
   registrationDeadline: string;
-  tournamentStatus: TournamentStatus;
+  status: TournamentStatus;
   capacity: number;
   registrationsCount: number;
 }

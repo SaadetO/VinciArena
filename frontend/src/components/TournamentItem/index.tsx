@@ -71,7 +71,7 @@ export const TournamentItem = ({ tournament }: TournamentItemProps) => {
           {tournament.description}
         </Typography>
         <Stack color="text.secondary" alignItems="flex-end" flex={1}>
-          <TournamentStatusChip status={tournament.tournamentStatus} />
+          <TournamentStatusChip status={tournament.status} />
         </Stack>
       </Stack>
     </Stack>
