@@ -137,7 +137,7 @@ class TournamentServiceTest {
     tournament.setRegistrationDeadline(
         LocalDate.of(2026, 12, 1).atStartOfDay()
     );
-    tournament.setMaxNbOfTeams(8);
+    tournament.setCapacity(8);
     tournament.setStatus(TournamentStatus.IN_PREPARATION);
 
     when(tournamentRepository.findById(1L)).thenReturn(Optional.of(tournament));

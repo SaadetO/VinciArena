@@ -151,7 +151,7 @@ public class TournamentService {
     Tournament tournament = new Tournament();
     tournament.setName(newTournament.name());
     tournament.setDescription(newTournament.description());
-    tournament.setMaxNbOfTeams(newTournament.capacity());
+    tournament.setCapacity(newTournament.capacity());
     tournament.setEndDate(newTournament.endDate());
     tournament.setStartDate(newTournament.startDate());
     tournament.setRegistrationDeadline(newTournament.registrationDeadline());
@@ -349,7 +349,7 @@ public class TournamentService {
     }
 
     if (newTournament.capacity() != tournament.getCapacity()) {
-      tournament.setMaxNbOfTeams(newTournament.capacity());
+      tournament.setCapacity(newTournament.capacity());
     }
 
     if (newTournament.registrationDeadline() != null) {

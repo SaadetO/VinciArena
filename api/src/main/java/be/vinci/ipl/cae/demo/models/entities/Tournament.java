@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -59,6 +60,10 @@ public class Tournament {
   @Column(nullable = false)
   private int capacity;
 
+  @ManyToOne
+  @JoinColumn(name = "winner_id")
+  private Team winner;
+
   @ManyToMany
   @JoinTable(
       name = "tournament_registrations",
@@ -72,8 +77,8 @@ public class Tournament {
    *
    * @param capacity max number of teams
    */
-  public void setMaxNbOfTeams(int capacity) {
-    if (capacity <= 0) {
+  public void setCapacity(int capacity) {
+    if (capacity <= 1) {
       throw new IllegalArgumentException("Max teams must be > 0");
     }
     this.capacity = capacity;

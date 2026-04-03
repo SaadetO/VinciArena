@@ -13,8 +13,12 @@ import be.vinci.ipl.cae.demo.repositories.TeamRepository;
 import be.vinci.ipl.cae.demo.repositories.TournamentRepository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -43,29 +47,16 @@ public class DemoApplication {
 
   // default values for test
   @Bean
-  CommandLineRunner seed(
-      MemberRepository memberRepo,
-      TeamRepository teamRepo,
-      SpecialtyRepository specRepo,
-      ProfileImageRepository imageRepo,
-      TournamentRepository tournamentRepo
-  ) {
+  CommandLineRunner seed(MemberRepository memberRepo, TeamRepository teamRepo,
+      SpecialtyRepository specRepo, ProfileImageRepository imageRepo,
+      TournamentRepository tournamentRepo) {
     return args -> {
       // Create Specialities
-      String[] specialities = {
-          "architecte",
-          "exécuteur",
-          "tacticien",
-          "gardien",
-          "catalyseur",
-          "perturbateur",
-          "guérisseur"
-      };
-      Map<String, Specialty> specMap =
-          new HashMap<>();
+      String[] specialities = {"architecte", "exécuteur", "tacticien", "gardien", "catalyseur",
+          "perturbateur", "guérisseur"};
+      Map<String, Specialty> specMap = new HashMap<>();
       for (String specialty : specialities) {
-        Specialty spec =
-            new Specialty();
+        Specialty spec = new Specialty();
         spec.setName(specialty);
         specMap.put(specialty, specRepo.save(spec));
       }
@@ -78,36 +69,37 @@ public class DemoApplication {
       }
 
       // Create Members and Teams for demo
-      record MemberMockData(
-          String email,
-          String tag,
-          String specialty,
-          String creationDate,
-          boolean isAdmin,
-          boolean isManager,
-          String teamName
-      ) {
+      record MemberMockData(String email, String tag, String specialty, String creationDate,
+                            boolean isAdmin, boolean isManager, String teamName) {
+
+      }
+      record TeamMockData(String name) {
+
+      }
+
+      record TournamentMockData(String name, String description, String start, String end,
+                                String deadline, int capacity, int teamCount, String winnerTeamName,
+                                TournamentStatus status) {
 
       }
 
       MemberMockData[] memberDataList = {
-          new MemberMockData("lea@mail.com", "Lynx", "tacticien",
-              "2025-11-12", true, true, "TEAM_ALPHA"),
-          new MemberMockData("tom@mail.com", "Rogue", "exécuteur",
-              "2025-12-03", false, false, "TEAM_ALPHA"),
-          new MemberMockData("ines@mail.com", "Pulse", "guérisseur",
-              "2026-01-18", false, false, "TEAM_ALPHA"),
-          new MemberMockData("tibo@mail.com", "Iron", "gardien",
-              "2025-10-27", true, true, "TEAM_OMEGA"),
-          new MemberMockData("lisa@mail.com", "Storm", "exécuteur",
-              "2026-01-10", false, true, "TEAM_IOTA"),
-          new MemberMockData("noa@mail.com", "Flash", "architecte",
-              "2026-02-02", false, true, "TEAM_IOTA"),
-          new MemberMockData("tim@mail.com", "Titi", "gardien",
-              "2026-02-03", false, false, "TEAM_IOTA"),
-          new MemberMockData("zoe@mail.com", "Vector", "catalyseur",
-              "2026-02-04", false, false, "TEAM_IOTA")
-      };
+          new MemberMockData("lea@mail.com", "Lynx", "tacticien", "2025-11-12", true, true,
+              "TEAM_ALPHA"),
+          new MemberMockData("tom@mail.com", "Rogue", "exécuteur", "2025-12-03", false, false,
+              "TEAM_ALPHA"),
+          new MemberMockData("ines@mail.com", "Pulse", "guérisseur", "2026-01-18", false, false,
+              "TEAM_ALPHA"),
+          new MemberMockData("tibo@mail.com", "Iron", "gardien", "2025-10-27", true, true,
+              "TEAM_OMEGA"),
+          new MemberMockData("lisa@mail.com", "Storm", "exécuteur", "2026-01-10", false, true,
+              "TEAM_IOTA"),
+          new MemberMockData("noa@mail.com", "Flash", "architecte", "2026-02-02", false, true,
+              "TEAM_IOTA"),
+          new MemberMockData("tim@mail.com", "Titi", "gardien", "2026-02-03", false, false,
+              "TEAM_IOTA"),
+          new MemberMockData("zoe@mail.com", "Vector", "catalyseur", "2026-02-04", false, false,
+              "TEAM_IOTA")};
 
       Map<String, Team> teamMap = new HashMap<>();
       String pw = "Password1!";
@@ -146,73 +138,76 @@ public class DemoApplication {
           teamRepo.save(team);
         }
       }
+      // generer une liste d'équipes supplémentaires pour atteindre le compte (ex: 15 teams)
+      Map<String, Team> allTeamsMap = new HashMap<>(teamMap); // On garde Alpha, Omega, Iota
+      for (int i = 1; i <= 15; i++) {
+        String name = "TEAM_GHOST_" + i;
+        if (!allTeamsMap.containsKey(name)) {
+          Team t = new Team();
+          t.setName(name);
+          t.setIsActive(true);
+          allTeamsMap.put(name, teamRepo.save(t));
+        }
+      }
+      List<Team> poolOfTeams = new ArrayList<>(allTeamsMap.values());
 
-      // Create Tournaments
-      // 1. IN_PREPARATION
-      Tournament t1 = new Tournament();
-      t1.setName("Tournament Alpha");
-      t1.setDescription("A tournament in preparation.");
-      t1.setRegistrationDeadline(LocalDate.of(2026, 10, 1).atStartOfDay());
-      t1.setStartDate(LocalDate.of(2026, 10, 15));
-      t1.setEndDate(LocalDate.of(2026, 10, 20));
-      t1.setStatus(TournamentStatus.IN_PREPARATION);
-      t1.setMaxNbOfTeams(8);
-      tournamentRepo.save(t1);
+      TournamentMockData[] tournamentDataList = {
+          // PASSÉS (DONE)
+          new TournamentMockData("Spring Arena Cup 2025",
+              "Compétition printanière ouverte aux nouvelles teams émergentes", "2025-04-15",
+              "2025-04-25", "2025-04-10T20:00:00", 8, 7, "TEAM_OMEGA", TournamentStatus.DONE),
+          new TournamentMockData("Elite Championship 2025",
+              "Compétition élite réservée aux meilleures teams", "2025-05-15", "2025-05-30",
+              "2025-05-11T20:00:00", 8, 6, "TEAM_IOTA", TournamentStatus.DONE),
+          new TournamentMockData("Summer Pro League 2025",
+              "Tournoi estival de haut niveau avec les meilleures teams", "2025-07-01",
+              "2025-07-15", "2025-06-25T20:00:00", 16, 14, "TEAM_IOTA", TournamentStatus.DONE),
+          new TournamentMockData("Vinci Winter Clash 2026",
+              "Tournoi hivernal réunissant des équipes semi-professionnelles", "2026-01-10",
+              "2026-01-20", "2026-01-05T20:00:00", 12, 12, "TEAM_ALPHA", TournamentStatus.DONE),
 
-      // 2. REGISTRATION_OPEN
-      Tournament t2 = new Tournament();
-      t2.setName("Tournament Beta");
-      t2.setDescription("Registration is open for this tournament.");
-      t2.setRegistrationDeadline(LocalDate.of(2026, 11, 1).atStartOfDay());
-      t2.setStartDate(LocalDate.of(2026, 11, 15));
-      t2.setEndDate(LocalDate.of(2026, 11, 20));
-      t2.setStatus(TournamentStatus.REGISTRATION_OPEN);
-      t2.setMaxNbOfTeams(16);
-      tournamentRepo.save(t2);
 
-      // 3. REGISTRATION_CLOSED
-      Tournament t3 = new Tournament();
-      t3.setName("Tournament Gamma");
-      t3.setDescription("Registration is closed but not planned yet.");
-      t3.setRegistrationDeadline(LocalDate.of(2026, 3, 1).atStartOfDay());
-      t3.setStartDate(LocalDate.of(2026, 4, 15));
-      t3.setEndDate(LocalDate.of(2026, 4, 20));
-      t3.setStatus(TournamentStatus.REGISTRATION_CLOSED);
-      t3.setMaxNbOfTeams(8);
-      tournamentRepo.save(t3);
+          new TournamentMockData("Spring Battle Series 2026",
+              "Série printanière avec élimination directe", "2026-04-04", "2026-04-11",
+              "2026-04-01T20:00:00", 8, 8, null, TournamentStatus.IN_PROGRESS),
 
-      // 4. PLANNED
-      Tournament t4 = new Tournament();
-      t4.setName("Tournament Delta");
-      t4.setDescription("This tournament is fully planned.");
-      t4.setRegistrationDeadline(LocalDate.of(2026, 3, 1).atStartOfDay());
-      t4.setStartDate(LocalDate.of(2026, 5, 15));
-      t4.setEndDate(LocalDate.of(2026, 5, 20));
-      t4.setStatus(TournamentStatus.PLANNED);
-      t4.setMaxNbOfTeams(12);
-      tournamentRepo.save(t4);
 
-      // 5. IN_PROGRESS
-      Tournament t5 = new Tournament();
-      t5.setName("Tournament Epsilon");
-      t5.setDescription("Tournament currently in progress.");
-      t5.setRegistrationDeadline(LocalDate.of(2026, 2, 1).atStartOfDay());
-      t5.setStartDate(LocalDate.of(2026, 3, 20));
-      t5.setEndDate(LocalDate.of(2026, 5, 30));
-      t5.setStatus(TournamentStatus.IN_PROGRESS);
-      t5.setMaxNbOfTeams(4);
-      tournamentRepo.save(t5);
+          new TournamentMockData("Vinci Easter Cup 2026",
+              "Tournoi de Pâques ouvert à toutes les teams actives", "2026-04-15", "2026-04-25",
+              "2026-04-08T20:00:00", 8, 7, null, TournamentStatus.REGISTRATION_OPEN),
+          new TournamentMockData("Elite Championship 2026",
+              "Compétition élite réservée aux meilleures teams", "2026-05-15", "2026-05-30",
+              "2026-05-11T20:00:00", 16, 14, null, TournamentStatus.REGISTRATION_OPEN)};
 
-      // 6. DONE
-      Tournament t6 = new Tournament();
-      t6.setName("Tournament Zeta");
-      t6.setDescription("A completed tournament.");
-      t6.setRegistrationDeadline(LocalDateTime.of(2026, 1, 1, 20, 59));
-      t6.setStartDate(LocalDate.of(2026, 2, 15));
-      t6.setEndDate(LocalDate.of(2026, 2, 20));
-      t6.setStatus(TournamentStatus.DONE);
-      t6.setMaxNbOfTeams(8);
-      tournamentRepo.save(t6);
+      for (TournamentMockData data : tournamentDataList) {
+        Tournament t = new Tournament();
+        t.setName(data.name());
+        t.setDescription(data.description());
+        t.setStartDate(LocalDate.parse(data.start()));
+        t.setEndDate(LocalDate.parse(data.end()));
+        t.setRegistrationDeadline(LocalDateTime.parse(data.deadline()));
+        t.setCapacity(data.capacity());
+        t.setStatus(data.status());
+        t.setWinner(teamMap.get(data.winnerTeamName));
+
+        // Remplissage des teams inscrites (Set<Team>)
+        Set<Team> registered = new HashSet<>();
+        for (int i = 0; i < data.teamCount() && i < poolOfTeams.size(); i++) {
+          registered.add(poolOfTeams.get(i));
+        }
+
+        // On force la présence du gagnant dans les inscrits
+        if (data.winnerTeamName() != null) {
+          Team winner = teamMap.get(data.winnerTeamName());
+          if (winner != null) {
+            registered.add(winner);
+          }
+        }
+
+        t.setTeams(registered);
+        tournamentRepo.save(t);
+      }
+
     };
   }
 
