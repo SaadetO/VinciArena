@@ -16,7 +16,11 @@ import dayjs from 'dayjs';
 import { useTournamentModal } from '../../hooks/useTournamentModal';
 import { useTournament } from '../../hooks/useTournaments';
 
-const defaultReg = dayjs().add(1, 'week');
+const defaultReg = dayjs()
+  .add(1, 'week')
+  .set('hour', 20)
+  .set('minute', 0)
+  .set('second', 0);
 const defaultStart = defaultReg.add(3, 'day');
 const defaultEnd = defaultStart.add(14, 'day');
 
@@ -26,7 +30,7 @@ const initialFormData: TournamentFormData = {
   startDate: defaultStart.format('YYYY-MM-DD'),
   endDate: defaultEnd.format('YYYY-MM-DD'),
   registrationDeadline: defaultReg.format('YYYY-MM-DDTHH:mm:ss'),
-  capacity: 2,
+  capacity: 16,
 };
 
 export const TournamentModal = () => {
