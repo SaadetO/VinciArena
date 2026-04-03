@@ -56,8 +56,6 @@ export const AdminManagementModal = ({
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollTop, setCanScrollTop] = useState(false);
   const [canScrollBottom, setCanScrollBottom] = useState(false);
-  const usersRef = useRef(users);
-  usersRef.current = users;
 
   const handleScroll = useCallback(() => {
     if (!scrollRef.current) return;
@@ -73,7 +71,7 @@ export const AdminManagementModal = ({
   }, [open, handleScroll, authenticatedUser?.token, getAll]);
 
   useLayoutEffect(() => {
-    let result = usersRef.current;
+    let result = users;
 
     if (filter === 'members') {
       result = result.filter((user) => !user.admin);
@@ -91,7 +89,7 @@ export const AdminManagementModal = ({
     }
 
     setDisplayedUserIds(result.map((u) => u.id));
-  }, [searchQuery, filter, filterVersion, users.length]);
+  }, [searchQuery, filter, filterVersion, users]);
 
   const filteredUsers = useMemo(() => {
     return displayedUserIds
@@ -119,6 +117,7 @@ export const AdminManagementModal = ({
         tag,
         onConfirm: async (close) => {
           await banMember(id);
+          window.location.reload();
           close();
         },
       }),
