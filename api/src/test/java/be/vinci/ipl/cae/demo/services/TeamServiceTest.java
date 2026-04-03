@@ -324,6 +324,55 @@ class TeamServiceTest {
   }
 
   @Test
+  void hasOtherManagerThanManager1WithUnexistingManager2() {
+    // Arrange
+    Team team = new Team();
+    team.setIdTeam(1L);
+    team.setName("Team 1");
+    team.setIsActive(true);
+    creator.setTeam(team);
+    team.setManager1(creator);
+
+    team.setMembers(List.of(creator));
+
+    // Act
+    boolean result = teamService.hasOtherManager(team, creator);
+
+    // Assert
+    assertAll(
+        () -> assertNull(team.getManager2()),
+        () -> assertFalse(result)
+    );
+  }
+
+  @Test
+  void hasOtherManagerThanManager2WithExistingManager1() {
+    // Arrange
+    Team team = new Team();
+    team.setIdTeam(1L);
+    team.setName("Team 1");
+    team.setIsActive(true);
+    creator.setTeam(team);
+    team.setManager1(creator);
+
+    Member manager2 = new Member();
+    manager2.setIdMember(2L);
+    manager2.setTeam(team);
+    team.setManager2(manager2);
+
+    team.setMembers(List.of(creator, manager2));
+
+    // Act
+    boolean result = teamService.hasOtherManager(team, manager2);
+
+    // Assert
+    assertAll(
+        () -> assertNotNull(team.getManager1()),
+        () -> assertTrue(result)
+    );
+  }
+
+  @Test
   void quitTeamWithMemberWithNoTeam() {
     // Arrange
 
@@ -474,6 +523,214 @@ class TeamServiceTest {
     );
   }
 
+  @Test
+  void resignManagerOfUnexistingTeam() {
+    // Arrange
+    long unexistingTeamId = 404L;
+    when(teamRepository.findById(unexistingTeamId)).thenReturn(Optional.empty());
+
+    // Assert
+    assertThrows(
+        ResponseStatusException.class,
+        () -> teamService.resignManager(unexistingTeamId, creator, null)
+    );
+  }
+
+  @Test
+  void resignManagerAsMemberWhoIsNotManagerOfTheTeam() {
+    // Arrange
+    Team team = new Team();
+    team.setIdTeam(1L);
+
+    Member manager1 = new Member();
+    manager1.setIdMember(2L);
+    manager1.setTeam(team);
+    team.setManager1(manager1);
+
+    creator.setTeam(team);
+
+    team.setMembers(List.of(manager1, creator));
+
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+
+    // Assert
+    assertThrows(
+        ResponseStatusException.class,
+        () -> teamService.resignManager(1L, creator, null)
+    );
+  }
+
+  @Test
+  void resignManagerWithReplacementMemberUnexisting() {
+    // Arrange
+    Team team = new Team();
+    team.setIdTeam(1L);
+    creator.setTeam(team);
+    team.setManager1(creator);
+
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+
+    // Assert
+    assertThrows(
+        ResponseStatusException.class,
+        () -> teamService.resignManager(1L, creator, 404L)
+    );
+  }
+
+  @Test
+  void resignManagerWithReplacementMemberBelongingToNoTeam() {
+    // Arrange
+    Team team = new Team();
+    team.setIdTeam(1L);
+    creator.setTeam(team);
+    team.setManager1(creator);
+
+    Member lonely = new Member();
+    lonely.setIdMember(2L);
+
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+
+    // Assert
+    assertThrows(
+        ResponseStatusException.class,
+        () -> teamService.resignManager(1L, creator, 2L)
+    );
+  }
+
+  @Test
+  void resignManagerWithReplacementMemberBelongingToADifferentTeam() {
+    // Arrange
+    Team team = new Team();
+    team.setIdTeam(1L);
+    creator.setTeam(team);
+    team.setManager1(creator);
+
+    Team anotherTeam = new Team();
+    team.setIdTeam(2L);
+
+    Member memberOfAnotherTeam = new Member();
+    memberOfAnotherTeam.setIdMember(2L);
+    memberOfAnotherTeam.setTeam(anotherTeam);
+    anotherTeam.setManager1(memberOfAnotherTeam);
+
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+
+    // Assert
+    assertThrows(
+        ResponseStatusException.class,
+        () -> teamService.resignManager(1L, creator, 2L)
+    );
+
+  }
+
+  @Test
+  void resignManagerWithReplacementMemberWhoIsAlreadyManagerOfTheTeam() {
+    // Arrange
+    Team team = new Team();
+    team.setIdTeam(1L);
+    creator.setTeam(team);
+    team.setManager1(creator);
+
+    Member manager2 = new Member();
+    manager2.setIdMember(2L);
+    manager2.setTeam(team);
+    team.setManager2(manager2);
+
+    team.setMembers(List.of(creator, manager2));
+
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+
+    // Assert
+    assertThrows(
+        ResponseStatusException.class,
+        () -> teamService.resignManager(1L, creator, 2L)
+    );
+  }
+
+  @Test
+  void resignManagerAsManager1WithReplacementMember() {
+    // Arrange
+    Team team = new Team();
+    team.setIdTeam(1L);
+    creator.setTeam(team);
+    team.setManager1(creator);
+
+    Member replacement = new Member();
+    replacement.setIdMember(2L);
+    replacement.setTeam(team);
+
+    when(memberRepository.findById(2L)).thenReturn(Optional.of(replacement));
+
+    team.setMembers(List.of(creator, replacement));
+
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+    when(teamRepository.save(team)).thenReturn(team);
+
+    // Act
+    Team result = teamService.resignManager(1L, creator, 2L);
+
+    // Assert
+    assertEquals(replacement, result.getManager1());
+  }
+
+  @Test
+  void resignManagerAsManager2WithReplacementMember() {
+    // Arrange
+    Team team = new Team();
+    team.setIdTeam(1L);
+    creator.setTeam(team);
+    team.setManager2(creator);
+
+    Member manager1 = new Member();
+    manager1.setIdMember(3L);
+    manager1.setTeam(team);
+    team.setManager1(manager1);
+
+    Member replacement = new Member();
+    replacement.setIdMember(2L);
+    replacement.setTeam(team);
+
+    when(memberRepository.findById(2L)).thenReturn(Optional.of(replacement));
+
+    team.setMembers(List.of(manager1, creator, replacement));
+
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+    when(teamRepository.save(team)).thenReturn(team);
+
+    // Act
+    Team result = teamService.resignManager(1L, creator, 2L);
+
+    // Assert
+    assertEquals(replacement, result.getManager2());
+  }
+
+  @Test
+  void resignManagerAsManager2WithNoReplacement() {
+    // Arrange
+    Team team = new Team();
+    team.setIdTeam(1L);
+    creator.setTeam(team);
+    team.setManager1(creator);
+
+    Member manager2 = new Member();
+    manager2.setIdMember(2L);
+    manager2.setTeam(team);
+    team.setManager2(manager2);
+
+    team.setMembers(List.of(creator, manager2));
+
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+    when(teamRepository.save(team)).thenReturn(team);
+
+    // Act
+    Team result = teamService.resignManager(1L, manager2, null);
+
+    // Assert
+    assertAll(
+        () -> assertNull(team.getManager2()),
+        () -> assertEquals(team, result)
+    );
+  }
 
   @Test
   void resignManagerWithOtherManager() {
