@@ -4,6 +4,7 @@ import { MainContext } from './types';
 import { Box } from '@mui/material';
 import { NotificationProvider } from './contexts/NotificationContext';
 import { TournamentModalProvider } from './contexts/TournamentModalContext';
+import { TournamentModal } from './modals/TournamentModal';
 
 export const App = () => {
   const mainContext: MainContext = {};
@@ -23,6 +24,7 @@ export const App = () => {
         >
           <Outlet context={mainContext} />
         </Box>
+        <TournamentModal />
       </TournamentModalProvider>
     </NotificationProvider>
   );

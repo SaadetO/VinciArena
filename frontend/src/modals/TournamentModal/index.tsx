@@ -1,6 +1,5 @@
 import {
   Button,
-  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -57,22 +56,22 @@ export const TournamentModal = () => {
 
   const isLoading = isCreating || isUpdating;
 
+  const handleExited = () => {
+    setFormData(initialFormData);
+    setValue(0);
+    setError(undefined);
+  };
+
   useEffect(() => {
-    if (isOpen) {
-      if (tournamentToEdit) {
-        setFormData({
-          name: tournamentToEdit.name,
-          description: tournamentToEdit.description,
-          startDate: tournamentToEdit.startDate,
-          endDate: tournamentToEdit.endDate,
-          registrationDeadline: tournamentToEdit.registrationDeadline,
-          capacity: tournamentToEdit.capacity,
-        });
-      } else {
-        setFormData(initialFormData);
-      }
-      setValue(0);
-      setError(undefined);
+    if (isOpen && tournamentToEdit) {
+      setFormData({
+        name: tournamentToEdit.name,
+        description: tournamentToEdit.description,
+        startDate: tournamentToEdit.startDate,
+        endDate: tournamentToEdit.endDate,
+        registrationDeadline: tournamentToEdit.registrationDeadline,
+        capacity: tournamentToEdit.capacity,
+      });
     }
   }, [isOpen, tournamentToEdit]);
 
@@ -178,7 +177,12 @@ export const TournamentModal = () => {
   };
 
   return (
-    <Dialog open={isOpen} onClose={closeModal} fullWidth>
+    <Dialog
+      open={isOpen}
+      onClose={closeModal}
+      fullWidth
+      slotProps={{ transition: { onExited: handleExited } }}
+    >
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -244,10 +248,7 @@ export const TournamentModal = () => {
             onClick={handleSubmit}
             variant="contained"
             fullWidth
-            disabled={isLoading}
-            startIcon={
-              isLoading ? <CircularProgress size={20} color="inherit" /> : null
-            }
+            loading={isLoading}
           >
             {getConfirmLabel()}
           </Button>

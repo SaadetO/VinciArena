@@ -6,7 +6,6 @@ import {
   useMemo,
 } from 'react';
 import { TournamentDetailsInfoDto } from '../types';
-import { TournamentModal } from '../modals/TournamentModal';
 
 interface TournamentModalContextType {
   isOpen: boolean;
@@ -81,7 +80,6 @@ const TournamentModalProvider = ({ children }: { children: ReactNode }) => {
   return (
     <TournamentModalContext.Provider value={value}>
       {children}
-      <TournamentModal />
     </TournamentModalContext.Provider>
   );
 };
