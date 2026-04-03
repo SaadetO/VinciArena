@@ -67,7 +67,13 @@ export const TournamentItem = ({ tournament }: TournamentItemProps) => {
           startDate={tournament.startDate}
           endDate={tournament.endDate}
         />
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          textOverflow="ellipsis"
+          noWrap
+          maxWidth="50%"
+        >
           {tournament.description}
         </Typography>
         <Stack color="text.secondary" alignItems="flex-end" flex={1}>
