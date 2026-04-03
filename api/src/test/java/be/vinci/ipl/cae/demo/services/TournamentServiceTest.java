@@ -115,8 +115,6 @@ class TournamentServiceTest {
     tournament.setIdTournament(1L);
     tournament.setStatus(TournamentStatus.IN_PREPARATION);
 
-    when(tournamentRepository.findById(1L)).thenReturn(Optional.of(tournament));
-
     // Act
     Tournament result = tournamentService.updateTournament(
         1L, newTournament, nonAdminMember
