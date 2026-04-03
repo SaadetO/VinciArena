@@ -170,6 +170,26 @@ public class TeamService {
   }
 
   /**
+   * Check if the team has another manager than the one given in parameter.
+   *
+   * @param team the given team
+   * @param member one of or the only manager of the team
+   * @return true if the team has another manager than the given member, false otherwise.
+   */
+  public boolean hasOtherManager(Team team, Member member) {
+    boolean result = false;
+
+    if (isManager1(team, member)) {
+      result = team.getManager2() != null;
+    }
+    if (isManager2(team, member)) {
+      result = team.getManager1() != null;
+    }
+
+    return result;
+  }
+
+  /**
    * Get all active teams.
    *
    * @return an iterable containing all active teams
@@ -303,11 +323,9 @@ public class TeamService {
     }
 
     boolean isManager1 = isManager1(team, currentMember);
-    boolean isManager2 = isManager2(team, currentMember);
+    // boolean isManager2 = isManager2(team, currentMember);
 
-    boolean hasOtherManager =
-        (isManager1 && team.getManager2() != null)
-            || (isManager2 && team.getManager1() != null);
+    boolean hasOtherManager = hasOtherManager(team, currentMember);
 
     if (!hasOtherManager && replacementId == null) {
       throw new ResponseStatusException(HttpStatus.CONFLICT,
@@ -336,6 +354,9 @@ public class TeamService {
       }
 
     } else {
+      // Normally, a team's manager1 should never be null if the team is active.
+      // (manager2 takes manager1 place, and manager2 is set to null)
+      // See attribute "manager1" in Team model
       if (isManager1) {
         team.setManager1(null);
       } else {
