@@ -74,6 +74,7 @@ export const AdminManagementModal = ({
 
   useLayoutEffect(() => {
     let result = usersRef.current;
+    result = result.filter((user) => !user.deleted);
 
     if (filter === 'members') {
       result = result.filter((user) => !user.admin);
@@ -91,7 +92,7 @@ export const AdminManagementModal = ({
     }
 
     setDisplayedUserIds(result.map((u) => u.id));
-  }, [searchQuery, filter, filterVersion, users.length]);
+  }, [searchQuery, filter, filterVersion, users]);
 
   const filteredUsers = useMemo(() => {
     return displayedUserIds
