@@ -35,6 +35,7 @@ const AUTH_USER: UserContextType = {
   clearUser: vi.fn(),
   isLoggingIn: false,
   isRegistering: false,
+  setAuthenticatedUser: vi.fn(),
 };
 
 const mockSnackbarContext = {
