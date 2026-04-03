@@ -66,8 +66,9 @@ export const useTournament = (config: UseTournamentOptions) => {
         config.onError?.(err);
         showSnackbar({
           message:
-            err.message ||
-            'Une erreur est survenue lors de la récupération des tournois !',
+            err instanceof ApiError
+              ? err.message
+              : 'Une erreur est survenue lors de la récupération des tournois !',
           severity: 'error',
         });
       },
@@ -93,7 +94,8 @@ export const useTournament = (config: UseTournamentOptions) => {
         const status = err instanceof ApiError ? err.status : 500;
         setError?.({
           code: status,
-          message: err.message || 'Une erreur est survenue',
+          message:
+            err instanceof ApiError ? err.message : 'Une erreur est survenue',
           subtitle:
             status === 404
               ? "Le tournoi que vous cherchez n'existe pas ou a été supprimé."
@@ -115,11 +117,7 @@ export const useTournament = (config: UseTournamentOptions) => {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new ApiError(
-          errorData.message || 'Échec de la création',
-          response.status,
-        );
+        throw new ApiError('Échec de la création du tournoi', response.status);
       }
       return response.json();
     },
@@ -133,19 +131,11 @@ export const useTournament = (config: UseTournamentOptions) => {
       },
       onError: (err) => {
         onError?.(err);
-        const status = err instanceof ApiError ? err.status : 500;
-
-        setError?.({
-          code: status,
-          message: err.message || 'Une erreur est survenue',
-          subtitle:
-            status === 409
-              ? 'Ce nom de tournoi est déjà pris. Choisis-en un autre pour continuer.'
-              : 'Une erreur est survenue lors de la création du tournoi.',
-        });
-
         showSnackbar({
-          message: err.message || 'Erreur lors de la création',
+          message:
+            err instanceof ApiError
+              ? err.message
+              : 'Une erreur est survenue lors de la création du tournoi',
           severity: 'error',
         });
       },
@@ -164,11 +154,7 @@ export const useTournament = (config: UseTournamentOptions) => {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new ApiError(
-          errorData.message || 'Échec de la mise à jour',
-          response.status,
-        );
+        throw new ApiError('Échec de la mise à jour', response.status);
       }
 
       return response.json();
@@ -180,15 +166,11 @@ export const useTournament = (config: UseTournamentOptions) => {
       },
       onError: (err) => {
         onError?.(err);
-        const status = err instanceof ApiError ? err.status : 500;
-        setError?.({
-          code: status,
-          message: err.message || 'Une erreur est survenue',
-          subtitle:
-            'Une erreur est survenue lors de la mise au jour du tournoi.',
-        });
         showSnackbar({
-          message: err.message || 'Erreur lors de la mise à jour',
+          message:
+            err instanceof ApiError
+              ? err.message
+              : 'Une erreur est survenue lors de la mise à jour du tournoi',
           severity: 'error',
         });
       },
@@ -205,9 +187,8 @@ export const useTournament = (config: UseTournamentOptions) => {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
         throw new ApiError(
-          errorData.message || 'Impossible de publier le tournoi',
+          'Échec de la publication du tournoi',
           response.status,
         );
       }
@@ -215,23 +196,35 @@ export const useTournament = (config: UseTournamentOptions) => {
       return response.json();
     },
     {
-      // update current tournament with the new info
+      onOptimism: () => {
+        setTournament?.((prev) => {
+          if (!prev) return prev;
+          return { ...prev, status: 'REGISTRATION_OPEN' };
+        });
+      },
       onSuccess: (data) => {
         setTournament?.((prev) => {
           if (!prev) return data;
           return { ...prev, ...data };
         });
+        showSnackbar({
+          message: 'Tournoi publié avec succès',
+          severity: 'success',
+        });
+      },
+      onRollback: () => {
+        setTournament?.((prev) => {
+          if (!prev) return prev;
+          return { ...prev, status: 'IN_PREPARATION' };
+        });
       },
       onError: (err) => {
-        const status = err instanceof ApiError ? err.status : 500;
-        console.error('API Error logic:', err);
-        setError?.({
-          code: status,
-          message: 'Erreur de publication',
-          subtitle:
-            status === 409
-              ? 'Le tournoi ne peut pas être publié dans son état actuel.'
-              : 'Une erreur est survenue lors de la publication.',
+        showSnackbar({
+          message:
+            err instanceof ApiError
+              ? err.message
+              : 'Une erreur est survenue lors de la publication du tournoi',
+          severity: 'error',
         });
       },
     },

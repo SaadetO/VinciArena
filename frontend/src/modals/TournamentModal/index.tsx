@@ -93,23 +93,23 @@ export const TournamentModal = () => {
       if (!formData.registrationDeadline)
         missing.push("date limite d'inscription");
       if (formData.capacity <= 0) missing.push('capacité');
+    }
 
-      if (missing.length > 0) {
-        const joined = missing.join(', ');
-        return `Veuillez remplir le${missing.length > 1 ? 's' : ''} champ${missing.length > 1 ? 's' : ''} suivant${missing.length > 1 ? 's' : ''} : ${joined}.`;
-      }
+    if (missing.length > 0) {
+      const joined = missing.join(', ');
+      return `Veuillez remplir le${missing.length > 1 ? 's' : ''} champ${missing.length > 1 ? 's' : ''} suivant${missing.length > 1 ? 's' : ''} : ${joined}.`;
+    }
 
-      // Value-based validation
+    // Specific value checks for tab 1
+    if (tab === 1) {
       const now = dayjs();
       const regDate = dayjs(formData.registrationDeadline);
-
       if (regDate.isBefore(now)) {
         return "La date limite d'inscription ne peut pas être dans le passé.";
       }
     }
 
-    if (missing.length === 0) return undefined;
-    return ''; // Should not happen given logic above
+    return undefined;
   };
 
   const isEdit = !!tournamentToEdit;

@@ -10,6 +10,8 @@ import { NotFoundPage } from '../NotFoundPage';
 import { AdminActionCard } from './components/AdminActionCard';
 
 import { useTournamentModal } from '../../hooks/useTournamentModal';
+import { useModal } from '../../hooks/useModal';
+import { publishTournamentModal } from '../../modals/publishTournamentModal';
 
 export const TournamentPage = () => {
   const { id } = useParams();
@@ -22,6 +24,7 @@ export const TournamentPage = () => {
   >(undefined);
   const { authenticatedUser } = useContext(UserContext);
   const { openEditModal } = useTournamentModal();
+  const { openModal } = useModal();
 
   const { getById, publish, isGettingTournamentById } = useTournament({
     setTournament,
@@ -32,8 +35,12 @@ export const TournamentPage = () => {
     if (!idNbr) return;
 
     if (status === 'IN_PREPARATION') {
-      // call patch
-      await publish(idNbr);
+      openModal(
+        publishTournamentModal((close) => {
+          publish(idNbr);
+          close();
+        }),
+      );
     } else if (status === 'REGISTRATION_CLOSED') {
       // TODO
       console.log('Generating matches...');
