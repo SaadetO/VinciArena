@@ -24,7 +24,7 @@ interface UseTeamsOptions {
 
 export const useTeams = (options?: UseTeamsOptions) => {
   const { setUser, setError, setTeam, setTeams } = options ?? {};
-  const { authenticatedUser } = useContext(UserContext);
+  const { authenticatedUser, setAuthenticatedUser } = useContext(UserContext);
   const { showSnackbar } = useSnackbar();
   const { setError: setErrorModal } = useModalController();
 
@@ -131,6 +131,12 @@ export const useTeams = (options?: UseTeamsOptions) => {
           hasOtherManager: false,
         };
         setUser?.((prev) => (prev ? { ...prev, team } : prev));
+        if (data.idTeam && authenticatedUser) {
+          setAuthenticatedUser?.({
+            ...authenticatedUser,
+            managedTeamId: data.idTeam,
+          });
+        }
         showSnackbar({
           message: 'Team créée avec succès !',
           severity: 'success',

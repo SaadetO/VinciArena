@@ -5,6 +5,7 @@ interface MainContext {}
 
 interface UserContextType {
   authenticatedUser: MaybeAuthenticatedUser;
+  setAuthenticatedUser: (user: MaybeAuthenticatedUser) => void;
   register: (
     newUser: User,
     navigate: (path: string) => void,

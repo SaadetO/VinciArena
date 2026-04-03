@@ -23,6 +23,7 @@ const defaultUserContext: UserContextType = {
   clearUser: () => {},
   isLoggingIn: false,
   isRegistering: false,
+  setAuthenticatedUser: () => {},
 };
 
 const UserContext = createContext<UserContextType>(defaultUserContext);
@@ -151,13 +152,22 @@ const UserContextProvider = ({ children }: { children: ReactNode }) => {
   const myContext: UserContextType = useMemo(
     () => ({
       authenticatedUser,
+      setAuthenticatedUser,
       register,
       login,
       clearUser,
       isLoggingIn,
       isRegistering,
     }),
-    [authenticatedUser, register, login, clearUser, isLoggingIn, isRegistering],
+    [
+      authenticatedUser,
+      setAuthenticatedUser,
+      register,
+      login,
+      clearUser,
+      isLoggingIn,
+      isRegistering,
+    ],
   );
 
   return (
