@@ -26,10 +26,12 @@ export const TournamentPage = () => {
   const { openEditModal } = useTournamentModal();
   const { openModal } = useModal();
 
-  const { getById, publish, register, isGettingTournamentById } = useTournament({
-    setTournament,
-    setError,
-  });
+  const { getById, publish, register, isGettingTournamentById } = useTournament(
+    {
+      setTournament,
+      setError,
+    },
+  );
 
   const handleAdminAction = async (status: string) => {
     if (!idNbr) return;

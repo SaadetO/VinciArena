@@ -241,13 +241,16 @@ export const useTournament = (config: UseTournamentOptions) => {
 
       if (!response.ok) {
         if (response.status === 400)
-          throw new ApiError("Équipe inactive ou insuffisante.", response.status);
+          throw new ApiError(
+            'Équipe inactive ou insuffisante.',
+            response.status,
+          );
         else if (response.status === 403)
-          throw new ApiError("Droits de manager requis.", response.status);
+          throw new ApiError('Droits de manager requis.', response.status);
         else if (response.status === 404)
-          throw new ApiError("Tournoi introuvable.", response.status);
+          throw new ApiError('Tournoi introuvable.', response.status);
         else if (response.status === 409)
-          throw new ApiError("Déjà inscrit.", response.status);
+          throw new ApiError('Déjà inscrit.', response.status);
         throw new ApiError("Échec de l'inscription.", response.status);
       }
 
@@ -266,7 +269,7 @@ export const useTournament = (config: UseTournamentOptions) => {
 
         const message =
           status === 400
-            ? "Votre équipe ne contient pas assez de membres (4 minimum)"
+            ? 'Votre équipe ne contient pas assez de membres (4 minimum)'
             : status === 403
               ? "Seul un responsable d'équipe peut inscrire son équipe."
               : status === 404
