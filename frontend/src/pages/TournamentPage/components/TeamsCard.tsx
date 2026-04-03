@@ -2,6 +2,8 @@ import { Button, Chip, Skeleton, Stack, Typography } from '@mui/material';
 import { TeamSummaryDto } from '../../../types';
 import { Link } from 'react-router-dom';
 import { useMemo } from 'react';
+import { useModal } from '../../../hooks/useModal';
+import { registrationManagementModal } from '../modals/registrationManagementModal';
 
 export const TeamsCard = ({
   teams,
@@ -14,17 +16,28 @@ export const TeamsCard = ({
   status?: string;
   managedTeamId?: number;
 }) => {
+  const { openModal } = useModal();
+
   const isUserTeamRegistered = useMemo(() => {
     if (!managedTeamId || !teams) return false;
     return teams.some((t) => t.idTeam === managedTeamId);
   }, [managedTeamId, teams]);
 
-  const onRegister = () => {
-    console.log('register');
-  };
+  const onAction = (register: boolean) => {
+    const onRegister = (close: () => void) => {
 
-  const onUnregister = () => {
-    console.log('unregister');
+      close();
+    };
+    const onUnregister = (close: () => void) => {
+      console.log('unregister');
+      close();
+    };
+    openModal(
+      registrationManagementModal({
+        onConfirm: register ? onRegister : onUnregister,
+        register,
+      }),
+    );
   };
 
   return (
@@ -57,7 +70,7 @@ export const TeamsCard = ({
                 variant="contained"
                 color="secondary"
                 sx={{ my: '-0.25rem' }}
-                onClick={isUserTeamRegistered ? onUnregister : onRegister}
+                onClick={() => onAction(!isUserTeamRegistered)}
               >
                 {isUserTeamRegistered ? 'Se retirer' : "S'inscrire"}
               </Button>
