@@ -14,6 +14,7 @@ import be.vinci.ipl.cae.demo.exceptions.NotManagerException;
 import be.vinci.ipl.cae.demo.exceptions.RegistrationClosedException;
 import be.vinci.ipl.cae.demo.exceptions.TournamentNotFoundException;
 import be.vinci.ipl.cae.demo.models.dtos.NewTournament;
+import be.vinci.ipl.cae.demo.models.dtos.TournamentDetailsDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.models.entities.Tournament;
@@ -208,12 +209,13 @@ class TournamentServiceTest {
     // Arrange
     when(tournamentRepository.findById(100L)).thenReturn(Optional.of(tournament));
     when(teamService.isManager(team, manager)).thenReturn(true);
+    when(matchRepository.findByTournamentIdTournamentOrderByDateHourAsc(100L)).thenReturn(java.util.List.of());
 
     // Act
-    boolean result = tournamentService.registerTeam(100L, manager);
+    TournamentDetailsDto result = tournamentService.registerTeam(100L, manager);
 
     // Assert
-    assertTrue(result);
+    assertNotNull(result);
     assertTrue(tournament.getTeams().contains(team));
     assertTrue(team.getTournaments().contains(tournament));
     verify(tournamentRepository).save(tournament);
