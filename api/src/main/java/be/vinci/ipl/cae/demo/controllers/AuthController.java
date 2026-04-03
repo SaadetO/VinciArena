@@ -60,14 +60,9 @@ public class AuthController {
         || newMember.getEmail().isBlank()
         || newMember.getPassword() == null
         || newMember.getPassword().isBlank()) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email ou mot de passe manquant");
     }
-
-    Member member = memberService.register(newMember);
-
-    if (member == null) {
-      throw new ResponseStatusException(HttpStatus.CONFLICT);
-    }
+    memberService.register(newMember);
   }
 
   /**
@@ -80,19 +75,13 @@ public class AuthController {
   public AuthenticatedUser login(@RequestBody Credentials credentials) {
 
     if (isInvalidCredentials(credentials)) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email ou mot de passe manquant");
     }
 
-    AuthenticatedUser user = memberService.login(
+    return memberService.login(
         credentials.getEmail(),
         credentials.getPassword()
     );
-
-    if (user == null) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-    }
-
-    return user;
   }
 
   /**
@@ -105,29 +94,23 @@ public class AuthController {
   public AuthenticatedUser getMe(@RequestHeader("Authorization") String authorization) {
 
     if (authorization == null || !authorization.startsWith("Bearer ")) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Identifiants invalides");
     }
 
     String token = authorization.substring(7);
     String email = memberService.verifyJwtToken(token);
 
     if (email == null) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Identifiants invalides");
     }
 
     Member member = memberService.readOneFromEmail(email);
 
     if (member == null) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Identifiants invalides");
     }
 
-    AuthenticatedUser user = new AuthenticatedUser();
-    user.setId(member.getIdMember());
-    user.setEmail(member.getEmail());
-    user.setTag(member.getTag());
-    user.setToken(token);
-
-    return user;
+    return memberService.toAuthenticatedUser(member, token);
   }
 
   /**
@@ -140,7 +123,7 @@ public class AuthController {
   public AuthenticatedUser relog(@AuthenticationPrincipal Member currentMember) {
 
     if (currentMember == null) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Identifiants invalides");
     }
 
     return memberService.createJwtToken(currentMember.getEmail());

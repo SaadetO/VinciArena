@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -54,13 +55,7 @@ public class TeamController {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
     }
 
-    Team createdTeam = teamService.createTeam(newTeam.getName(), currentMember);
-
-    if (createdTeam == null) {
-      throw new ResponseStatusException(HttpStatus.CONFLICT);
-    }
-
-    return createdTeam;
+    return teamService.createTeam(newTeam.getName(), currentMember);
   }
 
   /**
@@ -83,11 +78,7 @@ public class TeamController {
   @GetMapping("/{id}/details")
   public TeamDetailsDto getTeamDetails(@PathVariable Long id,
       @AuthenticationPrincipal Member currentMember) {
-    TeamDetailsDto teamDetails = teamService.getTeamDetails(id, currentMember);
-    if (teamDetails == null) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-    }
-    return teamDetails;
+    return teamService.getTeamDetails(id, currentMember);
   }
 
   /**
@@ -102,27 +93,25 @@ public class TeamController {
   @PreAuthorize("isAuthenticated()")
   public Team designateSecondManager(@PathVariable Long id, @PathVariable Long idMember,
       @AuthenticationPrincipal Member currentMember) {
-    Team updatedTeam = teamService.designateSecondManager(id, idMember, currentMember);
-
-    if (updatedTeam == null) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-          "Team/Member not found, unauthorized, or no manager spots left");
-    }
-
-    return updatedTeam;
+    return teamService.designateSecondManager(id, idMember, currentMember);
   }
 
   /**
-   * Quit the current team.
+   * Allow a manager to resign from their role, optionally designating a replacement.
    *
-   * @param currentMember the authenticated member
+   * @param id             the team ID
+   * @param replacementId  the ID of the replacement member (optional)
+   * @param currentMember  the authenticated member
+   * @return the updated team
    */
-  @PostMapping("/quit")
+  @PutMapping("/{id}/resign")
   @PreAuthorize("isAuthenticated()")
-  public void quitTeam(@AuthenticationPrincipal Member currentMember) {
-    Team team = teamService.quitTeam(currentMember);
-    if (team == null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member is not in a team");
-    }
+  public Team resignManager(
+      @PathVariable Long id,
+      @RequestParam(required = false) Long replacementId,
+      @AuthenticationPrincipal Member currentMember) {
+
+    return teamService.resignManager(id, currentMember, replacementId);
   }
+
 }

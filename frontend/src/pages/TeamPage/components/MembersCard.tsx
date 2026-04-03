@@ -1,15 +1,14 @@
-import { useContext } from 'react';
+import { useContext, memo } from 'react';
 import { TeamDetailsInfoDto } from '../../../types';
 import { UserContext } from '../../../contexts/UserContext';
 import { Avatar, Chip, Skeleton, Stack, Typography } from '@mui/material';
 import { Link } from 'react-router-dom';
 
 interface MembersCardProps {
-  isLoading: boolean;
-  team: TeamDetailsInfoDto | undefined;
+  team?: TeamDetailsInfoDto;
 }
 
-export const MembersCard = ({ team, isLoading }: MembersCardProps) => {
+export const MembersCard = memo(({ team }: MembersCardProps) => {
   const { authenticatedUser } = useContext(UserContext);
 
   return (
@@ -17,25 +16,43 @@ export const MembersCard = ({ team, isLoading }: MembersCardProps) => {
       <Stack
         sx={{ background: (theme) => theme.palette.background.s1 }}
         padding="1.25rem 1rem 1rem"
-        borderRadius="0.5rem"
-        spacing="1rem"
+        borderRadius="1.5rem"
+        spacing="1.25rem"
       >
         <Typography variant="h4">Membres</Typography>
-        <Stack spacing="0.75rem" direction="row" flexWrap="wrap">
-          {isLoading ? (
-            <Stack direction="row" spacing="0.75rem" alignItems="center">
-              <Skeleton variant="circular" width="2rem" height="2rem" />
-              <Skeleton width="8rem" />
-            </Stack>
-          ) : team ? (
+        <Stack gap="0.75rem" direction="row" flexWrap="wrap">
+          {!team ? (
+            <>
+              {Array.from({ length: 4 })?.map((_, index) => (
+                <Stack
+                  key={index}
+                  direction="row"
+                  gap="0.5rem"
+                  alignItems="center"
+                  height="2.75rem"
+                  padding="0 1rem 0 0.75rem"
+                  sx={{
+                    background: (theme) => theme.palette.background.s2,
+                  }}
+                  borderRadius="0.75rem"
+                >
+                  <Skeleton variant="circular" width="1.5rem" height="1.5rem" />
+                  <Skeleton
+                    variant="text"
+                    width={`${4 + (index % 3) * 1.5}rem`}
+                    height={22}
+                  />
+                </Stack>
+              ))}
+            </>
+          ) : team.members ? (
             team.members.map((member) => (
               <Chip
                 sx={{
                   cursor: 'pointer',
-                  '&hover': {
+                  '&:hover': {
                     background: (theme) => theme.palette.background.s4,
                   },
-                  textTransform: 'none',
                 }}
                 key={member.id}
                 component={Link}
@@ -49,7 +66,7 @@ export const MembersCard = ({ team, isLoading }: MembersCardProps) => {
             ))
           ) : (
             <Stack
-              padding="rem 1.5rem"
+              padding="1rem 1.5rem"
               spacing="0.25rem"
               alignItems="center"
               width="100%"
@@ -71,4 +88,4 @@ export const MembersCard = ({ team, isLoading }: MembersCardProps) => {
       </Stack>
     </>
   );
-};
+});

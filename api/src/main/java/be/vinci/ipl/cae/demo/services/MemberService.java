@@ -1,22 +1,29 @@
 package be.vinci.ipl.cae.demo.services;
 
 import be.vinci.ipl.cae.demo.models.dtos.AuthenticatedUser;
+import be.vinci.ipl.cae.demo.models.dtos.MemberSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.NewMember;
 import be.vinci.ipl.cae.demo.models.dtos.ProfileDto;
+import be.vinci.ipl.cae.demo.models.dtos.UserSummaryDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.ProfileImage;
+import be.vinci.ipl.cae.demo.models.entities.Specialty;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.ProfileImageRepository;
 import be.vinci.ipl.cae.demo.repositories.SpecialtyRepository;
+import be.vinci.ipl.cae.demo.repositories.TeamRepository;
 import be.vinci.ipl.cae.demo.repositories.UnavailabilityRepository;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import jakarta.transaction.Transactional;
 import java.util.Date;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 /**
  * Service handling authentication and registration for members.
@@ -34,6 +41,7 @@ public class MemberService {
   private final UnavailabilityRepository unavailabilityRepository;
   private final SpecialtyRepository specialtyRepository;
   private final ProfileImageRepository profileImageRepository;
+  private final TeamRepository teamRepository;
 
   /**
    * Constructor.
@@ -41,16 +49,39 @@ public class MemberService {
    * @param passwordEncoder          the password encoder
    * @param memberRepository         the member repository
    * @param unavailabilityRepository the unavailability repository
+   * @param specialtyRepository      the specialty repository
+   * @param profileImageRepository   the profile image repository
    */
-  public MemberService(BCryptPasswordEncoder passwordEncoder,
-      MemberRepository memberRepository,
-      UnavailabilityRepository unavailabilityRepository, SpecialtyRepository specialityRepository,
-      ProfileImageRepository profileImageRepository) {
+  public MemberService(BCryptPasswordEncoder passwordEncoder, MemberRepository memberRepository,
+      UnavailabilityRepository unavailabilityRepository, SpecialtyRepository specialtyRepository,
+      ProfileImageRepository profileImageRepository, TeamRepository teamRepository) {
     this.passwordEncoder = passwordEncoder;
     this.memberRepository = memberRepository;
     this.unavailabilityRepository = unavailabilityRepository;
-    this.specialtyRepository = specialityRepository;
+    this.specialtyRepository = specialtyRepository;
     this.profileImageRepository = profileImageRepository;
+    this.teamRepository = teamRepository;
+  }
+
+  /**
+   * Create an AuthenticatedUser based on a member and a token.
+   *
+   * @param member the member
+   * @param token  the token
+   * @return the authenticated user
+   */
+  public AuthenticatedUser toAuthenticatedUser(Member member, String token) {
+    AuthenticatedUser authenticatedUser = new AuthenticatedUser();
+    authenticatedUser.setId(member.getIdMember());
+    authenticatedUser.setEmail(member.getEmail());
+    authenticatedUser.setTag(member.getTag());
+    authenticatedUser.setToken(token);
+    authenticatedUser.setAdmin(member.isAdmin());
+
+    teamRepository.findFirstByManager1OrManager2(member, member)
+        .ifPresent(team -> authenticatedUser.setManagedTeamId(team.getIdTeam()));
+
+    return authenticatedUser;
   }
 
   /**
@@ -68,15 +99,8 @@ public class MemberService {
         .withExpiresAt(new Date(System.currentTimeMillis() + lifetimeJwt))
         .sign(algorithm);
 
-    AuthenticatedUser authenticatedUser = new AuthenticatedUser();
     Member member = memberRepository.findByEmail(email);
-    authenticatedUser.setId(member.getIdMember());
-    authenticatedUser.setEmail(email);
-    authenticatedUser.setTag(member.getTag());
-    authenticatedUser.setToken(token);
-    authenticatedUser.setAdmin(member.isAdmin());
-
-    return authenticatedUser;
+    return toAuthenticatedUser(member, token);
   }
 
   /**
@@ -109,14 +133,55 @@ public class MemberService {
     Member member = memberRepository.findByEmail(email);
 
     if (member == null) {
-      return null;
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Identifiants invalides");
+    }
+
+    if (member.isDeleted()) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Compte banni");
     }
 
     if (!passwordEncoder.matches(password, member.getPassword())) {
-      return null;
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Identifiants invalides");
     }
 
     return createJwtToken(email);
+  }
+
+  private void validatePassword(String password) {
+    if (password == null || password.length() < 8) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST,
+          "Le mot de passe doit contenir au moins 8 caractères"
+      );
+    }
+
+    if (!password.matches(".*[A-Z].*")) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST,
+          "Le mot de passe doit contenir au moins une majuscule"
+      );
+    }
+
+    if (!password.matches(".*[a-z].*")) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST,
+          "Le mot de passe doit contenir au moins une minuscule"
+      );
+    }
+
+    if (!password.matches(".*\\d.*")) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST,
+          "Le mot de passe doit contenir au moins un chiffre"
+      );
+    }
+
+    if (!password.matches(".*[^a-zA-Z0-9].*")) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST,
+          "Le mot de passe doit contenir au moins un caractère spécial"
+      );
+    }
   }
 
   /**
@@ -127,8 +192,10 @@ public class MemberService {
    */
   public Member register(NewMember newMember) {
 
+    validatePassword(newMember.getPassword());
+
     if (memberRepository.existsByEmail(newMember.getEmail())) {
-      return null;
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "Email déjà utilisé");
     }
 
     Member member = new Member();
@@ -188,6 +255,27 @@ public class MemberService {
   }
 
   /**
+   * Update a member's profile image.
+   *
+   * @param member      the member
+   * @param specialtyId the new profile image
+   * @return true if updated, false if the image is invalid
+   */
+  public boolean updateSpecialty(Member member, Long specialtyId) {
+    if (specialtyId == null || specialtyId <= 0) {
+      return false;
+    }
+    Specialty existingSpecialty =
+        specialtyRepository.getByIdSpecialty(specialtyId);
+    if (existingSpecialty == null) {
+      return false;
+    }
+    member.setSpecialty(existingSpecialty);
+    memberRepository.save(member);
+    return true;
+  }
+
+  /**
    * Get member profile DTO with privacy rules.
    *
    * @param requestedId        the requested member ID
@@ -222,14 +310,19 @@ public class MemberService {
 
     Team team = requestedMember.getTeam();
     if (team != null) {
-      boolean isManager =
-          (team.getManager1() != null && team.getManager1().getIdMember().equals(requestedId))
-              || (team.getManager2() != null && team.getManager2().getIdMember()
-              .equals(requestedId));
+      boolean isManager1 = team.getManager1()
+          != null && team.getManager1().getIdMember().equals(requestedId);
+      boolean isManager2 = team.getManager2()
+          != null && team.getManager2().getIdMember().equals(requestedId);
+      boolean hasOtherManager =
+          (isManager1 && team.getManager2() != null) || (isManager2 && team.getManager1() != null);
+
       builder.team(ProfileDto.TeamDto.builder()
           .id(team.getIdTeam())
           .name(team.getName())
-          .isManager(isManager)
+          .isManager(isManager1 || isManager2)
+          .membersCount(team.getMembers().size())
+          .hasOtherManager(hasOtherManager)
           .build());
     }
 
@@ -253,6 +346,23 @@ public class MemberService {
   }
 
   /**
+   * Get member summary DTO for lists.
+   *
+   * @param member the member entity
+   * @return the user summary DTO
+   */
+  public UserSummaryDto getUserSummary(Member member) {
+    if (member == null) {
+      return null;
+    }
+    return UserSummaryDto.builder()
+        .id(member.getIdMember())
+        .tag(member.getTag())
+        .avatar(member.getProfileImage() != null ? member.getProfileImage().getPath() : null)
+        .build();
+  }
+
+  /**
    * Toggles the isAdmin property of a member.
    *
    * @param idMember id of the target member
@@ -268,7 +378,73 @@ public class MemberService {
     return true;
   }
 
-  public Member[] getAllMembers() {
-    return memberRepository.findAllByIsDeleted(false);
+  public Iterable<Member> getAllMembers() {
+    return memberRepository.findAll();
+  }
+
+  /**
+   * Get all members as lightweight summaries (no sensitive data).
+   *
+   * @return array of MemberSummaryDto
+   */
+  public MemberSummaryDto[] getAllMemberSummaries() {
+    Member[] members = memberRepository.findAllByIsDeletedOrderByTagAsc(false);
+    MemberSummaryDto[] summaries = new MemberSummaryDto[members.length];
+    for (int i = 0; i < members.length; i++) {
+      Member m = members[i];
+      summaries[i] = MemberSummaryDto.builder()
+          .id(m.getIdMember())
+          .tag(m.getTag())
+          .specialty(m.getSpecialty() != null ? m.getSpecialty().getName() : null)
+          .avatar(m.getProfileImage() != null ? m.getProfileImage().getPath() : null)
+          .build();
+    }
+    return summaries;
+  }
+
+  /**
+   * Ban a member from the platform (soft delete).
+   *
+   * @param id             the ID of the member to ban
+   * @param requesterEmail the email of the authenticated user
+   * @throws ResponseStatusException if the user is not authenticated, not admin, or if the
+   *                                 operation is invalid
+   */
+  @Transactional
+  public void banMember(Long id, String requesterEmail) {
+    Member requester = memberRepository.findByEmail(requesterEmail);
+
+    if (requester == null) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+          "Utilisateur non authentifié");
+    }
+
+    if (!requester.isAdmin()) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+          "Accès réservé aux admins");
+    }
+
+    Member member = memberRepository.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            "Membre introuvable"));
+
+    if (member.isAdmin()) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+          "Impossible de bannir un admin");
+    }
+
+    if (member.isDeleted()) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+          "Membre déjà banni");
+    }
+
+    if (member.getIdMember().equals(requester.getIdMember())) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+          "Tu ne peux pas te bannir toi-même");
+    }
+
+    member.setDeleted(true);
+    member.setTeam(null);
+    memberRepository.save(member);
   }
 }

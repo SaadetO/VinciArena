@@ -4,8 +4,8 @@ import './index.css';
 
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { App } from './App.tsx';
-import { HomePage } from './pages/HomePage.tsx';
-import { RegisterPage } from './pages/RegisterPage.tsx';
+import { HomePage } from './pages/HomePage/index.tsx';
+import { RegisterPage } from './pages/RegisterPage/index.tsx';
 import { LoginPage } from './pages/LoginPage.tsx';
 import { UserContextProvider } from './contexts/UserContext.tsx';
 import '@fontsource/roboto/700.css';
@@ -15,6 +15,12 @@ import { theme } from './themes.tsx';
 import { ProfilePage } from './pages/ProfilePage/index.tsx';
 import { NotificationsPage } from './pages/NotificationsPage.tsx';
 import { TeamPage } from './pages/TeamPage/index.tsx';
+import { ModalContextProvider } from './contexts/ModalContext.tsx';
+import { SnackbarProvider } from './contexts/SnackbarContext.tsx';
+import { TournamentPage } from './pages/TournamentPage/index.tsx';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import 'dayjs/locale/fr';
 
 const router = createBrowserRouter([
   {
@@ -29,10 +35,6 @@ const router = createBrowserRouter([
         path: 'teams',
         children: [
           {
-            path: '',
-            element: 'teams',
-          },
-          {
             path: ':id',
             element: <TeamPage />,
           },
@@ -46,6 +48,7 @@ const router = createBrowserRouter([
         path: 'notifications',
         element: <NotificationsPage></NotificationsPage>,
       },
+      { path: 'tournaments/:id', element: <TournamentPage /> },
     ],
   },
   {
@@ -65,11 +68,17 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <ThemeProvider theme={theme}>
-      <CssBaseline /> {/* Global CSS reset from Material-UI */}
-      <UserContextProvider>
-        <RouterProvider router={router} />
-      </UserContextProvider>
-    </ThemeProvider>
+    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="fr">
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <SnackbarProvider>
+          <ModalContextProvider>
+            <UserContextProvider>
+              <RouterProvider router={router} />
+            </UserContextProvider>
+          </ModalContextProvider>
+        </SnackbarProvider>
+      </ThemeProvider>
+    </LocalizationProvider>
   </React.StrictMode>,
 );

@@ -1,12 +1,21 @@
+/* eslint-disable no-unused-vars */
+import { ReactNode } from 'react';
+
 interface MainContext {}
 
 interface UserContextType {
   authenticatedUser: MaybeAuthenticatedUser;
-  registerUser: (newUser: User) => Promise<void>;
-  loginUser: (user: User) => Promise<void>;
+  setAuthenticatedUser: (user: MaybeAuthenticatedUser) => void;
+  register: (
+    newUser: User,
+    navigate: (path: string) => void,
+  ) => Promise<void | null>;
+  login: (user: User, navigate: (path: string) => void) => Promise<void | null>;
   clearUser: () => void;
+  isLoggingIn: boolean;
+  isRegistering: boolean;
 }
-interface ProfileImage {
+interface ProfilePicture {
   idImage: number;
   path: string;
 }
@@ -18,12 +27,24 @@ interface User {
 }
 
 interface Member {
+  deleted: boolean;
   id: number;
   tag: string;
   email: string;
   admin: boolean;
-  specialty: string;
-  avatar: string;
+  specialty: Specialty;
+  profileImage: ProfilePicture;
+}
+
+interface Specialty {
+  idSpecialty: number;
+  label: string;
+}
+
+interface Unavailability {
+  id: number;
+  startDate: string;
+  endDate: string;
 }
 
 interface ProfileInfoDto {
@@ -38,7 +59,9 @@ interface ProfileInfoDto {
   team: {
     id: number;
     name: string;
-    isManager: boolean; // Calculated based on if Member is manager1 or manager2 in Team
+    manager: boolean; // Calculated based on if Member is manager1 or manager2 in Team
+    membersCount: number;
+    hasOtherManager: boolean;
   } | null; // User might not have a team yet
   unavailabilities:
     | {
@@ -53,7 +76,21 @@ interface AuthenticatedUser {
   id: number;
   admin: boolean;
   tag: string;
+  managedTeamId?: number;
   token: string;
+}
+
+interface UserSummaryDto {
+  id: number;
+  tag: string;
+  avatar: string | null;
+}
+
+interface MemberSummaryDto {
+  id: number;
+  tag: string;
+  specialty: string | null;
+  avatar: string | null;
 }
 
 interface Team {
@@ -68,23 +105,31 @@ interface JoinRequestDto {
   teamName: string;
   status: 'PENDING' | 'ACCEPTED' | 'REJECTED';
   expirationDate: string;
-  requester: ProfileInfoDto;
+  requester: UserSummaryDto;
+  rejectionReason?: string;
 }
 
 interface TeamDetailsInfoDto {
   idTeam: number;
   name: string;
   isActive: boolean;
-  managers: ProfileInfoDto[];
-  members: ProfileInfoDto[];
+  managers: UserSummaryDto[];
+  members: UserSummaryDto[];
   joinRequests: JoinRequestDto[] | null;
 }
 
+export enum NotificationType {
+  TEAM = 'TEAM',
+  MATCH = 'MATCH',
+  TOURNAMENT = 'TOURNAMENT',
+}
 interface NotificationDto {
   idNotification: number;
   content: string;
   isRead: boolean;
   dateTime: Date;
+  type: NotificationType;
+  idReference: number | null;
 }
 
 interface StoredUser {
@@ -96,7 +141,117 @@ interface SpecialtyDto {
   label: string;
 }
 
-type MaybeAuthenticatedUser = AuthenticatedUser | undefined;
+type MaybeAuthenticatedUser = AuthenticatedUser | undefined | null;
+
+interface ModalConfig {
+  title: string;
+  subtitle?: string;
+  children?: ReactNode;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  confirmColor?:
+    | 'inherit'
+    | 'primary'
+    | 'secondary'
+    | 'success'
+    | 'error'
+    | 'info'
+    | 'warning';
+  confirmDisabled?: boolean;
+  onConfirm?: (close: () => void) => void;
+  onCancel?: (close: () => void) => void;
+}
+
+interface RegisterFormData {
+  email: string;
+  password: string;
+  confirmPassword: string;
+  tag: string;
+  specialtyId: number | null;
+  profileImageId: number | null;
+}
+interface TournamentDto {
+  idTournament: number;
+  name: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  registrationDeadline: string;
+  status: TournamentStatus;
+  capacity: number;
+  registrationsCount: number;
+}
+
+type TournamentStatus =
+  | 'IN_PREPARATION'
+  | 'REGISTRATION_OPEN'
+  | 'REGISTRATION_CLOSED'
+  | 'PLANNED'
+  | 'IN_PROGRESS'
+  | 'DONE'
+  | 'CANCELLED';
+
+interface MatchTeamDto {
+  idTeam: number;
+  name: string;
+  score: number | null;
+  isWinner: boolean;
+  hasForfeited: boolean;
+}
+
+interface MatchSummaryDto {
+  idMatch: number;
+  dateHour: string;
+  turn: number;
+  status:
+    | 'IN_PREPARATION'
+    | 'REGISTRATION_OPEN'
+    | 'REGISTRATION_CLOSED'
+    | 'PLANNED'
+    | 'IN_PROGRESS'
+    | 'DONE';
+  teams: Team[];
+  isConfirmed: boolean;
+  team1: MatchTeamDto;
+  team2: MatchTeamDto;
+}
+
+interface TournamentDetailsInfoDto {
+  idTournament: number;
+  name: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  status: TournamentStatus;
+  capacity: number;
+  registrationsCount: number;
+  teams: TeamSummaryDto[];
+  matches: MatchSummaryDto[];
+  registrationDeadline: string;
+}
+
+interface TournamentFormData {
+  name: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  registrationDeadline: string;
+  capacity: number;
+}
+
+interface TeamSummaryDto {
+  idTeam: number;
+  name: string;
+}
+
+export class ApiError extends Error {
+  status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.status = status;
+    this.name = 'ApiError';
+  }
+}
 
 export type {
   MainContext,
@@ -106,11 +261,23 @@ export type {
   UserContextType,
   ProfileInfoDto,
   Team,
+  Unavailability,
   JoinRequestDto,
   TeamDetailsInfoDto,
   NotificationDto,
   StoredUser,
   Member,
+  MemberSummaryDto,
   SpecialtyDto,
-  ProfileImage,
+  ProfilePicture,
+  ModalConfig,
+  RegisterFormData,
+  UserSummaryDto,
+  TournamentDto,
+  MatchTeamDto,
+  MatchSummaryDto,
+  TournamentDetailsInfoDto,
+  TeamSummaryDto,
+  TournamentStatus,
+  TournamentFormData,
 };

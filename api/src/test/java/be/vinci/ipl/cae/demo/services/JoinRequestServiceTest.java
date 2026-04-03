@@ -13,6 +13,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import be.vinci.ipl.cae.demo.models.dtos.JoinRequestDto;
 import be.vinci.ipl.cae.demo.models.entities.JoinRequest;
 import be.vinci.ipl.cae.demo.models.entities.Member;
+import be.vinci.ipl.cae.demo.models.entities.NotificationType;
 import be.vinci.ipl.cae.demo.models.entities.RequestStatus;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.repositories.JoinRequestRepository;
@@ -25,6 +26,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.server.ResponseStatusException;
 
 @ExtendWith(MockitoExtension.class)
 class JoinRequestServiceTest {
@@ -78,17 +80,20 @@ class JoinRequestServiceTest {
     assertEquals(2L, result.getIdTeam());
     assertEquals("Team Name", result.getTeamName());
     verify(joinRequestRepository).save(any(JoinRequest.class));
-    verify(notificationService).notifyTeamManagers(any(Team.class), anyString());
+
+    // verify with type and reference
+    verify(notificationService).notifyTeamManagers(eq(team), anyString(), eq(NotificationType.TEAM),
+        eq(team.getIdTeam()));
   }
 
   @Test
   void createJoinRequest_TeamNotFound() {
     when(teamRepository.findById(2L)).thenReturn(Optional.empty());
 
-    IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+    ResponseStatusException exception = assertThrows(ResponseStatusException.class,
         () -> joinRequestService.createJoinRequest(2L, requester));
 
-    assertEquals("L'équipe demandée n'existe pas", exception.getMessage());
+    assertEquals("L'équipe demandée n'existe pas", exception.getReason());
     verify(joinRequestRepository, never()).save(any(JoinRequest.class));
   }
 
@@ -100,10 +105,10 @@ class JoinRequestServiceTest {
 
     when(teamRepository.findById(2L)).thenReturn(Optional.of(team));
 
-    IllegalStateException exception = assertThrows(IllegalStateException.class,
+    ResponseStatusException exception = assertThrows(ResponseStatusException.class,
         () -> joinRequestService.createJoinRequest(2L, requester));
 
-    assertEquals("Vous appartenez déjà à une équipe", exception.getMessage());
+    assertEquals("Vous appartenez déjà à une équipe", exception.getReason());
     verify(joinRequestRepository, never()).save(any(JoinRequest.class));
   }
 
@@ -114,10 +119,10 @@ class JoinRequestServiceTest {
         RequestStatus.PENDING))
         .thenReturn(true);
 
-    IllegalStateException exception = assertThrows(IllegalStateException.class,
+    ResponseStatusException exception = assertThrows(ResponseStatusException.class,
         () -> joinRequestService.createJoinRequest(2L, requester));
 
-    assertEquals("Vous avez déjà une demande en attente pour cette équipe", exception.getMessage());
+    assertEquals("Vous avez déjà une demande en attente pour cette équipe", exception.getReason());
     verify(joinRequestRepository, never()).save(any(JoinRequest.class));
   }
 
@@ -140,7 +145,8 @@ class JoinRequestServiceTest {
     when(joinRequestRepository.findById(100L)).thenReturn(Optional.of(jr));
 
     // Act
-    JoinRequestDto result = joinRequestService.updateJoinRequestStatus(100L, RequestStatus.ACCEPTED, manager);
+    JoinRequestDto result = joinRequestService.updateJoinRequestStatus(100L, RequestStatus.ACCEPTED,
+        null, manager);
 
     // Assert
     assertNotNull(result);
@@ -148,7 +154,11 @@ class JoinRequestServiceTest {
     assertEquals(teamA, requester.getTeam());
     verify(joinRequestRepository).save(jr);
     verify(memberRepository).save(requester);
-    verify(notificationService).notifyMember(eq(requester.getIdMember()), anyString());
+
+    // verify with type and reference
+    verify(notificationService).notifyMember(eq(requester.getIdMember()), anyString(),
+        eq(NotificationType.TEAM), eq(null));
+
     verify(joinRequestRepository).deleteAllByMemberAndStatus(requester, RequestStatus.PENDING);
   }
 
@@ -171,13 +181,18 @@ class JoinRequestServiceTest {
     when(joinRequestRepository.findById(100L)).thenReturn(Optional.of(jr));
 
     // Act
-    JoinRequestDto result = joinRequestService.updateJoinRequestStatus(100L, RequestStatus.REJECTED, manager);
+    JoinRequestDto result = joinRequestService.updateJoinRequestStatus(100L, RequestStatus.REJECTED,
+        "Pas de place", manager);
 
     // Assert
     assertNotNull(result);
     assertEquals(RequestStatus.REJECTED, result.getStatus());
     verify(joinRequestRepository).save(jr);
-    verify(notificationService).notifyMember(eq(requester.getIdMember()), anyString());
+
+    // verify with type and reference
+    verify(notificationService).notifyMember(eq(requester.getIdMember()), anyString(),
+        eq(NotificationType.TEAM), eq(null));
+
     verify(memberRepository, never()).save(any(Member.class));
     verify(joinRequestRepository, never()).deleteAllByMemberAndStatus(any(), any());
   }
@@ -201,7 +216,34 @@ class JoinRequestServiceTest {
     when(joinRequestRepository.findById(100L)).thenReturn(Optional.of(jr));
 
     // Act & Assert
-    assertThrows(IllegalStateException.class, 
-        () -> joinRequestService.updateJoinRequestStatus(100L, RequestStatus.ACCEPTED, intruder));
+    assertThrows(ResponseStatusException.class,
+        () -> joinRequestService.updateJoinRequestStatus(100L, RequestStatus.ACCEPTED, null,
+            intruder));
+  }
+
+  @Test
+  void updateJoinRequestStatus_RejectedWithoutReason_ShouldFail() {
+    // Arrange
+    Team teamA = new Team();
+    teamA.setIdTeam(1L);
+
+    Member manager = new Member();
+    manager.setIdMember(10L);
+    teamA.setManager1(manager);
+
+    JoinRequest jr = new JoinRequest();
+    jr.setStatus(RequestStatus.PENDING);
+    jr.setRequestedTeam(teamA);
+
+    when(joinRequestRepository.findById(100L)).thenReturn(Optional.of(jr));
+
+    // Act & Assert
+    assertThrows(ResponseStatusException.class,
+        () -> joinRequestService.updateJoinRequestStatus(
+            100L,
+            RequestStatus.REJECTED,
+            null,
+            manager
+        ));
   }
 }
