@@ -1,6 +1,6 @@
-import { Chip, Typography } from '@mui/material';
+import { Chip, Tooltip, Typography } from '@mui/material';
 import { getFormattedDate } from '../../../utils/tournamentUtils';
-import { CalendarToday } from '@mui/icons-material';
+import { DateRange } from '@mui/icons-material';
 
 interface TournamentDateProps {
   startDate: string;
@@ -22,11 +22,13 @@ export const TournamentDate = ({
   }
 
   return (
-    <Chip
-      size="medium"
-      variant="text"
-      icon={<CalendarToday />}
-      label={getFormattedDate(startDate, endDate)}
-    />
+    <Tooltip title="Date de début et de fin du tournoi" arrow>
+      <Chip
+        size="medium"
+        variant="text"
+        icon={<DateRange />}
+        label={getFormattedDate(startDate, endDate)}
+      />
+    </Tooltip>
   );
 };

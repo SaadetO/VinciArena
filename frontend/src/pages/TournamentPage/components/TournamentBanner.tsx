@@ -1,8 +1,10 @@
-import { Skeleton, Stack, Typography } from '@mui/material';
+import { Chip, Skeleton, Stack, Tooltip, Typography } from '@mui/material';
 import { TournamentDetailsInfoDto } from '../../../types';
 import tournamentHeroHeader from '../../../assets/images/tournament_hero_header.jpg';
 import { TournamentStatusChip } from '../../../components/TournamentItem/components/TournamentStatusChip';
 import { TournamentDate } from '../../../components/TournamentItem/components/TournamentDate';
+import { EventBusy } from '@mui/icons-material';
+import { formatDate } from '../../../utils/date';
 
 export const TournamentBanner = ({
   tournament,
@@ -33,6 +35,14 @@ export const TournamentBanner = ({
         {tournament ? (
           <>
             <TournamentStatusChip status={tournament.status} />
+            <Tooltip title="Date limite d'inscription" arrow>
+              <Chip
+                size="medium"
+                variant="text"
+                icon={<EventBusy />}
+                label={formatDate(tournament.registrationDeadline, false)}
+              />
+            </Tooltip>
             <TournamentDate
               startDate={tournament.startDate}
               endDate={tournament.endDate}
