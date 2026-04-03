@@ -73,6 +73,7 @@ public class DemoApplication {
                             boolean isAdmin, boolean isManager, String teamName) {
 
       }
+
       record TeamMockData(String name) {
 
       }
