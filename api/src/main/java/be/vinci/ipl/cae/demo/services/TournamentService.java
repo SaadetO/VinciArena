@@ -328,6 +328,10 @@ public class TournamentService {
       return null;
     }
 
+    if (tournament.getStatus() != TournamentStatus.IN_PREPARATION) {
+      return null;
+    }
+
     if (newTournament.name() != null) {
       tournament.setName(newTournament.name());
     }
