@@ -240,11 +240,15 @@ export const useTournament = (config: UseTournamentOptions) => {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-        throw new ApiError(
-          errorData?.message || "Échec de l'inscription au tournoi",
-          response.status
-        );
+        if (response.status === 400)
+          throw new ApiError("Équipe inactive ou insuffisante.", response.status);
+        else if (response.status === 403)
+          throw new ApiError("Droits de manager requis.", response.status);
+        else if (response.status === 404)
+          throw new ApiError("Tournoi introuvable.", response.status);
+        else if (response.status === 409)
+          throw new ApiError("Déjà inscrit.", response.status);
+        throw new ApiError("Échec de l'inscription.", response.status);
       }
 
       return await response.json();
@@ -258,15 +262,25 @@ export const useTournament = (config: UseTournamentOptions) => {
         });
       },
       onError: (err) => {
+        const status = err instanceof ApiError ? err.status : 500;
+
+        const message =
+          status === 400
+            ? "Votre équipe ne contient pas assez de membres (4 minimum)"
+            : status === 403
+              ? "Seul un responsable d'équipe peut inscrire son équipe."
+              : status === 404
+                ? "Ce tournoi n'existe pas ou a été supprimé."
+                : status === 409
+                  ? 'Votre équipe est déjà inscrite à ce tournoi.'
+                  : "Une erreur est survenue lors de l'inscription.";
+
         showSnackbar({
-          message:
-            err instanceof ApiError
-              ? err.message
-              : "Une erreur est survenue lors de l'inscription.",
+          message,
           severity: 'error',
         });
       },
-    }
+    },
   );
 
   return {
