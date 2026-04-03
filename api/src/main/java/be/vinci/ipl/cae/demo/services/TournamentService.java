@@ -418,13 +418,19 @@ public class TournamentService {
    * @param currentMember the member requesting to register the team
    */
   @Transactional
-  public boolean registerTeam(Long idTournament, Member currentMember) {
-    Team team = currentMember.getTeam();
+  public TournamentDetailsDto registerTeam(Long idTournament, Member currentMember) {
+    // Reload member within the transactional session to avoid LazyInitializationException
+    Member member = memberRepository.findById(currentMember.getIdMember()).orElse(null);
+    if (member == null) {
+      throw new InactiveTeamException("User not found");
+    }
+
+    Team team = member.getTeam();
     if (team == null || !team.getIsActive()) {
       throw new InactiveTeamException("User is not in an active team");
     }
 
-    if (!teamService.isManager(team, currentMember)) {
+    if (!teamService.isManager(team, member)) {
       throw new NotManagerException("Only a team manager can register the team");
     }
 
@@ -444,6 +450,6 @@ public class TournamentService {
     }
 
     tournamentRepository.save(tournament);
-    return true;
+    return getTournamentDetails(idTournament);
   }
 }

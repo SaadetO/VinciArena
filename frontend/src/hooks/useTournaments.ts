@@ -230,12 +230,69 @@ export const useTournament = (config: UseTournamentOptions) => {
     },
   );
 
+  const { execute: register } = useApi(
+    async (id: number) => {
+      const response = await fetch(`/api/tournaments/${id}/register`, {
+        method: 'POST',
+        headers: {
+          Authorization: authenticatedUser?.token ?? '',
+        },
+      });
+
+      if (!response.ok) {
+        if (response.status === 400)
+          throw new ApiError(
+            'Équipe inactive ou insuffisante.',
+            response.status,
+          );
+        else if (response.status === 403)
+          throw new ApiError('Droits de manager requis.', response.status);
+        else if (response.status === 404)
+          throw new ApiError('Tournoi introuvable.', response.status);
+        else if (response.status === 409)
+          throw new ApiError('Déjà inscrit.', response.status);
+        throw new ApiError("Échec de l'inscription.", response.status);
+      }
+
+      return await response.json();
+    },
+    {
+      onSuccess: (data) => {
+        setTournament?.(data);
+        showSnackbar({
+          message: 'Votre équipe a été inscrite avec succès !',
+          severity: 'success',
+        });
+      },
+      onError: (err) => {
+        const status = err instanceof ApiError ? err.status : 500;
+
+        const message =
+          status === 400
+            ? 'Votre équipe ne contient pas assez de membres (4 minimum)'
+            : status === 403
+              ? "Seul un responsable d'équipe peut inscrire son équipe."
+              : status === 404
+                ? "Ce tournoi n'existe pas ou a été supprimé."
+                : status === 409
+                  ? 'Votre équipe est déjà inscrite à ce tournoi.'
+                  : "Une erreur est survenue lors de l'inscription.";
+
+        showSnackbar({
+          message,
+          severity: 'error',
+        });
+      },
+    },
+  );
+
   return {
     getAll,
     getById,
     create,
     update,
     publish,
+    register,
     isGettingTournaments,
     isGettingTournamentById,
   };

@@ -222,10 +222,10 @@ public class TournamentController {
   @PostMapping("/{id}/register")
   @ResponseStatus(HttpStatus.OK)
   @PreAuthorize("isAuthenticated()")
-  public void registerTeamToTournament(
+  public TournamentDetailsDto registerTeamToTournament(
       @PathVariable Long id,
       @AuthenticationPrincipal Member currentMember) {
-    tournamentService.registerTeam(id, currentMember);
+    return tournamentService.registerTeam(id, currentMember);
   }
 
 }
