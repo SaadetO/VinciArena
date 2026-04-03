@@ -135,6 +135,233 @@ class TeamServiceTest {
   }
 
   @Test
+  void designateSecondManagerForAnUnexistingTeam() {
+    // Arrange
+    when(teamRepository.findById(1L)).thenReturn(Optional.empty());
+
+    // Act + Assert
+    assertThrows(
+        ResponseStatusException.class,
+        () -> teamService.designateSecondManager(1L, 2L, creator)
+    );
+  }
+
+  @Test
+  void designateSecondManagerAsNonManagerOfTheTeam() {
+    // Arrange
+    Team team =  new Team();
+    team.setIdTeam(1L);
+
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+
+    // Act + Assert
+    assertThrows(
+        ResponseStatusException.class,
+        () -> teamService.designateSecondManager(1L, 2L, creator)
+    );
+  }
+
+  @Test
+  void designateSecondManagerWithUnexistingDesignatedMember() {
+    // Arrange
+    Team team =  new Team();
+    team.setIdTeam(1L);
+
+    creator.setTeam(team);
+    team.setManager1(creator);
+
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+    when(memberRepository.findById(2L)).thenReturn(Optional.empty());
+
+    // Act + Assert
+    assertThrows(
+        ResponseStatusException.class,
+        () -> teamService.designateSecondManager(1L, 2L, creator)
+    );
+  }
+
+  @Test
+  void designateSecondManagerWithDesignatedMemberBelongingToNoTeam() {
+    // Arrange
+    Team team =  new Team();
+    team.setIdTeam(1L);
+
+    creator.setTeam(team);
+    team.setManager1(creator);
+
+    Member lonely = new Member();
+    lonely.setIdMember(2L);
+    lonely.setTeam(null);
+
+    when(memberRepository.findById(2L)).thenReturn(Optional.of(lonely));
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+
+    // Act + Assert
+    assertThrows(
+        ResponseStatusException.class,
+        () -> teamService.designateSecondManager(1L, 2L, creator)
+    );
+
+  }
+
+  @Test
+  void designateSecondManagerWithDesignatedMemberBelongingToADifferentTeam() {
+    // Arrange
+    Team team =  new Team();
+    team.setIdTeam(1L);
+
+    creator.setTeam(team);
+    team.setManager1(creator);
+
+    Team anotherTeam = new Team();
+    anotherTeam.setIdTeam(2L);
+
+    Member memberOfAnotherTeam =  new Member();
+    memberOfAnotherTeam.setIdMember(2L);
+    memberOfAnotherTeam.setTeam(anotherTeam);
+
+    when(memberRepository.findById(2L)).thenReturn(Optional.of(memberOfAnotherTeam));
+
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+
+    // Arrange + Act
+    assertThrows(
+        ResponseStatusException.class,
+        () -> teamService.designateSecondManager(1L, 2L, creator)
+    );
+
+  }
+
+  @Test
+  void designateSecondManagerWithDesignatedMemberAlreadyManager2OfTheTeam() {
+    // Arrange
+    Team team =  new Team();
+    team.setIdTeam(1L);
+
+    creator.setTeam(team);
+    team.setManager1(creator);
+
+    Member designatedMember = new Member();
+    designatedMember.setIdMember(2L);
+    designatedMember.setTeam(team);
+    team.setManager2(designatedMember);
+
+    when(memberRepository.findById(2L)).thenReturn(Optional.of(designatedMember));
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+
+    // Act
+    Team result = teamService.designateSecondManager(1L, 2L, creator);
+
+    // Assert
+    assertEquals(team, result);
+  }
+
+  @Test
+  void designateSecondManagerWithDesignatedMemberAlreadyManager1OfTheTeam() {
+    // Arrange
+    Team team =  new Team();
+    team.setIdTeam(1L);
+
+    creator.setTeam(team);
+    team.setManager2(creator);
+
+    Member designatedMember = new Member();
+    designatedMember.setIdMember(2L);
+    designatedMember.setTeam(team);
+    team.setManager1(designatedMember);
+
+    when(memberRepository.findById(2L)).thenReturn(Optional.of(designatedMember));
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+
+    // Act
+    Team result = teamService.designateSecondManager(1L, 2L, creator);
+  }
+
+  @Test
+  void designateSecondManagerWithManager1SpotLeftInTheTeam() {
+    // Arrange
+    Team team =  new Team();
+    team.setIdTeam(1L);
+
+    creator.setTeam(team);
+    team.setManager2(creator);
+    team.setManager1(null);
+
+    Member designatedMember = new Member();
+    designatedMember.setIdMember(2L);
+    designatedMember.setTeam(team);
+    when(memberRepository.findById(2L)).thenReturn(Optional.of(designatedMember));
+
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+    when(teamRepository.save(team)).thenReturn(team);
+
+    // Act
+    Team result = teamService.designateSecondManager(1L, 2L, creator);
+
+    // Assert
+    assertAll(
+        () -> assertEquals(designatedMember, team.getManager1()),
+        () -> assertEquals(team, result)
+    );
+  }
+
+  @Test
+  void designateSecondManagerWithManager2SpotLeftInTheTeam() {
+    // Arrange
+    Team team =  new Team();
+    team.setIdTeam(1L);
+
+    creator.setTeam(team);
+    team.setManager1(creator);
+    team.setManager2(null);
+
+    Member designatedMember = new Member();
+    designatedMember.setIdMember(2L);
+    designatedMember.setTeam(team);
+    when(memberRepository.findById(2L)).thenReturn(Optional.of(designatedMember));
+
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+    when(teamRepository.save(team)).thenReturn(team);
+
+    // Act
+    Team result = teamService.designateSecondManager(1L, 2L, creator);
+
+    // Assert
+    assertAll(
+        () -> assertEquals(designatedMember, team.getManager2()),
+        () -> assertEquals(team, result)
+    );
+  }
+
+  @Test
+  void designateSecondManagerWithNoSpotLeftInTheTeam() {
+    // Arrange
+    Team team =  new Team();
+    team.setIdTeam(1L);
+
+    creator.setTeam(team);
+    team.setManager1(creator);
+
+    Member manager2 = new Member();
+    manager2.setIdMember(2L);
+    manager2.setTeam(team);
+    team.setManager2(manager2);
+
+    Member designatedMember = new Member();
+    designatedMember.setIdMember(3L);
+    designatedMember.setTeam(team);
+
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+    when(memberRepository.findById(3L)).thenReturn(Optional.of(designatedMember));
+
+    // Act + Assert
+    assertThrows(
+        ResponseStatusException.class,
+        () -> teamService.designateSecondManager(1L, 3L, creator)
+    );
+  }
+
+  @Test
   void getTeamDetails_NotFound() {
     when(teamRepository.findById(1L)).thenReturn(Optional.empty());
     assertThrows(ResponseStatusException.class,
@@ -589,6 +816,7 @@ class TeamServiceTest {
     lonely.setIdMember(2L);
 
     when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+    when(memberRepository.findById(2L)).thenReturn(Optional.of(lonely));
 
     // Assert
     assertThrows(
@@ -606,7 +834,7 @@ class TeamServiceTest {
     team.setManager1(creator);
 
     Team anotherTeam = new Team();
-    team.setIdTeam(2L);
+    anotherTeam.setIdTeam(2L);
 
     Member memberOfAnotherTeam = new Member();
     memberOfAnotherTeam.setIdMember(2L);
@@ -614,6 +842,7 @@ class TeamServiceTest {
     anotherTeam.setManager1(memberOfAnotherTeam);
 
     when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+    when(memberRepository.findById(2L)).thenReturn(Optional.of(memberOfAnotherTeam));
 
     // Assert
     assertThrows(
@@ -639,6 +868,7 @@ class TeamServiceTest {
     team.setMembers(List.of(creator, manager2));
 
     when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+    when(memberRepository.findById(2L)).thenReturn(Optional.of(manager2));
 
     // Assert
     assertThrows(
