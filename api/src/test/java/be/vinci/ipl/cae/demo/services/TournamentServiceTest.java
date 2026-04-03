@@ -99,8 +99,6 @@ class TournamentServiceTest {
     team.setManager1(manager);
     manager.setTeam(team);
 
-    when(memberRepository.findById(1L)).thenReturn(Optional.of(manager));
-
     Member m2 = new Member(); m2.setIdMember(2L);
     Member m3 = new Member(); m3.setIdMember(3L);
     Member m4 = new Member(); m4.setIdMember(4L);
@@ -210,6 +208,7 @@ class TournamentServiceTest {
   @Test
   void registerTeamValid() {
     // Arrange
+    when(memberRepository.findById(1L)).thenReturn(Optional.of(manager));
     when(tournamentRepository.findById(100L)).thenReturn(Optional.of(tournament));
     when(teamService.isManager(team, manager)).thenReturn(true);
     when(matchRepository.findByTournamentIdTournamentOrderByDateHourAsc(100L)).thenReturn(java.util.List.of());
@@ -227,6 +226,7 @@ class TournamentServiceTest {
   @Test
   void registerTeamInvalidTournament() {
     // Arrange
+    when(memberRepository.findById(1L)).thenReturn(Optional.of(manager));
     when(teamService.isManager(team, manager)).thenReturn(true);
     when(tournamentRepository.findById(100L)).thenReturn(Optional.empty());
 
@@ -237,6 +237,7 @@ class TournamentServiceTest {
   @Test
   void registerTeamNotActiveTeam() {
     // Arrange
+    when(memberRepository.findById(1L)).thenReturn(Optional.of(manager));
     team.setIsActive(false);
 
     // Act & Assert
@@ -247,6 +248,7 @@ class TournamentServiceTest {
   @Test
   void registerTeamNotManager() {
     // Arrange
+    when(memberRepository.findById(1L)).thenReturn(Optional.of(manager));
     when(teamService.isManager(team, manager)).thenReturn(false);
 
     // Act & Assert
@@ -257,6 +259,7 @@ class TournamentServiceTest {
   @Test
   void registerTeamNotEnoughMembers() {
     // Arrange
+    when(memberRepository.findById(1L)).thenReturn(Optional.of(manager));
     team.setMembers(java.util.List.of(manager, new Member())); // only 2 members
     when(teamService.isManager(team, manager)).thenReturn(true);
 
@@ -268,6 +271,7 @@ class TournamentServiceTest {
   @Test
   void registerTeamAlreadyRegistered() {
     // Arrange
+    when(memberRepository.findById(1L)).thenReturn(Optional.of(manager));
     when(tournamentRepository.findById(100L)).thenReturn(Optional.of(tournament));
     when(teamService.isManager(team, manager)).thenReturn(true);
     team.getTournaments().add(tournament);
@@ -280,6 +284,7 @@ class TournamentServiceTest {
   @Test
   void registerTeamRegistrationClosed() {
     // Arrange
+    when(memberRepository.findById(1L)).thenReturn(Optional.of(manager));
     tournament.setStatus(TournamentStatus.REGISTRATION_CLOSED);
     when(tournamentRepository.findById(100L)).thenReturn(Optional.of(tournament));
     when(teamService.isManager(team, manager)).thenReturn(true);
