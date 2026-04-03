@@ -26,7 +26,7 @@ export const TournamentPage = () => {
   const { openEditModal } = useTournamentModal();
   const { openModal } = useModal();
 
-  const { getById, publish, isGettingTournamentById } = useTournament({
+  const { getById, publish, register, isGettingTournamentById } = useTournament({
     setTournament,
     setError,
   });
@@ -136,6 +136,8 @@ export const TournamentPage = () => {
                   capacity={tournament?.capacity}
                   status={tournament?.status}
                   managedTeamId={authenticatedUser?.managedTeamId}
+                  tournamentId={idNbr}
+                  onRegister={register}
                 />
               </Stack>
             </Grid2>

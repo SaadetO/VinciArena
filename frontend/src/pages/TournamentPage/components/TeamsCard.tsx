@@ -10,11 +10,15 @@ export const TeamsCard = ({
   capacity,
   status,
   managedTeamId,
+  tournamentId,
+  onRegister,
 }: {
   teams?: TeamSummaryDto[];
   capacity?: number;
   status?: string;
   managedTeamId?: number;
+  tournamentId?: number;
+  onRegister?: (id: number) => void;
 }) => {
   const { openModal } = useModal();
 
@@ -24,17 +28,19 @@ export const TeamsCard = ({
   }, [managedTeamId, teams]);
 
   const onAction = (register: boolean) => {
-    const onRegister = (close: () => void) => {
-
+    const handleRegister = (close: () => void) => {
+      if (tournamentId && onRegister) {
+        onRegister(tournamentId);
+      }
       close();
     };
-    const onUnregister = (close: () => void) => {
+    const handleUnregister = (close: () => void) => {
       console.log('unregister');
       close();
     };
     openModal(
       registrationManagementModal({
-        onConfirm: register ? onRegister : onUnregister,
+        onConfirm: register ? handleRegister : handleUnregister,
         register,
       }),
     );
