@@ -573,6 +573,33 @@ class TeamServiceTest {
   }
 
   @Test
+  void hasOtherManagerThanManager1WithExistingManager2() {
+    // Arrange
+    Team team = new Team();
+    team.setIdTeam(1L);
+    team.setName("Team 1");
+    team.setIsActive(true);
+    creator.setTeam(team);
+    team.setManager1(creator);
+
+    Member manager2 = new Member();
+    manager2.setIdMember(2L);
+    manager2.setTeam(team);
+    team.setManager2(manager2);
+
+    team.setMembers(List.of(creator, manager2));
+
+    // Act
+    boolean result = teamService.hasOtherManager(team, creator);
+
+    // Assert
+    assertAll(
+        () -> assertNotNull(team.getManager2()),
+        () -> assertTrue(result)
+    );
+  }
+
+  @Test
   void hasOtherManagerThanManager2WithExistingManager1() {
     // Arrange
     Team team = new Team();
@@ -600,12 +627,33 @@ class TeamServiceTest {
   }
 
   @Test
-  void quitTeamWithMemberWithNoTeam() {
+  void hasOtherManagerThanManager2WithUnexistingManager1() {
     // Arrange
+    Team team = new Team();
+    team.setIdTeam(1L);
+    team.setName("Team 1");
+    team.setIsActive(true);
+
+    Member manager2 = new Member();
+    manager2.setIdMember(2L);
+    manager2.setTeam(team);
+    team.setManager2(manager2);
+
+    team.setMembers(List.of(manager2));
 
     // Act
+    boolean result = teamService.hasOtherManager(team, manager2);
 
     // Assert
+    assertAll(
+        () -> assertNull(team.getManager1()),
+        () -> assertFalse(result)
+    );
+  }
+
+  @Test
+  void quitTeamWithMemberWithNoTeam() {
+    // Act + Assert
     assertThrows(ResponseStatusException.class, () -> teamService.quitTeam(creator));
   }
 
