@@ -275,6 +275,9 @@ class TeamServiceTest {
 
     // Act
     Team result = teamService.designateSecondManager(1L, 2L, creator);
+
+    // Assert
+    assertEquals(team, result);
   }
 
   @Test
