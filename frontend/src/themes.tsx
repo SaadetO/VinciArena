@@ -11,6 +11,12 @@ declare module '@mui/material/styles' {
     s3: string;
     s4: string;
   }
+  interface PaletteColor {
+    secondary?: string;
+  }
+  interface SimplePaletteColorOptions {
+    secondary?: string;
+  }
 }
 
 declare module '@mui/material/Chip' {
@@ -72,6 +78,7 @@ export const theme = createTheme({
     },
     error: {
       main: '#EF7D7D',
+      secondary: '#DF3C3D',
     },
     divider: '#303030',
     background: {
@@ -490,6 +497,13 @@ export const theme = createTheme({
           '& input::placeholder': {
             color: '#8C8C8C',
           },
+        },
+      },
+    },
+    MuiFormHelperText: {
+      styleOverrides: {
+        root: {
+          // margin: '0 1rem',
         },
       },
     },
