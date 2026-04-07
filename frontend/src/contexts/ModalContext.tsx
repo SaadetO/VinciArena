@@ -32,9 +32,11 @@ const ModalContextProvider = ({ children }: { children: ReactNode }) => {
   const [config, setConfig] = useState<ModalConfig | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [confirmDisabled, setConfirmDisabled] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const openModal = useCallback((cfg: ModalConfig) => {
     setConfirmDisabled(cfg.confirmDisabled ?? false);
+    setLoading(cfg.loading ?? false);
     setError(null);
     setConfig(cfg);
     setOpen(true);
@@ -58,9 +60,10 @@ const ModalContextProvider = ({ children }: { children: ReactNode }) => {
   const modalControllerContextValue = useMemo(
     () => ({
       setConfirmDisabled,
+      setLoading,
       setError,
     }),
-    [setConfirmDisabled, setError],
+    [setConfirmDisabled, setError, setLoading],
   );
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -181,6 +184,7 @@ const ModalContextProvider = ({ children }: { children: ReactNode }) => {
                 color={config?.confirmColor ?? 'primary'}
                 type="submit"
                 fullWidth
+                loading={loading}
                 disabled={confirmDisabled}
               >
                 {config?.confirmLabel ?? 'Confirmer'}

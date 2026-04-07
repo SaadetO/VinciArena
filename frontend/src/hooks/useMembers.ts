@@ -120,7 +120,7 @@ export const useMembers = (options?: UseMembersOptions) => {
     },
   );
 
-  const { execute: updatePassword } = useApi(
+  const { execute: updatePassword, loading: isUpdatingPassword } = useApi(
     async (newPassword: string) => {
       const response = await fetch(`/api/members/me/password`, {
         method: 'PATCH',
@@ -157,7 +157,7 @@ export const useMembers = (options?: UseMembersOptions) => {
     },
   );
 
-  const { execute: updateAvatar } = useApi(
+  const { execute: updateAvatar, loading: isUpdatingAvatar } = useApi(
     async (avatar: ProfilePicture, previousAvatar: string) => {
       void previousAvatar;
       const response = await fetch(`/api/members/me/avatar`, {
@@ -205,7 +205,7 @@ export const useMembers = (options?: UseMembersOptions) => {
     },
   );
 
-  const { execute: updateSpecialty } = useApi(
+  const { execute: updateSpecialty, loading: isUpdatingSpecialty } = useApi(
     async (specialty: SpecialtyDto, previousSpecialty: string) => {
       void previousSpecialty;
       const response = await fetch(`/api/members/me/specialty`, {
@@ -253,7 +253,7 @@ export const useMembers = (options?: UseMembersOptions) => {
     },
   );
 
-  const { execute: toggleAdmin } = useApi(
+  const { execute: toggleAdmin, loading: isTogglingAdmin } = useApi(
     async (id: number, wasAdmin: boolean) => {
       void wasAdmin;
       const response = await fetch(`/api/members/${id}/admin`, {
@@ -305,7 +305,7 @@ export const useMembers = (options?: UseMembersOptions) => {
     },
   );
 
-  const { execute: banMember } = useApi(
+  const { execute: banMember, loading: isBanningMember } = useApi(
     async (id: number) => {
       const response = await fetch(`/api/members/${id}/ban`, {
         method: 'PATCH',
@@ -355,9 +355,14 @@ export const useMembers = (options?: UseMembersOptions) => {
     updateAvatar,
     updateSpecialty,
     toggleAdmin,
-    isGettingUsers,
     getAllSummaries,
-    isGettingSummaries,
     banMember,
+    isGettingUsers,
+    isGettingSummaries,
+    isUpdatingPassword,
+    isUpdatingAvatar,
+    isUpdatingSpecialty,
+    isTogglingAdmin,
+    isBanningMember,
   };
 };

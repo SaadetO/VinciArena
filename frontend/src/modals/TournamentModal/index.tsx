@@ -43,12 +43,7 @@ export const TournamentModal = () => {
 
   const [formData, setFormData] = useState<TournamentFormData>(initialFormData);
 
-  const {
-    create,
-    update,
-    isGettingTournaments: isCreating,
-    isGettingTournamentById: isUpdating,
-  } = useTournament({
+  const { create, update, isCreating, isPublishing } = useTournament({
     onSuccess: (t) => {
       onSuccess?.(t);
       closeModal();
@@ -58,7 +53,7 @@ export const TournamentModal = () => {
     },
   });
 
-  const isLoading = isCreating || isUpdating;
+  const isLoading = isCreating || isPublishing || !isOpen;
 
   const handleExited = () => {
     setFormData(initialFormData);
