@@ -23,6 +23,7 @@ import {
 import { UserContext } from '../../../../contexts/UserContext';
 import { useSnackbar } from '../../../../hooks/useSnackbar';
 import { useModal } from '../../../../hooks/useModal';
+import { useModalController } from '../../../../hooks/useModalController';
 import { Member } from '../../../../types';
 import { UserItem } from './components/UserItem';
 import { useMembers } from '../../../../hooks/useMembers';
@@ -40,6 +41,7 @@ export const AdminManagementModal = ({
   const { authenticatedUser } = useContext(UserContext);
   const { showSnackbar } = useSnackbar();
   const { openModal } = useModal();
+  const { setLoading } = useModalController();
 
   const [users, setUsers] = useState<Member[]>([]);
   const [pendingIds, setPendingIds] = useState<number[]>([]);
@@ -116,6 +118,7 @@ export const AdminManagementModal = ({
       banModal({
         tag,
         onConfirm: async (close) => {
+          setLoading(true);
           await banMember(id);
           close();
         },

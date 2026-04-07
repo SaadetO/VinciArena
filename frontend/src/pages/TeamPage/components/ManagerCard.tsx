@@ -11,6 +11,7 @@ import { Link } from 'react-router-dom';
 import { useContext } from 'react';
 import { UserContext } from '../../../contexts/UserContext';
 import { useModal } from '../../../hooks/useModal';
+import { useModalController } from '../../../hooks/useModalController';
 import { managerModal } from '../modals/managerModal';
 import { useTeams } from '../../../hooks/useTeams';
 import { resignManagerModal } from '../modals/resignManagerModal';
@@ -24,6 +25,7 @@ export const ManagerCard = ({
 }) => {
   const { authenticatedUser } = useContext(UserContext);
   const { openModal } = useModal();
+  const { setLoading } = useModalController();
   const { promoteToManager, resignManager } = useTeams({ setTeam });
 
   const handlePromote = () => {
@@ -35,8 +37,8 @@ export const ManagerCard = ({
 
     const onConfirm = async (close: () => void) => {
       if (!selectedManager || !team) return;
+      setLoading(true);
       close();
-
       promoteToManager(team.idTeam, selectedManager);
     };
 
@@ -46,8 +48,9 @@ export const ManagerCard = ({
   const handleResign = async () => {
     const onConfirm = async (close: () => void) => {
       if (!team || team.managers.length < 2) return;
+      setLoading(true);
       close();
-      await resignManager(team.idTeam);
+      resignManager(team.idTeam);
     };
     openModal(resignManagerModal({ onConfirm }));
   };

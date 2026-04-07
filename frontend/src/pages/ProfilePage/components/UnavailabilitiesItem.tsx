@@ -11,6 +11,7 @@ import { memo } from 'react';
 import { ProfileInfoDto } from '../../../types';
 import { UnavailabilityItem } from './UnavailabilityItem';
 import { useModal } from '../../../hooks/useModal';
+import { useModalController } from '../../../hooks/useModalController';
 import { unavailabilitiesModal } from '../modals/unavailabilitiesModal';
 import { useUnavailabilities } from '../../../hooks/useUnavailabilities';
 
@@ -23,6 +24,7 @@ export const UnavailabilitiesItem = memo(
     setUser: React.Dispatch<React.SetStateAction<ProfileInfoDto | undefined>>;
   }) => {
     const { openModal } = useModal();
+    const { setLoading } = useModalController();
     const { addUnavailability } = useUnavailabilities({ setUser });
 
     const handleAddUnavailability = () => {
@@ -36,8 +38,9 @@ export const UnavailabilitiesItem = memo(
       ) => {
         selectedDates = dates;
       };
-      const onConfirm = (close: () => void) => {
+      const onConfirm = async (close: () => void) => {
         if (!selectedDates) return;
+        setLoading(true);
         close();
         addUnavailability(selectedDates);
       };

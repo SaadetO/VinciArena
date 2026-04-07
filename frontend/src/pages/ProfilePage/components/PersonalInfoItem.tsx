@@ -3,6 +3,7 @@ import { EditOutlined } from '@mui/icons-material';
 import { Dispatch, SetStateAction } from 'react';
 import { ProfileInfoDto, ProfilePicture } from '../../../types';
 import { useModal } from '../../../hooks/useModal';
+import { useModalController } from '../../../hooks/useModalController';
 import { useMembers } from '../../../hooks/useMembers';
 import { profilePictureModal } from '../../../modals/profilePictureModal';
 import { formatDate } from '../../../utils/date';
@@ -15,6 +16,7 @@ interface PersonalInfoItemProps {
 
 export const PersonalInfoItem = ({ user, setUser }: PersonalInfoItemProps) => {
   const { openModal } = useModal();
+  const { setLoading } = useModalController();
   const { updateAvatar } = useMembers({
     setUser,
   });
@@ -28,6 +30,7 @@ export const PersonalInfoItem = ({ user, setUser }: PersonalInfoItemProps) => {
       if (!user || !selectedImage) return;
       const previousAvatar = user.avatar;
       if (previousAvatar === selectedImage.path) return;
+      setLoading(true);
       close();
       updateAvatar(selectedImage, previousAvatar ?? '');
     };

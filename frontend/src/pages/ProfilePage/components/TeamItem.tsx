@@ -11,6 +11,7 @@ import { Dispatch, SetStateAction } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ProfileInfoDto, Team } from '../../../types';
 import { useModal } from '../../../hooks/useModal';
+import { useModalController } from '../../../hooks/useModalController';
 import { createTeamModal } from '../modals/createTeamModal';
 import { joinTeamModal } from '../modals/joinTeamModal';
 import { quitConfirmationModal } from '../modals/quitConfirmationModal';
@@ -25,6 +26,7 @@ interface TeamItemProps {
 export const TeamItem = ({ user, setUser }: TeamItemProps) => {
   const navigate = useNavigate();
   const { openModal } = useModal();
+  const { setLoading } = useModalController();
   const { createTeam, quitTeam } = useTeams({ setUser });
   const { createJoinRequest } = useJoinRequests();
 
@@ -36,8 +38,9 @@ export const TeamItem = ({ user, setUser }: TeamItemProps) => {
     const onConfirm = async (close: () => void) => {
       const idTeam = selectedTeam?.idTeam;
       if (!idTeam) return;
-      close();
+      setLoading(true);
       await createJoinRequest(idTeam);
+      close();
     };
     openModal(joinTeamModal({ onSelect, onConfirm }));
   };
@@ -49,11 +52,13 @@ export const TeamItem = ({ user, setUser }: TeamItemProps) => {
     };
     const onConfirm = async (close: () => void) => {
       if (!selectedName) return;
-
+      setLoading(true);
       const createdTeam = await createTeam(selectedName);
 
       if (createdTeam) {
         close();
+      } else {
+        setLoading(false);
       }
     };
     openModal(createTeamModal({ onSelect, onConfirm }));
@@ -69,8 +74,9 @@ export const TeamItem = ({ user, setUser }: TeamItemProps) => {
     if (!user?.team) return;
 
     const onConfirm = async (close: () => void) => {
-      close();
+      setLoading(true);
       await quitTeam();
+      close();
     };
 
     openModal(

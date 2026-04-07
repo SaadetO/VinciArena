@@ -3,6 +3,7 @@ import { TeamSummaryDto } from '../../../types';
 import { Link } from 'react-router-dom';
 import { useMemo } from 'react';
 import { useModal } from '../../../hooks/useModal';
+import { useModalController } from '../../../hooks/useModalController';
 import { registrationManagementModal } from '../modals/registrationManagementModal';
 
 export const TeamsCard = ({
@@ -21,6 +22,7 @@ export const TeamsCard = ({
   onRegister?: (id: number) => void;
 }) => {
   const { openModal } = useModal();
+  const { setLoading } = useModalController();
 
   const isUserTeamRegistered = useMemo(() => {
     if (!managedTeamId || !teams) return false;
@@ -28,9 +30,10 @@ export const TeamsCard = ({
   }, [managedTeamId, teams]);
 
   const onAction = (register: boolean) => {
-    const handleRegister = (close: () => void) => {
+    const handleRegister = async (close: () => void) => {
       if (tournamentId && onRegister) {
-        onRegister(tournamentId);
+        setLoading(true);
+        await onRegister(tournamentId);
       }
       close();
     };

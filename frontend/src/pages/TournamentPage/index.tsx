@@ -11,6 +11,7 @@ import { AdminActionCard } from './components/AdminActionCard';
 
 import { useTournamentModal } from '../../hooks/useTournamentModal';
 import { useModal } from '../../hooks/useModal';
+import { useModalController } from '../../hooks/useModalController';
 import { publishTournamentModal } from '../../modals/publishTournamentModal';
 
 export const TournamentPage = () => {
@@ -25,6 +26,7 @@ export const TournamentPage = () => {
   const { authenticatedUser } = useContext(UserContext);
   const { openEditModal } = useTournamentModal();
   const { openModal } = useModal();
+  const { setLoading } = useModalController();
 
   const { getById, publish, register, isGettingTournamentById } = useTournament(
     {
@@ -38,9 +40,10 @@ export const TournamentPage = () => {
 
     if (status === 'IN_PREPARATION') {
       openModal(
-        publishTournamentModal((close) => {
-          publish(idNbr);
+        publishTournamentModal(async (close) => {
+          setLoading(true);
           close();
+          publish(idNbr);
         }),
       );
     } else if (status === 'REGISTRATION_CLOSED') {

@@ -3,6 +3,7 @@ import { Button, Menu, MenuItem, Typography } from '@mui/material';
 import { ArrowDropDown } from '@mui/icons-material';
 import { ProfileInfoDto, SpecialtyDto } from '../../../types';
 import { useModal } from '../../../hooks/useModal';
+import { useModalController } from '../../../hooks/useModalController';
 import { useMembers } from '../../../hooks/useMembers';
 import { changePasswordModal } from '../modals/changePasswordModal';
 import { changeSpecialtyModal } from '../modals/changeSpecialtyModal';
@@ -17,6 +18,7 @@ export const EditMenu = ({
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
   const isOpen = menuAnchor != null;
   const { openModal } = useModal();
+  const { setLoading } = useModalController();
   const { updatePassword, updateSpecialty } = useMembers({ setUser });
 
   const handleMenuClick = (event: MouseEvent<HTMLElement>) => {
@@ -34,8 +36,9 @@ export const EditMenu = ({
     };
     const onConfirm = async (close: () => void) => {
       if (!selectedPassword) return;
+      setLoading(true);
+      await updatePassword(selectedPassword);
       close();
-      updatePassword(selectedPassword);
     };
     openModal(changePasswordModal({ onSelect, onConfirm }));
   };
@@ -48,6 +51,7 @@ export const EditMenu = ({
     };
     const onConfirm = async (close: () => void) => {
       if (!user || !selectedSpecialty) return;
+      setLoading(true);
       close();
       updateSpecialty(selectedSpecialty, user.specialty ?? '');
     };
