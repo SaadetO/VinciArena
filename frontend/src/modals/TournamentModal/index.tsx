@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import { Tabs } from '../../components/Tabs';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { BaseTab } from './components/BaseTab';
+import { BaseTab, DESCRIPTION_MAX, NAME_MAX } from './components/BaseTab';
 import { DetailsTab } from './components/DetailsTab';
 import { TournamentFormData } from '../../types';
 import dayjs from 'dayjs';
@@ -85,7 +85,12 @@ export const TournamentModal = () => {
     const missing: string[] = [];
     if (tab === 0) {
       if (!formData.name.trim()) missing.push('nom du tournoi');
+      else if (formData.name.length > NAME_MAX)
+        return `Le nom du tournoi ne peut pas dépasser ${NAME_MAX} caractères.`;
+
       if (!formData.description.trim()) missing.push('description');
+      else if (formData.description.length > DESCRIPTION_MAX)
+        return `La description ne peut pas dépasser ${DESCRIPTION_MAX} caractères.`;
     } else {
       if (!formData.startDate) missing.push('date de début');
       if (!formData.endDate) missing.push('date de fin');
