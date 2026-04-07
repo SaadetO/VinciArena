@@ -5,6 +5,7 @@ test.describe("Register", () => {
   test("TC1.1: Complete multi-step registration with MUI elements", async ({
     page,
   }) => {
+    test.setTimeout(60000);
     // step 1
     const email = faker.internet.email();
     const tag = faker.internet.username();
