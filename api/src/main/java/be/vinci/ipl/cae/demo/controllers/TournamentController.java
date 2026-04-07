@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
 import org.springframework.web.server.ResponseStatusException;
 
 /**
@@ -95,7 +96,7 @@ public class TournamentController {
   @PostMapping("/")
   @ResponseStatus(HttpStatus.CREATED)
   @PreAuthorize("hasRole('ADMIN')") // Security handled here
-  public TournamentDetailsDto createTournament(@RequestBody NewTournament newTournament,
+  public TournamentDetailsDto createTournament(@Valid @RequestBody NewTournament newTournament,
       @AuthenticationPrincipal Member currentMember) {
 
     validateNewTournament(newTournament, currentMember, null); // Removed currentMember check here
@@ -122,7 +123,7 @@ public class TournamentController {
   @PreAuthorize("hasRole('ADMIN')")
   public TournamentDetailsDto updateTournament(
       @PathVariable Long id,
-      @RequestBody NewTournament newTournament,
+      @Valid @RequestBody NewTournament newTournament,
       @AuthenticationPrincipal Member currentMember
   ) {
     validateNewTournament(newTournament, currentMember, id);
