@@ -39,7 +39,7 @@ export const CreateTeamModalContent = ({
         autoFocus
         id="teamName"
         name="teamName"
-        placeholder="Nom de l'équipe"
+        placeholder="Nom de Team"
         onChange={handleChange}
         variant="outlined"
         error={!!localError}
