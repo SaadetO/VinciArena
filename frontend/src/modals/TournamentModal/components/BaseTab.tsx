@@ -49,7 +49,13 @@ export const BaseTab = ({ formData, onChange, error, isCreation }: BaseTabProps)
         />
       </Stack>
       {error && (
-        <Alert severity="error" size="small">
+        <Alert
+          severity="error"
+          size="small"
+          sx={{
+            mt: '2rem !important',
+          }}
+        >
           {error}
         </Alert>
       )}
