@@ -128,7 +128,7 @@ public class NotificationService {
   public Iterable<NotificationDto> getNotificationsByIdMember(long idMember, boolean unreadOnly) {
     Iterable<Notification> entities;
     if (unreadOnly) {
-      entities = notificationRepository.findByMemberIdMemberAndIsReadFalse(idMember);
+      entities = notificationRepository.findByMemberIdMemberAndIsReadFalseOrderByDateTimeDesc(idMember);
     } else {
       entities = notificationRepository.findByMemberIdMemberOrderByIsReadAscDateTimeDesc(idMember);
     }
