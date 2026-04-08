@@ -7,11 +7,14 @@ import be.vinci.ipl.cae.demo.models.dtos.AuthenticatedUser;
 import be.vinci.ipl.cae.demo.models.dtos.NewMember;
 import be.vinci.ipl.cae.demo.models.dtos.ProfileDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
+import be.vinci.ipl.cae.demo.models.entities.ProfileImage;
 import be.vinci.ipl.cae.demo.models.entities.Specialty;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.ProfileImageRepository;
 import be.vinci.ipl.cae.demo.repositories.SpecialtyRepository;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -370,6 +373,90 @@ class MemberServiceTest {
 
     // Assert
     assertNull(result);
+  }
+
+  @Test
+  void getProfileOfExistingMemberWithNullEmail() {
+    // Arrange
+    Specialty s = new Specialty();
+    s.setName("gardien");
+
+    Team t = new Team();
+
+    ProfileImage avatar = new ProfileImage();
+    avatar.setIdImage(1L);
+    avatar.setPath("profile-1.png");
+
+    Member m = new Member();
+    m.setIdMember(1L);
+    m.setTag("M1");
+    m.setSpecialty(s);
+    m.setProfileImage(avatar);
+    m.setTeam(t);
+
+    t.setMembers(List.of(m));
+
+    when(memberRepository.findById(1L)).thenReturn(Optional.of(m));
+
+    // Act
+    ProfileDto result = memberService.getProfile(1L, null);
+
+    // Assert
+    assertAll(
+        () -> assertEquals(1L, result.getId()),
+        () -> assertEquals("M1", result.getTag()),
+        () -> assertEquals(s.getName(), result.getSpecialty()),
+        () -> assertEquals(avatar.getPath(), result.getAvatar()),
+
+        () -> assertNull(result.getEmail()),
+        () -> assertNull(result.getCreationDate()),
+        () -> assertNull(result.getIsAdmin()),
+        () -> assertNull(result.getUnavailabilities())
+    );
+  }
+
+  @Test
+  void getProfileOfMyOwnProfileAsNonManager() {
+    // Arrange
+    Specialty s = new Specialty();
+
+    s.setName("gardien");
+
+    Team t = new Team();
+
+    ProfileImage avatar = new ProfileImage();
+    avatar.setIdImage(1L);
+    avatar.setPath("profile-1.png");
+
+    LocalDateTime creationDate = LocalDateTime.now();
+
+    Member m = new Member();
+    m.setIdMember(1L);
+    m.setTag("M1");
+    m.setEmail("m@mail.com");
+    m.setSpecialty(s);
+    m.setProfileImage(avatar);
+    m.setCreationDate(creationDate);
+    m.setTeam(t);
+
+    t.setMembers(List.of(m));
+
+    when(memberRepository.findById(1L)).thenReturn(Optional.of(m));
+    when(memberRepository.findByEmail("m@mail.com")).thenReturn(m);
+
+    // Act
+    ProfileDto result = memberService.getProfile(1L, "m@mail.com");
+
+    // Assert
+    assertAll(
+        () -> assertEquals(1L, result.getId()),
+        () -> assertEquals("M1", result.getTag()),
+        () -> assertEquals(s.getName(), result.getSpecialty()),
+        () -> assertEquals("profile-1.png", result.getAvatar()),
+        () -> assertEquals("m@mail.com", result.getEmail()),
+        () -> assertEquals(creationDate,result.getCreationDate()),
+        () -> assertFalse(result.getIsAdmin())
+    );
   }
 
   @Test
