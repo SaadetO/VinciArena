@@ -1,7 +1,7 @@
 import { Chip, Stack, Typography, Skeleton } from '@mui/material';
 import teamHeroHeader from '../../../assets/images/team_hero_header.jpg';
 import { TeamDetailsInfoDto } from '../../../types';
-import { PersonOutline } from '@mui/icons-material';
+import { Person } from '@gravity-ui/icons';
 
 export const TeamBanner = ({ team }: { team?: TeamDetailsInfoDto }) => {
   return (
@@ -36,7 +36,7 @@ export const TeamBanner = ({ team }: { team?: TeamDetailsInfoDto }) => {
               size="medium"
               variant="text"
               sx={{ '& .MuiSvgIcon-root': { mr: '0.25rem' } }}
-              icon={<PersonOutline sx={{ height: '1rem', width: '1rem' }} />}
+              icon={<Person style={{ height: '1rem', width: '1rem' }} />}
               label={team.members.length}
             />
           </>

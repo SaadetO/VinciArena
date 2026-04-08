@@ -14,7 +14,7 @@ import {
 import { useUser } from '../hooks/useUser';
 import logo from '../assets/images/logo.svg';
 import authBackground from '../assets/images/auth_background.jpg';
-import { ArrowBack, Visibility, VisibilityOff } from '@mui/icons-material';
+import { ArrowLeft, Eye, EyeSlash } from '@gravity-ui/icons';
 import { LoadingIcon } from '../components/LoadingIcon';
 
 export const LoginPage = () => {
@@ -51,7 +51,7 @@ export const LoginPage = () => {
   return (
     <Stack direction="row" flex="1">
       <Link to="/" style={{ padding: '1rem', position: 'fixed' }}>
-        <Button variant="text" startIcon={<ArrowBack />}>
+        <Button variant="text" startIcon={<ArrowLeft />}>
           Retour à l'Accueil
         </Button>
       </Link>
@@ -93,7 +93,7 @@ export const LoginPage = () => {
               width: '100%',
             }}
           >
-            <Stack spacing="0.75rem">
+            <Stack spacing="0.625rem">
               <TextField
                 fullWidth
                 id="email"
@@ -121,7 +121,7 @@ export const LoginPage = () => {
                       <IconButton
                         onClick={() => setShowPassword((prev) => !prev)}
                       >
-                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                        {showPassword ? <EyeSlash /> : <Eye />}
                       </IconButton>
                     ),
                   },

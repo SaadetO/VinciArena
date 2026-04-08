@@ -10,7 +10,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { ArrowDropDown } from '@mui/icons-material';
+import { ChevronDown } from '@gravity-ui/icons';
 import {
   useContext,
   useEffect,
@@ -166,8 +166,13 @@ export const AdminManagementModal = ({
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           sx={{
+            '& .MuiInputBase-root': {
+              paddingRight: '0.375rem',
+            },
             '& .MuiInputBase-input': {
-              padding: '0 0.5rem 0 1rem',
+              height: '2.75rem',
+              fontSize: '1rem',
+              padding: '0 0.375rem 0 1rem',
             },
           }}
           slotProps={{
@@ -178,6 +183,7 @@ export const AdminManagementModal = ({
                     sx={{
                       flexShrink: 0,
                       maxWidth: 'none',
+                      marginRight: '0 !important',
                       width: 'fit-content !important',
                       background: (theme) => theme.palette.background.s4,
                       color: (theme) =>
@@ -185,7 +191,7 @@ export const AdminManagementModal = ({
                     }}
                     variant="contained"
                     color="secondary"
-                    endIcon={<ArrowDropDown />}
+                    endIcon={<ChevronDown />}
                     onClick={handleFilterClick}
                   >
                     {filter === 'all'
@@ -273,7 +279,7 @@ export const AdminManagementModal = ({
             transition: 'height 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           }}
         >
-          <Stack ref={contentRef} sx={{ padding: '1rem' }}>
+          <Stack ref={contentRef} sx={{ padding: '0.75rem 1rem' }}>
             {isGettingUsers ? (
               <List disablePadding sx={{ height: '100%' }}>
                 {Array.from({ length: 4 }).map((_, index) => (

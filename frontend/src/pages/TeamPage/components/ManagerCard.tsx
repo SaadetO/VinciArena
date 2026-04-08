@@ -85,6 +85,7 @@ export const ManagerCard = ({
         {team ? (
           team?.managers?.map((manager) => (
             <Chip
+              size="large"
               sx={{
                 cursor: 'pointer',
                 '&:hover': {
@@ -110,7 +111,7 @@ export const ManagerCard = ({
                 gap="0.5rem"
                 alignItems="center"
                 height="2.75rem"
-                padding="0 1rem 0 0.75rem"
+                padding="0 0.75rem"
                 sx={{
                   background: (theme) => theme.palette.background.s2,
                 }}

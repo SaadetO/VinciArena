@@ -96,11 +96,11 @@ export const TournamentPage = () => {
           container
           spacing={3}
           padding="1.5rem 0 4rem"
-          direction={{ xs: 'column-reverse', md: 'row' }}
+          direction={{ xs: 'column-reverse', desktop: 'row' }}
           justifyContent="center"
         >
           {canCol1 && (
-            <Grid2 size={{ xs: 12, md: 6.5, lg: 7.5 }}>
+            <Grid2 size={{ xs: 12, desktop: 6.5, lg: 7.5 }}>
               <Stack spacing="1.5rem">
                 {authenticatedUser?.admin && tournament?.status && (
                   <AdminActionCard
@@ -131,7 +131,7 @@ export const TournamentPage = () => {
             <Grid2
               size={{
                 xs: 12,
-                md: canCol1 ? 5.5 : 6.5,
+                desktop: canCol1 ? 5.5 : 6.5,
                 lg: canCol1 ? 4.5 : 5.5,
               }}
             >

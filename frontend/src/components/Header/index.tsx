@@ -25,7 +25,7 @@ export const Header = () => {
         alignItems="center"
         sx={{
           background: (theme) => theme.palette.background.s1,
-          border: (theme) => `1px solid ${theme.palette.divider}`,
+          borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
         }}
       >
         <Link to="/" style={{ textDecoration: 'none', height: '100%' }}>

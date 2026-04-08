@@ -30,7 +30,7 @@ export const MembersCard = memo(({ team }: MembersCardProps) => {
                   gap="0.5rem"
                   alignItems="center"
                   height="2.75rem"
-                  padding="0 1rem 0 0.75rem"
+                  padding="0 0.75rem"
                   sx={{
                     background: (theme) => theme.palette.background.s2,
                   }}
@@ -48,6 +48,7 @@ export const MembersCard = memo(({ team }: MembersCardProps) => {
           ) : team.members ? (
             team.members.map((member) => (
               <Chip
+                size="large"
                 sx={{
                   cursor: 'pointer',
                   '&:hover': {

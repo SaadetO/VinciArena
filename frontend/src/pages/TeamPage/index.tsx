@@ -97,10 +97,10 @@ export const TeamPage = () => {
           container
           spacing={3}
           padding="0 0 4rem"
-          direction={{ xs: 'column-reverse', md: 'row' }}
+          direction={{ xs: 'column-reverse', desktop: 'row' }}
           justifyContent="center"
         >
-          <Grid2 size={{ xs: 12, md: 6.5, lg: 7.5 }}>
+          <Grid2 size={{ xs: 12, desktop: 6.5, lg: 7.5 }}>
             <Stack spacing="1.5rem">
               <TournamentControls
                 filters={filters}
@@ -147,7 +147,7 @@ export const TeamPage = () => {
               </Stack>
             </Stack>
           </Grid2>
-          <Grid2 size={{ xs: 12, md: 5.5, lg: 4.5 }}>
+          <Grid2 size={{ xs: 12, desktop: 5.5, lg: 4.5 }}>
             <Stack spacing="1.5rem" pt="1.5rem">
               <ManagerCard team={team} setTeam={setTeam} />
               <MembersCard team={team} />

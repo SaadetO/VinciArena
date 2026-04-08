@@ -1,6 +1,6 @@
 import { IconButton, Badge, Tooltip, Box } from '@mui/material';
 import { useRef, useState } from 'react';
-import { Tune } from '@mui/icons-material';
+import { Sliders } from '@gravity-ui/icons';
 import { TournamentFilters } from '../../../utils/tournamentUtils';
 import { useModal } from '../../../hooks/useModal';
 import { filterModal } from '../modals/filterModal';
@@ -100,7 +100,7 @@ export const TournamentFilterButton = ({
             onClick={handleOpenFilterModal}
             disabled={disabled}
           >
-            <Tune sx={{ color: 'text.secondary' }} />
+            <Sliders style={{ color: 'text.secondary' }} />
           </IconButton>
         </Box>
       </Badge>

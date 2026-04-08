@@ -98,6 +98,7 @@ export const TeamsCard = ({
           teams.length > 0 ? (
             teams.map((team) => (
               <Chip
+                size="large"
                 sx={{
                   cursor: 'pointer',
                   '&:hover': {
@@ -143,7 +144,7 @@ export const TeamsCard = ({
                 gap="0.5rem"
                 alignItems="center"
                 height="2.75rem"
-                padding="0 1rem 0 0.75rem"
+                padding="0 0.75rem"
                 sx={{
                   background: (theme) => theme.palette.background.s2,
                 }}
