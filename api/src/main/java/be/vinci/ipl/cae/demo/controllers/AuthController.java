@@ -40,11 +40,8 @@ public class AuthController {
    * @return true if invalid
    */
   private boolean isInvalidCredentials(Credentials credentials) {
-    return credentials == null
-        || credentials.getEmail() == null
-        || credentials.getEmail().isBlank()
-        || credentials.getPassword() == null
-        || credentials.getPassword().isBlank();
+    return credentials == null || credentials.getEmail() == null || credentials.getEmail().isBlank()
+        || credentials.getPassword() == null || credentials.getPassword().isBlank();
   }
 
   /**
@@ -55,11 +52,8 @@ public class AuthController {
   @PostMapping("/register")
   public void register(@RequestBody NewMember newMember) {
 
-    if (newMember == null
-        || newMember.getEmail() == null
-        || newMember.getEmail().isBlank()
-        || newMember.getPassword() == null
-        || newMember.getPassword().isBlank()) {
+    if (newMember == null || newMember.getEmail() == null || newMember.getEmail().isBlank()
+        || newMember.getPassword() == null || newMember.getPassword().isBlank()) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email ou mot de passe manquant");
     }
     memberService.register(newMember);
@@ -78,10 +72,7 @@ public class AuthController {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email ou mot de passe manquant");
     }
 
-    return memberService.login(
-        credentials.getEmail(),
-        credentials.getPassword()
-    );
+    return memberService.login(credentials.getEmail(), credentials.getPassword());
   }
 
   /**

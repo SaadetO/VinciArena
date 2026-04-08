@@ -145,8 +145,8 @@ class JoinRequestServiceTest {
     when(joinRequestRepository.findById(100L)).thenReturn(Optional.of(jr));
 
     // Act
-    JoinRequestDto result = joinRequestService.updateJoinRequestStatus(100L, RequestStatus.ACCEPTED,
-        null, manager);
+    JoinRequestDto result =
+        joinRequestService.updateJoinRequestStatus(100L, RequestStatus.ACCEPTED, null, manager);
 
     // Assert
     assertNotNull(result);
@@ -216,9 +216,8 @@ class JoinRequestServiceTest {
     when(joinRequestRepository.findById(100L)).thenReturn(Optional.of(jr));
 
     // Act & Assert
-    assertThrows(ResponseStatusException.class,
-        () -> joinRequestService.updateJoinRequestStatus(100L, RequestStatus.ACCEPTED, null,
-            intruder));
+    assertThrows(ResponseStatusException.class, () -> joinRequestService
+        .updateJoinRequestStatus(100L, RequestStatus.ACCEPTED, null, intruder));
   }
 
   @Test
@@ -238,12 +237,7 @@ class JoinRequestServiceTest {
     when(joinRequestRepository.findById(100L)).thenReturn(Optional.of(jr));
 
     // Act & Assert
-    assertThrows(ResponseStatusException.class,
-        () -> joinRequestService.updateJoinRequestStatus(
-            100L,
-            RequestStatus.REJECTED,
-            null,
-            manager
-        ));
+    assertThrows(ResponseStatusException.class, () -> joinRequestService
+        .updateJoinRequestStatus(100L, RequestStatus.REJECTED, null, manager));
   }
 }

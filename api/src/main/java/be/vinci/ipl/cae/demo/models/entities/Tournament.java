@@ -68,11 +68,8 @@ public class Tournament {
   private Team winner;
 
   @ManyToMany
-  @JoinTable(
-      name = "tournament_registrations",
-      joinColumns = @JoinColumn(name = "id_tournament"),
-      inverseJoinColumns = @JoinColumn(name = "id_team")
-  )
+  @JoinTable(name = "tournament_registrations", joinColumns = @JoinColumn(name = "id_tournament"),
+      inverseJoinColumns = @JoinColumn(name = "id_team"))
   private Set<Team> teams = new HashSet<>();
 
   /**
@@ -127,8 +124,7 @@ public class Tournament {
   public boolean registerTeam(Team team) {
     // checking dates
     LocalDateTime now = LocalDateTime.now();
-    if (this.status != TournamentStatus.REGISTRATION_OPEN
-        || !registrationDeadline.isAfter(now)) {
+    if (this.status != TournamentStatus.REGISTRATION_OPEN || !registrationDeadline.isAfter(now)) {
       return false;
     }
     // register team
