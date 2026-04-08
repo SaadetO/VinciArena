@@ -1,13 +1,12 @@
-import { ArrowForward } from '@mui/icons-material';
-import { Stack, Tooltip } from '@mui/material';
+import { Box, Stack, Tooltip } from '@mui/material';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
-import { Theme } from '@mui/material/styles';
 import { useEffect, useState } from 'react';
 import { checkOverlap, getDurationString } from '../../../utils/date';
 import { useModalController } from '../../../hooks/useModalController';
-import { datePickerSx } from '../../../themes';
+import { ArrowRight } from '@gravity-ui/icons';
+import { theme } from '../../../themes';
 
 interface UnavailabilitiesModalContentProps {
   unavailabilities: { id: number; startDate: string; endDate: string }[] | null;
@@ -86,7 +85,7 @@ export const UnavailabilitiesModalContent = ({
 
   return (
     <Stack
-      spacing="0.75rem"
+      spacing="1rem"
       direction="row"
       alignItems="center"
       justifyContent="center"
@@ -96,23 +95,25 @@ export const UnavailabilitiesModalContent = ({
           autoFocus
           format="DD/MM/YYYY"
           name="startDate"
-          sx={datePickerSx}
           value={dates.startDate}
           onChange={(date) => handleDateChange(date, 'startDate')}
           disablePast
         />
         <Tooltip title={getDurationString(dates)} arrow placement="top">
-          <ArrowForward
-            sx={{
-              color: (theme: Theme) => theme.palette.text.secondary,
-              cursor: 'help',
-            }}
-          />
+          <Box>
+            <ArrowRight
+              style={{
+                color: theme.palette.text.secondary,
+                cursor: 'help',
+                height: '1rem',
+                width: '1rem',
+              }}
+            />
+          </Box>
         </Tooltip>
         <DatePicker
           format="DD/MM/YYYY"
           name="endDate"
-          sx={datePickerSx}
           value={dates.endDate}
           onChange={(date) => handleDateChange(date, 'endDate')}
           disablePast

@@ -1,12 +1,5 @@
-import {
-  Button,
-  IconButton,
-  Skeleton,
-  Stack,
-  Tooltip,
-  Typography,
-} from '@mui/material';
-import { Add, ArrowOutward } from '@mui/icons-material';
+import { Box, Button, IconButton, Skeleton, Stack, Tooltip, Typography } from '@mui/material';
+import { Plus, ArrowRight } from '@gravity-ui/icons';
 import { Dispatch, SetStateAction } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ProfileInfoDto, Team } from '../../../types';
@@ -154,7 +147,9 @@ export const TeamItem = ({ user, setUser }: TeamItemProps) => {
                 color="secondary"
                 size="small"
               >
-                {user.team ? <ArrowOutward /> : <Add />}
+                <Box display="inline-flex">
+                  {user.team ? <ArrowRight /> : <Plus />}
+                </Box>
               </IconButton>
             </Tooltip>
           </>

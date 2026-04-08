@@ -222,18 +222,20 @@ export const TournamentModal = () => {
             padding: 0,
           }}
         >
-          <Stack ref={contentRef} sx={{ padding: '1rem' }}>
+          <Stack ref={contentRef} sx={{ padding: '0.75rem 1rem 1.5rem 1rem' }}>
             {value === 0 ? (
               <BaseTab
                 formData={formData}
                 onChange={handleChange}
                 error={error}
+                isCreation={!isEdit}
               />
             ) : (
               <DetailsTab
                 formData={formData}
                 onChange={handleChange}
                 error={error}
+                isCreation={!isEdit}
               />
             )}
           </Stack>

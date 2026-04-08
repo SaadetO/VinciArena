@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { NotificationItem } from '../../NotificationItem';
-import { NotificationsOutlined } from '@mui/icons-material';
+import { Bell } from '@gravity-ui/icons';
 import { useNotifications } from '../../../hooks/useNotifications';
 
 export const NotificationMenu = () => {
@@ -39,7 +39,7 @@ export const NotificationMenu = () => {
         }}
       >
         <Badge badgeContent={unreadCount} color="primary">
-          <NotificationsOutlined />
+          <Bell />
         </Badge>
       </IconButton>
 

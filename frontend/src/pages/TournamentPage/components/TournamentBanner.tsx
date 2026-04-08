@@ -3,7 +3,7 @@ import { TournamentDetailsInfoDto } from '../../../types';
 import tournamentHeroHeader from '../../../assets/images/tournament_hero_header.jpg';
 import { TournamentStatusChip } from '../../../components/TournamentItem/components/TournamentStatusChip';
 import { TournamentDate } from '../../../components/TournamentItem/components/TournamentDate';
-import { EventBusy } from '@mui/icons-material';
+import { CalendarXmark } from '@gravity-ui/icons';
 import { formatDate } from '../../../utils/date';
 
 export const TournamentBanner = ({
@@ -39,7 +39,7 @@ export const TournamentBanner = ({
               <Chip
                 size="medium"
                 variant="text"
-                icon={<EventBusy />}
+                icon={<CalendarXmark style={{ width: '1rem', height: '1rem' }} />}
                 label={formatDate(tournament.registrationDeadline, false)}
               />
             </Tooltip>

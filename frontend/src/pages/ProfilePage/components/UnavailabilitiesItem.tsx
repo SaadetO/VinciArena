@@ -5,8 +5,9 @@ import {
   Tooltip,
   Divider,
   Skeleton,
+  Box,
 } from '@mui/material';
-import { Add } from '@mui/icons-material';
+import { Plus } from '@gravity-ui/icons';
 import { memo } from 'react';
 import { ProfileInfoDto } from '../../../types';
 import { UnavailabilityItem } from './UnavailabilityItem';
@@ -74,7 +75,9 @@ export const UnavailabilitiesItem = memo(
                 size="small"
                 color="secondary"
               >
-                <Add />
+                <Box display="inline-flex">
+                  <Plus />
+                </Box>
               </IconButton>
             ) : (
               <Skeleton

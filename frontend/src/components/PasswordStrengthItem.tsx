@@ -1,5 +1,5 @@
 import { Box, Stack, Typography } from '@mui/material';
-import { CheckOutlined } from '@mui/icons-material';
+import { Check } from '@gravity-ui/icons';
 
 interface PasswordStrengthItemProps {
   text: string;
@@ -35,7 +35,7 @@ export const PasswordStrengthItem = ({
         }}
       >
         {isValid ? (
-          <CheckOutlined sx={{ fontSize: '0.875rem' }} />
+          <Check style={{ fontSize: '0.875rem' }} />
         ) : (
           <Box
             sx={{

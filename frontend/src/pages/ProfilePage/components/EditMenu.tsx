@@ -1,6 +1,6 @@
 import { useState, MouseEvent, Dispatch, SetStateAction } from 'react';
 import { Button, Menu, MenuItem, Typography } from '@mui/material';
-import { ArrowDropDown } from '@mui/icons-material';
+import { ChevronDown } from '@gravity-ui/icons';
 import { ProfileInfoDto, SpecialtyDto } from '../../../types';
 import { useModal } from '../../../hooks/useModal';
 import { useModalController } from '../../../hooks/useModalController';
@@ -71,8 +71,8 @@ export const EditMenu = ({
         color="secondary"
         onClick={handleMenuClick}
         endIcon={
-          <ArrowDropDown
-            sx={{
+          <ChevronDown
+            style={{
               color: 'text.secondary',
               transition: 'transform 0.2s cubic-bezier(0.2, 0, 0, 1)',
               transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',

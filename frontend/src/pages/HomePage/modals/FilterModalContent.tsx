@@ -117,7 +117,7 @@ export const FilterModalContent = ({
   }, [selectedTeams, selectedMembers, selectedStatuses, onFiltersChange]);
 
   return (
-    <Stack spacing="0.75rem">
+    <Stack spacing="0.625rem">
       {!onlyStatusFilter && (
         <>
           <FilterAutocomplete
@@ -125,7 +125,7 @@ export const FilterModalContent = ({
             value={selectedTeams}
             onChange={setSelectedTeams}
             loading={isLoadingTeams}
-            placeholder="Filtrer par équipes"
+            placeholder="Sélectionnez des équipes"
             getOptionLabel={(team) => team.name}
             getOptionId={(team) => team.idTeam}
           />
@@ -134,7 +134,7 @@ export const FilterModalContent = ({
             value={selectedMembers}
             onChange={setSelectedMembers}
             loading={isLoadingMembers}
-            placeholder="Filtrer par membres"
+            placeholder="Sélectionnez des membres"
             getOptionLabel={(member) => member.tag}
             getOptionId={(member) => member.id}
             getOptionAvatar={(member) => member.avatar ?? undefined}
@@ -147,7 +147,7 @@ export const FilterModalContent = ({
           value={selectedStatuses}
           onChange={setSelectedStatuses}
           loading={false}
-          placeholder="Filtrer par statut"
+          placeholder="Sélectionnez des statuts"
           getOptionLabel={(status) => status.label}
           getOptionId={(status) => status.value}
         />

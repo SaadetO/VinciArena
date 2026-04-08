@@ -1,20 +1,20 @@
-import { Alert, Stack, Tooltip } from '@mui/material';
+import { Alert, Box, InputLabel, Stack, Tooltip } from '@mui/material';
 import { TournamentFormData } from '../../../types';
 import { DatePicker, DateTimePicker } from '@mui/x-date-pickers';
-import { datePickerSx } from '../../../themes';
-import { ArrowForward } from '@mui/icons-material';
 import dayjs from 'dayjs';
 import { getDurationString } from '../../../utils/date';
-import { Label } from './Label';
 import { NumericTextField } from './NumericTextField';
+import { theme } from '../../../themes';
+import { ArrowRight } from '@gravity-ui/icons';
 
 interface DetailsTabProps {
   formData: TournamentFormData;
   onChange: (field: keyof TournamentFormData, value: number | string) => void;
   error?: string;
+  isCreation?: boolean;
 }
 
-export const DetailsTab = ({ formData, onChange, error }: DetailsTabProps) => {
+export const DetailsTab = ({ formData, onChange, error, isCreation }: DetailsTabProps) => {
   const handleDateChange = (
     date: dayjs.Dayjs | null,
     field: keyof TournamentFormData,
@@ -57,13 +57,12 @@ export const DetailsTab = ({ formData, onChange, error }: DetailsTabProps) => {
   };
 
   return (
-    <Stack spacing="0.75rem">
+    <Stack spacing="1rem">
       <Stack spacing="0.25rem">
-        <Label label="Date limite d'inscription" />
+        <InputLabel required={isCreation}>Date limite d'inscription</InputLabel>
         <DateTimePicker
           format="DD/MM/YYYY HH:mm"
           name="registrationDeadline"
-          sx={datePickerSx}
           value={dayjs(formData.registrationDeadline)}
           onChange={(date) => handleDateChange(date, 'registrationDeadline')}
           disablePast
@@ -71,12 +70,11 @@ export const DetailsTab = ({ formData, onChange, error }: DetailsTabProps) => {
       </Stack>
 
       <Stack spacing="0.25rem">
-        <Label label="Dates du tournoi" />
+        <InputLabel required={isCreation}>Dates du tournoi</InputLabel>
         <Stack direction="row" spacing="0.75rem" alignItems="center">
           <DatePicker
             format="DD/MM/YYYY"
             name="startDate"
-            sx={datePickerSx}
             value={dayjs(formData.startDate)}
             onChange={(date) => handleDateChange(date, 'startDate')}
             disablePast
@@ -89,17 +87,20 @@ export const DetailsTab = ({ formData, onChange, error }: DetailsTabProps) => {
             arrow
             placement="top"
           >
-            <ArrowForward
-              sx={{
-                color: (theme) => theme.palette.text.secondary,
-                cursor: 'help',
-              }}
-            />
+            <Box>
+              <ArrowRight
+                style={{
+                  color: theme.palette.text.secondary,
+                  cursor: 'help',
+                  height: '1rem',
+                  width: '1rem',
+                }}
+              />
+            </Box>
           </Tooltip>
           <DatePicker
             format="DD/MM/YYYY"
             name="endDate"
-            sx={datePickerSx}
             value={dayjs(formData.endDate)}
             onChange={(date) => handleDateChange(date, 'endDate')}
             disablePast
@@ -108,11 +109,12 @@ export const DetailsTab = ({ formData, onChange, error }: DetailsTabProps) => {
       </Stack>
 
       <Stack spacing="0.25rem">
-        <Label label="Capacité maximale" />
+        <InputLabel required={isCreation}>Capacité maximale</InputLabel>
         <NumericTextField
           value={formData.capacity}
           onChange={(val) => onChange('capacity', val)}
           min={2}
+          required
         />
       </Stack>
       {error && (

@@ -1,6 +1,5 @@
-import { Alert, Stack, TextField } from '@mui/material';
+import { Alert, InputLabel, Stack, TextField } from '@mui/material';
 import { TournamentFormData } from '../../../types';
-import { Label } from './Label';
 
 export const NAME_MAX = 50;
 export const DESCRIPTION_MAX = 255;
@@ -9,13 +8,14 @@ interface BaseTabProps {
   formData: TournamentFormData;
   onChange: (field: keyof TournamentFormData, value: number | string) => void;
   error?: string;
+  isCreation?: boolean;
 }
 
-export const BaseTab = ({ formData, onChange, error }: BaseTabProps) => {
+export const BaseTab = ({ formData, onChange, error, isCreation }: BaseTabProps) => {
   return (
-    <Stack spacing="0.75rem">
+    <Stack spacing="1rem">
       <Stack spacing="0.25rem">
-        <Label label="Nom du tournoi" />
+        <InputLabel required={isCreation}>Nom du tournoi</InputLabel>
         <TextField
           placeholder="ex: Worlds 2026"
           required
@@ -31,7 +31,7 @@ export const BaseTab = ({ formData, onChange, error }: BaseTabProps) => {
         />
       </Stack>
       <Stack spacing="0.25rem">
-        <Label label="Description" />
+        <InputLabel required={isCreation}>Description</InputLabel>
         <TextField
           placeholder="Décrivez votre tournoi"
           multiline

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { Eye, EyeSlash } from '@gravity-ui/icons';
 import { IconButton, Stack, TextField, Collapse } from '@mui/material';
 import { RegisterFormData } from '../../../types';
 import { PasswordStrengthItem } from '../../../components/PasswordStrengthItem';
@@ -26,7 +26,7 @@ export const Step2 = ({ formData, handleChange, errors }: Step2Props) => {
   const isValid = rules.every((rule) => rule.valid);
 
   return (
-    <Stack spacing="0.75rem">
+    <Stack spacing="0.625rem">
       <Stack spacing="0.25rem">
         <TextField
           autoFocus
@@ -49,7 +49,7 @@ export const Step2 = ({ formData, handleChange, errors }: Step2Props) => {
                 <IconButton
                   onClick={() => togglePasswordVisibility('password')}
                 >
-                  {showPassword.password ? <VisibilityOff /> : <Visibility />}
+                  {showPassword.password ? <EyeSlash /> : <Eye />}
                 </IconButton>
               ),
             },
@@ -77,33 +77,33 @@ export const Step2 = ({ formData, handleChange, errors }: Step2Props) => {
       </Stack>
       {isValid && (
         <TextField
-          fullWidth
-          id="confirmPassword"
-          name="confirmPassword"
-          type={showPassword.confirmPassword ? 'text' : 'password'}
-          placeholder="Confirmer le mot de passe"
-          variant="outlined"
-          value={formData.confirmPassword}
-          onChange={handleChange}
-          helperText={errors.confirmPassword || ''}
-          error={!!errors.confirmPassword}
-          required
-          slotProps={{
-            input: {
-              endAdornment: formData.confirmPassword.trim().length > 0 && (
-                <IconButton
-                  onClick={() => togglePasswordVisibility('confirmPassword')}
-                >
-                  {showPassword.confirmPassword ? (
-                    <VisibilityOff />
-                  ) : (
-                    <Visibility />
-                  )}
-                </IconButton>
-              ),
-            },
-          }}
-        />
+            fullWidth
+            id="confirmPassword"
+            name="confirmPassword"
+            type={showPassword.confirmPassword ? 'text' : 'password'}
+            placeholder="Confirmer le mot de passe"
+            variant="outlined"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            helperText={errors.confirmPassword || ''}
+            error={!!errors.confirmPassword}
+            required
+            slotProps={{
+              input: {
+                endAdornment: formData.confirmPassword.trim().length > 0 && (
+                  <IconButton
+                    onClick={() => togglePasswordVisibility('confirmPassword')}
+                  >
+                    {showPassword.confirmPassword ? (
+                      <EyeSlash />
+                    ) : (
+                      <Eye />
+                    )}
+                  </IconButton>
+                ),
+              },
+            }}
+          />
       )}
     </Stack>
   );

@@ -1,5 +1,5 @@
 import { InputBase, Stack } from '@mui/material';
-import { Search } from '@mui/icons-material';
+import { Magnifier } from '@gravity-ui/icons';
 
 interface TournamentSearchBarProps {
   searchQuery: string;
@@ -27,8 +27,8 @@ export const TournamentSearchBar = ({
       value={searchQuery}
       onChange={(e) => setSearchQuery(e.target.value)}
       endAdornment={
-        <Stack p="0.25rem">
-          <Search sx={{ color: 'text.secondary' }} />
+        <Stack p="0.25rem" pr="0.5rem">
+          <Magnifier style={{ color: 'text.secondary' }} />
         </Stack>
       }
     />

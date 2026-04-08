@@ -5,7 +5,7 @@ import { SpecialtyDto, ProfilePicture, RegisterFormData } from '../../types';
 import { useUser } from '../../hooks/useUser';
 import { useSpecialties } from '../../hooks/useSpecialties';
 import authBackground from '../../assets/images/auth_background.jpg';
-import { ArrowBack } from '@mui/icons-material';
+import { ArrowLeft } from '@gravity-ui/icons';
 import { profilePictureModal } from '../../modals/profilePictureModal';
 import { useModal } from '../../hooks/useModal';
 import { useSnackbar } from '../../hooks/useSnackbar';
@@ -159,7 +159,7 @@ export const RegisterPage = () => {
   return (
     <Stack direction="row" flex="1">
       <Link to="/" style={{ padding: '1rem', position: 'fixed' }}>
-        <Button variant="text" startIcon={<ArrowBack />}>
+        <Button variant="text" startIcon={<ArrowLeft />}>
           Retour à l'Accueil
         </Button>
       </Link>

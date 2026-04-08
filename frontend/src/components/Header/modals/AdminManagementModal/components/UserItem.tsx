@@ -8,8 +8,9 @@ import {
   Tooltip,
   IconButton,
   Stack,
+  Box,
 } from '@mui/material';
-import BlockIcon from '@mui/icons-material/Block';
+import { Ban } from '@gravity-ui/icons';
 import { Member, AuthenticatedUser } from '../../../../../types';
 
 interface UserItemProps {
@@ -76,7 +77,9 @@ export const UserItem = ({
                   onClick={() => handleBan(user.id, user.tag)}
                   disabled={isPending || user.deleted}
                 >
-                  <BlockIcon sx={{ color: 'text.secondary' }} />
+                  <Box display="inline-flex">
+                    <Ban style={{ color: 'text.secondary' }} />
+                  </Box>
                 </IconButton>
               </Tooltip>
             )}

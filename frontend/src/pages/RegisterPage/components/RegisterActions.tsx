@@ -1,4 +1,4 @@
-import { ArrowBack } from '@mui/icons-material';
+import { ArrowLeft } from '@gravity-ui/icons';
 import { Button, Stack, Typography } from '@mui/material';
 import { Link } from 'react-router-dom';
 
@@ -16,7 +16,7 @@ export const RegisterActions = ({ step, handleBack }: RegisterActionsProps) => {
             variant="contained"
             color="secondary"
             onClick={handleBack}
-            startIcon={<ArrowBack />}
+            startIcon={<ArrowLeft />}
           >
             Retour
           </Button>

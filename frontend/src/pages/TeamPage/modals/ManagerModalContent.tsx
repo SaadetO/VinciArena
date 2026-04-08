@@ -71,7 +71,7 @@ export const ManagerModalContent = ({
         renderInput={(params) => (
           <TextField
             {...params}
-            placeholder="Utilisateur à promouvoir"
+            placeholder="Sélectionnez un membre"
             error={!!localError}
             helperText={localError}
             required

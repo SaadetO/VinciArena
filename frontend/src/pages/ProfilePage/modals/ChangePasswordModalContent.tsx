@@ -1,6 +1,6 @@
 import { Collapse, IconButton, Stack, TextField } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { Eye, EyeSlash } from '@gravity-ui/icons';
 import { useModalController } from '../../../hooks/useModalController';
 import { PasswordStrengthItem } from '../../../components/PasswordStrengthItem';
 import { getPasswordRules } from '../../../utils/passwordRules';
@@ -81,7 +81,7 @@ export const ChangePasswordModalContent = ({
   }, [password, setError, onSelect, isValid]);
 
   return (
-    <Stack spacing="0.75rem">
+    <Stack spacing="0.625rem">
       <Stack spacing="0.25rem">
         <TextField
           autoFocus
@@ -98,7 +98,7 @@ export const ChangePasswordModalContent = ({
             input: {
               endAdornment: password.password.trim().length > 0 && (
                 <IconButton onClick={() => toggleShowPassword('password')}>
-                  {showPassword.password ? <VisibilityOff /> : <Visibility />}
+                  {showPassword.password ? <EyeSlash /> : <Eye />}
                 </IconButton>
               ),
             },
@@ -142,15 +142,15 @@ export const ChangePasswordModalContent = ({
                   onClick={() => toggleShowPassword('confirmPassword')}
                 >
                   {showPassword.confirmPassword ? (
-                    <VisibilityOff />
+                    <EyeSlash />
                   ) : (
-                    <Visibility />
+                    <Eye />
                   )}
                 </IconButton>
               ),
             },
           }}
-        />
+          />
       )}
     </Stack>
   );
