@@ -105,7 +105,6 @@ export const FilterModalContent = ({
     );
   }, [initialStatuses, statusOptions]);
 
-  // Report local state changes to parent via ref
   useEffect(() => {
     onFiltersChange({
       teams: selectedTeams.map((t) => t.idTeam),
@@ -123,7 +122,7 @@ export const FilterModalContent = ({
             value={selectedTeams}
             onChange={setSelectedTeams}
             loading={isLoadingTeams}
-            placeholder="Sélectionnez des équipes"
+            placeholder="Filtrer par équipes"
             getOptionLabel={(team) => team.name}
             getOptionId={(team) => team.idTeam}
           />
@@ -132,7 +131,7 @@ export const FilterModalContent = ({
             value={selectedMembers}
             onChange={setSelectedMembers}
             loading={isLoadingMembers}
-            placeholder="Sélectionnez des membres"
+            placeholder="Filtrer par membres"
             getOptionLabel={(member) => member.tag}
             getOptionId={(member) => member.id}
             getOptionAvatar={(member) => member.avatar ?? undefined}
@@ -145,7 +144,7 @@ export const FilterModalContent = ({
           value={selectedStatuses}
           onChange={setSelectedStatuses}
           loading={false}
-          placeholder="Sélectionnez des statuts"
+          placeholder="Filtrer par états"
           getOptionLabel={(status) => status.label}
           getOptionId={(status) => status.value}
         />
