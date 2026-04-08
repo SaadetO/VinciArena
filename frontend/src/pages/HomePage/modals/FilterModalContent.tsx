@@ -80,8 +80,7 @@ export const FilterModalContent = ({
         cachedTeams.filter((t) => initialTeams.includes(t.idTeam)),
       );
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [cachedMembers, cachedTeams, fetchMembers, initialTeams, fetchTeams]);
 
   useEffect(() => {
     if (cachedMembers.length === 0) {
