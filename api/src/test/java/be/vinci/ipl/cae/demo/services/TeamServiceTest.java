@@ -372,6 +372,159 @@ class TeamServiceTest {
   }
 
   @Test
+  void getTeamDetailsAsRegularMemberWithExistingManager2() {
+    // Arrange
+    Team team = new Team();
+    team.setIdTeam(1L);
+    team.setIsActive(true);
+
+    Member manager1 = new Member();
+    manager1.setIdMember(10L);
+    manager1.setTeam(team);
+    team.setManager1(manager1);
+
+    Member manager2 = new Member();
+    manager2.setIdMember(20L);
+    manager2.setTeam(team);
+    team.setManager2(manager2);
+
+    creator.setTeam(team);
+
+    team.setMembers(List.of(manager1, manager2, creator));
+
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+    when(memberService.getUserSummary(manager1)).thenReturn(
+        UserSummaryDto.builder().id(10L).build());
+    when(memberService.getUserSummary(manager2)).thenReturn(
+        UserSummaryDto.builder().id(20L).build()
+    );
+
+    // Act
+    TeamDetailsDto result = teamService.getTeamDetails(1L, creator);
+
+    // Assert
+    assertAll(
+        () -> assertNotNull(result),
+        () -> assertNull(result.getJoinRequests())
+    );
+  }
+
+  @Test
+  void getTeamDetailsAsRegularMemberWithExistingBannedMember() {
+    // Arrange
+    Team team = new Team();
+    team.setIdTeam(1L);
+    team.setIsActive(true);
+
+    Member manager1 = new Member();
+    manager1.setIdMember(10L);
+    manager1.setTeam(team);
+    team.setManager1(manager1);
+
+    creator.setTeam(team);
+
+    Member bannedMember = new Member();
+    bannedMember.setIdMember(30L);
+    bannedMember.setTeam(team);
+
+    team.setMembers(List.of(manager1, creator, bannedMember));
+
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+    when(memberService.getUserSummary(manager1)).thenReturn(
+        UserSummaryDto.builder().id(10L).build());
+
+    // Act
+    TeamDetailsDto result = teamService.getTeamDetails(1L, creator);
+
+    // Assert
+    assertAll(
+        () -> assertNotNull(result),
+        () -> assertNull(result.getJoinRequests()),
+        () -> assertFalse(result.getMembers().contains(UserSummaryDto.builder().id(30L).build()))
+    );
+  }
+
+  @Test
+  void getTeamDetailsAsVisitor() {
+    // Arrange
+    Team team = new Team();
+    team.setIdTeam(1L);
+    team.setIsActive(true);
+
+    Member manager1 = new Member();
+    manager1.setIdMember(10L);
+    manager1.setTeam(team);
+    team.setManager1(manager1);
+
+    creator.setTeam(team);
+
+    team.setMembers(List.of(manager1, creator));
+
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+    when(memberService.getUserSummary(manager1)).thenReturn(
+        UserSummaryDto.builder().id(10L).build());
+
+    // Act
+    TeamDetailsDto result = teamService.getTeamDetails(1L, null);
+
+    // Assert
+    assertAll(
+        () -> assertNotNull(result),
+        () -> assertNull(result.getJoinRequests())
+    );
+  }
+
+  @Test
+  void getTeamDetailsAsManagerWithExistingManager2() {
+    // Arrange
+    Team team = new Team();
+    team.setIdTeam(1L);
+    team.setIsActive(true);
+
+    Member manager1 = new Member();
+    manager1.setIdMember(10L);
+    manager1.setTeam(team);
+    team.setManager1(manager1);
+
+    Member manager2 = new Member();
+    manager2.setIdMember(20L);
+    manager2.setTeam(team);
+    team.setManager2(manager2);
+
+    creator.setTeam(team);
+
+    team.setMembers(List.of(manager1, manager2, creator));
+
+    JoinRequest jr = new JoinRequest();
+    jr.setIdJoinRequest(100L);
+    jr.setMember(new Member());
+    jr.getMember().setIdMember(30L);
+    jr.setRequestedTeam(team);
+    jr.setStatus(RequestStatus.PENDING);
+
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+    when(memberService.getUserSummary(manager1)).thenReturn(
+        UserSummaryDto.builder().id(10L).build());
+    when(memberService.getUserSummary(manager2)).thenReturn(
+        UserSummaryDto.builder().id(20L).build()
+    );
+
+    when(joinRequestRepository.findAllByRequestedTeamAndStatus(team, RequestStatus.PENDING))
+        .thenReturn(List.of(jr));
+
+    // Act
+    TeamDetailsDto result = teamService.getTeamDetails(1L, manager2);
+
+    // Assert
+    assertAll(
+        () -> assertNotNull(result),
+        () -> assertNotNull(result.getJoinRequests()),
+        () -> assertEquals(1, result.getJoinRequests().size()),
+        () -> assertEquals(100L, result.getJoinRequests().getFirst().getIdJoinRequest())
+    );
+  }
+
+  @Test
   void getTeamDetails_AsRegularMember() {
     // Arrange
     Team team = new Team();
