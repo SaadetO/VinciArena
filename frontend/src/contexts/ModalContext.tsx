@@ -154,8 +154,8 @@ const ModalContextProvider = ({ children }: { children: ReactNode }) => {
                   sx={{
                     maxHeight: '25rem',
                     overflowY: 'auto',
-                    paddingTop: '0.75rem',
-                    paddingBottom: '0.75rem',
+                    paddingTop: '0.5rem',
+                    paddingBottom: '0.5rem',
                   }}
                 >
                   {config.children}

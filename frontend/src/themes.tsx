@@ -17,6 +17,9 @@ declare module '@mui/material/styles' {
   interface SimplePaletteColorOptions {
     secondary?: string;
   }
+  interface BreakpointOverrides {
+    desktop: true;
+  }
 }
 
 declare module '@mui/material/Chip' {
@@ -64,6 +67,16 @@ const surfaceLevels = {
 const primaryColor = '#0088F6';
 
 export const theme = createTheme({
+  breakpoints: {
+    values: {
+      xs: 0,
+      sm: 600,
+      md: 900,
+      desktop: 1152,
+      lg: 1200,
+      xl: 1536,
+    },
+  },
   palette: {
     mode: 'dark',
     primary: {

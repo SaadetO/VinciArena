@@ -37,10 +37,10 @@ export const ProfilePage = () => {
           container
           spacing={3}
           padding="1.5rem 0 4rem"
-          direction={{ xs: 'column-reverse', md: 'row' }}
+          direction={{ xs: 'column-reverse', desktop: 'row' }}
           justifyContent="center"
         >
-          <Grid2 size={{ xs: 12, md: 6.5, lg: 7.5 }}>
+          <Grid2 size={{ xs: 12, desktop: 6.5, lg: 7.5 }}>
             <Stack spacing="1.5rem">
               {/* menu */}
               <Stack
@@ -55,7 +55,7 @@ export const ProfilePage = () => {
             </Stack>
           </Grid2>
           {authenticatedUser?.id === idNbr && (
-            <Grid2 size={{ xs: 12, md: 5.5, lg: 4.5 }}>
+            <Grid2 size={{ xs: 12, desktop: 5.5, lg: 4.5 }}>
               <Stack
                 sx={{ background: (theme) => theme.palette.background.s1 }}
                 borderRadius="1.5rem"
