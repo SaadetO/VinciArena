@@ -77,33 +77,29 @@ export const Step2 = ({ formData, handleChange, errors }: Step2Props) => {
       </Stack>
       {isValid && (
         <TextField
-            fullWidth
-            id="confirmPassword"
-            name="confirmPassword"
-            type={showPassword.confirmPassword ? 'text' : 'password'}
-            placeholder="Confirmer le mot de passe"
-            variant="outlined"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            helperText={errors.confirmPassword || ''}
-            error={!!errors.confirmPassword}
-            required
-            slotProps={{
-              input: {
-                endAdornment: formData.confirmPassword.trim().length > 0 && (
-                  <IconButton
-                    onClick={() => togglePasswordVisibility('confirmPassword')}
-                  >
-                    {showPassword.confirmPassword ? (
-                      <EyeSlash />
-                    ) : (
-                      <Eye />
-                    )}
-                  </IconButton>
-                ),
-              },
-            }}
-          />
+          fullWidth
+          id="confirmPassword"
+          name="confirmPassword"
+          type={showPassword.confirmPassword ? 'text' : 'password'}
+          placeholder="Confirmer le mot de passe"
+          variant="outlined"
+          value={formData.confirmPassword}
+          onChange={handleChange}
+          helperText={errors.confirmPassword || ''}
+          error={!!errors.confirmPassword}
+          required
+          slotProps={{
+            input: {
+              endAdornment: formData.confirmPassword.trim().length > 0 && (
+                <IconButton
+                  onClick={() => togglePasswordVisibility('confirmPassword')}
+                >
+                  {showPassword.confirmPassword ? <EyeSlash /> : <Eye />}
+                </IconButton>
+              ),
+            },
+          }}
+        />
       )}
     </Stack>
   );

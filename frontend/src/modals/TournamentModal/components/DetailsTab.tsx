@@ -14,7 +14,12 @@ interface DetailsTabProps {
   isCreation?: boolean;
 }
 
-export const DetailsTab = ({ formData, onChange, error, isCreation }: DetailsTabProps) => {
+export const DetailsTab = ({
+  formData,
+  onChange,
+  error,
+  isCreation,
+}: DetailsTabProps) => {
   const handleDateChange = (
     date: dayjs.Dayjs | null,
     field: keyof TournamentFormData,

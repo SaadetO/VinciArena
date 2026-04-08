@@ -11,7 +11,12 @@ interface BaseTabProps {
   isCreation?: boolean;
 }
 
-export const BaseTab = ({ formData, onChange, error, isCreation }: BaseTabProps) => {
+export const BaseTab = ({
+  formData,
+  onChange,
+  error,
+  isCreation,
+}: BaseTabProps) => {
   return (
     <Stack spacing="1rem">
       <Stack spacing="0.25rem">

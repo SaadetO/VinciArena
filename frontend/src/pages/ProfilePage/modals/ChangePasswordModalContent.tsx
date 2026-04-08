@@ -141,16 +141,12 @@ export const ChangePasswordModalContent = ({
                 <IconButton
                   onClick={() => toggleShowPassword('confirmPassword')}
                 >
-                  {showPassword.confirmPassword ? (
-                    <EyeSlash />
-                  ) : (
-                    <Eye />
-                  )}
+                  {showPassword.confirmPassword ? <EyeSlash /> : <Eye />}
                 </IconButton>
               ),
             },
           }}
-          />
+        />
       )}
     </Stack>
   );

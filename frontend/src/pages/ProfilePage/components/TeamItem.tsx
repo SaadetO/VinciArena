@@ -1,4 +1,12 @@
-import { Box, Button, IconButton, Skeleton, Stack, Tooltip, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  IconButton,
+  Skeleton,
+  Stack,
+  Tooltip,
+  Typography,
+} from '@mui/material';
 import { Plus, ArrowRight } from '@gravity-ui/icons';
 import { Dispatch, SetStateAction } from 'react';
 import { useNavigate } from 'react-router-dom';

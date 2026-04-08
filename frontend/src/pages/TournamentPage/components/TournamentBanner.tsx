@@ -39,7 +39,9 @@ export const TournamentBanner = ({
               <Chip
                 size="medium"
                 variant="text"
-                icon={<CalendarXmark style={{ width: '1rem', height: '1rem' }} />}
+                icon={
+                  <CalendarXmark style={{ width: '1rem', height: '1rem' }} />
+                }
                 label={formatDate(tournament.registrationDeadline, false)}
               />
             </Tooltip>
