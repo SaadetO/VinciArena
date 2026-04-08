@@ -97,8 +97,7 @@ export const FilterModalContent = ({
         cachedMembers.filter((m) => initialMembers.includes(m.id)),
       );
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [fetchMembers, initialMembers, cachedMembers]);
 
   useEffect(() => {
     setSelectedStatuses(
