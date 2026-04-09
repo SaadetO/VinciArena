@@ -40,9 +40,9 @@ public class AuthController {
    * @return true if invalid
    */
   private boolean isInvalidCredentials(Credentials credentials) {
-    return (credentials == null || credentials.getEmail() == null
+    return credentials == null || credentials.getEmail() == null
         || credentials.getEmail().isBlank() || credentials.getPassword() == null
-        || credentials.getPassword().isBlank());
+        || credentials.getPassword().isBlank();
   }
 
   /**
