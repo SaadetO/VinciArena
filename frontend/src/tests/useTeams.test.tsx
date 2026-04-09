@@ -14,7 +14,7 @@ import {
 } from '../types';
 import React from 'react';
 
-// mock the modal controller to avoid actual UI side effects
+// Mock the modal controller to avoid actual UI side effects
 vi.mock('../hooks/useModalController', () => ({
   useModalController: vi.fn(),
 }));
@@ -72,7 +72,7 @@ describe('useTeams hook', () => {
 
   beforeEach(() => {
     vi.stubGlobal('fetch', vi.fn());
-    // Fulfill the complete contract of the hook
+    // Mock modal controller to return the spy function
     vi.mocked(useModalController).mockReturnValue({
       setError: setErrorModal,
       setConfirmDisabled: vi.fn(),
@@ -94,7 +94,7 @@ describe('useTeams hook', () => {
       await result.current.createTeam('Team Alpha');
     });
 
-    // check if global context updated the managedTeamId
+    // Check if global context updated the managedTeamId
     expect(setAuthenticatedUser).toHaveBeenCalledWith(
       expect.objectContaining({
         managedTeamId: 42,
@@ -117,7 +117,7 @@ describe('useTeams hook', () => {
       await result.current.createTeam('ExistingTeam');
     });
 
-    // verify error was sent to modal instead of snackbar
+    // Verify error was sent to modal instead of snackbar
     expect(setErrorModal).toHaveBeenCalledWith(
       'Une équipe avec ce nom existe déjà.',
     );
@@ -133,14 +133,14 @@ describe('useTeams hook', () => {
       await result.current.promoteToManager(42, mockManager);
     });
 
-    // optimism check
+    // Optimism check
     const optimismFn = setTeam.mock.calls[0][0];
     const stateWithNewManager = optimismFn({
       managers: [],
     } as unknown as TeamDetailsInfoDto);
     expect(stateWithNewManager.managers).toContainEqual(mockManager);
 
-    // rollback check
+    // Rollback check
     const rollbackFn = setTeam.mock.calls[1][0];
     const revertedState = rollbackFn({
       managers: [mockManager],
@@ -175,19 +175,134 @@ describe('useTeams hook', () => {
       await result.current.resignManager(42);
     });
 
-    // optimism: current user (id 1) removed from managers
+    // Optimism: current user (id 1) removed from managers
     const optimismFn = setTeam.mock.calls[0][0];
     const stateMinusManager = optimismFn({
       managers: [mockUser],
     } as unknown as TeamDetailsInfoDto);
     expect(stateMinusManager.managers).toHaveLength(0);
 
-    // rollback: current user restored to managers list
+    // Rollback: current user restored to managers list
     const rollbackFn = setTeam.mock.calls[1][0];
     const restoredState = rollbackFn({
       members: [mockMember],
       managers: [],
     } as unknown as TeamDetailsInfoDto);
     expect(restoredState.managers).toContainEqual(mockMember);
+  });
+
+  it('should get team by id and handle error logic for 400 and 404', async () => {
+    const mockTeam = { idTeam: 5, name: 'Team Rocket' };
+    const setTeam = vi.fn();
+    const setError = vi.fn();
+
+    const { result } = renderHook(() => useTeams({ setTeam, setError }), {
+      wrapper,
+    });
+
+    // 1. Success: Standard retrieval
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => mockTeam,
+      } as Response),
+    );
+
+    await act(async () => {
+      await result.current.getById(5);
+    });
+
+    // Alignment with "Bearer token" received in the hook
+    expect(fetch).toHaveBeenCalledWith(
+      '/api/teams/5/details',
+      expect.objectContaining({
+        headers: {
+          Authorization: 'Bearer token',
+          'Content-Type': 'application/json',
+        },
+      }),
+    );
+    expect(setTeam).toHaveBeenCalledWith(mockTeam);
+
+    // 2. Error 400: Invalid ID
+    await act(async () => {
+      await result.current.getById(-1);
+    });
+
+    expect(setError).toHaveBeenCalledWith(
+      expect.objectContaining({
+        code: 400,
+        subtitle: "L'identifiant de la team doit être un nombre positif.",
+      }),
+    );
+
+    // 3. Error 404: Team not found
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 404,
+      } as Response),
+    );
+
+    await act(async () => {
+      await result.current.getById(99);
+    });
+
+    expect(setError).toHaveBeenCalledWith(
+      expect.objectContaining({
+        code: 404,
+        message: 'Equipe introuvable',
+      }),
+    );
+  });
+
+  it('should fetch all teams and handle modal error display', async () => {
+    const mockTeams = [
+      { idTeam: 1, name: 'Team Alpha' },
+      { idTeam: 2, name: 'Team Bravo' },
+    ];
+    const setTeams = vi.fn();
+
+    const { result } = renderHook(() => useTeams({ setTeams }), { wrapper });
+
+    // 1. Success: Fetch list
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => mockTeams,
+      } as Response),
+    );
+
+    await act(async () => {
+      await result.current.getAll();
+    });
+
+    expect(fetch).toHaveBeenCalledWith('/api/teams', {
+      headers: {
+        Authorization: 'Bearer token',
+      },
+    });
+    expect(setTeams).toHaveBeenCalledWith(mockTeams);
+
+    // 2. Error: Verification of Modal display
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 500,
+      } as Response),
+    );
+
+    await act(async () => {
+      await result.current.getAll();
+    });
+
+    // Check that setErrorModal from useModalController was called
+    expect(setErrorModal).toHaveBeenCalledWith(
+      'Erreur lors de la récupération des Teams',
+    );
   });
 });
