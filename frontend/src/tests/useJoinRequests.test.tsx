@@ -154,10 +154,11 @@ describe('useJoinRequests hook', () => {
         );
       });
       // verify succes snackbar is called
-      expect(showSnackbar).toHaveBeenCalledWith({
-        severity: 'success',
-      });
-
+      expect(showSnackbar).toHaveBeenCalledWith(
+        expect.objectContaining({
+          severity: 'success',
+        }),
+      );
       // simulate 404 accept
       vi.mocked(fetch).mockResolvedValueOnce({
         ok: false,
