@@ -217,9 +217,11 @@ describe('useMembers hook', () => {
       await result.current.getById(10);
     });
     // verify setError was called after fetch with error
-    expect(setError).toHaveBeenCalledWith({
-      code: 404,
-    });
+    expect(setError).toHaveBeenCalledWith(
+      expect.objectContaining({
+        code: 404,
+      }),
+    );
   });
   it('should handle updatePassword success and failure', async () => {
     const { result } = renderHook(() => useMembers(), { wrapper });

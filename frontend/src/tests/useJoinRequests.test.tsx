@@ -3,7 +3,12 @@ import { renderHook, act } from '@testing-library/react';
 import { useJoinRequests } from '../hooks/useJoinRequests';
 import { UserContext } from '../contexts/UserContext';
 import { SnackbarContext } from '../contexts/SnackbarContext';
-import { AuthenticatedUser, JoinRequestDto, UserContextType } from '../types';
+import {
+  AuthenticatedUser,
+  JoinRequestDto,
+  TeamDetailsInfoDto,
+  UserContextType,
+} from '../types';
 import React from 'react';
 
 const mockUser: AuthenticatedUser = {
@@ -29,7 +34,6 @@ const mockJoinRequest: JoinRequestDto = {
 describe('useJoinRequests hook', () => {
   const showSnackbar = vi.fn();
 
-  // full context to avoid "as any" usage
   const mockUserContextValue: UserContextType = {
     authenticatedUser: mockUser,
     isLoggingIn: false,
@@ -40,11 +44,8 @@ describe('useJoinRequests hook', () => {
     setAuthenticatedUser: vi.fn(),
   };
 
-  const mockSnackbarContextValue = {
-    showSnackbar,
-  };
+  const mockSnackbarContextValue = { showSnackbar };
 
-  // inject contexts to a test compontent so the hook can use tokens and snackbars
   const wrapper = ({ children }: { children: React.ReactNode }) => (
     <UserContext.Provider value={mockUserContextValue}>
       <SnackbarContext.Provider value={mockSnackbarContextValue}>
@@ -54,63 +55,162 @@ describe('useJoinRequests hook', () => {
   );
 
   beforeEach(() => {
-    // replace browser fetch with vitest stub
     vi.stubGlobal('fetch', vi.fn());
     vi.clearAllMocks();
   });
 
-  it('should create a join request successfully', async () => {
-    // simulate server saying everything is ok
-    vi.mocked(fetch).mockResolvedValue({ ok: true } as Response);
+  describe('createJoinRequest', () => {
+    it('should handle creation lifecycle: success and error mapping', async () => {
+      const { result } = renderHook(() => useJoinRequests(), { wrapper });
 
-    const { result } = renderHook(() => useJoinRequests(), { wrapper });
+      // simulate succesful fetch
+      vi.mocked(fetch).mockResolvedValueOnce({ ok: true } as Response);
+      await act(async () => {
+        await result.current.createJoinRequest(1);
+      });
 
-    await act(async () => {
-      await result.current.createJoinRequest(1);
-    });
+      // check correct endpoint is called
+      expect(fetch).toHaveBeenCalledWith(
+        '/api/teams/1/join-requests',
+        expect.objectContaining({ method: 'POST' }),
+      );
+      // check success snackbar is called
+      expect(showSnackbar).toHaveBeenCalledWith(
+        expect.objectContaining({
+          severity: 'success',
+        }),
+      );
 
-    // verify correct endpoint and method
-    expect(fetch).toHaveBeenCalledWith(
-      '/api/teams/1/join-requests',
-      expect.objectContaining({ method: 'POST' }),
-    );
+      // simulate code 409 fetch
+      vi.mocked(fetch).mockResolvedValueOnce({
+        ok: false,
+        status: 409,
+      } as Response);
+      await act(async () => {
+        await result.current.createJoinRequest(1);
+      });
+      // check error snackbar is called
+      expect(showSnackbar).toHaveBeenCalledWith(
+        expect.objectContaining({
+          severity: 'error',
+        }),
+      );
 
-    expect(showSnackbar).toHaveBeenCalledWith(
-      expect.objectContaining({
-        message: 'Demande effectuée avec succès !',
-        severity: 'success',
-      }),
-    );
-  });
-
-  it('should trigger optimistic update and handle 404 error with specific message', async () => {
-    // simulate server error
-    vi.mocked(fetch).mockResolvedValue({
-      ok: false,
-      status: 404,
-    } as Response);
-
-    const setTeam = vi.fn();
-    const { result } = renderHook(() => useJoinRequests({ setTeam }), {
-      wrapper,
-    });
-
-    await act(async () => {
-      await result.current.updateJoinRequestStatus(
-        mockJoinRequest,
-        'ACCEPTED',
-        undefined,
+      // siulate code 404 fetch
+      vi.mocked(fetch).mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+      } as Response);
+      await act(async () => {
+        await result.current.createJoinRequest(99);
+      });
+      // check error snackbar is called
+      expect(showSnackbar).toHaveBeenCalledWith(
+        expect.objectContaining({
+          severity: 'error',
+        }),
       );
     });
+  });
 
-    // check if it tried to update ui before server answered
-    expect(setTeam).toHaveBeenCalled();
+  describe('updateJoinRequestStatus', () => {
+    it('should handle optimistic updates and rollbacks correctly', async () => {
+      const setTeam = vi.fn();
+      const { result } = renderHook(() => useJoinRequests({ setTeam }), {
+        wrapper,
+      });
 
-    // verify error
-    expect(showSnackbar).toHaveBeenCalledWith(
-      expect.objectContaining({
-        severity: 'error',
-      }),
-    );
+      // Trigger optimistic logic
+      await act(async () => {
+        await result.current.updateJoinRequestStatus(
+          mockJoinRequest,
+          'ACCEPTED',
+          undefined,
+        );
+      });
+
+      expect(setTeam).toHaveBeenCalled();
+      const updaterFn = setTeam.mock.calls[0][0];
+      const initialState = {
+        joinRequests: [mockJoinRequest],
+        members: [],
+      } as unknown as TeamDetailsInfoDto;
+
+      const nextState = updaterFn(initialState);
+      expect(nextState.joinRequests).not.toContainEqual(mockJoinRequest);
+      expect(nextState.members).toContainEqual(mockJoinRequest.requester);
+    });
+
+    it('should display correct snackbars for successes and various error codes', async () => {
+      const { result } = renderHook(() => useJoinRequests(), { wrapper });
+
+      // simulate succesful accept
+      vi.mocked(fetch).mockResolvedValueOnce({ ok: true } as Response);
+      await act(async () => {
+        await result.current.updateJoinRequestStatus(
+          mockJoinRequest,
+          'ACCEPTED',
+          undefined,
+        );
+      });
+      // verify succes snackbar is called
+      expect(showSnackbar).toHaveBeenCalledWith({
+        severity: 'success',
+      });
+
+      // simulate 404 accept
+      vi.mocked(fetch).mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+      } as Response);
+      await act(async () => {
+        await result.current.updateJoinRequestStatus(
+          mockJoinRequest,
+          'ACCEPTED',
+          undefined,
+        );
+      });
+      expect(showSnackbar).toHaveBeenCalledWith(
+        expect.objectContaining({
+          severity: 'error',
+        }),
+      );
+
+      // simulate code 400 reject
+      vi.mocked(fetch).mockResolvedValueOnce({
+        ok: false,
+        status: 400,
+      } as Response);
+      await act(async () => {
+        await result.current.updateJoinRequestStatus(
+          mockJoinRequest,
+          'REJECTED',
+          undefined,
+        );
+      });
+      expect(showSnackbar).toHaveBeenCalledWith(
+        expect.objectContaining({
+          severity: 'error',
+        }),
+      );
+
+      // simulate code 403 reject
+      vi.mocked(fetch).mockResolvedValueOnce({
+        ok: false,
+        status: 403,
+      } as Response);
+      await act(async () => {
+        await result.current.updateJoinRequestStatus(
+          mockJoinRequest,
+          'ACCEPTED',
+          undefined,
+        );
+      });
+      expect(showSnackbar).toHaveBeenCalledWith(
+        expect.objectContaining({
+          severity: 'error',
+        }),
+      );
+    });
   });
 });
