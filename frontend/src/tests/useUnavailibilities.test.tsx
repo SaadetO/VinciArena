@@ -55,6 +55,7 @@ describe('useUnavailabilities hook', () => {
     showSnackbar,
   };
 
+  // test component
   const wrapper = ({ children }: { children: React.ReactNode }) => (
     <UserContext.Provider value={mockUserContextValue}>
       <SnackbarContext.Provider value={mockSnackbarContextValue}>
@@ -64,18 +65,21 @@ describe('useUnavailabilities hook', () => {
   );
 
   beforeEach(() => {
+    // stub return for fetches
     vi.stubGlobal('fetch', vi.fn());
     vi.clearAllMocks();
   });
 
-  it('should add unavailability: optimism -> success (id swap)', async () => {
+  it('should add unavailability: optimism -> success', async () => {
     const realId = 999;
+    // succes mock return
     vi.mocked(fetch).mockResolvedValue({
       ok: true,
       json: async () => ({ idUnavailability: realId }),
     } as Response);
 
     const setUser = vi.fn();
+    // init hook
     const { result } = renderHook(() => useUnavailabilities({ setUser }), {
       wrapper,
     });
@@ -90,16 +94,16 @@ describe('useUnavailabilities hook', () => {
       await result.current.addUnavailability(newDates);
     });
 
-    // check optimism (added with tempId)
+    // verify optimism is added with tempId
     const optimismFn = setUser.mock.calls[0][0];
     const stateWithTemp = optimismFn(initialProfile);
     expect(stateWithTemp.unavailabilities[0].id).toBe(123);
 
-    // check success (tempId replaced by real backend id)
+    // check success after resolution = tempid is replaced by real backend id
     const successFn = setUser.mock.calls[1][0];
     const finalState = successFn(stateWithTemp);
     expect(finalState.unavailabilities[0].id).toBe(realId);
-
+    // verify succes snackbar is called
     expect(showSnackbar).toHaveBeenCalledWith(
       expect.objectContaining({ severity: 'success' }),
     );
@@ -148,12 +152,12 @@ describe('useUnavailabilities hook', () => {
       await result.current.deleteUnavailability(toDelete);
     });
 
-    // check optimism (removed immediately)
+    // check optimism removed dates immediatly
     const optimismFn = setUser.mock.calls[0][0];
     const stateMinusOne = optimismFn({ unavailabilities: [toDelete] });
     expect(stateMinusOne.unavailabilities).toHaveLength(0);
 
-    // check rollback (restored after fetch failure)
+    // check rollback , dates restored after promise failure
     const rollbackFn = setUser.mock.calls[1][0];
     const restoredState = rollbackFn({ unavailabilities: [] });
     expect(restoredState.unavailabilities).toContainEqual(toDelete);
