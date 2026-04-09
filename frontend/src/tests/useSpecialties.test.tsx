@@ -13,7 +13,6 @@ const mockSpecialties: SpecialtyDto[] = [
 describe('useSpecialties hook', () => {
   const showSnackbar = vi.fn();
 
-  // full mock context
   const mockSnackbarContextValue = {
     showSnackbar,
   };

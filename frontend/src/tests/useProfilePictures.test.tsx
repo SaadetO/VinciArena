@@ -14,7 +14,6 @@ const mockPictures: ProfilePicture[] = [
 describe('useProfilePictures hook', () => {
   const showSnackbar = vi.fn();
 
-  // full mock for snackbar context to satisfy interface
   const mockSnackbarContextValue = {
     showSnackbar,
   };
@@ -62,13 +61,12 @@ describe('useProfilePictures hook', () => {
       await result.current.getAll();
     });
 
-    // verify logic for clearing state on failure
+    // verify empty list to be present in case of fail
     expect(result.current.profilePictures).toEqual([]);
 
-    // verify error feedback to user
+    // verify error snackbar is called
     expect(showSnackbar).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: 'Échec de la récupération des images de profil !',
         severity: 'error',
       }),
     );

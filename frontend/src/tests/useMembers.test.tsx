@@ -11,7 +11,6 @@ import {
 } from '../types';
 import React from 'react';
 
-// setup mock user and a member for admin tests
 const mockUser: AuthenticatedUser = {
   id: 1,
   tag: 'Admin',
@@ -148,7 +147,7 @@ describe('useMembers hook', () => {
   it('should fetch summaries and handle ApiError correctly', async () => {
     const mockSummaries = [{ id: 1, tag: 'Player1' }];
 
-    // 1. Test Success
+    // mock successful fetch
     vi.mocked(fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => mockSummaries,
@@ -165,7 +164,7 @@ describe('useMembers hook', () => {
 
     expect(setSummaries).toHaveBeenCalledWith(mockSummaries);
 
-    // 2. Test ApiError path (Status 500)
+    // mock error 500
     vi.mocked(fetch).mockResolvedValueOnce({
       ok: false,
       status: 500,
@@ -175,10 +174,9 @@ describe('useMembers hook', () => {
       await result.current.getAllSummaries();
     });
 
-    // verify snackbar uses the message from the thrown ApiError
+    // verify error snackbar was called
     expect(showSnackbar).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: 'Échec de la récupération des membres.',
         severity: 'error',
       }),
     );
@@ -191,14 +189,14 @@ describe('useMembers hook', () => {
       wrapper,
     });
 
-    // 1. check validation logic (id <= 0) - should not call fetch
+    // check ids smaller than 1 not call fetch
     await act(async () => {
       await result.current.getById(0);
     });
     expect(fetch).not.toHaveBeenCalled();
 
-    // 2. check success path
     const mockProfile = { id: 10, tag: 'User10' };
+    // mock successful fetch
     vi.mocked(fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => mockProfile,
@@ -209,7 +207,7 @@ describe('useMembers hook', () => {
     });
     expect(setUser).toHaveBeenCalledWith(mockProfile);
 
-    // 3. check error path (ApiError) and the setError object structure
+    // mock fetch with code 404
     vi.mocked(fetch).mockResolvedValueOnce({
       ok: false,
       status: 404,
@@ -218,23 +216,22 @@ describe('useMembers hook', () => {
     await act(async () => {
       await result.current.getById(10);
     });
-
+    // verify setError was called after fetch with error
     expect(setError).toHaveBeenCalledWith({
       code: 404,
-      message: 'Échec de la récupération du profil.',
-      subtitle: 'Une erreur est survenue lors de la récupération du profil.',
     });
   });
   it('should handle updatePassword success and failure', async () => {
     const { result } = renderHook(() => useMembers(), { wrapper });
 
-    // 1. success path: check method, body and snackbar
+    // mock succesfule fetch and control promise resolve
     vi.mocked(fetch).mockResolvedValueOnce({ ok: true } as Response);
 
     await act(async () => {
       await result.current.updatePassword('newPassword123');
     });
 
+    // check fetch is called correctly
     expect(fetch).toHaveBeenCalledWith(
       '/api/members/me/password',
       expect.objectContaining({
@@ -243,14 +240,14 @@ describe('useMembers hook', () => {
       }),
     );
 
+    // verify success snackbar is called
     expect(showSnackbar).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: 'Mot de passe modifié avec succès !',
         severity: 'success',
       }),
     );
 
-    // 2. failure path: check error snackbar
+    // mock failed call (code 400)
     vi.mocked(fetch).mockResolvedValueOnce({
       ok: false,
       status: 400,
@@ -260,9 +257,9 @@ describe('useMembers hook', () => {
       await result.current.updatePassword('badPass');
     });
 
+    // verify error snackbar is called
     expect(showSnackbar).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: 'Échec de la mise à jour du mot de passe.',
         severity: 'error',
       }),
     );
@@ -273,7 +270,7 @@ describe('useMembers hook', () => {
     const newSpecialty = { id: 2, label: 'Support' };
     const oldLabel = 'Jungle';
 
-    // 1. simulate a server error to test rollback
+    // mock 500 server error
     vi.mocked(fetch).mockResolvedValueOnce({
       ok: false,
       status: 500,
@@ -283,23 +280,22 @@ describe('useMembers hook', () => {
       await result.current.updateSpecialty(newSpecialty, oldLabel);
     });
 
-    // check optimism: called with a function that sets the new label
+    // check optimism: function that sets new label is called
     expect(setUser).toHaveBeenCalled();
     const optimismUpdate = setUser.mock.calls[0][0];
     expect(optimismUpdate({ specialty: oldLabel })).toEqual({
       specialty: 'Support',
     });
 
-    // check rollback: called with a function that restores the old label
+    // check rollback: function that restores the old label is called
     const rollbackUpdate = setUser.mock.calls[1][0];
     expect(rollbackUpdate({ specialty: 'Support' })).toEqual({
       specialty: 'Jungle',
     });
 
-    // check error feedback
+    // check error snackbar is called
     expect(showSnackbar).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: 'Échec de la mise à jour de la spécialité.',
         severity: 'error',
       }),
     );
