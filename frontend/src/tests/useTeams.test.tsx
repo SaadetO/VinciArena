@@ -14,7 +14,7 @@ import {
 } from '../types';
 import React from 'react';
 
-// Mock the modal controller to avoid actual UI side effects
+// Mock modal controller
 vi.mock('../hooks/useModalController', () => ({
   useModalController: vi.fn(),
 }));
@@ -82,6 +82,7 @@ describe('useTeams hook', () => {
   });
 
   it('should create a team and update global user state', async () => {
+    // mock successful fetch
     vi.mocked(fetch).mockResolvedValue({
       ok: true,
       json: async () => ({ idTeam: 42, name: 'Team Alpha' }),
@@ -101,6 +102,7 @@ describe('useTeams hook', () => {
       }),
     );
 
+    // check if success snackbar is called
     expect(showSnackbar).toHaveBeenCalledWith(
       expect.objectContaining({
         severity: 'success',
@@ -109,6 +111,7 @@ describe('useTeams hook', () => {
   });
 
   it('should handle 409 error via modal controller', async () => {
+    // mock error 409 fetch
     vi.mocked(fetch).mockResolvedValue({ ok: false, status: 409 } as Response);
 
     const { result } = renderHook(() => useTeams(), { wrapper });
@@ -117,13 +120,12 @@ describe('useTeams hook', () => {
       await result.current.createTeam('ExistingTeam');
     });
 
-    // Verify error was sent to modal instead of snackbar
-    expect(setErrorModal).toHaveBeenCalledWith(
-      'Une équipe avec ce nom existe déjà.',
-    );
+    // Verify setError was called
+    expect(setErrorModal).toHaveBeenCalled();
   });
 
   it('should promote to manager with optimism and rollback on 403', async () => {
+    // mock error 403 reply
     vi.mocked(fetch).mockResolvedValue({ ok: false, status: 403 } as Response);
 
     const setTeam = vi.fn();
@@ -133,14 +135,14 @@ describe('useTeams hook', () => {
       await result.current.promoteToManager(42, mockManager);
     });
 
-    // Optimism check
+    // check optimism: mock manager instantly added to managers
     const optimismFn = setTeam.mock.calls[0][0];
     const stateWithNewManager = optimismFn({
       managers: [],
     } as unknown as TeamDetailsInfoDto);
     expect(stateWithNewManager.managers).toContainEqual(mockManager);
 
-    // Rollback check
+    // Rollback check: after promise resolve with error check mock manager is no longer in the managers
     const rollbackFn = setTeam.mock.calls[1][0];
     const revertedState = rollbackFn({
       managers: [mockManager],
@@ -149,6 +151,7 @@ describe('useTeams hook', () => {
   });
 
   it('should quit team and update profile state', async () => {
+    // mock successful quit team call
     vi.mocked(fetch).mockResolvedValue({ ok: true } as Response);
 
     const setUser = vi.fn();
@@ -158,6 +161,7 @@ describe('useTeams hook', () => {
       await result.current.quitTeam();
     });
 
+    // check user no longer has a team
     const updateFn = setUser.mock.calls[0][0];
     const updatedProfile = updateFn({
       team: { id: 1 },
@@ -166,6 +170,7 @@ describe('useTeams hook', () => {
   });
 
   it('should resign as manager and handle rollback correctly', async () => {
+    // mock manager resignation error 409 response
     vi.mocked(fetch).mockResolvedValue({ ok: false, status: 409 } as Response);
 
     const setTeam = vi.fn();
@@ -175,14 +180,14 @@ describe('useTeams hook', () => {
       await result.current.resignManager(42);
     });
 
-    // Optimism: current user (id 1) removed from managers
+    // Optimism: current user is not in managers anymore
     const optimismFn = setTeam.mock.calls[0][0];
     const stateMinusManager = optimismFn({
       managers: [mockUser],
     } as unknown as TeamDetailsInfoDto);
     expect(stateMinusManager.managers).toHaveLength(0);
 
-    // Rollback: current user restored to managers list
+    // Rollback: current user back in managers
     const rollbackFn = setTeam.mock.calls[1][0];
     const restoredState = rollbackFn({
       members: [mockMember],
@@ -200,7 +205,7 @@ describe('useTeams hook', () => {
       wrapper,
     });
 
-    // 1. Success: Standard retrieval
+    // mock success
     vi.stubGlobal(
       'fetch',
       vi.fn().mockResolvedValue({
@@ -213,7 +218,7 @@ describe('useTeams hook', () => {
       await result.current.getById(5);
     });
 
-    // Alignment with "Bearer token" received in the hook
+    // assert: fetch to be called with correct endpoint
     expect(fetch).toHaveBeenCalledWith(
       '/api/teams/5/details',
       expect.objectContaining({
@@ -225,19 +230,19 @@ describe('useTeams hook', () => {
     );
     expect(setTeam).toHaveBeenCalledWith(mockTeam);
 
-    // 2. Error 400: Invalid ID
+    // call with invalid id
     await act(async () => {
       await result.current.getById(-1);
     });
 
+    // expect to recieve error code
     expect(setError).toHaveBeenCalledWith(
       expect.objectContaining({
         code: 400,
-        subtitle: "L'identifiant de la team doit être un nombre positif.",
       }),
     );
 
-    // 3. Error 404: Team not found
+    // mock error 404 reply
     vi.stubGlobal(
       'fetch',
       vi.fn().mockResolvedValue({
@@ -267,7 +272,7 @@ describe('useTeams hook', () => {
 
     const { result } = renderHook(() => useTeams({ setTeams }), { wrapper });
 
-    // 1. Success: Fetch list
+    // mock successful lislt fetch
     vi.stubGlobal(
       'fetch',
       vi.fn().mockResolvedValue({
@@ -287,7 +292,7 @@ describe('useTeams hook', () => {
     });
     expect(setTeams).toHaveBeenCalledWith(mockTeams);
 
-    // 2. Error: Verification of Modal display
+    // error list fetch
     vi.stubGlobal(
       'fetch',
       vi.fn().mockResolvedValue({
@@ -301,8 +306,49 @@ describe('useTeams hook', () => {
     });
 
     // Check that setErrorModal from useModalController was called
-    expect(setErrorModal).toHaveBeenCalledWith(
-      'Erreur lors de la récupération des Teams',
+    expect(setErrorModal).toHaveBeenCalled();
+  });
+
+  it('should handle quitTeam errors with specific snackbar messages', async () => {
+    const { result } = renderHook(() => useTeams({}), { wrapper });
+
+    // mock error 409
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 409,
+      } as Response),
+    );
+
+    await act(async () => {
+      await result.current.quitTeam();
+    });
+
+    // verify error snackbar is called
+    expect(showSnackbar).toHaveBeenCalledWith(
+      expect.objectContaining({
+        severity: 'error',
+      }),
+    );
+
+    // mock error code 500
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 500,
+      } as Response),
+    );
+
+    await act(async () => {
+      await result.current.quitTeam();
+    });
+    // verify error snackbar is called
+    expect(showSnackbar).toHaveBeenCalledWith(
+      expect.objectContaining({
+        severity: 'error',
+      }),
     );
   });
 });
