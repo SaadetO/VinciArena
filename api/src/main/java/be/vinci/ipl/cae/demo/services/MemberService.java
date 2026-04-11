@@ -1,5 +1,6 @@
 package be.vinci.ipl.cae.demo.services;
 
+import be.vinci.ipl.cae.demo.exceptions.ForbiddenException;
 import be.vinci.ipl.cae.demo.exceptions.UnauthorizedException;
 import be.vinci.ipl.cae.demo.models.dtos.AuthenticatedUser;
 import be.vinci.ipl.cae.demo.models.dtos.MemberSummaryDto;
@@ -380,6 +381,20 @@ public class MemberService {
 
     return member;
   }
+
+  /**
+   * Check if the requester is an admin.
+   *
+   * @param requester the member performing the action
+   * @throws ForbiddenException if the member is not an admin
+   */
+  private void checkAdmin(Member requester) {
+    if (!requester.isAdmin()) {
+      throw new ForbiddenException("Accès réservé aux admins");
+    }
+  }
+
+
 
 
 
