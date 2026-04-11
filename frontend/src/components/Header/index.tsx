@@ -52,20 +52,37 @@ export const Header = () => {
           }
           sx={{ flex: 1 }}
         >
-          <Tab label="Tournois" value="/" component={Link} to="/" />
-          <Tab label="Teams" value="/teams" component={Link} to="/teams" />
+          <Tab
+            label="Tournois"
+            value="/"
+            component={Link}
+            to="/"
+            data-testid="nav-tournaments-tab"
+          />
+          <Tab
+            label="Teams"
+            value="/teams"
+            component={Link}
+            to="/teams"
+            data-testid="nav-teams-tab"
+          />
         </Tabs>
         <Stack direction="row" spacing="1.5rem">
           <Stack direction="row" spacing="1rem">
             {authenticatedUser?.admin && (
               <Stack direction="row" spacing="1rem">
-                <Button variant="contained" onClick={() => openCreateModal()}>
+                <Button
+                  variant="contained"
+                  onClick={() => openCreateModal()}
+                  data-testid="admin-create-tournament-button"
+                >
                   Créer un Tournoi
                 </Button>
                 <Button
                   variant="contained"
                   color="secondary"
                   onClick={() => setIsAdminModalOpen(true)}
+                  data-testid="admin-manage-members-button"
                 >
                   Gérer les Membres
                 </Button>
@@ -79,12 +96,18 @@ export const Header = () => {
             ) : (
               <>
                 <Link to="/auth/register">
-                  <Button variant="contained" color="secondary">
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    data-testid="header-register-button"
+                  >
                     S'Inscrire
                   </Button>
                 </Link>
                 <Link to="/auth/login">
-                  <Button variant="contained">Se Connecter</Button>
+                  <Button variant="contained" data-testid="header-login-button">
+                    Se Connecter
+                  </Button>
                 </Link>
               </>
             )}

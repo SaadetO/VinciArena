@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { faker } from "@faker-js/faker";
-import { loginUser } from "./utils/auth-utils";
+import { loginUser, logoutUser } from "./utils/auth-utils";
 
 test.describe("Client Demonstrations", () => {
   // Data for the scenario
@@ -84,5 +84,7 @@ test.describe("Client Demonstrations", () => {
     await expect(
       page.getByText("Demande effectuée avec succès !"),
     ).toBeVisible();
+
+    await logoutUser(page);
   });
 });

@@ -20,3 +20,8 @@ export async function loginUser(
     timeout: 10000,
   });
 }
+export async function logoutUser(page: Page) {
+  await page.getByTestId("user-menu-button").click();
+  await page.getByTestId("user-menu-logout").click();
+  await expect(page.getByTestId("header-login-button")).toBeVisible();
+}
