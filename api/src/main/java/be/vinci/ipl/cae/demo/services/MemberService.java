@@ -511,11 +511,17 @@ public class MemberService {
     performBan(member);
   }
 
+  /**
+   * Check if the member is the last active member of their team.
+   *
+   * @param memberId the ID of the member
+   * @return true if the member is the last active member, false otherwise
+   * @throws MemberNotFoundException if the member does not exist
+   */
   public boolean isLastMember(Long memberId) {
 
     Member member = memberRepository.findById(memberId)
-        .orElseThrow(() -> new ResponseStatusException(
-            HttpStatus.NOT_FOUND, "Membre introuvable"));
+        .orElseThrow(() -> new MemberNotFoundException("Membre introuvable"));
 
     Team team = member.getTeam();
 
