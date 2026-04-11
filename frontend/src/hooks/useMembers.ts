@@ -348,6 +348,20 @@ export const useMembers = (options?: UseMembersOptions) => {
     },
   );
 
+  const checkIsLastMember = async (id: number): Promise<boolean> => {
+    const response = await fetch(`/api/members/${id}/is-last`, {
+      headers: {
+        Authorization: `Bearer ${authenticatedUser?.token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Erreur lors de la vérification du membre');
+    }
+
+    return response.json();
+  };
+
   return {
     getAll,
     getById,
@@ -364,5 +378,6 @@ export const useMembers = (options?: UseMembersOptions) => {
     isUpdatingSpecialty,
     isTogglingAdmin,
     isBanningMember,
+    checkIsLastMember,
   };
 };
