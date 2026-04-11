@@ -1,5 +1,6 @@
 package be.vinci.ipl.cae.demo.services;
 
+import be.vinci.ipl.cae.demo.exceptions.UnauthorizedException;
 import be.vinci.ipl.cae.demo.models.dtos.AuthenticatedUser;
 import be.vinci.ipl.cae.demo.models.dtos.MemberSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.NewMember;
@@ -362,6 +363,41 @@ public class MemberService {
     }
     return summaries;
   }
+
+  /**
+   * Retrieve the authenticated member based on email.
+   *
+   * @param email the email of the authenticated user
+   * @return the authenticated member
+   * @throws UnauthorizedException if the user is not authenticated
+   */
+  private Member getAuthenticatedMember(String email) {
+    Member member = memberRepository.findByEmail(email);
+
+    if (member == null) {
+      throw new UnauthorizedException("Utilisateur non authentifié");
+    }
+
+    return member;
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   /**
    * Ban a member from the platform (soft delete).

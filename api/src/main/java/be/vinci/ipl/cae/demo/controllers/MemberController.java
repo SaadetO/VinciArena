@@ -7,6 +7,7 @@ import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.ProfileImage;
 import be.vinci.ipl.cae.demo.services.MemberService;
 import be.vinci.ipl.cae.demo.services.TeamService;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -172,7 +173,8 @@ public class MemberController {
    * @param currentMember the authenticated member
    */
   @PatchMapping("/{id}/ban")
-  public void banMember(@PathVariable Long id, @AuthenticationPrincipal Member currentMember) {
+  public void banMember(@PathVariable Long id, @AuthenticationPrincipal Member currentMember)
+      throws BadRequestException {
 
     if (currentMember == null) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
