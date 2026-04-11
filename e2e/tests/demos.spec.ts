@@ -3,15 +3,31 @@ import { faker } from "@faker-js/faker";
 import { loginUser, logoutUser } from "./utils/auth-utils";
 
 test.describe("Client Demonstrations", () => {
+  interface UserInfo {
+    tag: string;
+    specialty?: string;
+    email: string;
+    password: string;
+    team?: string;
+  }
   // Data for the scenario
-  const tag = "Vectorr";
-  const speciality = "Catalyseur";
   const invalidEmail = "lea@mail.com";
   const validEmail = faker.internet.email();
-  const password = "Password123*";
-  const team = "TEAM_ALPHA";
+  const vectorr: UserInfo = {
+    tag: "Vectorr",
+    specialty: "Catalyseur",
+    email: invalidEmail,
+    password: "Password123*",
+    team: "TEAM_ALPHA",
+  };
 
-  test("Demo: Sprint 1", async ({ page }) => {
+  const lynx: UserInfo = {
+    tag: "Lynx",
+    email: "lea@mail.com",
+    password: "Password1!",
+  };
+
+  test("Demo: Sprint 1", async ({ page, context }) => {
     //Custom timeout
     test.setTimeout(60000);
 
@@ -22,17 +38,19 @@ test.describe("Client Demonstrations", () => {
     await page.getByRole("button", { name: "S'Inscrire" }).click();
 
     // fill infos
-    await page.getByTestId("register-email-input").fill(invalidEmail);
-    await page.getByTestId("register-tag-input").fill(tag);
+    await page.getByTestId("register-email-input").fill(vectorr.email);
+    await page.getByTestId("register-tag-input").fill(vectorr.tag);
 
     const specialtyInput = page.getByTestId("register-specialty-input");
-    await specialtyInput.fill(speciality.slice(0, 5));
-    await page.getByRole("option", { name: speciality }).click();
+    await specialtyInput.fill(vectorr.specialty!.slice(0, 5));
+    await page.getByRole("option", { name: vectorr.specialty }).click();
 
     await page.getByTestId("register-submit-step-1").click();
 
-    await page.getByPlaceholder("Mot de passe").first().fill(password);
-    await page.getByPlaceholder("Confirmer le mot de passe").fill(password);
+    await page.getByPlaceholder("Mot de passe").first().fill(vectorr.password);
+    await page
+      .getByPlaceholder("Confirmer le mot de passe")
+      .fill(vectorr.password);
     await page.getByTestId("register-submit-step-2").click();
 
     await page.locator(".profile-picture-placeholder").click();
@@ -59,7 +77,8 @@ test.describe("Client Demonstrations", () => {
     //correct email
     const emailInput = page.getByTestId("register-email-input");
     await emailInput.clear();
-    await emailInput.fill(validEmail);
+    vectorr.email = validEmail;
+    await emailInput.fill(vectorr.email);
 
     // validate
     await page.getByTestId("register-submit-step-1").click();
@@ -69,7 +88,7 @@ test.describe("Client Demonstrations", () => {
     // check navigation to login page
     await expect(page).toHaveURL(/.*login/);
 
-    await loginUser(page, validEmail, password, true, tag);
+    await loginUser(page, vectorr.email, vectorr.password, true, vectorr.tag);
 
     //go to profile page
     await page.getByTestId("user-menu-button").click();
@@ -77,8 +96,8 @@ test.describe("Client Demonstrations", () => {
     await expect(page).toHaveURL(/.*user/);
     // send join request
     await page.getByTestId("team-join-button").click();
-    await page.getByTestId("join-team-autocomplete-input").fill(team);
-    await page.getByRole("option", { name: team }).click();
+    await page.getByTestId("join-team-autocomplete-input").fill(vectorr.team!);
+    await page.getByRole("option", { name: vectorr.team }).click();
     await page.getByTestId("modal-confirm-button").click();
     //verify snackbar
     await expect(
@@ -86,5 +105,29 @@ test.describe("Client Demonstrations", () => {
     ).toBeVisible();
 
     await logoutUser(page);
+
+    // login as lynx
+    await loginUser(page, lynx.email, lynx.password, true, lynx.tag);
+
+    // test remember-me
+
+    //close browser
+    await context.storageState({ path: "state.json" });
+    await context.close();
+    const newContext = await page
+      .context()
+      .browser()!
+      .newContext({ storageState: "state.json" });
+    const newPage = await newContext.newPage();
+
+    // reopen page
+    await newPage.goto("http://localhost:5173/");
+    //verify its still logged in
+    await expect(newPage.getByTestId("user-menu-button")).toBeVisible();
+
+    // Optional: Click menu to verify it's actually Lynx's name displayed
+    await expect(newPage.getByText(lynx.tag)).toBeVisible();
+
+    await newContext.close();
   });
 });

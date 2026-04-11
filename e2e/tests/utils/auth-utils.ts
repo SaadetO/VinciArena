@@ -7,6 +7,7 @@ export async function loginUser(
   rememberMe: boolean = false,
   tag: string,
 ) {
+  await page.goto("http://localhost:5173/auth/login");
   await page.getByTestId("login-email-input").fill(email);
   await page.getByTestId("login-password-input").fill(password);
 
@@ -16,9 +17,7 @@ export async function loginUser(
 
   await page.getByTestId("login-submit-button").click();
   await expect(page).toHaveURL("http://localhost:5173/");
-  await expect(page.getByText(tag)).toBeVisible({
-    timeout: 10000,
-  });
+  await expect(page.getByText(tag)).toBeVisible();
 }
 export async function logoutUser(page: Page) {
   await page.getByTestId("user-menu-button").click();
