@@ -69,9 +69,5 @@ test.describe("Client Demonstrations", () => {
     await expect(page).toHaveURL(/.*login/);
 
     await loginUser(page, validEmail, password, true, tag);
-
-    //check navigation + tag visible
-    await expect(page).toHaveURL("http://localhost:5173/");
-    await expect(page.getByText(tag)).toBeVisible();
   });
 });

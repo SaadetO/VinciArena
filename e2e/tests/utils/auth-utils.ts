@@ -7,14 +7,16 @@ export async function loginUser(
   rememberMe: boolean = false,
   tag: string,
 ) {
-  await page.fill('input[name="email"]', email);
-  await page.fill('input[name="password"]', password);
+  await page.getByTestId("login-email-input").fill(email);
+  await page.getByTestId("login-password-input").fill(password);
 
   if (rememberMe) {
-    await page.check('input[name="rememberMe"]');
+    await page.getByTestId("login-remember-me-checkbox").check();
   }
 
-  await page.getByRole("button", { name: "Se Connecter" }).click();
+  await page.getByTestId("login-submit-button").click();
+  await expect(page).toHaveURL("http://localhost:5173/");
+  s;
   await expect(page.getByText(tag)).toBeVisible({
     timeout: 10000,
   });
