@@ -46,10 +46,10 @@ public class MatchLineup {
   private boolean isWinner;
 
   @ManyToMany
-  @JoinTable(name = "match_members", joinColumns = {
-      @JoinColumn(name = "id_match", referencedColumnName = "id_match"),
-      @JoinColumn(name = "id_team",
-          referencedColumnName = "id_team")}, inverseJoinColumns = @JoinColumn(name = "id_membre"))
+  @JoinTable(name = "match_members",
+      joinColumns = {@JoinColumn(name = "id_match", referencedColumnName = "id_match"),
+          @JoinColumn(name = "id_team", referencedColumnName = "id_team")},
+      inverseJoinColumns = @JoinColumn(name = "id_membre"))
   private Set<Member> members = new HashSet<>();
 
   /**

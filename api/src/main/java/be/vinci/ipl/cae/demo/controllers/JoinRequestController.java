@@ -36,7 +36,7 @@ public class JoinRequestController {
   /**
    * Create a new join request for a specific team.
    *
-   * @param teamId        the ID of the team to join
+   * @param teamId the ID of the team to join
    * @param currentMember the authenticated member making the request
    * @return the created join request as a DTO
    */
@@ -53,17 +53,15 @@ public class JoinRequestController {
    * Update the status of a join request (accepted or rejected). If rejected, a rejection reason
    * must be provided.
    *
-   * @param requestId     the ID of the join request
-   * @param request       the request containing status and rejection reason
+   * @param requestId the ID of the join request
+   * @param request the request containing status and rejection reason
    * @param currentMember the authenticated manager performing the action
    * @return the updated join request as a DTO
    */
   @PatchMapping("/join-requests/{requestId}")
   @PreAuthorize("isAuthenticated()")
-  public JoinRequestDto updateJoinRequestStatus(
-      @PathVariable Long requestId,
-      @RequestBody UpdateJoinRequestDto request,
-      @AuthenticationPrincipal Member currentMember) {
+  public JoinRequestDto updateJoinRequestStatus(@PathVariable Long requestId,
+      @RequestBody UpdateJoinRequestDto request, @AuthenticationPrincipal Member currentMember) {
 
     return joinRequestService.updateJoinRequestStatus(requestId, request.getStatus(),
         request.getRejectionReason(), currentMember);

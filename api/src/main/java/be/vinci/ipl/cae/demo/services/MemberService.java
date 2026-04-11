@@ -46,11 +46,11 @@ public class MemberService {
   /**
    * Constructor.
    *
-   * @param passwordEncoder          the password encoder
-   * @param memberRepository         the member repository
+   * @param passwordEncoder the password encoder
+   * @param memberRepository the member repository
    * @param unavailabilityRepository the unavailability repository
-   * @param specialtyRepository      the specialty repository
-   * @param profileImageRepository   the profile image repository
+   * @param specialtyRepository the specialty repository
+   * @param profileImageRepository the profile image repository
    */
   public MemberService(BCryptPasswordEncoder passwordEncoder, MemberRepository memberRepository,
       UnavailabilityRepository unavailabilityRepository, SpecialtyRepository specialtyRepository,
@@ -67,7 +67,7 @@ public class MemberService {
    * Create an AuthenticatedUser based on a member and a token.
    *
    * @param member the member
-   * @param token  the token
+   * @param token the token
    * @return the authenticated user
    */
   public AuthenticatedUser toAuthenticatedUser(Member member, String token) {
@@ -92,12 +92,9 @@ public class MemberService {
    */
   public AuthenticatedUser createJwtToken(String email) {
 
-    String token = JWT.create()
-        .withIssuer("auth0")
-        .withClaim("username", email)
-        .withIssuedAt(new Date())
-        .withExpiresAt(new Date(System.currentTimeMillis() + lifetimeJwt))
-        .sign(algorithm);
+    String token =
+        JWT.create().withIssuer("auth0").withClaim("username", email).withIssuedAt(new Date())
+            .withExpiresAt(new Date(System.currentTimeMillis() + lifetimeJwt)).sign(algorithm);
 
     Member member = memberRepository.findByEmail(email);
     return toAuthenticatedUser(member, token);
@@ -111,11 +108,7 @@ public class MemberService {
    */
   public String verifyJwtToken(String token) {
     try {
-      return JWT.require(algorithm)
-          .build()
-          .verify(token)
-          .getClaim("username")
-          .asString();
+      return JWT.require(algorithm).build().verify(token).getClaim("username").asString();
     } catch (Exception e) {
       return null;
     }
@@ -124,7 +117,7 @@ public class MemberService {
   /**
    * Login a member.
    *
-   * @param email    the member email
+   * @param email the member email
    * @param password the member password
    * @return the authenticated user if login succeeds
    */
@@ -149,38 +142,28 @@ public class MemberService {
 
   private void validatePassword(String password) {
     if (password == null || password.length() < 8) {
-      throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST,
-          "Le mot de passe doit contenir au moins 8 caractères"
-      );
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+          "Le mot de passe doit contenir au moins 8 caractères");
     }
 
     if (!password.matches(".*[A-Z].*")) {
-      throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST,
-          "Le mot de passe doit contenir au moins une majuscule"
-      );
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+          "Le mot de passe doit contenir au moins une majuscule");
     }
 
     if (!password.matches(".*[a-z].*")) {
-      throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST,
-          "Le mot de passe doit contenir au moins une minuscule"
-      );
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+          "Le mot de passe doit contenir au moins une minuscule");
     }
 
     if (!password.matches(".*\\d.*")) {
-      throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST,
-          "Le mot de passe doit contenir au moins un chiffre"
-      );
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+          "Le mot de passe doit contenir au moins un chiffre");
     }
 
     if (!password.matches(".*[^a-zA-Z0-9].*")) {
-      throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST,
-          "Le mot de passe doit contenir au moins un caractère spécial"
-      );
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+          "Le mot de passe doit contenir au moins un caractère spécial");
     }
   }
 
@@ -236,7 +219,7 @@ public class MemberService {
   /**
    * Update a member's profile image.
    *
-   * @param member       the member
+   * @param member the member
    * @param profileImage the new profile image
    * @return true if updated, false if the image is invalid
    */
@@ -257,7 +240,7 @@ public class MemberService {
   /**
    * Update a member's profile image.
    *
-   * @param member      the member
+   * @param member the member
    * @param specialtyId the new profile image
    * @return true if updated, false if the image is invalid
    */
@@ -265,8 +248,7 @@ public class MemberService {
     if (specialtyId == null || specialtyId <= 0) {
       return false;
     }
-    Specialty existingSpecialty =
-        specialtyRepository.getByIdSpecialty(specialtyId);
+    Specialty existingSpecialty = specialtyRepository.getByIdSpecialty(specialtyId);
     if (existingSpecialty == null) {
       return false;
     }
@@ -278,7 +260,7 @@ public class MemberService {
   /**
    * Get member profile DTO with privacy rules.
    *
-   * @param requestedId        the requested member ID
+   * @param requestedId the requested member ID
    * @param authenticatedEmail the authenticated user email
    * @return the profile DTO or null if not found
    */
@@ -289,55 +271,39 @@ public class MemberService {
     }
 
     Member authMember =
-        authenticatedEmail != null
-            ? memberRepository.findByEmail(authenticatedEmail)
-            : null;
+        authenticatedEmail != null ? memberRepository.findByEmail(authenticatedEmail) : null;
     boolean isSelf = authMember != null && authMember.getIdMember().equals(requestedId);
 
-    ProfileDto.ProfileDtoBuilder builder = ProfileDto.builder()
-        .id(requestedMember.getIdMember())
+    ProfileDto.ProfileDtoBuilder builder = ProfileDto.builder().id(requestedMember.getIdMember())
         .tag(requestedMember.getTag())
-        .specialty(
-            requestedMember.getSpecialty() != null
-                ? requestedMember.getSpecialty().getName()
-                : null
-        )
+        .specialty(requestedMember.getSpecialty() != null ? requestedMember.getSpecialty().getName()
+            : null)
         .avatar(
-            requestedMember.getProfileImage() != null
-                ? requestedMember.getProfileImage().getPath()
-                : null
-        );
+            requestedMember.getProfileImage() != null ? requestedMember.getProfileImage().getPath()
+                : null);
 
     Team team = requestedMember.getTeam();
     if (team != null) {
-      boolean isManager1 = team.getManager1()
-          != null && team.getManager1().getIdMember().equals(requestedId);
-      boolean isManager2 = team.getManager2()
-          != null && team.getManager2().getIdMember().equals(requestedId);
+      boolean isManager1 =
+          team.getManager1() != null && team.getManager1().getIdMember().equals(requestedId);
+      boolean isManager2 =
+          team.getManager2() != null && team.getManager2().getIdMember().equals(requestedId);
       boolean hasOtherManager =
           (isManager1 && team.getManager2() != null) || (isManager2 && team.getManager1() != null);
 
-      builder.team(ProfileDto.TeamDto.builder()
-          .id(team.getIdTeam())
-          .name(team.getName())
-          .isManager(isManager1 || isManager2)
-          .membersCount(team.getMembers().size())
-          .hasOtherManager(hasOtherManager)
-          .build());
+      builder.team(ProfileDto.TeamDto.builder().id(team.getIdTeam()).name(team.getName())
+          .isManager(isManager1 || isManager2).membersCount(team.getMembers().size())
+          .hasOtherManager(hasOtherManager).build());
     }
 
     if (isSelf) {
-      builder.email(requestedMember.getEmail())
-          .creationDate(requestedMember.getCreationDate())
+      builder.email(requestedMember.getEmail()).creationDate(requestedMember.getCreationDate())
           .isAdmin(requestedMember.isAdmin());
 
-      var unavailabilities = StreamSupport.stream(
-              unavailabilityRepository.findByMember(requestedMember).spliterator(), false)
-          .map(u -> ProfileDto.UnavailabilityDto.builder()
-              .id(u.getIdUnavailability())
-              .startDate(u.getStartDate())
-              .endDate(u.getEndDate())
-              .build())
+      var unavailabilities = StreamSupport
+          .stream(unavailabilityRepository.findByMember(requestedMember).spliterator(), false)
+          .map(u -> ProfileDto.UnavailabilityDto.builder().id(u.getIdUnavailability())
+              .startDate(u.getStartDate()).endDate(u.getEndDate()).build())
           .collect(Collectors.toList());
       builder.unavailabilities(unavailabilities);
     }
@@ -355,9 +321,7 @@ public class MemberService {
     if (member == null) {
       return null;
     }
-    return UserSummaryDto.builder()
-        .id(member.getIdMember())
-        .tag(member.getTag())
+    return UserSummaryDto.builder().id(member.getIdMember()).tag(member.getTag())
         .avatar(member.getProfileImage() != null ? member.getProfileImage().getPath() : null)
         .build();
   }
@@ -392,12 +356,9 @@ public class MemberService {
     MemberSummaryDto[] summaries = new MemberSummaryDto[members.length];
     for (int i = 0; i < members.length; i++) {
       Member m = members[i];
-      summaries[i] = MemberSummaryDto.builder()
-          .id(m.getIdMember())
-          .tag(m.getTag())
+      summaries[i] = MemberSummaryDto.builder().id(m.getIdMember()).tag(m.getTag())
           .specialty(m.getSpecialty() != null ? m.getSpecialty().getName() : null)
-          .avatar(m.getProfileImage() != null ? m.getProfileImage().getPath() : null)
-          .build();
+          .avatar(m.getProfileImage() != null ? m.getProfileImage().getPath() : null).build();
     }
     return summaries;
   }
@@ -405,37 +366,32 @@ public class MemberService {
   /**
    * Ban a member from the platform (soft delete).
    *
-   * @param id             the ID of the member to ban
+   * @param id the ID of the member to ban
    * @param requesterEmail the email of the authenticated user
    * @throws ResponseStatusException if the user is not authenticated, not admin, or if the
-   *                                 operation is invalid
+   *         operation is invalid
    */
   @Transactional
   public void banMember(Long id, String requesterEmail) {
     Member requester = memberRepository.findByEmail(requesterEmail);
 
     if (requester == null) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-          "Utilisateur non authentifié");
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Utilisateur non authentifié");
     }
 
     if (!requester.isAdmin()) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-          "Accès réservé aux admins");
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Accès réservé aux admins");
     }
 
     Member member = memberRepository.findById(id)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-            "Membre introuvable"));
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Membre introuvable"));
 
     if (member.isAdmin()) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-          "Impossible de bannir un admin");
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Impossible de bannir un admin");
     }
 
     if (member.isDeleted()) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-          "Membre déjà banni");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Membre déjà banni");
     }
 
     if (member.getIdMember().equals(requester.getIdMember())) {

@@ -19,12 +19,7 @@ import lombok.Setter;
  * Member entity.
  */
 @Entity
-@Table(
-    name = "members",
-    uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"tag", "id_team"})
-    }
-)
+@Table(name = "members", uniqueConstraints = {@UniqueConstraint(columnNames = {"tag", "id_team"})})
 @Getter
 @Setter
 @NoArgsConstructor

@@ -4,32 +4,29 @@ import { UserContext } from '../contexts/UserContext';
 import { SnackbarContext } from '../contexts/SnackbarContext';
 import { BrowserRouter } from 'react-router-dom';
 import { ReactNode } from 'react';
-import { UserContextType } from '../types';
+import { ApiError, UserContextType, AuthenticatedUser } from '../types';
 import { useTournament } from '../hooks/useTournaments';
 
-/**
- * 1. MOCK INFRASTRUCTURE
- * We define these at the top level so they are available to the wrapper
- * and all test blocks.
- */
 const mockShowSnackbar = vi.fn();
 const mockNavigate = vi.fn();
 
-// Mock useNavigate from react-router-dom
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
-  return { ...actual, useNavigate: () => mockNavigate };
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  };
 });
 
-// 2. CONTEXT MOCKS
-// Fully typed mock to satisfy UserContextType
+// context  mocks
 const AUTH_USER: UserContextType = {
   authenticatedUser: {
     token: 'mock-token',
     id: 1,
     admin: true,
     tag: 'ADMIN#0001',
-  },
+    managedTeamId: 0,
+  } as AuthenticatedUser,
   register: vi.fn(),
   login: vi.fn(),
   clearUser: vi.fn(),
@@ -40,8 +37,9 @@ const AUTH_USER: UserContextType = {
 
 const mockSnackbarContext = {
   showSnackbar: mockShowSnackbar,
-} as unknown as NonNullable<React.ContextType<typeof SnackbarContext>>;
+};
 
+// test compoenet to use the contexts
 const wrapper = ({ children }: { children: ReactNode }) => (
   <SnackbarContext.Provider value={mockSnackbarContext}>
     <UserContext.Provider value={AUTH_USER}>
@@ -56,17 +54,133 @@ afterEach(() => {
 
 describe('useTournament basic tests', () => {
   it('calls getAll with correct query parameters', async () => {
-    // Mock successful fetch
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => [{ idTournament: 1, name: 'Test' }],
-    } as Response);
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => [{ idTournament: 1, name: 'Test' }],
+      } as Response),
+    );
 
+    // mock setTournaments
     const setTournaments = vi.fn();
+    // init hook in a test enviroment with mocks
     const { result } = renderHook(() => useTournament({ setTournaments }), {
       wrapper,
     });
 
+    await act(async () => {
+      // simulate user action that triggers getAll
+      await result.current.getAll({
+        statuses: ['DONE'],
+        members: [123],
+        teams: undefined,
+        searchQuery: 'Pro',
+      });
+    });
+
+    // assert
+    expect(fetch).toHaveBeenCalledWith(
+      '/api/tournaments?statuses=DONE&membersIds=123&search=Pro',
+    );
+  });
+
+  it('navigates to the tournament page after successful creation', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ idTournament: 99, name: 'New Tournament' }),
+      } as Response),
+    );
+
+    const onSuccess = vi.fn();
+    // init hook
+    const { result } = renderHook(() => useTournament({ onSuccess }), {
+      wrapper,
+    });
+    // act: create new tournament
+    await act(async () => {
+      await result.current.create({ name: 'New Tournament' });
+    });
+    // assert
+    expect(mockNavigate).toHaveBeenCalledWith('/tournaments/99');
+  });
+
+  it('handles optimistic status update with typed fetch resolution', async () => {
+    const setTournament = vi.fn();
+
+    // promise with manual resolution
+    let resolveFetch: (value: Response) => void = () => {};
+    const fetchPromise = new Promise<Response>((res) => {
+      resolveFetch = res;
+    });
+
+    vi.stubGlobal('fetch', vi.fn().mockReturnValue(fetchPromise));
+    // init hook
+    const { result } = renderHook(() => useTournament({ setTournament }), {
+      wrapper,
+    });
+
+    await act(async () => {
+      const call = result.current.publish(1);
+
+      // Check optimism before the promise is resolved
+      expect(setTournament).toHaveBeenCalledWith(expect.any(Function));
+
+      resolveFetch({
+        ok: true,
+        json: async () => ({ idTournament: 1, status: 'REGISTRATION_OPEN' }),
+      } as Response);
+
+      await call;
+    });
+    // assert
+    expect(mockShowSnackbar).toHaveBeenCalledWith(
+      expect.objectContaining({ severity: 'success' }),
+    );
+  });
+
+  it('should handle registration conflict error (409)', async () => {
+    // stub with error status
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 409,
+      } as Response),
+    );
+
+    const { result } = renderHook(() => useTournament({}), { wrapper });
+
+    await act(async () => {
+      await result.current.register(1);
+    });
+
+    // assert: check error has been sent
+    expect(mockShowSnackbar).toHaveBeenCalledWith(
+      expect.objectContaining({
+        severity: 'error',
+      }),
+    );
+  });
+
+  it('should trigger config.onError when API fails', async () => {
+    // stub with internal error
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 500,
+      } as Response),
+    );
+
+    const onError = vi.fn();
+    const { result } = renderHook(() => useTournament({ onError }), {
+      wrapper,
+    });
+
+    // send getAll  fetch with filters
     await act(async () => {
       await result.current.getAll({
         statuses: ['DONE'],
@@ -76,101 +190,148 @@ describe('useTournament basic tests', () => {
       });
     });
 
-    // Verify the URL construction
-    expect(global.fetch).toHaveBeenCalledWith(
-      expect.stringContaining(
-        '/api/tournaments?statuses=DONE&membersIds=123&search=Pro',
-      ),
-    );
-    expect(setTournaments).toHaveBeenCalledWith([
-      { idTournament: 1, name: 'Test' },
-    ]);
+    // Check call back recived the error
+    expect(onError).toHaveBeenCalledWith(expect.any(ApiError));
   });
 
-  it('navigates to the tournament page after successful creation', async () => {
-    const mockData = { idTournament: 99, name: 'New Tournament' };
-    global.fetch = vi.fn().mockResolvedValue({
+  it('should get tournament by id and handle 404 error logic', async () => {
+    const mockTournament = { id: 42, name: 'Mock tournament' };
+    const setTournament = vi.fn();
+    const setError = vi.fn();
+    // init hook
+    const { result } = renderHook(
+      () =>
+        useTournament({
+          setTournament,
+          setError,
+        }),
+      { wrapper },
+    );
+
+    // succesful fetch
+    vi.mocked(fetch).mockResolvedValueOnce({
       ok: true,
-      json: async () => mockData,
+      json: async () => mockTournament,
     } as Response);
 
-    const onSuccess = vi.fn();
-    const { result } = renderHook(() => useTournament({ onSuccess }), {
-      wrapper,
-    });
-
     await act(async () => {
-      await result.current.create({ name: 'New Tournament' });
+      await result.current.getById(42);
     });
 
-    expect(onSuccess).toHaveBeenCalledWith(mockData);
-    expect(mockNavigate).toHaveBeenCalledWith('/tournaments/99');
-  });
+    expect(fetch).toHaveBeenCalledWith('/api/tournaments/42');
+    expect(setTournament).toHaveBeenCalledWith(mockTournament);
 
-  it('optimistically updates the status when publishing', async () => {
-    const setTournament = vi.fn();
-
-    // Strictly type the resolver to avoid "Unexpected any"
-    let resolveFetch: (value: Response | PromiseLike<Response>) => void;
-
-    global.fetch = vi.fn().mockImplementation(
-      () =>
-        new Promise<Response>((res) => {
-          resolveFetch = res;
-        }),
-    );
-
-    const { result } = renderHook(() => useTournament({ setTournament }), {
-      wrapper,
-    });
-
-    // Trigger publish
-    act(() => {
-      result.current.publish(1);
-    });
-
-    /**
-     * OPTIMISM CHECK:
-     * We expect setTournament to be called with a function (the state updater)
-     * before the API call has actually finished.
-     */
-    expect(setTournament).toHaveBeenCalledWith(expect.any(Function));
-
-    // Simulate API success
-    await act(async () => {
-      resolveFetch({
-        ok: true,
-        json: async () => ({ idTournament: 1, status: 'REGISTRATION_OPEN' }),
-      } as Response);
-    });
-
-    expect(mockShowSnackbar).toHaveBeenCalledWith(
-      expect.objectContaining({
-        severity: 'success',
-      }),
-    );
-  });
-
-  it('shows error snackbar when getById fails', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
+    // fetch -> error 404
+    vi.mocked(fetch).mockResolvedValueOnce({
       ok: false,
       status: 404,
     } as Response);
 
-    const setError = vi.fn();
-    const { result } = renderHook(() => useTournament({ setError }), {
-      wrapper,
-    });
-
     await act(async () => {
-      await result.current.getById(404);
+      await result.current.getById(999);
     });
 
     expect(setError).toHaveBeenCalledWith(
       expect.objectContaining({
         code: 404,
-        message: 'Tournoi introuvable',
       }),
     );
+  });
+
+  it('should update tournament details and sync states', async () => {
+    const mockUpdatedTournament = { id: 1, name: 'Updated Name' };
+    const setTournament = vi.fn();
+    const onSuccess = vi.fn();
+    const updateData = { name: 'Updated Name' };
+
+    const { result } = renderHook(
+      () =>
+        useTournament({
+          setTournament,
+          onSuccess,
+        }),
+      { wrapper },
+    );
+
+    // succes mock
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockUpdatedTournament,
+    } as Response);
+
+    await act(async () => {
+      await result.current.update(1, updateData);
+    });
+
+    // assert: correct fetch url
+    expect(fetch).toHaveBeenCalledWith(
+      '/api/tournaments/1',
+      // assert: correct body return
+      expect.objectContaining({
+        method: 'PUT',
+        headers: expect.objectContaining({
+          'Content-Type': 'application/json',
+          Authorization: 'mock-token',
+        }),
+        body: JSON.stringify(updateData),
+      }),
+    );
+
+    expect(setTournament).toHaveBeenCalledWith(mockUpdatedTournament);
+    expect(onSuccess).toHaveBeenCalledWith(mockUpdatedTournament);
+
+    // error Mock
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: false,
+      status: 400,
+    } as Response);
+
+    await act(async () => {
+      await result.current.update(1, updateData);
+    });
+
+    expect(mockShowSnackbar).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: 'Échec de la mise à jour',
+        severity: 'error',
+      }),
+    );
+  });
+  it('should trigger onError logic and show snackbar when creation fails', async () => {
+    const onError = vi.fn();
+    const onSuccess = vi.fn();
+    const tournamentData = { name: 'Invalid Tournament' };
+
+    const { result } = renderHook(
+      () =>
+        useTournament({
+          onError,
+          onSuccess,
+        }),
+      { wrapper },
+    );
+
+    // simulate api error(code 400)
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: false,
+      status: 400,
+    } as Response);
+
+    await act(async () => {
+      await result.current.create(tournamentData);
+    });
+
+    // verify callback on error has been called
+    expect(onError).toHaveBeenCalledWith(expect.any(ApiError));
+    //  verify error is displayed
+    expect(mockShowSnackbar).toHaveBeenCalledWith(
+      expect.objectContaining({
+        severity: 'error',
+      }),
+    );
+
+    // verify navigate and onsucces has never been called
+    expect(onSuccess).not.toHaveBeenCalled();
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 });

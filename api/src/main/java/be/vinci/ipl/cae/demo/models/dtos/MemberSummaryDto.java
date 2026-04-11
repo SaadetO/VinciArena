@@ -4,8 +4,8 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
- * A lightweight member DTO exposed to any authenticated user.
- * Contains only tag, specialty and profile image — no sensitive data like email.
+ * A lightweight member DTO exposed to any authenticated user. Contains only tag, specialty and
+ * profile image — no sensitive data like email.
  */
 @Data
 @Builder

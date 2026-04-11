@@ -30,9 +30,9 @@ public class JoinRequestService {
    * Constructor.
    *
    * @param joinRequestRepository the join-request repository
-   * @param teamRepository        the team repository
-   * @param notificationService   the notification service
-   * @param memberRepository      the member repository
+   * @param teamRepository the team repository
+   * @param notificationService the notification service
+   * @param memberRepository the member repository
    */
   public JoinRequestService(JoinRequestRepository joinRequestRepository,
       TeamRepository teamRepository, NotificationService notificationService,
@@ -46,11 +46,11 @@ public class JoinRequestService {
   /**
    * Creates a new join request.
    *
-   * @param teamId    the ID of the team to join
+   * @param teamId the ID of the team to join
    * @param requester the member requesting to join
    * @return the created JoinRequestDto
    * @throws ResponseStatusException if team not found, user already in team or already has a
-   *                                 pending request for that team
+   *         pending request for that team
    */
   public JoinRequestDto createJoinRequest(Long teamId, Member requester) {
     Team requestedTeam = teamRepository.findById(teamId).orElse(null);
@@ -76,32 +76,28 @@ public class JoinRequestService {
     joinRequest = joinRequestRepository.save(joinRequest);
 
     notificationService.notifyTeamManagers(requestedTeam,
-        requester.getTag() + " souhaite rejoindre "
-            + requestedTeam.getName(), NotificationType.TEAM, teamId);
+        requester.getTag() + " souhaite rejoindre " + requestedTeam.getName(),
+        NotificationType.TEAM, teamId);
 
-    return JoinRequestDto.builder()
-        .idJoinRequest(joinRequest.getIdJoinRequest())
-        .idTeam(requestedTeam.getIdTeam())
-        .teamName(requestedTeam.getName())
-        .status(joinRequest.getStatus())
-        .expirationDate(joinRequest.getExpirationDate())
-        .build();
+    return JoinRequestDto.builder().idJoinRequest(joinRequest.getIdJoinRequest())
+        .idTeam(requestedTeam.getIdTeam()).teamName(requestedTeam.getName())
+        .status(joinRequest.getStatus()).expirationDate(joinRequest.getExpirationDate()).build();
   }
 
   /**
    * Update the status of a join request.
    *
-   * @param requestId       the ID of the join request
-   * @param newStatus       the new status (ACCEPTED or REJECTED)
+   * @param requestId the ID of the join request
+   * @param newStatus the new status (ACCEPTED or REJECTED)
    * @param rejectionReason the reason for rejection (required if REJECTED)
-   * @param manager         the manager performing the action
+   * @param manager the manager performing the action
    * @return the updated JoinRequestDto
    * @throws ResponseStatusException if the request doesn't exist, is not pending, or the user is
-   *                                 not authorized
+   *         not authorized
    */
   @Transactional
-  public JoinRequestDto updateJoinRequestStatus(Long requestId,
-      RequestStatus newStatus, String rejectionReason, Member manager) {
+  public JoinRequestDto updateJoinRequestStatus(Long requestId, RequestStatus newStatus,
+      String rejectionReason, Member manager) {
 
     JoinRequest joinRequest = joinRequestRepository.findById(requestId).orElse(null);
 
@@ -127,10 +123,10 @@ public class JoinRequestService {
     }
 
     Team team = joinRequest.getRequestedTeam();
-    boolean isManager = (team.getManager1() != null && team.getManager1().getIdMember()
-        .equals(manager.getIdMember()))
-        || (team.getManager2() != null && team.getManager2().getIdMember()
-        .equals(manager.getIdMember()));
+    boolean isManager = (team.getManager1() != null
+        && team.getManager1().getIdMember().equals(manager.getIdMember()))
+        || (team.getManager2() != null
+            && team.getManager2().getIdMember().equals(manager.getIdMember()));
 
     if (!isManager) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN,
@@ -160,13 +156,9 @@ public class JoinRequestService {
       joinRequestRepository.deleteAllByMemberAndStatus(requester, RequestStatus.PENDING);
     }
 
-    return JoinRequestDto.builder()
-        .idJoinRequest(joinRequest.getIdJoinRequest())
-        .idTeam(team.getIdTeam())
-        .teamName(team.getName())
-        .status(joinRequest.getStatus())
+    return JoinRequestDto.builder().idJoinRequest(joinRequest.getIdJoinRequest())
+        .idTeam(team.getIdTeam()).teamName(team.getName()).status(joinRequest.getStatus())
         .expirationDate(joinRequest.getExpirationDate())
-        .rejectionReason(joinRequest.getRejectionReason())
-        .build();
+        .rejectionReason(joinRequest.getRejectionReason()).build();
   }
 }
