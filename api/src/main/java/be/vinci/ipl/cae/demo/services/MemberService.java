@@ -1,5 +1,6 @@
 package be.vinci.ipl.cae.demo.services;
 
+import be.vinci.ipl.cae.demo.exceptions.BadRequestException;
 import be.vinci.ipl.cae.demo.exceptions.ForbiddenException;
 import be.vinci.ipl.cae.demo.exceptions.MemberNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.UnauthorizedException;
