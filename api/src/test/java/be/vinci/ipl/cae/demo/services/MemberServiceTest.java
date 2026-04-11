@@ -253,10 +253,6 @@ class MemberServiceTest {
     assertNull(team.getManager2());
   }
 
-
-
-
-
   // ========================= IS LAST MEMBER =========================
 
   @Test
