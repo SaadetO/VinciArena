@@ -253,6 +253,10 @@ class MemberServiceTest {
     assertNull(team.getManager2());
   }
 
+
+
+
+
   // ========================= IS LAST MEMBER =========================
 
   @Test
@@ -326,6 +330,52 @@ class MemberServiceTest {
     assertThrows(MemberNotFoundException.class, () -> {
       memberService.isLastMember(1L);
     });
+  }
+
+  @Test
+  void isLastMemberIgnoresDeletedMembers() {
+
+    Member m1 = new Member();
+    m1.setIdMember(1L);
+    m1.setDeleted(false);
+
+    Member m2 = new Member();
+    m2.setIdMember(2L);
+    m2.setDeleted(true);
+
+    Team team = new Team();
+    team.setMembers(java.util.List.of(m1, m2));
+
+    m1.setTeam(team);
+
+    when(memberRepository.findById(1L)).thenReturn(Optional.of(m1));
+
+    boolean result = memberService.isLastMember(1L);
+
+    assertTrue(result);
+  }
+
+  @Test
+  void isLastMemberFalseWhenMultipleActiveMembers() {
+
+    Member m1 = new Member();
+    m1.setIdMember(1L);
+    m1.setDeleted(false);
+
+    Member m2 = new Member();
+    m2.setIdMember(2L);
+    m2.setDeleted(false);
+
+    Team team = new Team();
+    team.setMembers(java.util.List.of(m1, m2));
+
+    m1.setTeam(team);
+
+    when(memberRepository.findById(1L)).thenReturn(Optional.of(m1));
+
+    boolean result = memberService.isLastMember(1L);
+
+    assertFalse(result);
   }
 
 
