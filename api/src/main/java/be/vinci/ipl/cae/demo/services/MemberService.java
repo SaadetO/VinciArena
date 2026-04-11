@@ -1,6 +1,7 @@
 package be.vinci.ipl.cae.demo.services;
 
 import be.vinci.ipl.cae.demo.exceptions.ForbiddenException;
+import be.vinci.ipl.cae.demo.exceptions.MemberNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.UnauthorizedException;
 import be.vinci.ipl.cae.demo.models.dtos.AuthenticatedUser;
 import be.vinci.ipl.cae.demo.models.dtos.MemberSummaryDto;
@@ -394,6 +395,17 @@ public class MemberService {
     }
   }
 
+  /**
+   * Retrieve the member to be banned.
+   *
+   * @param id the ID of the target member
+   * @return the found member
+   * @throws MemberNotFoundException if the member does not exist
+   */
+  private Member getTargetMember(Long id) {
+    return memberRepository.findById(id)
+        .orElseThrow(() -> new MemberNotFoundException("Membre introuvable"));
+  }
 
 
 
