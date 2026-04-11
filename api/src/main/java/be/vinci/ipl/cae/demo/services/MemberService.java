@@ -431,6 +431,48 @@ public class MemberService {
     }
   }
 
+  /**
+   * Handle team updates before banning a member.
+   *
+   * @param member the member to ban
+   */
+  private void handleTeamBeforeBan(Member member) {
+    Team team = member.getTeam();
+
+    if (team == null) return;
+
+    if (team.getManager1() != null
+        && team.getManager1().getIdMember().equals(member.getIdMember())) {
+
+      if (team.getManager2() != null) {
+        team.setManager1(team.getManager2());
+        team.setManager2(null);
+
+      } else {
+
+        Member replacement = team.getMembers().stream()
+            .filter(m -> !m.getIdMember().equals(member.getIdMember()))
+            .filter(m -> !m.isDeleted())
+            .sorted((m1, m2) -> m1.getCreationDate().compareTo(m2.getCreationDate()))
+            .findFirst()
+            .orElse(null);
+
+        if (replacement != null) {
+          team.setManager1(replacement);
+        } else {
+          team.setManager1(null);
+          team.setIsActive(false);
+        }
+      }
+    }
+
+    if (team.getManager2() != null
+        && team.getManager2().getIdMember().equals(member.getIdMember())) {
+      team.setManager2(null);
+    }
+
+    teamRepository.save(team);
+  }
 
 
 
