@@ -474,6 +474,16 @@ public class MemberService {
     teamRepository.save(team);
   }
 
+  /**
+   * Perform the ban operation on the member.
+   *
+   * @param member the member to ban
+   */
+  private void performBan(Member member) {
+    member.setDeleted(true);
+    member.setTeam(null);
+    memberRepository.save(member);
+  }
 
 
 
