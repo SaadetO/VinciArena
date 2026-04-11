@@ -173,12 +173,8 @@ public class MemberController {
    * @param currentMember the authenticated member
    */
   @PatchMapping("/{id}/ban")
-  public void banMember(@PathVariable Long id, @AuthenticationPrincipal Member currentMember)
-      throws BadRequestException {
-
-    if (currentMember == null) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-    }
+  public void banMember(@PathVariable Long id,
+      @AuthenticationPrincipal Member currentMember) {
 
     memberService.banMember(id, currentMember.getEmail());
   }
