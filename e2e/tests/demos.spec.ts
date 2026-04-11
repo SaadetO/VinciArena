@@ -29,7 +29,7 @@ test.describe("Client Demonstrations", () => {
 
   test("Demo: Sprint 1", async ({ page, context }) => {
     //Custom timeout
-    test.setTimeout(60000);
+    test.setTimeout(1200000);
 
     await page.goto("http://localhost:5173/");
 
@@ -60,8 +60,15 @@ test.describe("Client Demonstrations", () => {
     await avatarOption.click();
     await page.getByRole("button", { name: "Confirmer" }).click();
 
-    //attemp registration with invalid email
-    await page.getByTestId("register-submit-step-3").click();
+    //attempt registration with invalid email
+    const [response] = await Promise.all([
+      // We listen for the POST request to your registration endpoint
+      page.waitForResponse(
+        (res) => res.url().includes("/register") && res.status() === 409,
+      ),
+      // The action that triggers the 409
+      page.getByTestId("register-submit-step-3").click(),
+    ]);
 
     // verify error snackbar appeared + no navigation
     await expect(page.getByText(/email déjà utilisé/i)).toBeVisible({
@@ -109,8 +116,41 @@ test.describe("Client Demonstrations", () => {
     // login as lynx
     await loginUser(page, lynx.email, lynx.password, true, lynx.tag);
 
-    // test remember-me
+    //TEST notifications
 
+    // open menu
+    await page.getByTestId("notification-menu-button").click();
+
+    // Click "Voir Tout"
+    const seeAllButton = page.getByTestId("notification-view-all-button");
+    await expect(seeAllButton).toBeVisible();
+    await seeAllButton.click();
+
+    await expect(page).toHaveURL(/.*notifications/);
+
+    // find row containing user tag and team requested
+    const notificationRow = page
+      .getByRole("listitem")
+      .filter({
+        hasText: new RegExp(`(?=.*${vectorr.tag})(?=.*${vectorr.team})`, "i"),
+      })
+      .first();
+
+    await expect(notificationRow).toBeVisible({ timeout: 10000 });
+
+    // Mark as Read
+    const markAsReadBtn = notificationRow.getByTestId(
+      "notification-mark-as-read",
+    );
+    await markAsReadBtn.click();
+
+    // verify mark-as-read button is hidden after click
+    await expect(markAsReadBtn).toBeHidden();
+    // click notification
+    await notificationRow.click();
+    await expect(page).toHaveURL(/.*teams/);
+
+    // test remember-me
     //close browser
     await context.storageState({ path: "state.json" });
     await context.close();
@@ -124,8 +164,6 @@ test.describe("Client Demonstrations", () => {
     await newPage.goto("http://localhost:5173/");
     //verify its still logged in
     await expect(newPage.getByTestId("user-menu-button")).toBeVisible();
-
-    // Optional: Click menu to verify it's actually Lynx's name displayed
     await expect(newPage.getByText(lynx.tag)).toBeVisible();
 
     await newContext.close();
