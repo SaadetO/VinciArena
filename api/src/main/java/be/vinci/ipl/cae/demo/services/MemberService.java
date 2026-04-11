@@ -485,101 +485,30 @@ public class MemberService {
     memberRepository.save(member);
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   /**
    * Ban a member from the platform (soft delete).
    *
    * @param id the ID of the member to ban
    * @param requesterEmail the email of the authenticated user
-   * @throws ResponseStatusException if the user is not authenticated, not admin, or if the
-   *         operation is invalid
+   * @throws UnauthorizedException if the user is not authenticated
+   * @throws ForbiddenException if access is denied
+   * @throws MemberNotFoundException if the member does not exist
+   * @throws BadRequestException if the operation is invalid
    */
   @Transactional
   public void banMember(Long id, String requesterEmail) {
-    Member requester = memberRepository.findByEmail(requesterEmail);
 
-    if (requester == null) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Utilisateur non authentifié");
-    }
+    Member requester = getAuthenticatedMember(requesterEmail);
 
-    if (!requester.isAdmin()) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Accès réservé aux admins");
-    }
+    checkAdmin(requester);
 
-    Member member = memberRepository.findById(id)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Membre introuvable"));
+    Member member = getTargetMember(id);
 
-    if (member.isAdmin()) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Impossible de bannir un admin");
-    }
+    checkBanValidity(member, requester);
 
-    if (member.isDeleted()) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Membre déjà banni");
-    }
+    handleTeamBeforeBan(member);
 
-    if (member.getIdMember().equals(requester.getIdMember())) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-          "Tu ne peux pas te bannir toi-même");
-    }
-
-    Team team = member.getTeam();
-
-    if (team != null) {
-
-      if (team.getManager1() != null
-          && team.getManager1().getIdMember().equals(member.getIdMember())) {
-
-        if (team.getManager2() != null) {
-          team.setManager1(team.getManager2());
-          team.setManager2(null);
-
-        } else {
-
-          Member replacement = team.getMembers().stream()
-              .filter(m -> !m.getIdMember().equals(member.getIdMember()))
-              .filter(m -> !m.isDeleted())
-              .sorted((m1, m2) -> m1.getCreationDate().compareTo(m2.getCreationDate()))
-              .findFirst()
-              .orElse(null);
-
-          if (replacement != null) {
-            team.setManager1(replacement);
-          } else {
-            team.setManager1(null);
-            team.setIsActive(false);
-          }
-        }
-      }
-
-      if (team.getManager2() != null
-          && team.getManager2().getIdMember().equals(member.getIdMember())) {
-        team.setManager2(null);
-      }
-
-      teamRepository.save(team);
-    }
-
-    member.setDeleted(true);
-    member.setTeam(null);
-    memberRepository.save(member);
+    performBan(member);
   }
 
   public boolean isLastMember(Long memberId) {
