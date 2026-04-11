@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 import be.vinci.ipl.cae.demo.models.dtos.AuthenticatedUser;
+import be.vinci.ipl.cae.demo.models.dtos.MemberSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.NewMember;
 import be.vinci.ipl.cae.demo.models.dtos.ProfileDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
@@ -503,5 +504,86 @@ class MemberServiceTest {
 
     // Assert
     assertEquals("gardien", result.getSpecialty());
+  }
+
+  @Test
+  void getAllMemberSummariesWithNoMembersInDB() {
+    // Arrange
+    when(memberRepository.findAllByIsDeletedOrderByTagAsc(false)).thenReturn(new Member[0]);
+
+    // Act
+    MemberSummaryDto[] result = memberService.getAllMemberSummaries();
+
+    // Assert
+    assertEquals(0, result.length);
+  }
+
+  @Test
+  void getAllMemberSummariesWithMemberWithNoSpecialtyAndNoAvatar() {
+    // Arrange
+    Member m1 =  new Member();
+    m1.setIdMember(1L);
+    m1.setTag("M1");
+
+    m1.setEmail("m1@mail.com");
+    m1.setPassword("Password1!");
+
+    Member[] members = new Member[1];
+    members[0] = m1;
+
+    when(memberRepository.findAllByIsDeletedOrderByTagAsc(false)).thenReturn(members);
+
+    // Act
+    MemberSummaryDto[] result = memberService.getAllMemberSummaries();
+
+    // Assert
+    assertAll(
+        () -> assertNotNull(result),
+        () -> assertEquals(MemberSummaryDto[].class, result.getClass()),
+        () -> assertEquals(1, result.length),
+        () -> assertEquals(1L, result[0].getId()),
+        () -> assertEquals("M1", result[0].getTag()),
+        () -> assertNull(result[0].getSpecialty()),
+        () -> assertNull(result[0].getAvatar())
+    );
+  }
+
+  @Test
+  void getAllMemberSummariesWithMemberWithSpecialtyAndAvatar() {
+    // Arrange
+    Specialty s = new Specialty();
+    s.setName("gardien");
+
+    ProfileImage avatar = new ProfileImage();
+    avatar.setIdImage(1L);
+    avatar.setPath("profile-1.png");
+
+    Member m1 =  new Member();
+    m1.setIdMember(1L);
+    m1.setTag("M1");
+    m1.setSpecialty(s);
+    m1.setProfileImage(avatar);
+
+    m1.setEmail("m1@mail.com");
+    m1.setPassword("Password1!");
+
+    Member[] members = new Member[1];
+    members[0] = m1;
+
+    when(memberRepository.findAllByIsDeletedOrderByTagAsc(false)).thenReturn(members);
+
+    // Act
+    MemberSummaryDto[] result = memberService.getAllMemberSummaries();
+
+    // Assert
+    assertAll(
+        () -> assertNotNull(result),
+        () -> assertEquals(MemberSummaryDto[].class, result.getClass()),
+        () -> assertEquals(1, result.length),
+        () -> assertEquals(1L, result[0].getId()),
+        () -> assertEquals("M1", result[0].getTag()),
+        () -> assertEquals(s.getName(), result[0].getSpecialty()),
+        () -> assertEquals(avatar.getPath(), result[0].getAvatar())
+    );
   }
 }
