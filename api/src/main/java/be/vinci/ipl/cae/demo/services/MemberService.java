@@ -407,6 +407,29 @@ public class MemberService {
         .orElseThrow(() -> new MemberNotFoundException("Membre introuvable"));
   }
 
+  /**
+   * Validate business rules before banning a member.
+   *
+   * @param member the member to ban
+   * @param requester the member performing the action
+   * @throws ForbiddenException if trying to ban an admin
+   * @throws BadRequestException if the operation is invalid
+   */
+  private void checkBanValidity(Member member, Member requester) {
+
+    if (member.isAdmin()) {
+      throw new ForbiddenException("Impossible de bannir un admin");
+    }
+
+    if (member.isDeleted()) {
+      throw new BadRequestException("Membre déjà banni");
+    }
+
+    if (member.getIdMember().equals(requester.getIdMember())) {
+      throw new BadRequestException("Tu ne peux pas te bannir toi-même");
+    }
+  }
+
 
 
 
