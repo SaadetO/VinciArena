@@ -439,7 +439,9 @@ public class MemberService {
   private void handleTeamBeforeBan(Member member) {
     Team team = member.getTeam();
 
-    if (team == null) return;
+    if (team == null) {
+      return;
+    }
 
     if (team.getManager1() != null
         && team.getManager1().getIdMember().equals(member.getIdMember())) {
