@@ -174,6 +174,7 @@ const ModalContextProvider = ({ children }: { children: ReactNode }) => {
                 variant="contained"
                 color="secondary"
                 type="button"
+                data-testid="modal-cancel-button"
                 onClick={() => {
                   config?.onCancel?.(closeModal);
                 }}
@@ -188,6 +189,7 @@ const ModalContextProvider = ({ children }: { children: ReactNode }) => {
                 fullWidth
                 loading={loading}
                 disabled={confirmDisabled}
+                data-testid="modal-confirm-button"
               >
                 {config?.confirmLabel ?? 'Confirmer'}
               </Button>

@@ -21,6 +21,7 @@ export const UserMenu = () => {
         variant="contained"
         color="secondary"
         onClick={handleMenuClick}
+        data-testid="user-menu-button"
         endIcon={
           <ChevronDown
             style={{
@@ -57,6 +58,7 @@ export const UserMenu = () => {
             navigate(`/users/${authenticatedUser?.id}`);
             handleClose();
           }}
+          data-testid="user-menu-profile"
         >
           <Typography variant="h5">Mon Profil</Typography>
         </MenuItem>
@@ -66,6 +68,7 @@ export const UserMenu = () => {
             handleClose();
             navigate('/');
           }}
+          data-testid="user-menu-logout"
         >
           <Typography variant="h5" color="error">
             Se Déconnecter

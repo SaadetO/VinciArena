@@ -9,6 +9,7 @@ test.describe("Client Demonstrations", () => {
   const invalidEmail = "lea@mail.com";
   const validEmail = faker.internet.email();
   const password = "Password123*";
+  const team = "TEAM_ALPHA";
 
   test("Demo: Sprint 1", async ({ page }) => {
     //Custom timeout
@@ -69,5 +70,19 @@ test.describe("Client Demonstrations", () => {
     await expect(page).toHaveURL(/.*login/);
 
     await loginUser(page, validEmail, password, true, tag);
+
+    //go to profile page
+    await page.getByTestId("user-menu-button").click();
+    await page.getByTestId("user-menu-profile").click();
+    await expect(page).toHaveURL(/.*user/);
+    // send join request
+    await page.getByTestId("team-join-button").click();
+    await page.getByTestId("join-team-autocomplete-input").fill(team);
+    await page.getByRole("option", { name: team }).click();
+    await page.getByTestId("modal-confirm-button").click();
+    //verify snackbar
+    await expect(
+      page.getByText("Demande effectuée avec succès !"),
+    ).toBeVisible();
   });
 });

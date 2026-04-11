@@ -42,6 +42,7 @@ export const PersonalInfoItem = ({ user, setUser }: PersonalInfoItemProps) => {
       <Stack direction="row" justifyContent="space-between">
         <Box
           onClick={user ? handleAvatarChange : undefined}
+          data-testid="profile-avatar-clickable"
           sx={{
             position: 'relative',
             width: '2.75rem',
@@ -90,13 +91,18 @@ export const PersonalInfoItem = ({ user, setUser }: PersonalInfoItemProps) => {
         </Box>
 
         {user ? (
-          <EditMenu user={user} setUser={setUser} />
+          <EditMenu
+            user={user}
+            setUser={setUser}
+            data-testid="profile-edit-menu"
+          />
         ) : (
           <Skeleton
             variant="rounded"
             width="6.875rem"
             height="2rem"
             sx={{ borderRadius: '0.75rem' }}
+            data-testid="profile-menu-skeleton"
           />
         )}
       </Stack>

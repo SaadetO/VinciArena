@@ -48,6 +48,10 @@ export const JoinTeamModalContent = ({
             helperText={localError}
             required
             autoFocus
+            inputProps={{
+              ...params.inputProps,
+              ...{ ['data-testid' as string]: 'join-team-autocomplete-input' },
+            }}
           />
         )}
       />

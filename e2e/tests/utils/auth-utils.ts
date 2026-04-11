@@ -16,7 +16,6 @@ export async function loginUser(
 
   await page.getByTestId("login-submit-button").click();
   await expect(page).toHaveURL("http://localhost:5173/");
-  s;
   await expect(page.getByText(tag)).toBeVisible({
     timeout: 10000,
   });
