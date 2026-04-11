@@ -179,6 +179,12 @@ public class MemberController {
     memberService.banMember(id, currentMember.getEmail());
   }
 
+  /**
+   * Check if a member is the last active member of their team.
+   *
+   * @param id the ID of the member
+   * @return true if the member is the last active member, false otherwise
+   */
   @GetMapping("/{id}/is-last")
   public boolean isLastMember(@PathVariable Long id) {
     return memberService.isLastMember(id);
