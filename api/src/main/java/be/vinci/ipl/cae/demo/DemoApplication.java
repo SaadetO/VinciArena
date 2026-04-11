@@ -100,7 +100,8 @@ public class DemoApplication {
           new MemberMockData("tim@mail.com", "Titi", "gardien", "2026-02-03", false, false,
               "TEAM_IOTA"),
           new MemberMockData("zoe@mail.com", "Vector", "catalyseur", "2026-02-04", false, false,
-              "TEAM_IOTA")};
+              "TEAM_IOTA"),
+      };
 
       Map<String, Team> teamMap = new HashMap<>();
       String pw = "Password1!";
@@ -167,11 +168,9 @@ public class DemoApplication {
               "Tournoi hivernal réunissant des équipes semi-professionnelles", "2026-01-10",
               "2026-01-20", "2026-01-05T20:00:00", 12, 12, "TEAM_ALPHA", TournamentStatus.DONE),
 
-
           new TournamentMockData("Spring Battle Series 2026",
               "Série printanière avec élimination directe", "2026-04-04", "2026-04-11",
               "2026-04-01T20:00:00", 8, 8, null, TournamentStatus.IN_PROGRESS),
-
 
           new TournamentMockData("Vinci Easter Cup 2026",
               "Tournoi de Pâques ouvert à toutes les teams actives", "2026-04-15", "2026-04-25",
