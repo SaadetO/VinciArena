@@ -175,6 +175,84 @@ class MemberServiceTest {
     });
   }
 
+  @Test
+  void banMemberManager1ReplacedByManager2() {
+
+    Member admin = new Member();
+    admin.setEmail("admin@mail.com");
+    admin.setAdmin(true);
+
+    Member manager1 = new Member();
+    manager1.setIdMember(1L);
+
+    Member manager2 = new Member();
+    manager2.setIdMember(2L);
+
+    Team team = new Team();
+    team.setManager1(manager1);
+    team.setManager2(manager2);
+    team.setMembers(java.util.List.of(manager1, manager2));
+
+    manager1.setTeam(team);
+
+    when(memberRepository.findByEmail("admin@mail.com")).thenReturn(admin);
+    when(memberRepository.findById(1L)).thenReturn(Optional.of(manager1));
+
+    memberService.banMember(1L, "admin@mail.com");
+
+    assertEquals(manager2, team.getManager1());
+    assertNull(team.getManager2());
+  }
+
+  @Test
+  void banMemberLastManagerMakesTeamInactive() {
+
+    Member admin = new Member();
+    admin.setEmail("admin@mail.com");
+    admin.setAdmin(true);
+
+    Member manager = new Member();
+    manager.setIdMember(1L);
+
+    Team team = new Team();
+    team.setManager1(manager);
+    team.setMembers(java.util.List.of(manager));
+
+    manager.setTeam(team);
+
+    when(memberRepository.findByEmail("admin@mail.com")).thenReturn(admin);
+    when(memberRepository.findById(1L)).thenReturn(Optional.of(manager));
+
+    memberService.banMember(1L, "admin@mail.com");
+
+    assertNull(team.getManager1());
+    assertFalse(team.getIsActive());
+  }
+
+  @Test
+  void banMemberRemovesManager2() {
+
+    Member admin = new Member();
+    admin.setEmail("admin@mail.com");
+    admin.setAdmin(true);
+
+    Member manager2 = new Member();
+    manager2.setIdMember(2L);
+
+    Team team = new Team();
+    team.setManager2(manager2);
+    team.setMembers(java.util.List.of(manager2));
+
+    manager2.setTeam(team);
+
+    when(memberRepository.findByEmail("admin@mail.com")).thenReturn(admin);
+    when(memberRepository.findById(2L)).thenReturn(Optional.of(manager2));
+
+    memberService.banMember(2L, "admin@mail.com");
+
+    assertNull(team.getManager2());
+  }
+
   // ========================= IS LAST MEMBER =========================
 
   @Test
@@ -249,4 +327,6 @@ class MemberServiceTest {
       memberService.isLastMember(1L);
     });
   }
+
+
 }
