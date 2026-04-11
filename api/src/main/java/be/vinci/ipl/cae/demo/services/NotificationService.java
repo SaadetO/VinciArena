@@ -26,7 +26,7 @@ public class NotificationService {
   /**
    * Constructs a new NotificationService with required repositories.
    *
-   * @param memberRepository       the repository for member data
+   * @param memberRepository the repository for member data
    * @param notificationRepository the repository for notification data
    */
   public NotificationService(MemberRepository memberRepository,
@@ -39,7 +39,7 @@ public class NotificationService {
    * Creates and saves a notification for a specific member identified by their ID.
    *
    * @param idMember the unique identifier of the member
-   * @param content  the text message of the notification
+   * @param content the text message of the notification
    * @throws IllegalArgumentException if the member is not found or content is blank
    */
   public void notifyMember(Long idMember, String content, NotificationType type, Long idReference) {
@@ -65,10 +65,10 @@ public class NotificationService {
   /**
    * Sends a notification to every member currently belonging to a specific team.
    *
-   * @param team    the team entity whose members will be notified
+   * @param team the team entity whose members will be notified
    * @param content the text message of the notification
    */
-  public void notifyTeam(Team team, String content, NotificationType type,  Long idReference) {
+  public void notifyTeam(Team team, String content, NotificationType type, Long idReference) {
     List<Member> teamMembers = team.getMembers();
     for (Member teamMember : teamMembers) {
       saveNotification(teamMember, content, type, idReference);
@@ -79,7 +79,7 @@ public class NotificationService {
    * Sends a notification to the managers (responsables) of a team. Only attempts to notify managers
    * that are explicitly assigned (not null).
    *
-   * @param team    the team whose managers will be notified
+   * @param team the team whose managers will be notified
    * @param content the text message of the notification
    */
   public void notifyTeamManagers(Team team, String content, NotificationType type,
@@ -97,16 +97,12 @@ public class NotificationService {
   /**
    * Internal helper to persist a notification.
    *
-   * @param member  the member entity to associate with the notification
+   * @param member the member entity to associate with the notification
    * @param content the message content
    * @throws IllegalArgumentException if content is null or blank
    */
-  private void saveNotification(
-      Member member,
-      String content,
-      NotificationType type,
-      Long idReference
-  ) {
+  private void saveNotification(Member member, String content, NotificationType type,
+      Long idReference) {
     if (content == null || content.isBlank()) {
       throw new IllegalArgumentException("content must contain text");
     }
@@ -121,23 +117,22 @@ public class NotificationService {
   /**
    * Retrieves notifications for a specific member, optionally filtering for unread ones.
    *
-   * @param idMember   the unique identifier of the member
+   * @param idMember the unique identifier of the member
    * @param unreadOnly true to return only unread notifications, false for all
    * @return an iterable collection of notifications
    */
   public Iterable<NotificationDto> getNotificationsByIdMember(long idMember, boolean unreadOnly) {
     Iterable<Notification> entities;
     if (unreadOnly) {
-      entities = notificationRepository.findByMemberIdMemberAndIsReadFalse(idMember);
+      entities =
+          notificationRepository.findByMemberIdMemberAndIsReadFalseOrderByDateTimeDesc(idMember);
     } else {
       entities = notificationRepository.findByMemberIdMemberOrderByIsReadAscDateTimeDesc(idMember);
     }
     List<NotificationDto> dtos = new ArrayList<>();
     for (Notification entity : entities) {
-      dtos.add(
-          new NotificationDto(entity.getIdNotification(), entity.getContent(), entity.isRead(),
-              entity.getDateTime(), entity.getType(), entity.getIdReference())
-      );
+      dtos.add(new NotificationDto(entity.getIdNotification(), entity.getContent(), entity.isRead(),
+          entity.getDateTime(), entity.getType(), entity.getIdReference()));
     }
     return dtos;
   }

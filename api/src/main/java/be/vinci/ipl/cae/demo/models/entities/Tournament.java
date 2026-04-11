@@ -15,6 +15,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -38,10 +39,12 @@ public class Tournament {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long idTournament;
 
-  @Column(nullable = false, unique = true)
+  @Column(nullable = false, unique = true, length = 50)
+  @Size(max = 50)
   private String name;
 
-  @Column(nullable = false)
+  @Column(nullable = false, length = 255)
+  @Size(max = 255)
   private String description;
 
   @Column(nullable = false)
@@ -65,11 +68,8 @@ public class Tournament {
   private Team winner;
 
   @ManyToMany
-  @JoinTable(
-      name = "tournament_registrations",
-      joinColumns = @JoinColumn(name = "id_tournament"),
-      inverseJoinColumns = @JoinColumn(name = "id_team")
-  )
+  @JoinTable(name = "tournament_registrations", joinColumns = @JoinColumn(name = "id_tournament"),
+      inverseJoinColumns = @JoinColumn(name = "id_team"))
   private Set<Team> teams = new HashSet<>();
 
   /**
@@ -124,8 +124,7 @@ public class Tournament {
   public boolean registerTeam(Team team) {
     // checking dates
     LocalDateTime now = LocalDateTime.now();
-    if (this.status != TournamentStatus.REGISTRATION_OPEN
-        || !registrationDeadline.isAfter(now)) {
+    if (this.status != TournamentStatus.REGISTRATION_OPEN || !registrationDeadline.isAfter(now)) {
       return false;
     }
     // register team

@@ -13,7 +13,7 @@ export const useJoinRequests = (options?: UseJoinRequestsOptions) => {
   const { authenticatedUser } = useContext(UserContext);
   const { showSnackbar } = useSnackbar();
 
-  const { execute: createJoinRequest } = useApi(
+  const { execute: createJoinRequest, loading: isCreatingJoinRequest } = useApi(
     async (idTeam: number) => {
       if (isNaN(idTeam) || idTeam <= 0) return;
 
@@ -157,6 +157,7 @@ export const useJoinRequests = (options?: UseJoinRequestsOptions) => {
   return {
     createJoinRequest,
     updateJoinRequestStatus,
+    isCreatingJoinRequest,
     isUpdatingJoinRequest,
   };
 };

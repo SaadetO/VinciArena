@@ -80,8 +80,7 @@ export const FilterModalContent = ({
         cachedTeams.filter((t) => initialTeams.includes(t.idTeam)),
       );
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [cachedMembers, cachedTeams, fetchMembers, initialTeams, fetchTeams]);
 
   useEffect(() => {
     if (cachedMembers.length === 0) {
@@ -98,8 +97,7 @@ export const FilterModalContent = ({
         cachedMembers.filter((m) => initialMembers.includes(m.id)),
       );
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [fetchMembers, initialMembers, cachedMembers]);
 
   useEffect(() => {
     setSelectedStatuses(
@@ -107,7 +105,6 @@ export const FilterModalContent = ({
     );
   }, [initialStatuses, statusOptions]);
 
-  // Report local state changes to parent via ref
   useEffect(() => {
     onFiltersChange({
       teams: selectedTeams.map((t) => t.idTeam),
@@ -117,7 +114,7 @@ export const FilterModalContent = ({
   }, [selectedTeams, selectedMembers, selectedStatuses, onFiltersChange]);
 
   return (
-    <Stack spacing="0.75rem">
+    <Stack spacing="0.625rem">
       {!onlyStatusFilter && (
         <>
           <FilterAutocomplete
@@ -147,7 +144,7 @@ export const FilterModalContent = ({
           value={selectedStatuses}
           onChange={setSelectedStatuses}
           loading={false}
-          placeholder="Filtrer par statut"
+          placeholder="Filtrer par états"
           getOptionLabel={(status) => status.label}
           getOptionId={(status) => status.value}
         />

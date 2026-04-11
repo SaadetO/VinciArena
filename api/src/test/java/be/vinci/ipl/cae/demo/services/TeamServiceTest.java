@@ -107,8 +107,7 @@ class TeamServiceTest {
     when(teamRepository.existsByName("New Team")).thenReturn(false);
 
     // Act + Assert
-    assertThrows(ResponseStatusException.class,
-        () -> teamService.createTeam("New Team", creator));
+    assertThrows(ResponseStatusException.class, () -> teamService.createTeam("New Team", creator));
     verify(memberRepository, never()).save(any(Member.class));
     verify(teamRepository, never()).save(any(Team.class));
   }
@@ -149,22 +148,20 @@ class TeamServiceTest {
   @Test
   void designateSecondManagerAsNonManagerOfTheTeam() {
     // Arrange
-    Team team =  new Team();
+    Team team = new Team();
     team.setIdTeam(1L);
 
     when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
 
     // Act + Assert
-    assertThrows(
-        ResponseStatusException.class,
-        () -> teamService.designateSecondManager(1L, 2L, creator)
-    );
+    assertThrows(ResponseStatusException.class,
+        () -> teamService.designateSecondManager(1L, 2L, creator));
   }
 
   @Test
   void designateSecondManagerWithUnexistingDesignatedMember() {
     // Arrange
-    Team team =  new Team();
+    Team team = new Team();
     team.setIdTeam(1L);
 
     creator.setTeam(team);
@@ -174,16 +171,14 @@ class TeamServiceTest {
     when(memberRepository.findById(2L)).thenReturn(Optional.empty());
 
     // Act + Assert
-    assertThrows(
-        ResponseStatusException.class,
-        () -> teamService.designateSecondManager(1L, 2L, creator)
-    );
+    assertThrows(ResponseStatusException.class,
+        () -> teamService.designateSecondManager(1L, 2L, creator));
   }
 
   @Test
   void designateSecondManagerWithDesignatedMemberBelongingToNoTeam() {
     // Arrange
-    Team team =  new Team();
+    Team team = new Team();
     team.setIdTeam(1L);
 
     creator.setTeam(team);
@@ -197,17 +192,15 @@ class TeamServiceTest {
     when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
 
     // Act + Assert
-    assertThrows(
-        ResponseStatusException.class,
-        () -> teamService.designateSecondManager(1L, 2L, creator)
-    );
+    assertThrows(ResponseStatusException.class,
+        () -> teamService.designateSecondManager(1L, 2L, creator));
 
   }
 
   @Test
   void designateSecondManagerWithDesignatedMemberBelongingToADifferentTeam() {
     // Arrange
-    Team team =  new Team();
+    Team team = new Team();
     team.setIdTeam(1L);
 
     creator.setTeam(team);
@@ -216,7 +209,7 @@ class TeamServiceTest {
     Team anotherTeam = new Team();
     anotherTeam.setIdTeam(2L);
 
-    Member memberOfAnotherTeam =  new Member();
+    Member memberOfAnotherTeam = new Member();
     memberOfAnotherTeam.setIdMember(2L);
     memberOfAnotherTeam.setTeam(anotherTeam);
 
@@ -225,17 +218,15 @@ class TeamServiceTest {
     when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
 
     // Arrange + Act
-    assertThrows(
-        ResponseStatusException.class,
-        () -> teamService.designateSecondManager(1L, 2L, creator)
-    );
+    assertThrows(ResponseStatusException.class,
+        () -> teamService.designateSecondManager(1L, 2L, creator));
 
   }
 
   @Test
   void designateSecondManagerWithDesignatedMemberAlreadyManager2OfTheTeam() {
     // Arrange
-    Team team =  new Team();
+    Team team = new Team();
     team.setIdTeam(1L);
 
     creator.setTeam(team);
@@ -259,7 +250,7 @@ class TeamServiceTest {
   @Test
   void designateSecondManagerWithDesignatedMemberAlreadyManager1OfTheTeam() {
     // Arrange
-    Team team =  new Team();
+    Team team = new Team();
     team.setIdTeam(1L);
 
     creator.setTeam(team);
@@ -283,7 +274,7 @@ class TeamServiceTest {
   @Test
   void designateSecondManagerWithManager1SpotLeftInTheTeam() {
     // Arrange
-    Team team =  new Team();
+    Team team = new Team();
     team.setIdTeam(1L);
 
     creator.setTeam(team);
@@ -302,16 +293,14 @@ class TeamServiceTest {
     Team result = teamService.designateSecondManager(1L, 2L, creator);
 
     // Assert
-    assertAll(
-        () -> assertEquals(designatedMember, team.getManager1()),
-        () -> assertEquals(team, result)
-    );
+    assertAll(() -> assertEquals(designatedMember, team.getManager1()),
+        () -> assertEquals(team, result));
   }
 
   @Test
   void designateSecondManagerWithManager2SpotLeftInTheTeam() {
     // Arrange
-    Team team =  new Team();
+    Team team = new Team();
     team.setIdTeam(1L);
 
     creator.setTeam(team);
@@ -330,16 +319,14 @@ class TeamServiceTest {
     Team result = teamService.designateSecondManager(1L, 2L, creator);
 
     // Assert
-    assertAll(
-        () -> assertEquals(designatedMember, team.getManager2()),
-        () -> assertEquals(team, result)
-    );
+    assertAll(() -> assertEquals(designatedMember, team.getManager2()),
+        () -> assertEquals(team, result));
   }
 
   @Test
   void designateSecondManagerWithNoSpotLeftInTheTeam() {
     // Arrange
-    Team team =  new Team();
+    Team team = new Team();
     team.setIdTeam(1L);
 
     creator.setTeam(team);
@@ -358,10 +345,8 @@ class TeamServiceTest {
     when(memberRepository.findById(3L)).thenReturn(Optional.of(designatedMember));
 
     // Act + Assert
-    assertThrows(
-        ResponseStatusException.class,
-        () -> teamService.designateSecondManager(1L, 3L, creator)
-    );
+    assertThrows(ResponseStatusException.class,
+        () -> teamService.designateSecondManager(1L, 3L, creator));
   }
 
   @Test
@@ -540,8 +525,8 @@ class TeamServiceTest {
     currentMember.setEmail("user@test.com");
 
     when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
-    when(memberService.getUserSummary(member1)).thenReturn(
-        UserSummaryDto.builder().id(10L).build());
+    when(memberService.getUserSummary(member1))
+        .thenReturn(UserSummaryDto.builder().id(10L).build());
 
     // Act
     TeamDetailsDto result = teamService.getTeamDetails(1L, currentMember);
@@ -574,10 +559,10 @@ class TeamServiceTest {
     jr.setStatus(RequestStatus.PENDING);
 
     when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
-    when(memberService.getUserSummary(manager)).thenReturn(
-        UserSummaryDto.builder().id(10L).build());
-    when(memberService.getUserSummary(jr.getMember())).thenReturn(
-        UserSummaryDto.builder().id(30L).build());
+    when(memberService.getUserSummary(manager))
+        .thenReturn(UserSummaryDto.builder().id(10L).build());
+    when(memberService.getUserSummary(jr.getMember()))
+        .thenReturn(UserSummaryDto.builder().id(30L).build());
     when(joinRequestRepository.findAllByRequestedTeamAndStatus(team, RequestStatus.PENDING))
         .thenReturn(List.of(jr));
 
@@ -722,10 +707,7 @@ class TeamServiceTest {
     boolean result = teamService.hasOtherManager(team, creator);
 
     // Assert
-    assertAll(
-        () -> assertNull(team.getManager2()),
-        () -> assertFalse(result)
-    );
+    assertAll(() -> assertNull(team.getManager2()), () -> assertFalse(result));
   }
 
   @Test
@@ -776,10 +758,7 @@ class TeamServiceTest {
     boolean result = teamService.hasOtherManager(team, manager2);
 
     // Assert
-    assertAll(
-        () -> assertNotNull(team.getManager1()),
-        () -> assertTrue(result)
-    );
+    assertAll(() -> assertNotNull(team.getManager1()), () -> assertTrue(result));
   }
 
   @Test
@@ -858,10 +837,7 @@ class TeamServiceTest {
     teamService.quitTeam(creator);
 
     // Assert
-    assertAll(
-        () -> assertNull(creator.getTeam()),
-        () -> assertNull(team.getManager2())
-    );
+    assertAll(() -> assertNull(creator.getTeam()), () -> assertNull(team.getManager2()));
 
   }
 
@@ -880,20 +856,17 @@ class TeamServiceTest {
     when(teamRepository.save(any(Team.class))).thenReturn(team);
 
     // Act
-    //Team result = teamService.quitTeam(creator);
+    // Team result = teamService.quitTeam(creator);
     teamService.quitTeam(creator);
 
     // Assert
-    assertAll(
-        () -> assertNull(team.getManager1()),
-        () -> assertNull(creator.getTeam()),
-        () -> assertFalse(team.getIsActive())
-    );
+    assertAll(() -> assertNull(team.getManager1()), () -> assertNull(creator.getTeam()),
+        () -> assertFalse(team.getIsActive()));
 
   }
 
   @Test
-  void quitTeamAsManager1WithOtherMembers () {
+  void quitTeamAsManager1WithOtherMembers() {
     // Arrange
     Team team = new Team();
     team.setIdTeam(1L);
@@ -918,12 +891,12 @@ class TeamServiceTest {
     // Act
 
     // Assert
-    //assertNull(result);
+    // assertNull(result);
     assertThrows(ResponseStatusException.class, () -> teamService.quitTeam(creator));
   }
 
   @Test
-  void quitTeamAsManager1WithExistingManager2 () {
+  void quitTeamAsManager1WithExistingManager2() {
     // Arrange
     Team team = new Team();
     team.setIdTeam(1L);
@@ -947,11 +920,8 @@ class TeamServiceTest {
     teamService.quitTeam(creator);
 
     // Assert
-    assertAll(
-        () -> assertNull(creator.getTeam()),
-        () -> assertEquals(team.getManager1(), manager2),
-        () -> assertNull(team.getManager2())
-    );
+    assertAll(() -> assertNull(creator.getTeam()), () -> assertEquals(team.getManager1(), manager2),
+        () -> assertNull(team.getManager2()));
   }
 
   @Test
@@ -961,10 +931,8 @@ class TeamServiceTest {
     when(teamRepository.findById(unexistingTeamId)).thenReturn(Optional.empty());
 
     // Assert
-    assertThrows(
-        ResponseStatusException.class,
-        () -> teamService.resignManager(unexistingTeamId, creator, null)
-    );
+    assertThrows(ResponseStatusException.class,
+        () -> teamService.resignManager(unexistingTeamId, creator, null));
   }
 
   @Test
@@ -985,10 +953,7 @@ class TeamServiceTest {
     when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
 
     // Assert
-    assertThrows(
-        ResponseStatusException.class,
-        () -> teamService.resignManager(1L, creator, null)
-    );
+    assertThrows(ResponseStatusException.class, () -> teamService.resignManager(1L, creator, null));
   }
 
   @Test
@@ -1002,10 +967,7 @@ class TeamServiceTest {
     when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
 
     // Assert
-    assertThrows(
-        ResponseStatusException.class,
-        () -> teamService.resignManager(1L, creator, 404L)
-    );
+    assertThrows(ResponseStatusException.class, () -> teamService.resignManager(1L, creator, 404L));
   }
 
   @Test
@@ -1023,10 +985,7 @@ class TeamServiceTest {
     when(memberRepository.findById(2L)).thenReturn(Optional.of(lonely));
 
     // Assert
-    assertThrows(
-        ResponseStatusException.class,
-        () -> teamService.resignManager(1L, creator, 2L)
-    );
+    assertThrows(ResponseStatusException.class, () -> teamService.resignManager(1L, creator, 2L));
   }
 
   @Test
@@ -1049,10 +1008,7 @@ class TeamServiceTest {
     when(memberRepository.findById(2L)).thenReturn(Optional.of(memberOfAnotherTeam));
 
     // Assert
-    assertThrows(
-        ResponseStatusException.class,
-        () -> teamService.resignManager(1L, creator, 2L)
-    );
+    assertThrows(ResponseStatusException.class, () -> teamService.resignManager(1L, creator, 2L));
 
   }
 
@@ -1075,10 +1031,7 @@ class TeamServiceTest {
     when(memberRepository.findById(2L)).thenReturn(Optional.of(manager2));
 
     // Assert
-    assertThrows(
-        ResponseStatusException.class,
-        () -> teamService.resignManager(1L, creator, 2L)
-    );
+    assertThrows(ResponseStatusException.class, () -> teamService.resignManager(1L, creator, 2L));
   }
 
   @Test
@@ -1160,10 +1113,7 @@ class TeamServiceTest {
     Team result = teamService.resignManager(1L, manager2, null);
 
     // Assert
-    assertAll(
-        () -> assertNull(team.getManager2()),
-        () -> assertEquals(team, result)
-    );
+    assertAll(() -> assertNull(team.getManager2()), () -> assertEquals(team, result));
   }
 
   @Test
@@ -1200,8 +1150,7 @@ class TeamServiceTest {
     when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
 
     // Act + Assert
-    assertThrows(ResponseStatusException.class,
-        () -> teamService.resignManager(1L, creator, null));
+    assertThrows(ResponseStatusException.class, () -> teamService.resignManager(1L, creator, null));
   }
 
   @Test
@@ -1243,7 +1192,6 @@ class TeamServiceTest {
     when(memberRepository.findById(2L)).thenReturn(Optional.of(replacement));
 
     // Act + Assert
-    assertThrows(ResponseStatusException.class,
-        () -> teamService.resignManager(1L, creator, 2L));
+    assertThrows(ResponseStatusException.class, () -> teamService.resignManager(1L, creator, 2L));
   }
 }

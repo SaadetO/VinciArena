@@ -169,7 +169,7 @@ class MemberServiceTest {
   }
 
   @Test
-  void loginMemberWithValidEmailAndPassword(){
+  void loginMemberWithValidEmailAndPassword() {
 
     // Arrange
     String email = "test@mail.com";
@@ -194,7 +194,7 @@ class MemberServiceTest {
   }
 
   @Test
-  void loginMemberWithWrongPassword(){
+  void loginMemberWithWrongPassword() {
 
     // Arrange
     String email = "test@mail.com";
@@ -215,7 +215,7 @@ class MemberServiceTest {
   }
 
   @Test
-  void loginMemberWithUnknownEmail(){
+  void loginMemberWithUnknownEmail() {
 
     // Arrange
     String email = "unknown@mail.com";
@@ -230,7 +230,7 @@ class MemberServiceTest {
   }
 
   @Test
-  void loginMemberBanned(){
+  void loginMemberBanned() {
 
     // Arrange
     Member member = new Member();
@@ -248,7 +248,7 @@ class MemberServiceTest {
 
 
   @Test
-  void banMemberWhenRequesterIsAdmin(){
+  void banMemberWhenRequesterIsAdmin() {
 
     // Arrange
     Member admin = new Member();
@@ -275,7 +275,7 @@ class MemberServiceTest {
   }
 
   @Test
-  void banMemberWithNonAdminRequester(){
+  void banMemberWithNonAdminRequester() {
 
     // Arrange
     Member user = new Member();
@@ -292,7 +292,7 @@ class MemberServiceTest {
 
 
   @Test
-  void banMemberWithUnknownMember(){
+  void banMemberWithUnknownMember() {
 
     // Arrange
     Member admin = new Member();
@@ -309,7 +309,7 @@ class MemberServiceTest {
   }
 
   @Test
-  void banMemberAlreadyBanned(){
+  void banMemberAlreadyBanned() {
 
     // Arrange
     Member admin = new Member();
@@ -330,7 +330,7 @@ class MemberServiceTest {
   }
 
   @Test
-  void banMemberSelfBan(){
+  void banMemberSelfBan() {
 
     // Arrange
     Member admin = new Member();
@@ -348,7 +348,7 @@ class MemberServiceTest {
   }
 
   @Test
-  void banMemberTargetIsAdmin(){
+  void banMemberTargetIsAdmin() {
 
     // Arrange
     Member admin = new Member();
@@ -480,14 +480,9 @@ class MemberServiceTest {
     ProfileDto result = memberService.getProfile(1L, "someone@mail.com");
 
     // Assert
-    assertAll(
-        () -> assertEquals(1L, result.getId()),
-        () -> assertEquals("M1", result.getTag()),
-        () -> assertNull(result.getSpecialty()),
-        () -> assertNull(result.getAvatar()),
-        () -> assertNull(result.getTeam()),
-        () -> assertNull(result.getEmail())
-    );
+    assertAll(() -> assertEquals(1L, result.getId()), () -> assertEquals("M1", result.getTag()),
+        () -> assertNull(result.getSpecialty()), () -> assertNull(result.getAvatar()),
+        () -> assertNull(result.getTeam()), () -> assertNull(result.getEmail()));
   }
 
   @Test
@@ -504,7 +499,7 @@ class MemberServiceTest {
     when(memberRepository.findById(1L)).thenReturn(Optional.of(m));
 
     // Act
-    ProfileDto result =  memberService.getProfile(1L, "someone@mail.com");
+    ProfileDto result = memberService.getProfile(1L, "someone@mail.com");
 
     // Assert
     assertEquals("gardien", result.getSpecialty());

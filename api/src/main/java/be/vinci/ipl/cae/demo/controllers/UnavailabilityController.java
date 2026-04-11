@@ -55,21 +55,18 @@ public class UnavailabilityController {
    * Create a new unavailability for the authenticated member.
    *
    * @param currentMember the authenticated member
-   * @param dto           the unavailability data
+   * @param dto the unavailability data
    * @return the created unavailability
    */
   @PostMapping("/me")
-  public Unavailability createUnavailability(
-      @AuthenticationPrincipal Member currentMember,
+  public Unavailability createUnavailability(@AuthenticationPrincipal Member currentMember,
       @RequestBody NewUnavailabilityDto dto) {
 
     if (currentMember == null) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
     }
 
-    if (dto == null
-        || dto.getStartDate() == null
-        || dto.getEndDate() == null) {
+    if (dto == null || dto.getStartDate() == null || dto.getEndDate() == null) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Dates are required");
     }
 
@@ -79,8 +76,7 @@ public class UnavailabilityController {
     }
 
     if (dto.getStartDate().isBefore(LocalDate.now().atStartOfDay())) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-          "Start date must be in the future");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Start date must be in the future");
     }
 
     return unavailabilityService.create(currentMember, dto);
@@ -89,12 +85,11 @@ public class UnavailabilityController {
   /**
    * Delete an unavailability by ID (must belong to the authenticated member).
    *
-   * @param id            the unavailability ID
+   * @param id the unavailability ID
    * @param currentMember the authenticated member
    */
   @DeleteMapping("/{id}")
-  public void deleteUnavailability(
-      @PathVariable Long id,
+  public void deleteUnavailability(@PathVariable Long id,
       @AuthenticationPrincipal Member currentMember) {
 
     if (currentMember == null) {

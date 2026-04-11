@@ -1,6 +1,6 @@
 import { Chip, Tooltip, Typography } from '@mui/material';
 import { getFormattedDate } from '../../../utils/tournamentUtils';
-import { DateRange } from '@mui/icons-material';
+import { Calendar } from '@gravity-ui/icons';
 
 interface TournamentDateProps {
   startDate: string;
@@ -26,7 +26,7 @@ export const TournamentDate = ({
       <Chip
         size="medium"
         variant="text"
-        icon={<DateRange />}
+        icon={<Calendar style={{ width: '1rem', height: '1rem' }} />}
         label={getFormattedDate(startDate, endDate)}
       />
     </Tooltip>

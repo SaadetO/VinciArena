@@ -77,8 +77,7 @@ public class NotificationController {
    */
   @GetMapping("/member/me/unread-count")
   @PreAuthorize("isAuthenticated()")
-  public long countUnreadNotifications(
-      @AuthenticationPrincipal Member currentMember) {
+  public long countUnreadNotifications(@AuthenticationPrincipal Member currentMember) {
     return notificationService.countUnreadNotifications(currentMember.getIdMember());
   }
 }

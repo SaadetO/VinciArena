@@ -62,32 +62,22 @@ class TournamentServiceTest {
   private Tournament tournament;
 
   private NewTournament newTournament;
-  
+
   private Member manager;
-  
+
   private Team team;
 
   @BeforeEach
   void setUp() {
-    tournamentService = new TournamentService(
-        tournamentRepository,
-        memberRepository,
-        matchLineupRepository,
-        matchRepository,
-        confirmationRepository,
-        teamService,
-        notificationService
-    );
+    tournamentService =
+        new TournamentService(tournamentRepository, memberRepository, matchLineupRepository,
+            matchRepository, confirmationRepository, teamService, notificationService);
 
     memberAdmin = new Member();
     memberAdmin.setAdmin(true);
 
-    newTournament = new NewTournament(
-        "un1", "ud1",
-        LocalDate.of(2028, 1, 1),
-        LocalDate.of(2028, 1, 31), 4,
-        LocalDate.of(2027, 12, 1).atStartOfDay()
-    );
+    newTournament = new NewTournament("un1", "ud1", LocalDate.of(2028, 1, 1),
+        LocalDate.of(2028, 1, 31), 4, LocalDate.of(2027, 12, 1).atStartOfDay());
 
     manager = new Member();
     manager.setIdMember(1L);
@@ -99,9 +89,12 @@ class TournamentServiceTest {
     team.setManager1(manager);
     manager.setTeam(team);
 
-    Member m2 = new Member(); m2.setIdMember(2L);
-    Member m3 = new Member(); m3.setIdMember(3L);
-    Member m4 = new Member(); m4.setIdMember(4L);
+    Member m2 = new Member();
+    m2.setIdMember(2L);
+    Member m3 = new Member();
+    m3.setIdMember(3L);
+    Member m4 = new Member();
+    m4.setIdMember(4L);
     team.setMembers(java.util.List.of(manager, m2, m3, m4));
 
     tournament = new Tournament();
@@ -137,9 +130,7 @@ class TournamentServiceTest {
     when(tournamentRepository.findById(1L)).thenReturn(Optional.of(tournament));
 
     // Act
-    Tournament result = tournamentService.updateTournament(
-        1L, newTournament, memberAdmin
-    );
+    Tournament result = tournamentService.updateTournament(1L, newTournament, memberAdmin);
 
     // Assert
     assertNull(result);
@@ -158,9 +149,7 @@ class TournamentServiceTest {
     tournament.setStatus(TournamentStatus.IN_PREPARATION);
 
     // Act
-    Tournament result = tournamentService.updateTournament(
-        1L, newTournament, nonAdminMember
-    );
+    Tournament result = tournamentService.updateTournament(1L, newTournament, nonAdminMember);
 
     // Arrange
     assertNull(result);
@@ -176,9 +165,7 @@ class TournamentServiceTest {
     tournament.setDescription("d1");
     tournament.setStartDate(LocalDate.of(2027, 1, 1));
     tournament.setEndDate(LocalDate.of(2027, 1, 31));
-    tournament.setRegistrationDeadline(
-        LocalDate.of(2026, 12, 1).atStartOfDay()
-    );
+    tournament.setRegistrationDeadline(LocalDate.of(2026, 12, 1).atStartOfDay());
     tournament.setCapacity(8);
     tournament.setStatus(TournamentStatus.IN_PREPARATION);
 
@@ -186,22 +173,16 @@ class TournamentServiceTest {
     when(tournamentRepository.save(any(Tournament.class))).thenReturn(tournament);
 
     // Act
-    Tournament result = tournamentService.updateTournament(
-        1L, newTournament, memberAdmin
-    );
+    Tournament result = tournamentService.updateTournament(1L, newTournament, memberAdmin);
 
     // Assert
-    assertAll(
-        () -> assertNotNull(result),
-        () -> assertEquals("un1", result.getName()),
+    assertAll(() -> assertNotNull(result), () -> assertEquals("un1", result.getName()),
         () -> assertEquals("ud1", result.getDescription()),
         () -> assertEquals(LocalDate.of(2028, 1, 1), result.getStartDate()),
         () -> assertEquals(LocalDate.of(2028, 1, 31), result.getEndDate()),
         () -> assertEquals(4, result.getCapacity()),
-        () -> assertEquals(
-            LocalDate.of(2027, 12, 1).atStartOfDay(), result.getRegistrationDeadline()
-        )
-    );
+        () -> assertEquals(LocalDate.of(2027, 12, 1).atStartOfDay(),
+            result.getRegistrationDeadline()));
     verify(tournamentRepository, times(1)).save(tournament);
   }
 

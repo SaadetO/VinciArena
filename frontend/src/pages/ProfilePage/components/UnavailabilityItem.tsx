@@ -4,9 +4,10 @@ import {
   Stack,
   Tooltip,
   Typography,
+  useTheme,
 } from '@mui/material';
 import { formatDate, getDurationString } from '../../../utils/date';
-import { ArrowForward, DeleteOutlined } from '@mui/icons-material';
+import { ArrowRight, TrashBin } from '@gravity-ui/icons';
 import dayjs from 'dayjs';
 import { ProfileInfoDto } from '../../../types';
 import { useUnavailabilities } from '../../../hooks/useUnavailabilities';
@@ -19,6 +20,7 @@ export const UnavailabilityItem = ({
   setUser: React.Dispatch<React.SetStateAction<ProfileInfoDto | undefined>>;
 }) => {
   const { deleteUnavailability } = useUnavailabilities({ setUser });
+  const theme = useTheme();
 
   if (!unavailability)
     return (
@@ -75,9 +77,9 @@ export const UnavailabilityItem = ({
           <Typography color="secondary" variant="body1">
             {formatDate(unavailability.startDate)}
           </Typography>
-          <ArrowForward
-            sx={{
-              color: (theme) => theme.palette.text.secondary,
+          <ArrowRight
+            style={{
+              color: theme.palette.text.secondary,
               width: '1rem',
               height: '1rem',
             }}
@@ -103,9 +105,9 @@ export const UnavailabilityItem = ({
             unavailability.id >= 0 && deleteUnavailability(unavailability)
           }
         >
-          <DeleteOutlined
-            sx={{
-              color: (theme) =>
+          <TrashBin
+            style={{
+              color:
                 unavailability.id < 0
                   ? 'transparent'
                   : theme.palette.text.secondary,

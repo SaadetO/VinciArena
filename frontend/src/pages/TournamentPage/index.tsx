@@ -11,6 +11,7 @@ import { AdminActionCard } from './components/AdminActionCard';
 
 import { useTournamentModal } from '../../hooks/useTournamentModal';
 import { useModal } from '../../hooks/useModal';
+import { useModalController } from '../../hooks/useModalController';
 import { publishTournamentModal } from '../../modals/publishTournamentModal';
 
 export const TournamentPage = () => {
@@ -25,6 +26,7 @@ export const TournamentPage = () => {
   const { authenticatedUser } = useContext(UserContext);
   const { openEditModal } = useTournamentModal();
   const { openModal } = useModal();
+  const { setLoading } = useModalController();
 
   const { getById, publish, register, isGettingTournamentById } = useTournament(
     {
@@ -38,9 +40,10 @@ export const TournamentPage = () => {
 
     if (status === 'IN_PREPARATION') {
       openModal(
-        publishTournamentModal((close) => {
-          publish(idNbr);
+        publishTournamentModal(async (close) => {
+          setLoading(true);
           close();
+          publish(idNbr);
         }),
       );
     } else if (status === 'REGISTRATION_CLOSED') {
@@ -93,11 +96,11 @@ export const TournamentPage = () => {
           container
           spacing={3}
           padding="1.5rem 0 4rem"
-          direction={{ xs: 'column-reverse', md: 'row' }}
+          direction={{ xs: 'column-reverse', desktop: 'row' }}
           justifyContent="center"
         >
           {canCol1 && (
-            <Grid2 size={{ xs: 12, md: 6.5, lg: 7.5 }}>
+            <Grid2 size={{ xs: 12, desktop: 6.5, lg: 7.5 }}>
               <Stack spacing="1.5rem">
                 {authenticatedUser?.admin && tournament?.status && (
                   <AdminActionCard
@@ -128,7 +131,7 @@ export const TournamentPage = () => {
             <Grid2
               size={{
                 xs: 12,
-                md: canCol1 ? 5.5 : 6.5,
+                desktop: canCol1 ? 5.5 : 6.5,
                 lg: canCol1 ? 4.5 : 5.5,
               }}
             >

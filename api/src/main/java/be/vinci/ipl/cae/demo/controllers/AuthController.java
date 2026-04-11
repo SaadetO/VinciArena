@@ -40,10 +40,8 @@ public class AuthController {
    * @return true if invalid
    */
   private boolean isInvalidCredentials(Credentials credentials) {
-    return credentials == null
-        || credentials.getEmail() == null
-        || credentials.getEmail().isBlank()
-        || credentials.getPassword() == null
+    return credentials == null || credentials.getEmail() == null
+        || credentials.getEmail().isBlank() || credentials.getPassword() == null
         || credentials.getPassword().isBlank();
   }
 
@@ -54,12 +52,8 @@ public class AuthController {
    */
   @PostMapping("/register")
   public void register(@RequestBody NewMember newMember) {
-
-    if (newMember == null
-        || newMember.getEmail() == null
-        || newMember.getEmail().isBlank()
-        || newMember.getPassword() == null
-        || newMember.getPassword().isBlank()) {
+    if (newMember == null || newMember.getEmail() == null || newMember.getEmail().isBlank()
+        || newMember.getPassword() == null || newMember.getPassword().isBlank()) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email ou mot de passe manquant");
     }
     memberService.register(newMember);
@@ -73,15 +67,11 @@ public class AuthController {
    */
   @PostMapping("/login")
   public AuthenticatedUser login(@RequestBody Credentials credentials) {
-
     if (isInvalidCredentials(credentials)) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email ou mot de passe manquant");
     }
 
-    return memberService.login(
-        credentials.getEmail(),
-        credentials.getPassword()
-    );
+    return memberService.login(credentials.getEmail(), credentials.getPassword());
   }
 
   /**
@@ -92,7 +82,6 @@ public class AuthController {
    */
   @GetMapping("/me")
   public AuthenticatedUser getMe(@RequestHeader("Authorization") String authorization) {
-
     if (authorization == null || !authorization.startsWith("Bearer ")) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Identifiants invalides");
     }
@@ -121,7 +110,6 @@ public class AuthController {
    */
   @GetMapping("/login/me")
   public AuthenticatedUser relog(@AuthenticationPrincipal Member currentMember) {
-
     if (currentMember == null) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Identifiants invalides");
     }

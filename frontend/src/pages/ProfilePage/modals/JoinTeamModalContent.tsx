@@ -43,7 +43,7 @@ export const JoinTeamModalContent = ({
         renderInput={(params) => (
           <TextField
             {...params}
-            placeholder="Nom de Team"
+            placeholder="Sélectionnez une équipe"
             error={!!localError}
             helperText={localError}
             required

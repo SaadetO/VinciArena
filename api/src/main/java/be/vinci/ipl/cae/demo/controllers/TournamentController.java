@@ -8,6 +8,7 @@ import be.vinci.ipl.cae.demo.models.entities.Tournament;
 import be.vinci.ipl.cae.demo.models.entities.TournamentStatus;
 import be.vinci.ipl.cae.demo.repositories.TournamentRepository;
 import be.vinci.ipl.cae.demo.services.TournamentService;
+import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -41,8 +42,8 @@ public class TournamentController {
    *
    * @param tournamentService the unavailability service
    */
-  public TournamentController(
-      TournamentService tournamentService, TournamentRepository tournamentrepo) {
+  public TournamentController(TournamentService tournamentService,
+      TournamentRepository tournamentrepo) {
     this.tournamentService = tournamentService;
     this.tournamentRepo = tournamentrepo;
   }
@@ -50,10 +51,10 @@ public class TournamentController {
   /**
    * Get all tournaments, optionally filtered by timeframe, teams, or members.
    *
-   * @param statuses   a list of statuses to filter by (OR filter)
-   * @param teamsIds   a list of team IDs to filter tournaments by (OR filter).
+   * @param statuses a list of statuses to filter by (OR filter)
+   * @param teamsIds a list of team IDs to filter tournaments by (OR filter).
    * @param membersIds a list of member IDs whose teams filter the tournaments (OR filter).
-   * @param search     a search query to match
+   * @param search a search query to match
    * @return the list of tournaments.
    */
   @GetMapping({"", "/"})
@@ -95,7 +96,7 @@ public class TournamentController {
   @PostMapping("/")
   @ResponseStatus(HttpStatus.CREATED)
   @PreAuthorize("hasRole('ADMIN')") // Security handled here
-  public TournamentDetailsDto createTournament(@RequestBody NewTournament newTournament,
+  public TournamentDetailsDto createTournament(@Valid @RequestBody NewTournament newTournament,
       @AuthenticationPrincipal Member currentMember) {
 
     validateNewTournament(newTournament, currentMember, null); // Removed currentMember check here
@@ -113,18 +114,16 @@ public class TournamentController {
    * Updates a tournament in the system. The update is only possible if the tournament's status is
    * IN_PREPARATION and the member is an admin.
    *
-   * @param id            the tournament id.
+   * @param id the tournament id.
    * @param newTournament the new tournament data.
    * @param currentMember the current member.
    * @return the updated tournament
    */
   @PutMapping("/{id}")
   @PreAuthorize("hasRole('ADMIN')")
-  public TournamentDetailsDto updateTournament(
-      @PathVariable Long id,
-      @RequestBody NewTournament newTournament,
-      @AuthenticationPrincipal Member currentMember
-  ) {
+  public TournamentDetailsDto updateTournament(@PathVariable Long id,
+      @Valid @RequestBody NewTournament newTournament,
+      @AuthenticationPrincipal Member currentMember) {
     validateNewTournament(newTournament, currentMember, id);
 
     Tournament updatedTournament =
@@ -141,16 +140,14 @@ public class TournamentController {
    * Patch a tournament in the system. The patch is only possible if the tournament's status is
    * IN_PREPARATION and the member is an admin.
    *
-   * @param id            the tournament id.
+   * @param id the tournament id.
    * @param currentMember the current member.
    * @return the patched tournament
    */
   @PatchMapping("/{id}/publish")
   @PreAuthorize("hasRole('ADMIN')")
-  public TournamentDetailsDto publishTournament(
-      @PathVariable Long id,
-      @AuthenticationPrincipal Member currentMember
-  ) {
+  public TournamentDetailsDto publishTournament(@PathVariable Long id,
+      @AuthenticationPrincipal Member currentMember) {
     if (!currentMember.isAdmin()) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
     }
@@ -194,11 +191,8 @@ public class TournamentController {
     checkDateRange(dto.registrationDeadline(), dto.startDate(), dto.endDate());
   }
 
-  private void checkDateRange(
-      LocalDateTime registrationDeadline,
-      LocalDate startDate,
-      LocalDate endDate
-  ) {
+  private void checkDateRange(LocalDateTime registrationDeadline, LocalDate startDate,
+      LocalDate endDate) {
     LocalDate today = LocalDate.now();
     if (registrationDeadline.isBefore(today.atStartOfDay())) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Deadline cannot be in the past");
@@ -222,8 +216,7 @@ public class TournamentController {
   @PostMapping("/{id}/register")
   @ResponseStatus(HttpStatus.OK)
   @PreAuthorize("isAuthenticated()")
-  public TournamentDetailsDto registerTeamToTournament(
-      @PathVariable Long id,
+  public TournamentDetailsDto registerTeamToTournament(@PathVariable Long id,
       @AuthenticationPrincipal Member currentMember) {
     return tournamentService.registerTeam(id, currentMember);
   }

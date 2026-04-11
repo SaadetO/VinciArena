@@ -96,7 +96,7 @@ export const useTeams = (options?: UseTeamsOptions) => {
     },
   );
 
-  const { execute: createTeam } = useApi(
+  const { execute: createTeam, loading: isCreatingTeam } = useApi(
     async (selectedName: string) => {
       const response = await fetch('/api/teams/', {
         method: 'POST',
@@ -205,7 +205,7 @@ export const useTeams = (options?: UseTeamsOptions) => {
     },
   );
 
-  const { execute: promoteToManager } = useApi(
+  const { execute: promoteToManager, loading: isPromotingToManager } = useApi(
     async (idTeam: number, selectedManager: UserSummaryDto) => {
       const response = await fetch(
         `/api/teams/${idTeam}/manager/${selectedManager.id}`,
@@ -286,7 +286,7 @@ export const useTeams = (options?: UseTeamsOptions) => {
     },
   );
 
-  const { execute: resignManager } = useApi(
+  const { execute: resignManager, loading: isResigningManager } = useApi(
     async (idTeam: number) => {
       const response = await fetch(`/api/teams/${idTeam}/resign`, {
         method: 'PUT',
@@ -379,6 +379,9 @@ export const useTeams = (options?: UseTeamsOptions) => {
     resignManager,
     isGettingAllTeams,
     isGettingTeam,
+    isCreatingTeam,
     isQuittingTeam,
+    isPromotingToManager,
+    isResigningManager,
   };
 };

@@ -3,6 +3,7 @@ import { TeamSummaryDto } from '../../../types';
 import { Link } from 'react-router-dom';
 import { useMemo } from 'react';
 import { useModal } from '../../../hooks/useModal';
+import { useModalController } from '../../../hooks/useModalController';
 import { registrationManagementModal } from '../modals/registrationManagementModal';
 
 export const TeamsCard = ({
@@ -21,6 +22,7 @@ export const TeamsCard = ({
   onRegister?: (id: number) => void;
 }) => {
   const { openModal } = useModal();
+  const { setLoading } = useModalController();
 
   const isUserTeamRegistered = useMemo(() => {
     if (!managedTeamId || !teams) return false;
@@ -28,9 +30,10 @@ export const TeamsCard = ({
   }, [managedTeamId, teams]);
 
   const onAction = (register: boolean) => {
-    const handleRegister = (close: () => void) => {
+    const handleRegister = async (close: () => void) => {
       if (tournamentId && onRegister) {
-        onRegister(tournamentId);
+        setLoading(true);
+        await onRegister(tournamentId);
       }
       close();
     };
@@ -95,6 +98,7 @@ export const TeamsCard = ({
           teams.length > 0 ? (
             teams.map((team) => (
               <Chip
+                size="large"
                 sx={{
                   cursor: 'pointer',
                   '&:hover': {
@@ -140,7 +144,7 @@ export const TeamsCard = ({
                 gap="0.5rem"
                 alignItems="center"
                 height="2.75rem"
-                padding="0 1rem 0 0.75rem"
+                padding="0 0.75rem"
                 sx={{
                   background: (theme) => theme.palette.background.s2,
                 }}

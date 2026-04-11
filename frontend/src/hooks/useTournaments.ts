@@ -105,7 +105,7 @@ export const useTournament = (config: UseTournamentOptions) => {
     },
   );
 
-  const { execute: create } = useApi(
+  const { execute: create, loading: isCreating } = useApi(
     async (data: Partial<TournamentDetailsInfoDto>) => {
       const response = await fetch('/api/tournaments/', {
         method: 'POST',
@@ -177,7 +177,7 @@ export const useTournament = (config: UseTournamentOptions) => {
     },
   );
 
-  const { execute: publish } = useApi(
+  const { execute: publish, loading: isPublishing } = useApi(
     async (id: number) => {
       const response = await fetch(`/api/tournaments/${id}/publish`, {
         method: 'PATCH',
@@ -230,7 +230,7 @@ export const useTournament = (config: UseTournamentOptions) => {
     },
   );
 
-  const { execute: register } = useApi(
+  const { execute: register, loading: isRegistering } = useApi(
     async (id: number) => {
       const response = await fetch(`/api/tournaments/${id}/register`, {
         method: 'POST',
@@ -295,5 +295,8 @@ export const useTournament = (config: UseTournamentOptions) => {
     register,
     isGettingTournaments,
     isGettingTournamentById,
+    isCreating,
+    isPublishing,
+    isRegistering,
   };
 };

@@ -158,6 +158,7 @@ interface ModalConfig {
     | 'info'
     | 'warning';
   confirmDisabled?: boolean;
+  loading?: boolean;
   onConfirm?: (close: () => void) => void;
   onCancel?: (close: () => void) => void;
 }

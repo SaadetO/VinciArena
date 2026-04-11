@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
  * Match Result Confirmation repository.
  */
 @Repository
-public interface MatchResultConfirmationRepository extends
-    CrudRepository<MatchResultConfirmation, Long> {
+public interface MatchResultConfirmationRepository
+    extends CrudRepository<MatchResultConfirmation, Long> {
 }

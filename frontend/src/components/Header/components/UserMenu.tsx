@@ -1,7 +1,7 @@
 import { Button, Menu, MenuItem, Typography } from '@mui/material';
 import { MouseEvent, useContext, useState } from 'react';
 import { UserContext } from '../../../contexts/UserContext';
-import { ArrowDropDown } from '@mui/icons-material';
+import { ChevronDown } from '@gravity-ui/icons';
 import { useNavigate } from 'react-router-dom';
 
 export const UserMenu = () => {
@@ -22,8 +22,8 @@ export const UserMenu = () => {
         color="secondary"
         onClick={handleMenuClick}
         endIcon={
-          <ArrowDropDown
-            sx={{
+          <ChevronDown
+            style={{
               color: 'text.secondary',
               transition: 'transform 0.2s cubic-bezier(0.2, 0, 0, 1)',
               transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',

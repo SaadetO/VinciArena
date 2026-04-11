@@ -12,6 +12,7 @@ describe('CreateTeamModalContent', () => {
         value={{
           setError: setErrorMock,
           setConfirmDisabled: vi.fn(),
+          setLoading: vi.fn(),
         }}
       >
         {ui}
