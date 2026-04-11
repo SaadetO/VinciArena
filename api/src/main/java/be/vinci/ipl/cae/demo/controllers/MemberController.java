@@ -191,4 +191,9 @@ public class MemberController {
 
     memberService.banMember(id, currentMember.getEmail());
   }
+
+  @GetMapping("/{id}/is-last")
+  public boolean isLastMember(@PathVariable Long id) {
+    return memberService.isLastMember(id);
+  }
 }
