@@ -271,6 +271,39 @@ test.describe("Client Demonstration", () => {
     await page.getByTestId("team-quit-button").click();
     await page.getByTestId("modal-confirm-button").click();
 
+    // TEST MEMBER MANAGEMENT
+
+    //open modal
+    await page.getByTestId("admin-menu-button").click();
+    // search lynx
+    await page.getByTestId("admin-search-input").fill(lynx.email);
+
+    // check lynx is visible
+    const lynxRow = page.getByTestId(`admin-user-row-${lynx.tag}`);
+    await expect(lynxRow).toBeVisible();
+    // check lynx is admin
+    const lynxSwitch = lynxRow.getByTestId("admin-status-switch");
+    await expect(lynxSwitch).toBeChecked();
+    //remove admin role
+    await lynxSwitch.click();
+    await expect(lynxSwitch).not.toBeChecked();
+
+    //check own admin button is disabled
+    await page.getByTestId("admin-search-input").fill(iron.email);
+    const ironRow = page.getByTestId(`admin-user-row-${iron.tag}`);
+    await expect(ironRow.getByTestId("admin-status-switch")).toBeDisabled();
+
+    // give vectorr admin role
+    await page.getByTestId("admin-search-input").fill(vectorr.email);
+    const vectorSwitch = page
+      .getByTestId(`admin-user-row-${vectorr.tag}`)
+      .getByTestId("admin-status-switch");
+    await vectorSwitch.click();
+    await expect(vectorSwitch).toBeChecked();
+
+    // CREATE NEW TEAM
+    await gotoProfilePage(page);
+
     /** 
     // test remember-me
     //close browser

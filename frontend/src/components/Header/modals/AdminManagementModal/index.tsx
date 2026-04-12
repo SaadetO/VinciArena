@@ -180,6 +180,7 @@ export const AdminManagementModal = ({
               endAdornment: (
                 <>
                   <Button
+                    data-testid="admin-filter-button"
                     sx={{
                       flexShrink: 0,
                       maxWidth: 'none',
@@ -218,13 +219,22 @@ export const AdminManagementModal = ({
                     }}
                     onClose={handleFilterClose}
                   >
-                    <MenuItem onClick={() => handleFilterSelect('all')}>
+                    <MenuItem
+                      onClick={() => handleFilterSelect('all')}
+                      data-testid="filter-option-all"
+                    >
                       Tous
                     </MenuItem>
-                    <MenuItem onClick={() => handleFilterSelect('members')}>
+                    <MenuItem
+                      onClick={() => handleFilterSelect('members')}
+                      data-testid="filter-option-members"
+                    >
                       Membres
                     </MenuItem>
-                    <MenuItem onClick={() => handleFilterSelect('admins')}>
+                    <MenuItem
+                      onClick={() => handleFilterSelect('admins')}
+                      data-testid="filter-option-admins"
+                    >
                       Admins
                     </MenuItem>
                   </Menu>
