@@ -117,8 +117,8 @@ const ModalContextProvider = ({ children }: { children: ReactNode }) => {
             <Stack
               maxHeight="20rem"
               sx={ModalScrollSx}
-              data-scrollTop={canScrollTop}
-              data-scrollBottom={canScrollBottom}
+              data-scrolltop={canScrollTop}
+              data-scrollbottom={canScrollBottom}
             >
               {config?.children && (
                 <DialogContent

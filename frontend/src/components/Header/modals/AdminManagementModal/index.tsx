@@ -84,8 +84,8 @@ export const AdminManagementModal = ({
 
       <Stack
         sx={ModalScrollSx}
-        data-scrollTop={canScrollTop}
-        data-scrollBottom={canScrollBottom}
+        data-scrolltop={canScrollTop}
+        data-scrollbottom={canScrollBottom}
       >
         <DialogContent
           ref={scrollRef}

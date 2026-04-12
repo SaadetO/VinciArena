@@ -30,7 +30,6 @@ export const useFilters = ({ open, handleScroll, getAll }: UseFiltersProps) => {
 
   useEffect(() => {
     if (!open) return;
-    console.log('Fetching members: ', filters);
     getAll(filters);
     setTimeout(handleScroll, 0);
   }, [open, handleScroll, authenticatedUser?.token, getAll, filters]);
