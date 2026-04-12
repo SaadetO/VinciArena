@@ -2,12 +2,20 @@ package be.vinci.ipl.cae.demo.specifications;
 
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.services.MemberService.MemberQueryStatus;
+import java.util.Locale;
 import org.springframework.data.jpa.domain.Specification;
 
 /**
  * Member specifications.
  */
-public class MemberSpecifications {
+public final class MemberSpecifications {
+
+  /**
+   * Utility class constructor.
+   */
+  private MemberSpecifications() {
+    throw new IllegalStateException("Utility class");
+  }
 
   /**
    * Specifies a filter on the member query status.
@@ -48,7 +56,7 @@ public class MemberSpecifications {
         return null;
       }
 
-      String pattern = "%" + keyword.toLowerCase() + "%";
+      String pattern = "%" + keyword.trim().toLowerCase(Locale.ROOT) + "%";
 
       return criteriaBuilder.or(
           criteriaBuilder.like(criteriaBuilder.lower(root.get("tag")), pattern),
