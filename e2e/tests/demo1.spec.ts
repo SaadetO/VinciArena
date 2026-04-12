@@ -17,7 +17,7 @@ test.beforeAll(async () => {
   console.log("\x1b[31mor executed any other E2E tests.\x1b[0m\n");
 });
 
-test.describe("Client Demonstrations", () => {
+test.describe("Client Demonstration", () => {
   interface UserInfo {
     tag: string;
     specialty?: string;
@@ -270,6 +270,7 @@ test.describe("Client Demonstrations", () => {
     // quit team
     await page.getByTestId("team-quit-button").click();
     await page.getByTestId("modal-confirm-button").click();
+
     /** 
     // test remember-me
     //close browser
@@ -290,6 +291,4 @@ test.describe("Client Demonstrations", () => {
     await newContext.close();
     */
   });
-
-  test("Demo: Sprint 2", async ({ page }) => {});
 });
