@@ -1,6 +1,11 @@
 import { test, expect } from "@playwright/test";
 import { faker } from "@faker-js/faker";
-import { loginUser, logoutUser } from "./utils/auth-utils";
+import {
+  gotoProfilePage,
+  loginUser,
+  logoutUser,
+  sendJoinRequest,
+} from "./utils/auth-utils";
 
 test.describe("Client Demonstrations", () => {
   interface UserInfo {
@@ -24,6 +29,12 @@ test.describe("Client Demonstrations", () => {
   const lynx: UserInfo = {
     tag: "Lynx",
     email: "lea@mail.com",
+    password: "Password1!",
+  };
+
+  const iron: UserInfo = {
+    tag: "Iron",
+    email: "tibo@mail.com",
     password: "Password1!",
   };
 
@@ -98,18 +109,9 @@ test.describe("Client Demonstrations", () => {
     await loginUser(page, vectorr.email, vectorr.password, true, vectorr.tag);
 
     //go to profile page
-    await page.getByTestId("user-menu-button").click();
-    await page.getByTestId("user-menu-profile").click();
-    await expect(page).toHaveURL(/.*user/);
+    gotoProfilePage(page);
     // send join request
-    await page.getByTestId("team-join-button").click();
-    await page.getByTestId("join-team-autocomplete-input").fill(vectorr.team!);
-    await page.getByRole("option", { name: vectorr.team }).click();
-    await page.getByTestId("modal-confirm-button").click();
-    //verify snackbar
-    await expect(
-      page.getByText("Demande effectuée avec succès !"),
-    ).toBeVisible();
+    sendJoinRequest(page, vectorr.team!);
 
     await logoutUser(page);
 
@@ -174,6 +176,41 @@ test.describe("Client Demonstrations", () => {
     await expect(page.getByText("Identifiants invalides")).toBeVisible();
 
     await loginUser(page, vectorr.email, vectorr.password, true, vectorr.tag);
+
+    //TEST TEAM JOIN/LEAVE
+    gotoProfilePage(page);
+    // check vectorr is in team_alpha now
+    await expect(page.getByText(vectorr.team!)).toBeVisible();
+    // leave team
+    await page.getByTestId("team-quit-button").click();
+    //check no longer in team alpha
+    await expect(page.getByText(vectorr.team!)).not.toBeVisible();
+    //send request to team_omega
+    vectorr.team = "TEAM_OMEGA";
+    await sendJoinRequest(page, vectorr.team);
+
+    await logoutUser(page);
+
+    // TEST REFUSE JOIN REQUEST
+    await loginUser(page, iron.email, iron.password, true, iron.tag);
+    await gotoProfilePage(page);
+    await page.getByTestId("team-view-button").click();
+    await expect(page.getByAltText(vectorr.team!)).toBeVisible();
+    //reject
+    await page.getByTestId("join-request-deny-button").click();
+    // fill rejection reason
+    const reasonInput = page.getByTestId("reject-reason-input");
+    await expect(reasonInput).toBeVisible();
+    const refusalReason = "Désolé, l'équipe est déjà complète.";
+    await reasonInput.fill(refusalReason);
+    await page.getByTestId("modal-confirm-button").click();
+    await expect(
+      page.getByTestId(`join-request-item-${vectorr.tag}`),
+    ).toBeHidden();
+
+    // TEST UNAVAILIBILITIES
+    await gotoProfilePage(page);
+
     /** 
     // test remember-me
     //close browser
