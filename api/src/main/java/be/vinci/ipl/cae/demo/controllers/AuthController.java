@@ -10,7 +10,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -40,9 +39,8 @@ public class AuthController {
    * @return true if invalid
    */
   private boolean isInvalidCredentials(Credentials credentials) {
-    return credentials == null || credentials.getEmail() == null
-        || credentials.getEmail().isBlank() || credentials.getPassword() == null
-        || credentials.getPassword().isBlank();
+    return credentials == null || credentials.getEmail() == null || credentials.getEmail().isBlank()
+        || credentials.getPassword() == null || credentials.getPassword().isBlank();
   }
 
   /**
@@ -72,34 +70,6 @@ public class AuthController {
     }
 
     return memberService.login(credentials.getEmail(), credentials.getPassword());
-  }
-
-  /**
-   * Returns the authenticated user based on the JWT token.
-   *
-   * @param authorization the Authorization header containing the JWT token
-   * @return the authenticated user
-   */
-  @GetMapping("/me")
-  public AuthenticatedUser getMe(@RequestHeader("Authorization") String authorization) {
-    if (authorization == null || !authorization.startsWith("Bearer ")) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Identifiants invalides");
-    }
-
-    String token = authorization.substring(7);
-    String email = memberService.verifyJwtToken(token);
-
-    if (email == null) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Identifiants invalides");
-    }
-
-    Member member = memberService.readOneFromEmail(email);
-
-    if (member == null) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Identifiants invalides");
-    }
-
-    return memberService.toAuthenticatedUser(member, token);
   }
 
   /**

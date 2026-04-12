@@ -31,45 +31,51 @@ export const TournamentControls = ({
 }: TournamentControlsProps) => {
   return (
     <Stack
-      justifyContent="space-between"
-      direction="row"
-      bgcolor="background.s1"
+      pt="1.5rem"
       borderRadius="0 0 1.5rem 1.5rem"
-      px="1.5rem"
-      height="6rem"
-      alignItems="center"
-      position="sticky"
-      top="0"
-      zIndex={10}
       sx={{
+        background: (theme) => theme.palette.background.s0,
         outline: '4px solid',
         outlineColor: 'background.s0',
       }}
+      position="sticky"
+      top="0"
+      zIndex={10}
     >
-      <Tabs
-        options={timeframeOptions}
-        value={filters.timeFrame}
-        onChange={(timeFrame) =>
-          setFilters({ ...filters, timeFrame, statuses: [] })
-        }
-      />
-      <Stack direction="row" alignItems="center" spacing="0.75rem">
-        <TournamentSearchBar
-          searchQuery={filters.searchQuery}
-          setSearchQuery={(searchQuery) =>
-            setFilters({ ...filters, searchQuery })
+      <Stack
+        justifyContent="space-between"
+        direction="row"
+        bgcolor="background.s1"
+        borderRadius="1.5rem"
+        px="1.5rem"
+        height="6rem"
+        alignItems="center"
+      >
+        <Tabs
+          options={timeframeOptions}
+          value={filters.timeFrame}
+          onChange={(timeFrame) =>
+            setFilters({ ...filters, timeFrame, statuses: [] })
           }
         />
-        {showFilterButton && (
-          <TournamentFilterButton
-            filters={filters}
-            setFilters={setFilters}
-            disabled={disabledFilter}
-            disabledTooltip={disabledFilterTooltip}
-            onlyStatusFilter={onlyStatusFilter}
-            isAdmin={isAdmin}
+        <Stack direction="row" alignItems="center" spacing="0.75rem">
+          <TournamentSearchBar
+            searchQuery={filters.searchQuery}
+            setSearchQuery={(searchQuery) =>
+              setFilters({ ...filters, searchQuery })
+            }
           />
-        )}
+          {showFilterButton && (
+            <TournamentFilterButton
+              filters={filters}
+              setFilters={setFilters}
+              disabled={disabledFilter}
+              disabledTooltip={disabledFilterTooltip}
+              onlyStatusFilter={onlyStatusFilter}
+              isAdmin={isAdmin}
+            />
+          )}
+        </Stack>
       </Stack>
     </Stack>
   );

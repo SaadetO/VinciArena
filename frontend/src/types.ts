@@ -254,6 +254,17 @@ export class ApiError extends Error {
   }
 }
 
+export enum MemberQueryStatus {
+  ADMIN = 'ADMIN',
+  MEMBER = 'MEMBER',
+  BANNED = 'BANNED',
+}
+
+interface MemberFilters {
+  status?: MemberQueryStatus;
+  searchQuery?: string;
+}
+
 export type {
   MainContext,
   User,
@@ -281,4 +292,5 @@ export type {
   TeamSummaryDto,
   TournamentStatus,
   TournamentFormData,
+  MemberFilters,
 };

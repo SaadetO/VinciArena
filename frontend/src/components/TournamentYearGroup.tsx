@@ -15,7 +15,7 @@ export const TournamentYearGroup = ({
     <Stack spacing="1rem">
       <Stack
         position="sticky"
-        top="6.5rem"
+        top="8rem"
         zIndex={1}
         bgcolor="background.s0"
         width="fit-content"

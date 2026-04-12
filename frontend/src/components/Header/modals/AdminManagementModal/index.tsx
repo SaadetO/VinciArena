@@ -1,33 +1,17 @@
 import {
-  Button,
   Dialog,
   DialogContent,
   DialogTitle,
   List,
-  Menu,
-  MenuItem,
   Stack,
   TextField,
   Typography,
 } from '@mui/material';
-import { ArrowDropDown } from '@mui/icons-material';
-import {
-  useContext,
-  useEffect,
-  useState,
-  useMemo,
-  useRef,
-  useCallback,
-  useLayoutEffect,
-} from 'react';
-import { UserContext } from '../../../../contexts/UserContext';
-import { useSnackbar } from '../../../../hooks/useSnackbar';
-import { useModal } from '../../../../hooks/useModal';
-import { useModalController } from '../../../../hooks/useModalController';
-import { Member } from '../../../../types';
 import { UserItem } from './components/UserItem';
-import { useMembers } from '../../../../hooks/useMembers';
-import { banModal } from '../banModal';
+import { useUser } from '../../../../hooks/useUser';
+import { AdminFilterMenu } from './components/AdminFilterMenu';
+import { ModalScrollSx } from '../../../../themes';
+import { useAdminManagementModal } from './hooks/useAdminManagementModal';
 
 interface AdminManagementModalProps {
   open: boolean;
@@ -38,128 +22,27 @@ export const AdminManagementModal = ({
   open,
   onClose,
 }: AdminManagementModalProps) => {
-  const { authenticatedUser } = useContext(UserContext);
-  const { showSnackbar } = useSnackbar();
-  const { openModal } = useModal();
-  const { setLoading } = useModalController();
-
-  const [users, setUsers] = useState<Member[]>([]);
-  const [pendingIds, setPendingIds] = useState<number[]>([]);
-  const { getAll, toggleAdmin, isGettingUsers, banMember, checkIsLastMember } =
-    useMembers({
-      setUsers,
-      setPendingIds,
-    });
-
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filter, setFilter] = useState<'all' | 'members' | 'admins'>('all');
-  const [filterVersion, setFilterVersion] = useState(0);
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [displayedUserIds, setDisplayedUserIds] = useState<number[]>([]);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [canScrollTop, setCanScrollTop] = useState(false);
-  const [canScrollBottom, setCanScrollBottom] = useState(false);
-
-  const handleScroll = useCallback(() => {
-    if (!scrollRef.current) return;
-    const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
-    setCanScrollTop(scrollTop > 5);
-    setCanScrollBottom(scrollHeight - scrollTop > clientHeight + 5);
-  }, []);
-
-  useEffect(() => {
-    if (!open) return;
-    getAll();
-    setTimeout(handleScroll, 0);
-  }, [open, handleScroll, authenticatedUser?.token, getAll]);
-
-  useLayoutEffect(() => {
-    let result = users;
-
-    if (filter === 'members') {
-      result = result.filter((user) => !user.admin);
-    } else if (filter === 'admins') {
-      result = result.filter((user) => user.admin);
-    }
-
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      result = result.filter(
-        (user) =>
-          user.tag.toLowerCase().includes(query) ||
-          user.email.toLowerCase().includes(query),
-      );
-    }
-
-    setDisplayedUserIds(result.map((u) => u.id));
-  }, [searchQuery, filter, filterVersion, users]);
-
-  const filteredUsers = useMemo(() => {
-    return displayedUserIds
-      .map((id) => users.find((u) => u.id === id))
-      .filter((u): u is Member => !!u);
-  }, [users, displayedUserIds]);
-
-  const handleToggleAdmin = async (user: Member) => {
-    if (user.id === authenticatedUser?.id) {
-      showSnackbar({
-        message: "Vous ne pouvez pas changer votre propre statut d'admin.",
-        severity: 'error',
-      });
-      return;
-    }
-
-    if (pendingIds.includes(user.id)) return;
-
-    toggleAdmin(user.id, user.admin);
-  };
-
-  const handleBan = async (id: number, tag: string) => {
-    console.log('CLICK BAN');
-
-    const isLastMember = await checkIsLastMember(id);
-
-    console.log('IS LAST:', isLastMember);
-
-    openModal(
-      banModal({
-        tag,
-        isLastMember,
-        onConfirm: async (close) => {
-          setLoading(true);
-          await banMember(id);
-          close();
-        },
-      }),
-    );
-  };
-
-  const handleFilterClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleFilterClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleFilterSelect = (newFilter: 'all' | 'members' | 'admins') => {
-    if (newFilter === filter) {
-      setFilterVersion((v) => v + 1);
-    }
-    setFilter(newFilter);
-    handleFilterClose();
-  };
-
-  const contentRef = useRef<HTMLDivElement>(null);
-  const [contentHeight, setContentHeight] = useState<number | string>('auto');
-
-  useLayoutEffect(() => {
-    if (contentRef.current && open) {
-      const height = contentRef.current.scrollHeight;
-      setContentHeight(height + 2);
-    }
-  }, [filteredUsers.length, isGettingUsers, open, searchQuery]);
-
+  const { authenticatedUser } = useUser();
+  const {
+    debouncedSearch,
+    setDebouncedSearch,
+    filters,
+    setFilters,
+    getFilterOptions,
+    handleFilterSelect,
+    getMemberStatusLabel,
+    canScrollTop,
+    canScrollBottom,
+    handleScroll,
+    scrollRef,
+    contentHeight,
+    contentRef,
+    isGettingUsers,
+    handleBan,
+    handleToggleAdmin,
+    pendingIds,
+    users,
+  } = useAdminManagementModal({ open });
   return (
     <Dialog open={open} onClose={onClose} fullWidth>
       <DialogTitle variant="h2">Gérer les Membres</DialogTitle>
@@ -171,9 +54,13 @@ export const AdminManagementModal = ({
         <TextField
           placeholder="Rechercher par tag ou email..."
           fullWidth
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          value={debouncedSearch}
+          onChange={(e) => setDebouncedSearch(e.target.value)}
           sx={{
+            '& .MuiInputBase-root': {
+              paddingRight: '0.375rem',
+              borderRadius: '1.125rem',
+            },
             '& .MuiInputBase-input': {
               padding: '0 0.5rem 0 1rem',
             },
@@ -181,56 +68,13 @@ export const AdminManagementModal = ({
           slotProps={{
             input: {
               endAdornment: (
-                <>
-                  <Button
-                    sx={{
-                      flexShrink: 0,
-                      maxWidth: 'none',
-                      width: 'fit-content !important',
-                      background: (theme) => theme.palette.background.s4,
-                      color: (theme) =>
-                        `${theme.palette.text.primary} !important`,
-                    }}
-                    variant="contained"
-                    color="secondary"
-                    endIcon={<ArrowDropDown />}
-                    onClick={handleFilterClick}
-                  >
-                    {filter === 'all'
-                      ? 'Tous'
-                      : filter === 'members'
-                        ? 'Membres'
-                        : 'Admins'}
-                  </Button>
-                  <Menu
-                    anchorEl={anchorEl}
-                    open={Boolean(anchorEl)}
-                    anchorOrigin={{
-                      vertical: 'bottom',
-                      horizontal: 'right',
-                    }}
-                    transformOrigin={{
-                      vertical: 'top',
-                      horizontal: 'right',
-                    }}
-                    sx={{
-                      '& .MuiPaper-root': {
-                        width: 'fit-content',
-                      },
-                    }}
-                    onClose={handleFilterClose}
-                  >
-                    <MenuItem onClick={() => handleFilterSelect('all')}>
-                      Tous
-                    </MenuItem>
-                    <MenuItem onClick={() => handleFilterSelect('members')}>
-                      Membres
-                    </MenuItem>
-                    <MenuItem onClick={() => handleFilterSelect('admins')}>
-                      Admins
-                    </MenuItem>
-                  </Menu>
-                </>
+                <AdminFilterMenu
+                  filters={filters}
+                  setFilters={setFilters}
+                  getFilterOptions={getFilterOptions}
+                  handleFilterSelect={handleFilterSelect}
+                  getMemberStatusLabel={getMemberStatusLabel}
+                />
               ),
             },
           }}
@@ -238,37 +82,9 @@ export const AdminManagementModal = ({
       </Stack>
 
       <Stack
-        sx={{
-          position: 'relative',
-          '&::before': {
-            content: '""',
-            display: 'block',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            height: '2rem',
-            zIndex: 10,
-            background: (theme) =>
-              `linear-gradient(to bottom, ${theme.palette.background.s1}, transparent)`,
-            opacity: canScrollTop ? 1 : 0,
-            pointerEvents: 'none',
-          },
-          '&::after': {
-            content: '""',
-            display: 'block',
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: '2rem',
-            zIndex: 10,
-            background: (theme) =>
-              `linear-gradient(to top, ${theme.palette.background.s1}, transparent)`,
-            opacity: canScrollBottom ? 1 : 0,
-            pointerEvents: 'none',
-          },
-        }}
+        sx={ModalScrollSx}
+        data-scrolltop={canScrollTop}
+        data-scrollbottom={canScrollBottom}
       >
         <DialogContent
           ref={scrollRef}
@@ -297,7 +113,7 @@ export const AdminManagementModal = ({
               </List>
             ) : (
               <List disablePadding sx={{ height: '100%' }}>
-                {filteredUsers.map((user) => (
+                {users.map((user) => (
                   <UserItem
                     key={user.id}
                     user={user}
@@ -307,7 +123,7 @@ export const AdminManagementModal = ({
                     handleBan={handleBan}
                   />
                 ))}
-                {!isGettingUsers && filteredUsers.length === 0 && (
+                {!isGettingUsers && users.length === 0 && (
                   <Stack
                     padding="2rem 1.5rem"
                     spacing="0.25rem"

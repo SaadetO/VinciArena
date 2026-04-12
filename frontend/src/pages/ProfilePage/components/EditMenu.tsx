@@ -1,4 +1,4 @@
-import { useState, MouseEvent, Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction } from 'react';
 import { Button, Menu, MenuItem, Typography } from '@mui/material';
 import { ChevronDown } from '@gravity-ui/icons';
 import { ProfileInfoDto, SpecialtyDto } from '../../../types';
@@ -7,6 +7,7 @@ import { useModalController } from '../../../hooks/useModalController';
 import { useMembers } from '../../../hooks/useMembers';
 import { changePasswordModal } from '../modals/changePasswordModal';
 import { changeSpecialtyModal } from '../modals/changeSpecialtyModal';
+import { useMenuDisclosure } from '../../../hooks/useMenuDisclosure';
 
 export const EditMenu = ({
   user,
@@ -15,21 +16,13 @@ export const EditMenu = ({
   user: ProfileInfoDto;
   setUser: Dispatch<SetStateAction<ProfileInfoDto | undefined>>;
 }) => {
-  const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
-  const isOpen = menuAnchor != null;
+  const { anchorEl, handleClick, handleClose } = useMenuDisclosure();
   const { openModal } = useModal();
   const { setLoading } = useModalController();
   const { updatePassword, updateSpecialty } = useMembers({ setUser });
 
-  const handleMenuClick = (event: MouseEvent<HTMLElement>) => {
-    setMenuAnchor(event.currentTarget);
-  };
-  const handleMenuClose = () => {
-    setMenuAnchor(null);
-  };
-
   const handlePasswordChange = () => {
-    handleMenuClose();
+    handleClose();
     let selectedPassword: string | null = null;
     const onSelect = (pwd: string | null) => {
       selectedPassword = pwd;
@@ -44,7 +37,7 @@ export const EditMenu = ({
   };
 
   const handleSpecialtyChange = () => {
-    handleMenuClose();
+    handleClose();
     let selectedSpecialty: SpecialtyDto | null = null;
     const onSelect = (spec: SpecialtyDto | null) => {
       selectedSpecialty = spec;
@@ -69,13 +62,13 @@ export const EditMenu = ({
       <Button
         variant="contained"
         color="secondary"
-        onClick={handleMenuClick}
+        onClick={handleClick}
         endIcon={
           <ChevronDown
             style={{
               color: 'text.secondary',
-              transition: 'transform 0.2s cubic-bezier(0.2, 0, 0, 1)',
-              transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+              transition: 'rotate 0.2s cubic-bezier(0.2, 0, 0, 1)',
+              rotate: anchorEl ? '180deg' : '0deg',
             }}
           />
         }
@@ -83,9 +76,9 @@ export const EditMenu = ({
         Modifier
       </Button>
       <Menu
-        anchorEl={menuAnchor}
-        open={isOpen}
-        onClose={handleMenuClose}
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleClose}
         sx={{
           '& .MuiPaper-root': {
             width: 'fit-content',

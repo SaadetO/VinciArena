@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Stack } from '@mui/material';
-import { MemberSummaryDto, Team } from '../../../types';
+import { MemberFilters, MemberSummaryDto, Team } from '../../../types';
 import { FilterAutocomplete } from '../components/FilterAutocomplete';
 interface FilterModalContentProps {
   initialTeams: number[];
@@ -12,7 +12,9 @@ interface FilterModalContentProps {
   cachedTeams: Team[];
   cachedMembers: MemberSummaryDto[];
   fetchTeams: () => Promise<Team[] | null>;
-  fetchMembers: () => Promise<MemberSummaryDto[] | null>;
+  fetchMembers: (
+    memberFilters: MemberFilters,
+  ) => Promise<MemberSummaryDto[] | null>;
   onFiltersChange: (filters: {
     teams: number[];
     members: number[];
@@ -85,7 +87,7 @@ export const FilterModalContent = ({
   useEffect(() => {
     if (cachedMembers.length === 0) {
       setIsLoadingMembers(true);
-      fetchMembers().then((data) => {
+      fetchMembers({}).then((data) => {
         if (data) {
           setLocalAllMembers(data);
           setSelectedMembers(data.filter((m) => initialMembers.includes(m.id)));
