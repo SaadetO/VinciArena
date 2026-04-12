@@ -351,6 +351,13 @@ public class MemberService {
   }
 
   /**
+   * Enum representing the status of a member for filtering purposes.
+   */
+  public enum MemberQueryStatus {
+    ADMIN, MEMBER, BANNED,
+  }
+
+  /**
    * Get all members as lightweight summaries (no sensitive data).
    *
    * @return array of MemberSummaryDto
