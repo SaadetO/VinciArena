@@ -98,8 +98,20 @@ export const AdminManagementModal = ({
             transition: 'height 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           }}
         >
-          <Stack ref={contentRef} sx={{ padding: '1rem' }}>
-            {isGettingUsers ? (
+          <Stack
+            ref={contentRef}
+            className={
+              isGettingUsers && users.length > 0 ? 'opacity-pulse' : ''
+            }
+            sx={{
+              padding: '1rem',
+              transform:
+                isGettingUsers && users.length > 0 ? 'scale(0.98)' : 'none',
+              transition:
+                'transform 0.3s cubic-bezier(0.2, 0, 0, 1), opacity 0.3s cubic-bezier(0.2, 0, 0, 1)',
+            }}
+          >
+            {isGettingUsers && users.length === 0 ? (
               <List disablePadding sx={{ height: '100%' }}>
                 {Array.from({ length: 4 }).map((_, index) => (
                   <UserItem
