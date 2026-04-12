@@ -116,8 +116,7 @@ test.describe("Client Demonstrations", () => {
     // login as lynx
     await loginUser(page, lynx.email, lynx.password, true, lynx.tag);
 
-    //TEST notifications
-
+    //TEST NOTIFICATIONS
     // open menu
     await page.getByTestId("notification-menu-button").click();
 
@@ -149,7 +148,33 @@ test.describe("Client Demonstrations", () => {
     // click notification
     await notificationRow.click();
     await expect(page).toHaveURL(/.*teams/);
+    await expect(page.getByText(vectorr.team!)).toBeVisible();
 
+    // TEST ACCEPT REQUEST
+    const vectorrRequest = page.getByTestId(`join-request-item-${vectorr.tag}`);
+    await expect(vectorrRequest).toBeVisible({ timeout: 10000 });
+    await vectorrRequest.getByTestId("join-request-accept-button").click();
+    await expect(vectorrRequest).toBeHidden();
+
+    // TEST PROMOTE MANAGER
+    await await page.getByTestId("team-promote-button").click();
+    await expect(page.getByTestId("manager-selection-input")).toBeVisible();
+    await page.getByTestId("manager-selection-input").fill(vectorr.tag);
+    await page.getByTestId(`manager-option-${vectorr.tag}`).click();
+    await page.getByTestId("modal-confirm-button").click();
+
+    await logoutUser(page);
+
+    // TEST LOGIN WITH WRONG PASSWORD
+    await page.goto("http://localhost:5173/auth/login");
+    await page.getByTestId("login-email-input").fill(vectorr.email);
+    await page.getByTestId("login-password-input").fill("wrong password");
+    await page.getByTestId("login-submit-button").click();
+    await expect(page).toHaveURL("http://localhost:5173/auth/login");
+    await expect(page.getByText("Identifiants invalides")).toBeVisible();
+
+    await loginUser(page, vectorr.email, vectorr.password, true, vectorr.tag);
+    /** 
     // test remember-me
     //close browser
     await context.storageState({ path: "state.json" });
@@ -167,5 +192,8 @@ test.describe("Client Demonstrations", () => {
     await expect(newPage.getByText(lynx.tag)).toBeVisible();
 
     await newContext.close();
+    */
   });
+
+  test("Demo: Sprint 2", async ({ page }) => {});
 });

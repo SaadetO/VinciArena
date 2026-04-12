@@ -76,6 +76,11 @@ export const ManagerCard = ({
               color="secondary"
               onClick={team.managers.length < 2 ? handlePromote : handleResign}
               sx={{ my: '-0.25rem' }}
+              data-testid={
+                team.managers.length < 2
+                  ? 'team-promote-button'
+                  : 'team-resign-button'
+              }
             >
               {team.managers.length < 2 ? 'Désigner' : 'Renoncer'}
             </Button>
