@@ -1,32 +1,17 @@
 import {
-  Button,
   Dialog,
   DialogContent,
   DialogTitle,
   List,
-  Menu,
-  MenuItem,
   Stack,
   TextField,
   Typography,
 } from '@mui/material';
-import { ChevronDown } from '@gravity-ui/icons';
-import {
-  useContext,
-  useEffect,
-  useState,
-  useRef,
-  useCallback,
-  useLayoutEffect,
-} from 'react';
-import { UserContext } from '../../../../contexts/UserContext';
-import { useSnackbar } from '../../../../hooks/useSnackbar';
-import { useModal } from '../../../../hooks/useModal';
-import { useModalController } from '../../../../hooks/useModalController';
-import { Member, MemberFilters, MemberQueryStatus } from '../../../../types';
 import { UserItem } from './components/UserItem';
-import { useMembers } from '../../../../hooks/useMembers';
-import { banModal } from '../banModal';
+import { useUser } from '../../../../hooks/useUser';
+import { AdminFilterMenu } from './components/AdminFilterMenu';
+import { ModalScrollSx } from '../../../../themes';
+import { useAdminManagementModal } from './hooks/useAdminManagementModal';
 
 interface AdminManagementModalProps {
   open: boolean;
@@ -37,127 +22,27 @@ export const AdminManagementModal = ({
   open,
   onClose,
 }: AdminManagementModalProps) => {
-  const { authenticatedUser } = useContext(UserContext);
-  const { showSnackbar } = useSnackbar();
-  const { openModal } = useModal();
-  const { setLoading } = useModalController();
-
-  const [users, setUsers] = useState<Member[]>([]);
-  const [pendingIds, setPendingIds] = useState<number[]>([]);
-  const { getAll, toggleAdmin, isGettingUsers, banMember } = useMembers({
-    setUsers,
-    setPendingIds,
-  });
-
-  const [filters, setFilters] = useState<MemberFilters>({
-    status: undefined,
-    searchQuery: undefined,
-  });
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [canScrollTop, setCanScrollTop] = useState(false);
-  const [canScrollBottom, setCanScrollBottom] = useState(false);
-  const [debouncedSearch, setDebouncedSearch] = useState(filters.searchQuery);
-
-  const handleScroll = useCallback(() => {
-    if (!scrollRef.current) return;
-    const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
-    setCanScrollTop(scrollTop > 5);
-    setCanScrollBottom(scrollHeight - scrollTop > clientHeight + 5);
-  }, []);
-
-  useEffect(() => {
-    if (!open) return;
-    console.log('Fetching members: ', filters);
-    getAll(filters);
-    setTimeout(handleScroll, 0);
-  }, [open, handleScroll, authenticatedUser?.token, getAll, filters]);
-
-  useEffect(() => {
-    if (debouncedSearch === '') {
-      setFilters((prev) => ({ ...prev, searchQuery: '' }));
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      setFilters((prev) => ({ ...prev, searchQuery: debouncedSearch }));
-    }, 400);
-    return () => clearTimeout(timer);
-  }, [debouncedSearch]);
-
-  const handleToggleAdmin = async (user: Member) => {
-    if (user.id === authenticatedUser?.id) {
-      showSnackbar({
-        message: "Vous ne pouvez pas changer votre propre statut d'admin.",
-        severity: 'error',
-      });
-      return;
-    }
-
-    if (pendingIds.includes(user.id)) return;
-
-    toggleAdmin(user.id, user.admin);
-  };
-
-  const handleBan = (id: number, tag: string) => {
-    openModal(
-      banModal({
-        tag,
-        onConfirm: async (close) => {
-          setLoading(true);
-          await banMember(id);
-          close();
-        },
-      }),
-    );
-  };
-
-  const handleFilterClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleFilterClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleFilterSelect = (newFilter: MemberQueryStatus | undefined) => {
-    if (newFilter === filters.status) return;
-    setFilters({ ...filters, status: newFilter });
-    handleFilterClose();
-  };
-
-  const getMemberStatusLabel = (
-    status: MemberQueryStatus | undefined,
-  ): string => {
-    switch (status) {
-      case MemberQueryStatus.ADMIN:
-        return 'Admins';
-      case MemberQueryStatus.MEMBER:
-        return 'Membres';
-      case MemberQueryStatus.BANNED:
-        return 'Bannis';
-      default:
-        return 'Tous';
-    }
-  };
-
-  const contentRef = useRef<HTMLDivElement>(null);
-  const [contentHeight, setContentHeight] = useState<number | string>('auto');
-
-  useLayoutEffect(() => {
-    if (contentRef.current && open) {
-      const height = contentRef.current.scrollHeight;
-      setContentHeight(height + 2);
-    }
-  }, [isGettingUsers, open]);
-
-  const getFilterOptions = () => {
-    return [
-      undefined,
-      ...(Object.values(MemberQueryStatus) as MemberQueryStatus[]),
-    ].filter((status) => status !== filters.status);
-  };
-
+  const { authenticatedUser } = useUser();
+  const {
+    debouncedSearch,
+    setDebouncedSearch,
+    filters,
+    setFilters,
+    getFilterOptions,
+    handleFilterSelect,
+    getMemberStatusLabel,
+    canScrollTop,
+    canScrollBottom,
+    handleScroll,
+    scrollRef,
+    contentHeight,
+    contentRef,
+    isGettingUsers,
+    handleBan,
+    handleToggleAdmin,
+    pendingIds,
+    users,
+  } = useAdminManagementModal({ open });
   return (
     <Dialog open={open} onClose={onClose} fullWidth>
       <DialogTitle variant="h2">Gérer les Membres</DialogTitle>
@@ -184,65 +69,13 @@ export const AdminManagementModal = ({
           slotProps={{
             input: {
               endAdornment: (
-                <>
-                  <Button
-                    sx={{
-                      flexShrink: 0,
-                      maxWidth: 'none',
-                      marginRight: '0 !important',
-                      width: 'fit-content !important',
-                      background: (theme) => theme.palette.background.s4,
-                      color: (theme) =>
-                        `${theme.palette.text.primary} !important`,
-                    }}
-                    variant="contained"
-                    color="secondary"
-                    endIcon={
-                      <ChevronDown
-                        style={{
-                          rotate: anchorEl ? '180deg' : '0deg',
-                          transition: 'rotate 0.2s cubic-bezier(0.2, 0, 0, 1)',
-                        }}
-                      />
-                    }
-                    onClick={handleFilterClick}
-                  >
-                    {filters.status === undefined
-                      ? 'Tous'
-                      : filters.status === MemberQueryStatus.MEMBER
-                        ? 'Membres'
-                        : filters.status === MemberQueryStatus.BANNED
-                          ? 'Bannis'
-                          : 'Admins'}
-                  </Button>
-                  <Menu
-                    anchorEl={anchorEl}
-                    open={Boolean(anchorEl)}
-                    anchorOrigin={{
-                      vertical: 'bottom',
-                      horizontal: 'right',
-                    }}
-                    transformOrigin={{
-                      vertical: 'top',
-                      horizontal: 'right',
-                    }}
-                    sx={{
-                      '& .MuiPaper-root': {
-                        width: 'fit-content',
-                      },
-                    }}
-                    onClose={handleFilterClose}
-                  >
-                    {getFilterOptions().map((status) => (
-                      <MenuItem
-                        key={status || 'ALL'}
-                        onClick={() => handleFilterSelect(status)}
-                      >
-                        {getMemberStatusLabel(status)}
-                      </MenuItem>
-                    ))}
-                  </Menu>
-                </>
+                <AdminFilterMenu
+                  filters={filters}
+                  setFilters={setFilters}
+                  getFilterOptions={getFilterOptions}
+                  handleFilterSelect={handleFilterSelect}
+                  getMemberStatusLabel={getMemberStatusLabel}
+                />
               ),
             },
           }}
@@ -250,37 +83,9 @@ export const AdminManagementModal = ({
       </Stack>
 
       <Stack
-        sx={{
-          position: 'relative',
-          '&::before': {
-            content: '""',
-            display: 'block',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            height: '2rem',
-            zIndex: 10,
-            background: (theme) =>
-              `linear-gradient(to bottom, ${theme.palette.background.s1}, transparent)`,
-            opacity: canScrollTop ? 1 : 0,
-            pointerEvents: 'none',
-          },
-          '&::after': {
-            content: '""',
-            display: 'block',
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: '2rem',
-            zIndex: 10,
-            background: (theme) =>
-              `linear-gradient(to top, ${theme.palette.background.s1}, transparent)`,
-            opacity: canScrollBottom ? 1 : 0,
-            pointerEvents: 'none',
-          },
-        }}
+        sx={ModalScrollSx}
+        data-scrollTop={canScrollTop}
+        data-scrollBottom={canScrollBottom}
       >
         <DialogContent
           ref={scrollRef}

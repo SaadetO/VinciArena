@@ -1044,3 +1044,39 @@ export const theme = createTheme({
     },
   },
 });
+
+export const ModalScrollSx = {
+  position: 'relative',
+  '&::before': {
+    content: '""',
+    display: 'block',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '2rem',
+    zIndex: 10,
+    background: `linear-gradient(to bottom, ${theme.palette.background.s1}, transparent)`,
+    pointerEvents: 'none',
+    opacity: 0,
+  },
+  '&[data-scrollTop="true"]::before': {
+    opacity: 1,
+  },
+  '&::after': {
+    content: '""',
+    display: 'block',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: '2rem',
+    zIndex: 10,
+    background: `linear-gradient(to top, ${theme.palette.background.s1}, transparent)`,
+    pointerEvents: 'none',
+    opacity: 0,
+  },
+  '&[data-scrollBottom="true"]::after': {
+    opacity: 1,
+  },
+};

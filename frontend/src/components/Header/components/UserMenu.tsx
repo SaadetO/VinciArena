@@ -1,32 +1,26 @@
 import { Button, Menu, MenuItem, Typography } from '@mui/material';
-import { MouseEvent, useContext, useState } from 'react';
+import { useContext } from 'react';
 import { UserContext } from '../../../contexts/UserContext';
 import { ChevronDown } from '@gravity-ui/icons';
 import { useNavigate } from 'react-router-dom';
+import { useMenuDisclosure } from '../../../hooks/useMenuDisclosure';
 
 export const UserMenu = () => {
   const navigate = useNavigate();
   const { authenticatedUser, clearUser } = useContext(UserContext);
-  const [menuPosition, setMenuPosition] = useState<null | HTMLElement>(null);
-  const isOpen = menuPosition != null;
-  const handleMenuClick = (event: MouseEvent<HTMLElement>) => {
-    setMenuPosition(event.currentTarget);
-  };
-  const handleClose = () => {
-    setMenuPosition(null);
-  };
+  const { anchorEl, handleClick, handleClose } = useMenuDisclosure();
   return (
     <>
       <Button
         variant="contained"
         color="secondary"
-        onClick={handleMenuClick}
+        onClick={handleClick}
         endIcon={
           <ChevronDown
             style={{
               color: 'text.secondary',
-              transition: 'transform 0.2s cubic-bezier(0.2, 0, 0, 1)',
-              transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+              transition: 'rotate 0.2s cubic-bezier(0.2, 0, 0, 1)',
+              rotate: anchorEl ? '180deg' : '0deg',
             }}
           />
         }
@@ -35,9 +29,9 @@ export const UserMenu = () => {
       </Button>
 
       <Menu
-        open={isOpen}
+        open={Boolean(anchorEl)}
         onClose={handleClose}
-        anchorEl={menuPosition}
+        anchorEl={anchorEl}
         sx={{
           '& .MuiPaper-root': {
             width: 'fit-content',
