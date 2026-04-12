@@ -47,12 +47,12 @@ public class MemberController {
    *
    * @return an array of member summaries
    */
-  @GetMapping({"/", ""})
-  public Iterable<MemberSummaryDto> getAllMemberSummaries(
-      @RequestParam(required = false) MemberQueryStatus status,
-      @RequestParam(required = false) String searchQuery) {
-    return memberService.getAllMemberSummaries(status, searchQuery);
-  }
+  // @GetMapping({"/", ""})
+  // public Iterable<MemberSummaryDto> getAllMemberSummaries(
+  //     @RequestParam(required = false) MemberQueryStatus status,
+  //     @RequestParam(required = false) String searchQuery) {
+  //   return memberService.getAllMemberSummaries();
+  // }
 
   /**
    * Get all members private data.
@@ -60,13 +60,13 @@ public class MemberController {
    * @param currentMember the authenticated member
    * @return all members
    */
-  @GetMapping("/full")
-  @PreAuthorize("hasRole('ADMIN')")
-  public Iterable<Member> getAllMembers(@AuthenticationPrincipal Member currentMember,
-      @RequestParam(required = false) MemberQueryStatus status,
-      @RequestParam(required = false) String searchQuery) {
-    return memberService.getAllMembers(status, searchQuery);
-  }
+  // @GetMapping("/full")
+  // @PreAuthorize("hasRole('ADMIN')")
+  // public Iterable<Member> getAllMembers(@AuthenticationPrincipal Member currentMember,
+  //     @RequestParam(required = false) MemberQueryStatus status,
+  //     @RequestParam(required = false) String searchQuery) {
+  //   return memberService.getAllMembers(status, searchQuery);
+  // }
 
   /**
    * Read one member's profile.
