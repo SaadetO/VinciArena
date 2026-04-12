@@ -1,5 +1,10 @@
 import { FilterModalContent } from './FilterModalContent';
-import { MemberSummaryDto, ModalConfig, Team } from '../../../types';
+import {
+  MemberFilters,
+  MemberSummaryDto,
+  ModalConfig,
+  Team,
+} from '../../../types';
 
 export const filterModal = ({
   initialTeams,
@@ -24,7 +29,9 @@ export const filterModal = ({
   cachedTeams: Team[];
   cachedMembers: MemberSummaryDto[];
   fetchTeams: () => Promise<Team[] | null>;
-  fetchMembers: () => Promise<MemberSummaryDto[] | null>;
+  fetchMembers: (
+    memberFilters: MemberFilters,
+  ) => Promise<MemberSummaryDto[] | null>;
   onFiltersChange: (filters: {
     teams: number[];
     members: number[];

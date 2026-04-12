@@ -14,12 +14,18 @@ import be.vinci.ipl.cae.demo.repositories.ProfileImageRepository;
 import be.vinci.ipl.cae.demo.repositories.SpecialtyRepository;
 import be.vinci.ipl.cae.demo.repositories.TeamRepository;
 import be.vinci.ipl.cae.demo.repositories.UnavailabilityRepository;
+import be.vinci.ipl.cae.demo.specifications.MemberSpecifications;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import jakarta.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -91,7 +97,6 @@ public class MemberService {
    * @return the JWT token
    */
   public AuthenticatedUser createJwtToken(String email) {
-
     String token =
         JWT.create().withIssuer("auth0").withClaim("username", email).withIssuedAt(new Date())
             .withExpiresAt(new Date(System.currentTimeMillis() + lifetimeJwt)).sign(algorithm);
@@ -122,7 +127,6 @@ public class MemberService {
    * @return the authenticated user if login succeeds
    */
   public AuthenticatedUser login(String email, String password) {
-
     Member member = memberRepository.findByEmail(email);
 
     if (member == null) {
@@ -174,7 +178,6 @@ public class MemberService {
    * @return the created member
    */
   public Member register(NewMember newMember) {
-
     validatePassword(newMember.getPassword());
 
     if (memberRepository.existsByEmail(newMember.getEmail())) {
@@ -342,8 +345,35 @@ public class MemberService {
     return true;
   }
 
-  public Iterable<Member> getAllMembers() {
-    return memberRepository.findAll();
+  /**
+   * Get all members.
+   *
+   * @return an iterable of all members
+   */
+  public Iterable<Member> getAllMembers(MemberQueryStatus status, String searchQuery) {
+    Specification<Member> spec = Specification.where(MemberSpecifications.hasState(status))
+        .and(MemberSpecifications.search(searchQuery));
+    Sort sort = Sort.by("tag").ascending();
+    return memberRepository.findAll(spec, sort);
+  }
+
+  /**
+   * Enum representing the status of a member for filtering purposes.
+   */
+  public enum MemberQueryStatus {
+    ADMIN, MEMBER, BANNED,
+  }
+
+  /**
+   * Map a member to a lightweight summary DTO (no sensitive data).
+   *
+   * @param m the member to map
+   * @return the MemberSummaryDto
+   */
+  private MemberSummaryDto mapMemberToSummary(Member m) {
+    return MemberSummaryDto.builder().id(m.getIdMember()).tag(m.getTag())
+        .specialty(m.getSpecialty() != null ? m.getSpecialty().getName() : null)
+        .avatar(m.getProfileImage() != null ? m.getProfileImage().getPath() : null).build();
   }
 
   /**
@@ -351,16 +381,15 @@ public class MemberService {
    *
    * @return array of MemberSummaryDto
    */
-  public MemberSummaryDto[] getAllMemberSummaries() {
-    Member[] members = memberRepository.findAllByIsDeletedOrderByTagAsc(false);
-    MemberSummaryDto[] summaries = new MemberSummaryDto[members.length];
-    for (int i = 0; i < members.length; i++) {
-      Member m = members[i];
-      summaries[i] = MemberSummaryDto.builder().id(m.getIdMember()).tag(m.getTag())
-          .specialty(m.getSpecialty() != null ? m.getSpecialty().getName() : null)
-          .avatar(m.getProfileImage() != null ? m.getProfileImage().getPath() : null).build();
-    }
-    return summaries;
+  public List<MemberSummaryDto> getAllMemberSummaries(MemberQueryStatus status,
+      String searchQuery) {
+    Specification<Member> spec = Specification.where(MemberSpecifications.hasState(status))
+        .and(MemberSpecifications.search(searchQuery));
+
+    Sort sort = Sort.by("tag").ascending();
+    List<Member> members = memberRepository.findAll(spec, sort);
+
+    return members.stream().map(this::mapMemberToSummary).collect(Collectors.toList());
   }
 
   /**

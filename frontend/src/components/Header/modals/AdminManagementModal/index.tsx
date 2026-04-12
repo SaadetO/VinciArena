@@ -15,7 +15,6 @@ import {
   useContext,
   useEffect,
   useState,
-  useMemo,
   useRef,
   useCallback,
   useLayoutEffect,
@@ -24,7 +23,7 @@ import { UserContext } from '../../../../contexts/UserContext';
 import { useSnackbar } from '../../../../hooks/useSnackbar';
 import { useModal } from '../../../../hooks/useModal';
 import { useModalController } from '../../../../hooks/useModalController';
-import { Member } from '../../../../types';
+import { Member, MemberFilters, MemberQueryStatus } from '../../../../types';
 import { UserItem } from './components/UserItem';
 import { useMembers } from '../../../../hooks/useMembers';
 import { banModal } from '../banModal';
@@ -50,14 +49,15 @@ export const AdminManagementModal = ({
     setPendingIds,
   });
 
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filter, setFilter] = useState<'all' | 'members' | 'admins'>('all');
-  const [filterVersion, setFilterVersion] = useState(0);
+  const [filters, setFilters] = useState<MemberFilters>({
+    status: undefined,
+    searchQuery: undefined,
+  });
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [displayedUserIds, setDisplayedUserIds] = useState<number[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollTop, setCanScrollTop] = useState(false);
   const [canScrollBottom, setCanScrollBottom] = useState(false);
+  const [debouncedSearch, setDebouncedSearch] = useState(filters.searchQuery);
 
   const handleScroll = useCallback(() => {
     if (!scrollRef.current) return;
@@ -68,36 +68,22 @@ export const AdminManagementModal = ({
 
   useEffect(() => {
     if (!open) return;
-    getAll();
+    console.log('Fetching members: ', filters);
+    getAll(filters);
     setTimeout(handleScroll, 0);
-  }, [open, handleScroll, authenticatedUser?.token, getAll]);
+  }, [open, handleScroll, authenticatedUser?.token, getAll, filters]);
 
-  useLayoutEffect(() => {
-    let result = users;
-
-    if (filter === 'members') {
-      result = result.filter((user) => !user.admin);
-    } else if (filter === 'admins') {
-      result = result.filter((user) => user.admin);
+  useEffect(() => {
+    if (debouncedSearch === '') {
+      setFilters((prev) => ({ ...prev, searchQuery: '' }));
+      return;
     }
 
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      result = result.filter(
-        (user) =>
-          user.tag.toLowerCase().includes(query) ||
-          user.email.toLowerCase().includes(query),
-      );
-    }
-
-    setDisplayedUserIds(result.map((u) => u.id));
-  }, [searchQuery, filter, filterVersion, users]);
-
-  const filteredUsers = useMemo(() => {
-    return displayedUserIds
-      .map((id) => users.find((u) => u.id === id))
-      .filter((u): u is Member => !!u);
-  }, [users, displayedUserIds]);
+    const timer = setTimeout(() => {
+      setFilters((prev) => ({ ...prev, searchQuery: debouncedSearch }));
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [debouncedSearch]);
 
   const handleToggleAdmin = async (user: Member) => {
     if (user.id === authenticatedUser?.id) {
@@ -134,12 +120,25 @@ export const AdminManagementModal = ({
     setAnchorEl(null);
   };
 
-  const handleFilterSelect = (newFilter: 'all' | 'members' | 'admins') => {
-    if (newFilter === filter) {
-      setFilterVersion((v) => v + 1);
-    }
-    setFilter(newFilter);
+  const handleFilterSelect = (newFilter: MemberQueryStatus | undefined) => {
+    if (newFilter === filters.status) return;
+    setFilters({ ...filters, status: newFilter });
     handleFilterClose();
+  };
+
+  const getMemberStatusLabel = (
+    status: MemberQueryStatus | undefined,
+  ): string => {
+    switch (status) {
+      case MemberQueryStatus.ADMIN:
+        return 'Admins';
+      case MemberQueryStatus.MEMBER:
+        return 'Membres';
+      case MemberQueryStatus.BANNED:
+        return 'Bannis';
+      default:
+        return 'Tous';
+    }
   };
 
   const contentRef = useRef<HTMLDivElement>(null);
@@ -150,7 +149,14 @@ export const AdminManagementModal = ({
       const height = contentRef.current.scrollHeight;
       setContentHeight(height + 2);
     }
-  }, [filteredUsers.length, isGettingUsers, open, searchQuery]);
+  }, [isGettingUsers, open]);
+
+  const getFilterOptions = () => {
+    return [
+      undefined,
+      ...(Object.values(MemberQueryStatus) as MemberQueryStatus[]),
+    ].filter((status) => status !== filters.status);
+  };
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth>
@@ -163,8 +169,8 @@ export const AdminManagementModal = ({
         <TextField
           placeholder="Rechercher par tag ou email..."
           fullWidth
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          value={debouncedSearch}
+          onChange={(e) => setDebouncedSearch(e.target.value)}
           sx={{
             '& .MuiInputBase-root': {
               paddingRight: '0.375rem',
@@ -191,14 +197,23 @@ export const AdminManagementModal = ({
                     }}
                     variant="contained"
                     color="secondary"
-                    endIcon={<ChevronDown />}
+                    endIcon={
+                      <ChevronDown
+                        style={{
+                          rotate: anchorEl ? '180deg' : '0deg',
+                          transition: 'rotate 0.2s cubic-bezier(0.2, 0, 0, 1)',
+                        }}
+                      />
+                    }
                     onClick={handleFilterClick}
                   >
-                    {filter === 'all'
+                    {filters.status === undefined
                       ? 'Tous'
-                      : filter === 'members'
+                      : filters.status === MemberQueryStatus.MEMBER
                         ? 'Membres'
-                        : 'Admins'}
+                        : filters.status === MemberQueryStatus.BANNED
+                          ? 'Bannis'
+                          : 'Admins'}
                   </Button>
                   <Menu
                     anchorEl={anchorEl}
@@ -218,15 +233,14 @@ export const AdminManagementModal = ({
                     }}
                     onClose={handleFilterClose}
                   >
-                    <MenuItem onClick={() => handleFilterSelect('all')}>
-                      Tous
-                    </MenuItem>
-                    <MenuItem onClick={() => handleFilterSelect('members')}>
-                      Membres
-                    </MenuItem>
-                    <MenuItem onClick={() => handleFilterSelect('admins')}>
-                      Admins
-                    </MenuItem>
+                    {getFilterOptions().map((status) => (
+                      <MenuItem
+                        key={status || 'ALL'}
+                        onClick={() => handleFilterSelect(status)}
+                      >
+                        {getMemberStatusLabel(status)}
+                      </MenuItem>
+                    ))}
                   </Menu>
                 </>
               ),
@@ -295,7 +309,7 @@ export const AdminManagementModal = ({
               </List>
             ) : (
               <List disablePadding sx={{ height: '100%' }}>
-                {filteredUsers.map((user) => (
+                {users.map((user) => (
                   <UserItem
                     key={user.id}
                     user={user}
@@ -305,7 +319,7 @@ export const AdminManagementModal = ({
                     handleBan={handleBan}
                   />
                 ))}
-                {!isGettingUsers && filteredUsers.length === 0 && (
+                {!isGettingUsers && users.length === 0 && (
                   <Stack
                     padding="2rem 1.5rem"
                     spacing="0.25rem"
