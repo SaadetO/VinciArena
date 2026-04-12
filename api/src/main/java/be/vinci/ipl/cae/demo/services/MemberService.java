@@ -359,7 +359,7 @@ public class MemberService {
    *
    * @return an iterable of all members
    */
-  public java.util.List<Member> getAllMembers(MemberQueryStatus status, String searchQuery) {
+  public List<Member> getAllMembers(MemberQueryStatus status, String searchQuery) {
     Specification<Member> spec = Specification.where(MemberSpecifications.hasState(status))
         .and(MemberSpecifications.search(searchQuery));
     Sort sort = Sort.by("tag").ascending();
