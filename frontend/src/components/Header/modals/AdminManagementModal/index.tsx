@@ -59,6 +59,7 @@ export const AdminManagementModal = ({
           sx={{
             '& .MuiInputBase-root': {
               paddingRight: '0.375rem',
+              borderRadius: '1.125rem',
             },
             '& .MuiInputBase-input': {
               height: '2.75rem',
