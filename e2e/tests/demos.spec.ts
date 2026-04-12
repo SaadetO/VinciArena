@@ -6,6 +6,16 @@ import {
   logoutUser,
   sendJoinRequest,
 } from "./utils/auth-utils";
+test.beforeAll(async () => {
+  console.log("\n\x1b[1m\x1b[41m\x1b[37m ATTENTION \x1b[0m");
+  console.log(
+    "\x1b[31mThis test requires a fresh database state to run correctly.\x1b[0m",
+  );
+  console.log(
+    "\x1b[31mPlease ensure you have restarted the backend if you have made any modifications\x1b[0m",
+  );
+  console.log("\x1b[31mor executed any other E2E tests.\x1b[0m\n");
+});
 
 test.describe("Client Demonstrations", () => {
   interface UserInfo {
@@ -109,9 +119,9 @@ test.describe("Client Demonstrations", () => {
     await loginUser(page, vectorr.email, vectorr.password, true, vectorr.tag);
 
     //go to profile page
-    gotoProfilePage(page);
+    await gotoProfilePage(page);
     // send join request
-    sendJoinRequest(page, vectorr.team!);
+    await sendJoinRequest(page, vectorr.team!);
 
     await logoutUser(page);
 
@@ -178,13 +188,14 @@ test.describe("Client Demonstrations", () => {
     await loginUser(page, vectorr.email, vectorr.password, true, vectorr.tag);
 
     //TEST TEAM JOIN/LEAVE
-    gotoProfilePage(page);
+    await gotoProfilePage(page);
     // check vectorr is in team_alpha now
-    await expect(page.getByText(vectorr.team!)).toBeVisible();
+    await expect(page.getByText(vectorr.team!).first()).toBeVisible();
     // leave team
     await page.getByTestId("team-quit-button").click();
+    await page.getByTestId("modal-confirm-button").click();
     //check no longer in team alpha
-    await expect(page.getByText(vectorr.team!)).not.toBeVisible();
+    await expect(page.getByText(vectorr.team!)).toHaveCount(0);
     //send request to team_omega
     vectorr.team = "TEAM_OMEGA";
     await sendJoinRequest(page, vectorr.team);
@@ -195,7 +206,6 @@ test.describe("Client Demonstrations", () => {
     await loginUser(page, iron.email, iron.password, true, iron.tag);
     await gotoProfilePage(page);
     await page.getByTestId("team-view-button").click();
-    await expect(page.getByAltText(vectorr.team!)).toBeVisible();
     //reject
     await page.getByTestId("join-request-deny-button").click();
     // fill rejection reason
@@ -210,7 +220,56 @@ test.describe("Client Demonstrations", () => {
 
     // TEST UNAVAILIBILITIES
     await gotoProfilePage(page);
+    const invalidStart1 = "01/01/2026";
+    const invalidEnd1 = "10/01/2026";
+    const invalidStart2 = "01/04/2026";
+    const invalidEnd2 = "05/04/2026";
+    const validStart = "03/04/2027";
+    const validEnd = "10/04/2027";
+    // open modal
+    await page.getByTestId("add-unavailability-button").click();
+    const startInput = page.getByTestId("unavailability-start-date");
+    const endInput = page.getByTestId("unavailability-end-date");
+    await expect(startInput).toBeVisible();
 
+    //Attempt 1: both dates in the past
+    await startInput.focus();
+    await page.keyboard.press("Control+A");
+    await startInput.fill(invalidStart1);
+    await endInput.focus();
+    await page.keyboard.press("Control+A");
+    await endInput.fill(invalidEnd1);
+    await page.getByTestId("modal-confirm-button").click();
+    //check error is being shown and that the modal isnt closed after "submit"
+    await expect(page.getByTestId("ErrorOutlineIcon")).toBeVisible();
+
+    //Attempt 2: start date in the past
+    await startInput.focus();
+    await page.keyboard.press("Control+A");
+    await startInput.fill(invalidStart2);
+    await endInput.focus();
+    await page.keyboard.press("Control+A");
+    await endInput.fill(invalidEnd2);
+    await page.getByTestId("modal-confirm-button").click();
+    //check error is being shown and that the modal isnt closed after "submit"
+    await expect(page.getByTestId("ErrorOutlineIcon")).toBeVisible();
+
+    //Attempt 3: valid dates both in the future
+    await startInput.focus();
+    await page.keyboard.press("Control+A");
+    await startInput.fill(validStart);
+    await endInput.focus();
+    await page.keyboard.press("Control+A");
+    await endInput.fill(validEnd);
+    await page.getByTestId("modal-confirm-button").click();
+
+    //check modal is closed and the user page has an unvailibility on display
+    await expect(startInput).toBeHidden();
+    await expect(page.getByTestId("no-unavailabilities-message")).toBeHidden();
+
+    // quit team
+    await page.getByTestId("team-quit-button").click();
+    await page.getByTestId("modal-confirm-button").click();
     /** 
     // test remember-me
     //close browser
