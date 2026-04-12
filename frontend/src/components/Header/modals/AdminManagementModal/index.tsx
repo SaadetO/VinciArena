@@ -62,9 +62,7 @@ export const AdminManagementModal = ({
               borderRadius: '1.125rem',
             },
             '& .MuiInputBase-input': {
-              height: '2.75rem',
-              fontSize: '1rem',
-              padding: '0 0.375rem 0 1rem',
+              padding: '0 0.5rem 0 1rem',
             },
           }}
           slotProps={{
@@ -99,7 +97,7 @@ export const AdminManagementModal = ({
             transition: 'height 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           }}
         >
-          <Stack ref={contentRef} sx={{ padding: '0.75rem 1rem' }}>
+          <Stack ref={contentRef} sx={{ padding: '1rem' }}>
             {isGettingUsers ? (
               <List disablePadding sx={{ height: '100%' }}>
                 {Array.from({ length: 4 }).map((_, index) => (

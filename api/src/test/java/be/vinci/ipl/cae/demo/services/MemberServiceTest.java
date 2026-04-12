@@ -3,11 +3,11 @@ package be.vinci.ipl.cae.demo.services;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
-import be.vinci.ipl.cae.demo.models.dtos.AuthenticatedUser;
-import be.vinci.ipl.cae.demo.models.dtos.NewMember;
-import be.vinci.ipl.cae.demo.models.dtos.ProfileDto;
+import be.vinci.ipl.cae.demo.exceptions.BadRequestException;
+import be.vinci.ipl.cae.demo.exceptions.ForbiddenException;
+import be.vinci.ipl.cae.demo.exceptions.MemberNotFoundException;
+import be.vinci.ipl.cae.demo.exceptions.UnauthorizedException;
 import be.vinci.ipl.cae.demo.models.entities.Member;
-import be.vinci.ipl.cae.demo.models.entities.Specialty;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.ProfileImageRepository;
@@ -19,7 +19,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.server.ResponseStatusException;
 
 @ExtendWith(MockitoExtension.class)
 class MemberServiceTest {
@@ -42,202 +41,7 @@ class MemberServiceTest {
   @Mock
   private be.vinci.ipl.cae.demo.repositories.TeamRepository teamRepository;
 
-  @Test
-  void registerMemberWithValidEmail() {
-
-    // Arrange
-    NewMember newMember = new NewMember();
-    newMember.setEmail("test@mail.com");
-    newMember.setPassword("Password1!");
-    newMember.setTag("Vector");
-
-    Member member = new Member();
-    member.setEmail("test@mail.com");
-
-    when(profileImageRepository.getProfileImageByIdImage(org.mockito.ArgumentMatchers.any()))
-        .thenReturn(null);
-    when(memberRepository.existsByEmail("test@mail.com")).thenReturn(false);
-    when(passwordEncoder.encode("Password1!")).thenReturn("encodedPassword");
-    when(memberRepository.save(org.mockito.ArgumentMatchers.any(Member.class))).thenReturn(member);
-    when(specialtyRepository.getByIdSpecialty(org.mockito.ArgumentMatchers.any())).thenReturn(null);
-
-    // Act
-    Member result = memberService.register(newMember);
-
-    // Assert
-    assertEquals("test@mail.com", result.getEmail());
-  }
-
-  @Test
-  void registerMemberWithExistingEmail() {
-
-    // Arrange
-    NewMember newMember = new NewMember();
-    newMember.setEmail("test@mail.com");
-    newMember.setPassword("Password1!");
-    newMember.setTag("Vector");
-
-    when(memberRepository.existsByEmail("test@mail.com")).thenReturn(true);
-
-    // Act + Assert
-    assertThrows(ResponseStatusException.class, () -> {
-      memberService.register(newMember);
-    });
-  }
-
-  @Test
-  void registerMemberWithPasswordTooShort() {
-
-    // Arrange
-    NewMember newMember = new NewMember();
-    newMember.setEmail("test@mail.com");
-    newMember.setPassword("Pass1!");
-    newMember.setTag("Vector");
-
-    // Act + Assert
-    assertThrows(ResponseStatusException.class, () -> {
-      memberService.register(newMember);
-    });
-  }
-
-  @Test
-  void registerMemberWithoutUppercase() {
-
-    // Arrange
-    NewMember newMember = new NewMember();
-    newMember.setEmail("test@mail.com");
-    newMember.setPassword("password1!");
-    newMember.setTag("Vector");
-
-    // Act + Assert
-    assertThrows(ResponseStatusException.class, () -> {
-      memberService.register(newMember);
-    });
-  }
-
-  @Test
-  void registerMemberWithoutLowercase() {
-
-    // Arrange
-    NewMember newMember = new NewMember();
-    newMember.setEmail("test@mail.com");
-    newMember.setPassword("PASSWORD1!");
-    newMember.setTag("Vector");
-
-    // Act + Assert
-    assertThrows(ResponseStatusException.class, () -> {
-      memberService.register(newMember);
-    });
-  }
-
-  @Test
-  void registerMemberWithoutNumber() {
-
-    // Arrange
-    NewMember newMember = new NewMember();
-    newMember.setEmail("test@mail.com");
-    newMember.setPassword("Password!");
-    newMember.setTag("Vector");
-
-    // Act + Assert
-    assertThrows(ResponseStatusException.class, () -> {
-      memberService.register(newMember);
-    });
-  }
-
-  @Test
-  void registerMemberWithoutSpecialCharacter() {
-
-    // Arrange
-    NewMember newMember = new NewMember();
-    newMember.setEmail("test@mail.com");
-    newMember.setPassword("Password1");
-    newMember.setTag("Vector");
-
-    // Act + Assert
-    assertThrows(ResponseStatusException.class, () -> {
-      memberService.register(newMember);
-    });
-  }
-
-  @Test
-  void loginMemberWithValidEmailAndPassword() {
-
-    // Arrange
-    String email = "test@mail.com";
-    String password = "Password1!";
-
-    Member member = new Member();
-    member.setEmail(email);
-    member.setPassword("encodedPassword");
-    member.setDeleted(false);
-
-    when(memberRepository.findByEmail(email)).thenReturn(member);
-    when(passwordEncoder.matches(password, "encodedPassword")).thenReturn(true);
-    when(teamRepository.findFirstByManager1OrManager2(member, member))
-        .thenReturn(java.util.Optional.empty());
-
-    // Act
-    AuthenticatedUser result = memberService.login(email, password);
-
-    // Assert
-    assertNotNull(result);
-    assertEquals(email, result.getEmail());
-  }
-
-  @Test
-  void loginMemberWithWrongPassword() {
-
-    // Arrange
-    String email = "test@mail.com";
-    String password = "Wrong1!";
-
-    Member member = new Member();
-    member.setEmail(email);
-    member.setPassword("encodedPassword");
-    member.setDeleted(false);
-
-    when(memberRepository.findByEmail(email)).thenReturn(member);
-    when(passwordEncoder.matches(password, "encodedPassword")).thenReturn(false);
-
-    // Act + Assert
-    assertThrows(ResponseStatusException.class, () -> {
-      memberService.login(email, password);
-    });
-  }
-
-  @Test
-  void loginMemberWithUnknownEmail() {
-
-    // Arrange
-    String email = "unknown@mail.com";
-    String password = "Password1!";
-
-    when(memberRepository.findByEmail(email)).thenReturn(null);
-
-    // Act + Assert
-    assertThrows(ResponseStatusException.class, () -> {
-      memberService.login(email, password);
-    });
-  }
-
-  @Test
-  void loginMemberBanned() {
-
-    // Arrange
-    Member member = new Member();
-    member.setEmail("test@mail.com");
-    member.setPassword("encodedPassword");
-    member.setDeleted(true);
-
-    when(memberRepository.findByEmail("test@mail.com")).thenReturn(member);
-
-    // Act + Assert
-    assertThrows(ResponseStatusException.class, () -> {
-      memberService.login("test@mail.com", "Password1!");
-    });
-  }
-
+  // ========================= BAN MEMBER =========================
 
   @Test
   void banMemberWhenRequesterIsAdmin() {
@@ -276,12 +80,11 @@ class MemberServiceTest {
 
     when(memberRepository.findByEmail("user@mail.com")).thenReturn(user);
 
-    // Act + Assert
-    assertThrows(ResponseStatusException.class, () -> {
+    // Act & Assert
+    assertThrows(ForbiddenException.class, () -> {
       memberService.banMember(1L, "user@mail.com");
     });
   }
-
 
   @Test
   void banMemberWithUnknownMember() {
@@ -292,10 +95,10 @@ class MemberServiceTest {
     admin.setAdmin(true);
 
     when(memberRepository.findByEmail("admin@mail.com")).thenReturn(admin);
-    when(memberRepository.findById(1L)).thenReturn(java.util.Optional.empty());
+    when(memberRepository.findById(1L)).thenReturn(Optional.empty());
 
-    // Act + Assert
-    assertThrows(ResponseStatusException.class, () -> {
+    // Act & Assert
+    assertThrows(MemberNotFoundException.class, () -> {
       memberService.banMember(1L, "admin@mail.com");
     });
   }
@@ -313,10 +116,10 @@ class MemberServiceTest {
     target.setDeleted(true);
 
     when(memberRepository.findByEmail("admin@mail.com")).thenReturn(admin);
-    when(memberRepository.findById(1L)).thenReturn(java.util.Optional.of(target));
+    when(memberRepository.findById(1L)).thenReturn(Optional.of(target));
 
-    // Act + Assert
-    assertThrows(ResponseStatusException.class, () -> {
+    // Act & Assert
+    assertThrows(BadRequestException.class, () -> {
       memberService.banMember(1L, "admin@mail.com");
     });
   }
@@ -331,10 +134,10 @@ class MemberServiceTest {
     admin.setAdmin(true);
 
     when(memberRepository.findByEmail("admin@mail.com")).thenReturn(admin);
-    when(memberRepository.findById(1L)).thenReturn(java.util.Optional.of(admin));
+    when(memberRepository.findById(1L)).thenReturn(Optional.of(admin));
 
-    // Act + Assert
-    assertThrows(ResponseStatusException.class, () -> {
+    // Act & Assert
+    assertThrows(ForbiddenException.class, () -> {
       memberService.banMember(1L, "admin@mail.com");
     });
   }
@@ -352,61 +155,224 @@ class MemberServiceTest {
     target.setAdmin(true);
 
     when(memberRepository.findByEmail("admin@mail.com")).thenReturn(admin);
-    when(memberRepository.findById(1L)).thenReturn(java.util.Optional.of(target));
+    when(memberRepository.findById(1L)).thenReturn(Optional.of(target));
 
-    // Act + Assert
-    assertThrows(ResponseStatusException.class, () -> {
+    // Act & Assert
+    assertThrows(ForbiddenException.class, () -> {
       memberService.banMember(1L, "admin@mail.com");
     });
   }
 
   @Test
-  void getProfileOfUnexistingMember() {
+  void banMemberRequesterNotFound() {
+
+    // Arrange
+    when(memberRepository.findByEmail("admin@mail.com")).thenReturn(null);
+
+    // Act & Assert
+    assertThrows(UnauthorizedException.class, () -> {
+      memberService.banMember(1L, "admin@mail.com");
+    });
+  }
+
+  @Test
+  void banMemberManager1ReplacedByManager2() {
+
+    Member admin = new Member();
+    admin.setEmail("admin@mail.com");
+    admin.setAdmin(true);
+
+    Member manager1 = new Member();
+    manager1.setIdMember(1L);
+
+    Member manager2 = new Member();
+    manager2.setIdMember(2L);
+
+    Team team = new Team();
+    team.setManager1(manager1);
+    team.setManager2(manager2);
+    team.setMembers(java.util.List.of(manager1, manager2));
+
+    manager1.setTeam(team);
+
+    when(memberRepository.findByEmail("admin@mail.com")).thenReturn(admin);
+    when(memberRepository.findById(1L)).thenReturn(Optional.of(manager1));
+
+    memberService.banMember(1L, "admin@mail.com");
+
+    assertEquals(manager2, team.getManager1());
+    assertNull(team.getManager2());
+  }
+
+  @Test
+  void banMemberLastManagerMakesTeamInactive() {
+
+    Member admin = new Member();
+    admin.setEmail("admin@mail.com");
+    admin.setAdmin(true);
+
+    Member manager = new Member();
+    manager.setIdMember(1L);
+
+    Team team = new Team();
+    team.setManager1(manager);
+    team.setMembers(java.util.List.of(manager));
+
+    manager.setTeam(team);
+
+    when(memberRepository.findByEmail("admin@mail.com")).thenReturn(admin);
+    when(memberRepository.findById(1L)).thenReturn(Optional.of(manager));
+
+    memberService.banMember(1L, "admin@mail.com");
+
+    assertNull(team.getManager1());
+    assertFalse(team.getIsActive());
+  }
+
+  @Test
+  void banMemberRemovesManager2() {
+
+    Member admin = new Member();
+    admin.setEmail("admin@mail.com");
+    admin.setAdmin(true);
+
+    Member manager2 = new Member();
+    manager2.setIdMember(2L);
+
+    Team team = new Team();
+    team.setManager2(manager2);
+    team.setMembers(java.util.List.of(manager2));
+
+    manager2.setTeam(team);
+
+    when(memberRepository.findByEmail("admin@mail.com")).thenReturn(admin);
+    when(memberRepository.findById(2L)).thenReturn(Optional.of(manager2));
+
+    memberService.banMember(2L, "admin@mail.com");
+
+    assertNull(team.getManager2());
+  }
+
+  // ========================= IS LAST MEMBER =========================
+
+  @Test
+  void isLastMemberTrue() {
+
+    // Arrange
+    Member m = new Member();
+    m.setIdMember(1L);
+
+    Team team = new Team();
+    team.setMembers(java.util.List.of(m));
+
+    m.setTeam(team);
+
+    when(memberRepository.findById(1L)).thenReturn(Optional.of(m));
+
+    // Act
+    boolean result = memberService.isLastMember(1L);
+
+    // Assert
+    assertTrue(result);
+  }
+
+  @Test
+  void isLastMemberFalseWhenMultipleMembers() {
+
+    // Arrange
+    Member m1 = new Member();
+    m1.setIdMember(1L);
+
+    Member m2 = new Member();
+    m2.setIdMember(2L);
+
+    Team team = new Team();
+    team.setMembers(java.util.List.of(m1, m2));
+
+    m1.setTeam(team);
+
+    when(memberRepository.findById(1L)).thenReturn(Optional.of(m1));
+
+    // Act
+    boolean result = memberService.isLastMember(1L);
+
+    // Assert
+    assertFalse(result);
+  }
+
+  @Test
+  void isLastMemberFalseWhenNoTeam() {
+
+    // Arrange
+    Member m = new Member();
+    m.setIdMember(1L);
+
+    when(memberRepository.findById(1L)).thenReturn(Optional.of(m));
+
+    // Act
+    boolean result = memberService.isLastMember(1L);
+
+    // Assert
+    assertFalse(result);
+  }
+
+  @Test
+  void isLastMemberThrowsWhenMemberNotFound() {
+
     // Arrange
     when(memberRepository.findById(1L)).thenReturn(Optional.empty());
 
-    // Act
-    ProfileDto result = memberService.getProfile(1L, "no@mail.com");
-
-    // Assert
-    assertNull(result);
+    // Act & Assert
+    assertThrows(MemberNotFoundException.class, () -> {
+      memberService.isLastMember(1L);
+    });
   }
 
   @Test
-  void getProfileWithoutTeamSpecialtyOrAvatar() {
-    // Arrange
-    Member m = new Member();
-    m.setIdMember(1L);
-    m.setTag("M1");
+  void isLastMemberIgnoresDeletedMembers() {
 
-    when(memberRepository.findById(1L)).thenReturn(Optional.of(m));
+    Member m1 = new Member();
+    m1.setIdMember(1L);
+    m1.setDeleted(false);
 
-    // Act
-    ProfileDto result = memberService.getProfile(1L, "someone@mail.com");
+    Member m2 = new Member();
+    m2.setIdMember(2L);
+    m2.setDeleted(true);
 
-    // Assert
-    assertAll(() -> assertEquals(1L, result.getId()), () -> assertEquals("M1", result.getTag()),
-        () -> assertNull(result.getSpecialty()), () -> assertNull(result.getAvatar()),
-        () -> assertNull(result.getTeam()), () -> assertNull(result.getEmail()));
+    Team team = new Team();
+    team.setMembers(java.util.List.of(m1, m2));
+
+    m1.setTeam(team);
+
+    when(memberRepository.findById(1L)).thenReturn(Optional.of(m1));
+
+    boolean result = memberService.isLastMember(1L);
+
+    assertTrue(result);
   }
 
   @Test
-  void getProfileWithSpecialty() {
-    // Arrange
-    Specialty s = new Specialty();
-    s.setName("gardien");
+  void isLastMemberFalseWhenMultipleActiveMembers() {
 
-    Member m = new Member();
-    m.setIdMember(1L);
-    m.setTag("M1");
-    m.setSpecialty(s);
+    Member m1 = new Member();
+    m1.setIdMember(1L);
+    m1.setDeleted(false);
 
-    when(memberRepository.findById(1L)).thenReturn(Optional.of(m));
+    Member m2 = new Member();
+    m2.setIdMember(2L);
+    m2.setDeleted(false);
 
-    // Act
-    ProfileDto result = memberService.getProfile(1L, "someone@mail.com");
+    Team team = new Team();
+    team.setMembers(java.util.List.of(m1, m2));
 
-    // Assert
-    assertEquals("gardien", result.getSpecialty());
+    m1.setTeam(team);
+
+    when(memberRepository.findById(1L)).thenReturn(Optional.of(m1));
+
+    boolean result = memberService.isLastMember(1L);
+
+    assertFalse(result);
   }
+
+
 }

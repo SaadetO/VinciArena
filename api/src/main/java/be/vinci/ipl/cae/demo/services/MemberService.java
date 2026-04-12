@@ -1,5 +1,9 @@
 package be.vinci.ipl.cae.demo.services;
 
+import be.vinci.ipl.cae.demo.exceptions.BadRequestException;
+import be.vinci.ipl.cae.demo.exceptions.ForbiddenException;
+import be.vinci.ipl.cae.demo.exceptions.MemberNotFoundException;
+import be.vinci.ipl.cae.demo.exceptions.UnauthorizedException;
 import be.vinci.ipl.cae.demo.models.dtos.AuthenticatedUser;
 import be.vinci.ipl.cae.demo.models.dtos.MemberSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.NewMember;
@@ -14,16 +18,12 @@ import be.vinci.ipl.cae.demo.repositories.ProfileImageRepository;
 import be.vinci.ipl.cae.demo.repositories.SpecialtyRepository;
 import be.vinci.ipl.cae.demo.repositories.TeamRepository;
 import be.vinci.ipl.cae.demo.repositories.UnavailabilityRepository;
-import be.vinci.ipl.cae.demo.specifications.MemberSpecifications;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import jakarta.transaction.Transactional;
 import java.util.Date;
-import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -95,6 +95,7 @@ public class MemberService {
    * @return the JWT token
    */
   public AuthenticatedUser createJwtToken(String email) {
+
     String token =
         JWT.create().withIssuer("auth0").withClaim("username", email).withIssuedAt(new Date())
             .withExpiresAt(new Date(System.currentTimeMillis() + lifetimeJwt)).sign(algorithm);
@@ -125,6 +126,7 @@ public class MemberService {
    * @return the authenticated user if login succeeds
    */
   public AuthenticatedUser login(String email, String password) {
+
     Member member = memberRepository.findByEmail(email);
 
     if (member == null) {
@@ -176,6 +178,7 @@ public class MemberService {
    * @return the created member
    */
   public Member register(NewMember newMember) {
+
     validatePassword(newMember.getPassword());
 
     if (memberRepository.existsByEmail(newMember.getEmail())) {
@@ -343,16 +346,8 @@ public class MemberService {
     return true;
   }
 
-  /**
-   * Get all members.
-   *
-   * @return an iterable of all members
-   */
-  public List<Member> getAllMembers(MemberQueryStatus status, String searchQuery) {
-    Specification<Member> spec = Specification.where(MemberSpecifications.hasState(status))
-        .and(MemberSpecifications.search(searchQuery));
-    Sort sort = Sort.by("tag").ascending();
-    return memberRepository.findAll(spec, sort);
+  public Iterable<Member> getAllMembers() {
+    return memberRepository.findAll();
   }
 
   /**
@@ -363,27 +358,138 @@ public class MemberService {
   }
 
   /**
-   * Map a member to a lightweight summary DTO (no sensitive data).
-   *
-   * @param m the member to map
-   * @return the MemberSummaryDto
-   */
-  private MemberSummaryDto mapMemberToSummary(Member m) {
-    return MemberSummaryDto.builder().id(m.getIdMember()).tag(m.getTag())
-        .specialty(m.getSpecialty() != null ? m.getSpecialty().getName() : null)
-        .avatar(m.getProfileImage() != null ? m.getProfileImage().getPath() : null).build();
-  }
-
-  /**
    * Get all members as lightweight summaries (no sensitive data).
    *
    * @return array of MemberSummaryDto
    */
-  public List<MemberSummaryDto> getAllMemberSummaries(MemberQueryStatus status,
-      String searchQuery) {
-    List<Member> members = getAllMembers(status, searchQuery);
+  public MemberSummaryDto[] getAllMemberSummaries() {
+    Member[] members = memberRepository.findAllByIsDeletedOrderByTagAsc(false);
+    MemberSummaryDto[] summaries = new MemberSummaryDto[members.length];
+    for (int i = 0; i < members.length; i++) {
+      Member m = members[i];
+      summaries[i] = MemberSummaryDto.builder().id(m.getIdMember()).tag(m.getTag())
+          .specialty(m.getSpecialty() != null ? m.getSpecialty().getName() : null)
+          .avatar(m.getProfileImage() != null ? m.getProfileImage().getPath() : null).build();
+    }
+    return summaries;
+  }
 
-    return members.stream().map(this::mapMemberToSummary).collect(Collectors.toList());
+  /**
+   * Retrieve the authenticated member based on email.
+   *
+   * @param email the email of the authenticated user
+   * @return the authenticated member
+   * @throws UnauthorizedException if the user is not authenticated
+   */
+  private Member getAuthenticatedMember(String email) {
+    Member member = memberRepository.findByEmail(email);
+
+    if (member == null) {
+      throw new UnauthorizedException("Utilisateur non authentifié");
+    }
+
+    return member;
+  }
+
+  /**
+   * Check if the requester is an admin.
+   *
+   * @param requester the member performing the action
+   * @throws ForbiddenException if the member is not an admin
+   */
+  private void checkAdmin(Member requester) {
+    if (!requester.isAdmin()) {
+      throw new ForbiddenException("Accès réservé aux admins");
+    }
+  }
+
+  /**
+   * Retrieve the member to be banned.
+   *
+   * @param id the ID of the target member
+   * @return the found member
+   * @throws MemberNotFoundException if the member does not exist
+   */
+  private Member getTargetMember(Long id) {
+    return memberRepository.findById(id)
+        .orElseThrow(() -> new MemberNotFoundException("Membre introuvable"));
+  }
+
+  /**
+   * Validate business rules before banning a member.
+   *
+   * @param member the member to ban
+   * @param requester the member performing the action
+   * @throws ForbiddenException if trying to ban an admin
+   * @throws BadRequestException if the operation is invalid
+   */
+  private void checkBanValidity(Member member, Member requester) {
+
+    if (member.isAdmin()) {
+      throw new ForbiddenException("Impossible de bannir un admin");
+    }
+
+    if (member.isDeleted()) {
+      throw new BadRequestException("Membre déjà banni");
+    }
+
+    if (member.getIdMember().equals(requester.getIdMember())) {
+      throw new BadRequestException("Tu ne peux pas te bannir toi-même");
+    }
+  }
+
+  /**
+   * Handle team updates before banning a member.
+   *
+   * @param member the member to ban
+   */
+  private void handleTeamBeforeBan(Member member) {
+    Team team = member.getTeam();
+
+    if (team == null) {
+      return;
+    }
+
+    if (team.getManager1() != null
+        && team.getManager1().getIdMember().equals(member.getIdMember())) {
+
+      if (team.getManager2() != null) {
+        team.setManager1(team.getManager2());
+        team.setManager2(null);
+
+      } else {
+
+        Member replacement = team.getMembers().stream()
+            .filter(m -> !m.getIdMember().equals(member.getIdMember())).filter(m -> !m.isDeleted())
+            .sorted((m1, m2) -> m1.getCreationDate().compareTo(m2.getCreationDate())).findFirst()
+            .orElse(null);
+
+        if (replacement != null) {
+          team.setManager1(replacement);
+        } else {
+          team.setManager1(null);
+          team.setIsActive(false);
+        }
+      }
+    }
+
+    if (team.getManager2() != null
+        && team.getManager2().getIdMember().equals(member.getIdMember())) {
+      team.setManager2(null);
+    }
+
+    teamRepository.save(team);
+  }
+
+  /**
+   * Perform the ban operation on the member.
+   *
+   * @param member the member to ban
+   */
+  private void performBan(Member member) {
+    member.setDeleted(true);
+    member.setTeam(null);
+    memberRepository.save(member);
   }
 
   /**
@@ -391,39 +497,48 @@ public class MemberService {
    *
    * @param id the ID of the member to ban
    * @param requesterEmail the email of the authenticated user
-   * @throws ResponseStatusException if the user is not authenticated, not admin, or if the
-   *         operation is invalid
+   * @throws UnauthorizedException if the user is not authenticated
+   * @throws ForbiddenException if access is denied
+   * @throws MemberNotFoundException if the member does not exist
+   * @throws BadRequestException if the operation is invalid
    */
   @Transactional
   public void banMember(Long id, String requesterEmail) {
-    Member requester = memberRepository.findByEmail(requesterEmail);
 
-    if (requester == null) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Utilisateur non authentifié");
-    }
+    Member requester = getAuthenticatedMember(requesterEmail);
 
-    if (!requester.isAdmin()) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Accès réservé aux admins");
-    }
+    checkAdmin(requester);
 
-    Member member = memberRepository.findById(id)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Membre introuvable"));
+    Member member = getTargetMember(id);
 
-    if (member.isAdmin()) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Impossible de bannir un admin");
-    }
+    checkBanValidity(member, requester);
 
-    if (member.isDeleted()) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Membre déjà banni");
-    }
+    handleTeamBeforeBan(member);
 
-    if (member.getIdMember().equals(requester.getIdMember())) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-          "Tu ne peux pas te bannir toi-même");
-    }
-
-    member.setDeleted(true);
-    member.setTeam(null);
-    memberRepository.save(member);
+    performBan(member);
   }
+
+  /**
+   * Check if the member is the last active member of their team.
+   *
+   * @param memberId the ID of the member
+   * @return true if the member is the last active member, false otherwise
+   * @throws MemberNotFoundException if the member does not exist
+   */
+  public boolean isLastMember(Long memberId) {
+
+    Member member = memberRepository.findById(memberId)
+        .orElseThrow(() -> new MemberNotFoundException("Membre introuvable"));
+
+    Team team = member.getTeam();
+
+    if (team == null) {
+      return false;
+    }
+
+    long activeMembers = team.getMembers().stream().filter(m -> !m.isDeleted()).count();
+
+    return activeMembers == 1;
+  }
+
 }
