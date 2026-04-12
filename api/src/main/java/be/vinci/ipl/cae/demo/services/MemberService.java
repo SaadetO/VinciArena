@@ -453,10 +453,8 @@ public class MemberService {
       } else {
 
         Member replacement = team.getMembers().stream()
-            .filter(m -> !m.getIdMember().equals(member.getIdMember()))
-            .filter(m -> !m.isDeleted())
-            .sorted((m1, m2) -> m1.getCreationDate().compareTo(m2.getCreationDate()))
-            .findFirst()
+            .filter(m -> !m.getIdMember().equals(member.getIdMember())).filter(m -> !m.isDeleted())
+            .sorted((m1, m2) -> m1.getCreationDate().compareTo(m2.getCreationDate())).findFirst()
             .orElse(null);
 
         if (replacement != null) {
@@ -531,9 +529,7 @@ public class MemberService {
       return false;
     }
 
-    long activeMembers = team.getMembers().stream()
-        .filter(m -> !m.isDeleted())
-        .count();
+    long activeMembers = team.getMembers().stream().filter(m -> !m.isDeleted()).count();
 
     return activeMembers == 1;
   }
