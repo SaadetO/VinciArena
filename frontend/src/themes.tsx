@@ -1,7 +1,8 @@
 import { createTheme } from '@mui/material/styles';
 import { ZoomTransition } from './components/ZoomTransition';
-import { Calendar, Check, ChevronDown, Xmark } from '@gravity-ui/icons';
+import { Check, ChevronDown, Xmark } from '@gravity-ui/icons';
 import type {} from '@mui/x-date-pickers/themeAugmentation';
+import { SafeCalendarIcon } from './components/SafeCalendarIcon';
 
 declare module '@mui/material/styles' {
   interface TypeBackground {
@@ -982,7 +983,7 @@ export const theme = createTheme({
     },
     MuiDatePicker: {
       defaultProps: {
-        slots: { openPickerIcon: Calendar },
+        slots: { openPickerIcon: SafeCalendarIcon },
         sx: (theme) => ({
           '& .MuiPickersSectionList-root': {
             height: '2.25rem',
@@ -1013,7 +1014,7 @@ export const theme = createTheme({
     },
     MuiDateTimePicker: {
       defaultProps: {
-        slots: { openPickerIcon: Calendar },
+        slots: { openPickerIcon: SafeCalendarIcon },
         sx: (theme) => ({
           '& .MuiPickersSectionList-root': {
             height: '2.25rem',
