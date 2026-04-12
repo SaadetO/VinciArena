@@ -1,12 +1,12 @@
 package be.vinci.ipl.cae.demo.controllers;
 
-import be.vinci.ipl.cae.demo.models.dtos.MemberSummaryDto;
+// import be.vinci.ipl.cae.demo.models.dtos.MemberSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.PasswordUpdateDto;
 import be.vinci.ipl.cae.demo.models.dtos.ProfileDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.ProfileImage;
 import be.vinci.ipl.cae.demo.services.MemberService;
-import be.vinci.ipl.cae.demo.services.MemberService.MemberQueryStatus;
+// import be.vinci.ipl.cae.demo.services.MemberService.MemberQueryStatus;
 import be.vinci.ipl.cae.demo.services.TeamService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+// import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -42,11 +42,11 @@ public class MemberController {
     this.teamService = teamService;
   }
 
-  /**
-   * Get all members as lightweight summaries.
-   *
-   * @return an array of member summaries
-   */
+  // /**
+  //  * Get all members as lightweight summaries.
+  //  *
+  //  * @return an array of member summaries
+  //  */
   // @GetMapping({"/", ""})
   // public Iterable<MemberSummaryDto> getAllMemberSummaries(
   //     @RequestParam(required = false) MemberQueryStatus status,
@@ -54,12 +54,12 @@ public class MemberController {
   //   return memberService.getAllMemberSummaries();
   // }
 
-  /**
-   * Get all members private data.
-   *
-   * @param currentMember the authenticated member
-   * @return all members
-   */
+  // /**
+  //  * Get all members private data.
+  //  *
+  //  * @param currentMember the authenticated member
+  //  * @return all members
+  //  */
   // @GetMapping("/full")
   // @PreAuthorize("hasRole('ADMIN')")
   // public Iterable<Member> getAllMembers(@AuthenticationPrincipal Member currentMember,
