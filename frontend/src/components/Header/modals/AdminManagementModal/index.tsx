@@ -58,6 +58,7 @@ export const AdminManagementModal = ({
           onChange={(e) => setDebouncedSearch(e.target.value)}
           sx={{
             '& .MuiInputBase-root': {
+              height: '2.75rem',
               paddingRight: '0.375rem',
               borderRadius: '1.125rem',
             },
