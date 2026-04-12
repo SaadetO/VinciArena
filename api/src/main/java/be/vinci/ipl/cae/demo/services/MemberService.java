@@ -350,7 +350,7 @@ public class MemberService {
    *
    * @return an iterable of all members
    */
-  public Iterable<Member> getAllMembers(MemberQueryStatus status, String searchQuery) {
+  public List<Member> getAllMembers(MemberQueryStatus status, String searchQuery) {
     Specification<Member> spec = Specification.where(MemberSpecifications.hasState(status))
         .and(MemberSpecifications.search(searchQuery));
     Sort sort = Sort.by("tag").ascending();
@@ -383,11 +383,7 @@ public class MemberService {
    */
   public List<MemberSummaryDto> getAllMemberSummaries(MemberQueryStatus status,
       String searchQuery) {
-    Specification<Member> spec = Specification.where(MemberSpecifications.hasState(status))
-        .and(MemberSpecifications.search(searchQuery));
-
-    Sort sort = Sort.by("tag").ascending();
-    List<Member> members = memberRepository.findAll(spec, sort);
+    List<Member> members = getAllMembers(status, searchQuery);
 
     return members.stream().map(this::mapMemberToSummary).collect(Collectors.toList());
   }
