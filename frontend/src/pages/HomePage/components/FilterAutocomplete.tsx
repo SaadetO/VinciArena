@@ -44,11 +44,13 @@ export const FilterAutocomplete = <T,>({
       onChange={(_, newValue) => onChange(newValue)}
       renderTags={(val, getTagProps) =>
         val.map((option, index) => {
+          const { key, ...tagProps } = getTagProps({ index });
+          void key;
           const avatar = getOptionAvatar?.(option);
           return (
             <Chip
-              {...getTagProps({ index })}
               key={getOptionId(option)}
+              {...tagProps}
               label={getOptionLabel(option)}
               size="small"
               avatar={
@@ -64,12 +66,15 @@ export const FilterAutocomplete = <T,>({
         })
       }
       renderOption={(props, option) => {
+        const { key, ...optionProps } = props;
+        void key;
         const avatar = getOptionAvatar?.(option);
         return (
           <Stack
+            key={key}
             direction="row"
             component="li"
-            {...props}
+            {...optionProps}
             sx={{
               display: 'flex',
               alignItems: 'center',

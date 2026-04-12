@@ -33,6 +33,7 @@ export const TeamPage = () => {
     members: [],
     timeFrame: 'future',
     statuses: [],
+    dates: { minDate: undefined, maxDate: undefined },
   });
 
   const [tournaments, setTournaments] = useState<TournamentDto[]>([]);

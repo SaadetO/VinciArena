@@ -32,11 +32,15 @@ export const useTournament = (config: UseTournamentOptions) => {
       members,
       teams,
       searchQuery,
+      minDate,
+      maxDate,
     }: {
       statuses: string[] | undefined;
       members: number[] | undefined;
       teams: number[] | undefined;
       searchQuery?: string | undefined;
+      minDate?: string | undefined;
+      maxDate?: string | undefined;
     }) => {
       const params = new URLSearchParams();
       if (statuses && statuses.length > 0)
@@ -45,6 +49,8 @@ export const useTournament = (config: UseTournamentOptions) => {
         params.append('membersIds', members.join(','));
       if (teams && teams.length > 0) params.append('teamsIds', teams.join(','));
       if (searchQuery) params.append('search', searchQuery);
+      if (minDate) params.append('minDate', minDate);
+      if (maxDate) params.append('maxDate', maxDate);
 
       const response = await fetch(
         `/api/tournaments${params.size > 0 ? '?' : ''}${params.toString()}`,

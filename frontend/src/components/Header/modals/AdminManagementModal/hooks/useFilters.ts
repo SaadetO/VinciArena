@@ -24,7 +24,7 @@ export const useFilters = ({ open, handleScroll, getAll }: UseFiltersProps) => {
   const getFilterOptions = () => {
     return [
       undefined,
-      ...(Object.values(MemberQueryStatus) as MemberQueryStatus[]),
+      ...(['ADMIN', 'MEMBER', 'BANNED'] as MemberQueryStatus[]),
     ].filter((status) => status !== filters.status);
   };
 
@@ -50,11 +50,11 @@ export const useFilters = ({ open, handleScroll, getAll }: UseFiltersProps) => {
     status: MemberQueryStatus | undefined,
   ): string => {
     switch (status) {
-      case MemberQueryStatus.ADMIN:
+      case 'ADMIN':
         return 'Admins';
-      case MemberQueryStatus.MEMBER:
+      case 'MEMBER':
         return 'Membres';
-      case MemberQueryStatus.BANNED:
+      case 'BANNED':
         return 'Bannis';
       default:
         return 'Tous';

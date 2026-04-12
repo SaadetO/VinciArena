@@ -107,3 +107,22 @@ a {
     --7-y-position: 85%;
   }
 }
+
+.opacity-pulse {
+  animation-name: pulse;
+  animation-iteration-count: infinite;
+  animation-duration: 2s;
+  animation-timing-function: ease-in-out;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}

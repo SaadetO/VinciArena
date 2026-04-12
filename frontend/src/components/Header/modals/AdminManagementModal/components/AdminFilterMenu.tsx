@@ -43,9 +43,9 @@ export const AdminFilterMenu = ({
       >
         {filters.status === undefined
           ? 'Tous'
-          : filters.status === MemberQueryStatus.MEMBER
+          : filters.status === 'MEMBER'
             ? 'Membres'
-            : filters.status === MemberQueryStatus.BANNED
+            : filters.status === 'BANNED'
               ? 'Bannis'
               : 'Admins'}
       </Button>
