@@ -10,6 +10,7 @@ import {
 import { FullTeamDto } from '../../../types';
 import { Link } from 'react-router-dom';
 import { useUser } from '../../../hooks/useUser';
+import { TeamItemSkeleton } from './TeamItemSkeleton';
 
 const props: StackProps = {
   borderRadius: '0.75rem',
@@ -27,21 +28,21 @@ interface TeamItemProps {
 }
 
 export const TeamItem = ({ team }: TeamItemProps) => {
-  if (!team) return 'skeleton';
+  if (!team) return <TeamItemSkeleton />;
   if (team.isActive)
     return (
       <Stack component={Link} to={`/teams/${team.idTeam}`} {...props}>
-        <TeamItemConent team={team} />
+        <TeamItemContent team={team} />
       </Stack>
     );
   return (
     <Stack {...props}>
-      <TeamItemConent team={team} />
+      <TeamItemContent team={team} />
     </Stack>
   );
 };
 
-const TeamItemConent = ({ team }: { team: FullTeamDto }) => {
+const TeamItemContent = ({ team }: { team: FullTeamDto }) => {
   return (
     <Tooltip
       title={
