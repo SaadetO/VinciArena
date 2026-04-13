@@ -96,6 +96,14 @@ export const UnavailabilitiesModalContent = ({
         value={dates.startDate}
         onChange={(date) => handleDateChange(date, 'startDate')}
         disablePast
+        slotProps={{
+          textField: {
+            inputProps: {
+              'data-testid': 'unavailability-start-date',
+              placeholder: 'DD/MM/YYYY',
+            },
+          },
+        }}
       />
       <Tooltip title={getDurationString(dates)} arrow placement="top">
         <Box>
@@ -115,6 +123,14 @@ export const UnavailabilitiesModalContent = ({
         value={dates.endDate}
         onChange={(date) => handleDateChange(date, 'endDate')}
         disablePast
+        slotProps={{
+          textField: {
+            inputProps: {
+              'data-testid': 'unavailability-end-date',
+              placeholder: 'DD/MM/YYYY',
+            },
+          },
+        }}
       />
     </Stack>
   );

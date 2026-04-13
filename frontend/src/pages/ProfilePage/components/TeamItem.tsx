@@ -107,6 +107,7 @@ export const TeamItem = ({ user, setUser }: TeamItemProps) => {
         <Typography
           variant="h4"
           color={user?.team ? 'text.primary' : 'text.secondary'}
+          data-testid="team-name-display"
         >
           {user ? (
             user.team ? (
@@ -124,6 +125,7 @@ export const TeamItem = ({ user, setUser }: TeamItemProps) => {
         {!user ? (
           <>
             <Skeleton
+              data-testid="team-button-skeleton"
               variant="rounded"
               width="6rem"
               height="2rem"
@@ -142,6 +144,7 @@ export const TeamItem = ({ user, setUser }: TeamItemProps) => {
               onClick={user.team ? handleQuit : handleJoin}
               variant="contained"
               color="secondary"
+              data-testid={user.team ? 'team-quit-button' : 'team-join-button'}
             >
               {user.team ? 'Quitter' : 'Rejoindre'}
             </Button>
@@ -154,6 +157,9 @@ export const TeamItem = ({ user, setUser }: TeamItemProps) => {
                 onClick={user.team ? handleViewTeam : handleCreate}
                 color="secondary"
                 size="small"
+                data-testid={
+                  user.team ? 'team-view-button' : 'team-create-button'
+                }
               >
                 <Box display="inline-flex">
                   {user.team ? <ArrowRight /> : <Plus />}

@@ -104,6 +104,7 @@ export const LoginPage = () => {
                 value={formData.email}
                 onChange={handleChange}
                 required
+                inputProps={{ 'data-testid': 'login-email-input' }}
               />
               <TextField
                 fullWidth
@@ -115,6 +116,7 @@ export const LoginPage = () => {
                 value={formData.password}
                 onChange={handleChange}
                 required
+                inputProps={{ 'data-testid': 'login-password-input' }}
                 slotProps={{
                   input: {
                     endAdornment: formData.password.trim().length > 0 && (
@@ -133,6 +135,11 @@ export const LoginPage = () => {
                 <Checkbox
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
+                  inputProps={{
+                    ...{
+                      ['data-testid' as string]: 'login-remember-me-checkbox',
+                    },
+                  }}
                 />
               }
               label="Se souvenir de moi"
@@ -142,7 +149,11 @@ export const LoginPage = () => {
               }}
             />
             <Stack spacing="1.5rem" paddingTop="1.5rem">
-              <Button type="submit" variant="contained">
+              <Button
+                type="submit"
+                variant="contained"
+                data-testid="login-submit-button"
+              >
                 Se Connecter
               </Button>
               <Typography textAlign="center" variant="body2" color="secondary">

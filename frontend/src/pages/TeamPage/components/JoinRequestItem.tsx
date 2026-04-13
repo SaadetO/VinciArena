@@ -52,6 +52,7 @@ export const JoinRequestItem = ({
         alignItems="center"
         spacing="0.5rem"
         direction="row"
+        data-testid={`join-request-item-${joinRequest.requester.tag}`}
         sx={{ background: (theme) => theme.palette.background.s2 }}
       >
         <Avatar
@@ -72,6 +73,7 @@ export const JoinRequestItem = ({
             color="secondary"
             size="small"
             disabled={isUpdatingJoinRequest}
+            data-testid="join-request-accept-button"
           >
             Accepter
           </Button>
@@ -81,6 +83,7 @@ export const JoinRequestItem = ({
             color="secondary"
             size="small"
             disabled={isUpdatingJoinRequest}
+            data-testid="join-request-deny-button"
           >
             Refuser
           </Button>

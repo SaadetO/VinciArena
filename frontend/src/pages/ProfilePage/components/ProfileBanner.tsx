@@ -50,6 +50,7 @@ export const ProfileBanner = ({ user }: { user?: ProfileInfoDto }) => {
           <>
             {user.team && (
               <Chip
+                data-testid={`user-team-chip`}
                 component={Link}
                 to={`/teams/${user.team.id}`}
                 size="small"

@@ -30,6 +30,7 @@ export const ManagerModalContent = ({
   return (
     <>
       <Autocomplete
+        data-testid="manager-selection-autocomplete"
         options={
           team?.members.filter(
             (user: UserSummaryDto) =>
@@ -53,6 +54,7 @@ export const ManagerModalContent = ({
             direction="row"
             component="li"
             {...props}
+            data-testid={`manager-option-${option.tag}`}
             sx={{
               display: 'flex',
               alignItems: 'center',
@@ -76,6 +78,10 @@ export const ManagerModalContent = ({
             helperText={localError}
             required
             autoFocus
+            inputProps={{
+              ...params.inputProps,
+              'data-testid': 'manager-selection-input',
+            }}
           />
         )}
       />

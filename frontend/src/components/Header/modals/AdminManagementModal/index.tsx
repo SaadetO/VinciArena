@@ -52,6 +52,7 @@ export const AdminManagementModal = ({
 
       <Stack sx={{ padding: '0 1rem' }}>
         <TextField
+          data-testid="admin-search-input"
           placeholder="Rechercher par tag ou email..."
           fullWidth
           value={debouncedSearch}
@@ -70,6 +71,7 @@ export const AdminManagementModal = ({
             input: {
               endAdornment: (
                 <AdminFilterMenu
+                  data-testid="admin-filter-button"
                   filters={filters}
                   setFilters={setFilters}
                   getFilterOptions={getFilterOptions}

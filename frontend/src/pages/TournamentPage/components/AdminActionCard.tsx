@@ -62,6 +62,7 @@ export const AdminActionCard = ({
       <Stack padding="1rem" direction="row" spacing="0.75rem">
         {content.secondaryButtonLabel && (
           <Button
+            data-testid="tournament-edit-button"
             variant="contained"
             color="secondary"
             onClick={() => onAction2?.()}
@@ -71,6 +72,7 @@ export const AdminActionCard = ({
           </Button>
         )}
         <Button
+          data-testid="tournament-primary-action-button"
           variant="contained"
           color="primary"
           onClick={() => onAction(status)}

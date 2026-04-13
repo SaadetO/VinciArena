@@ -65,6 +65,7 @@ export const NotificationItem = ({ notification }: Props) => {
                 e.stopPropagation();
                 markAsRead(notification.idNotification);
               }}
+              data-testid="notification-mark-as-read"
             >
               <Check />
             </IconButton>

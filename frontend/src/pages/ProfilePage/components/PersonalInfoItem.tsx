@@ -42,6 +42,7 @@ export const PersonalInfoItem = ({ user, setUser }: PersonalInfoItemProps) => {
       <Stack direction="row" justifyContent="space-between">
         <Box
           onClick={user ? handleAvatarChange : undefined}
+          data-testid="profile-avatar-clickable"
           sx={{
             position: 'relative',
             width: '2.75rem',
@@ -60,6 +61,7 @@ export const PersonalInfoItem = ({ user, setUser }: PersonalInfoItemProps) => {
           {user ? (
             <>
               <Avatar
+                data-testid="profile-avatar-image"
                 src={user.avatar ? `/assets/avatars/${user.avatar}` : undefined}
                 sx={{
                   width: '2rem',
@@ -90,13 +92,18 @@ export const PersonalInfoItem = ({ user, setUser }: PersonalInfoItemProps) => {
         </Box>
 
         {user ? (
-          <EditMenu user={user} setUser={setUser} />
+          <EditMenu
+            user={user}
+            setUser={setUser}
+            data-testid="profile-edit-menu"
+          />
         ) : (
           <Skeleton
             variant="rounded"
             width="6.875rem"
             height="2rem"
             sx={{ borderRadius: '0.75rem' }}
+            data-testid="profile-menu-skeleton"
           />
         )}
       </Stack>
@@ -114,6 +121,7 @@ export const PersonalInfoItem = ({ user, setUser }: PersonalInfoItemProps) => {
         <Stack direction="row" spacing="0.75rem" alignItems="center">
           {user?.specialty ? (
             <Chip
+              data-testid="profile-specialty-display"
               label={
                 user.specialty.charAt(0).toUpperCase() + user.specialty.slice(1)
               }
