@@ -74,10 +74,6 @@ public class DemoApplication {
 
       }
 
-      record TeamMockData(String name) {
-
-      }
-
       record TournamentMockData(String name, String description, String start, String end,
                                 String deadline, int capacity, int teamCount, String winnerTeamName,
                                 TournamentStatus status) {

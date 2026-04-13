@@ -363,7 +363,7 @@ export const theme = createTheme({
           props: { variant: 'active' },
           style: {
             border: `2px solid ${primaryColor}`,
-            color: primaryColor,
+            color: primaryColor + ' !important',
           },
         },
         {
@@ -971,13 +971,15 @@ export const theme = createTheme({
     MuiTooltip: {
       styleOverrides: {
         tooltip: {
-          backgroundColor: surfaceLevels.s2,
+          backgroundColor: surfaceLevels.s1,
           color: '#FFFFFF',
-          borderRadius: '0.75rem',
+          borderRadius: '1.5rem',
           padding: '0.25rem 0.75rem',
+          border: '1px solid',
+          borderColor: '#252525',
         },
         arrow: {
-          color: surfaceLevels.s2,
+          color: '#252525',
         },
       },
     },

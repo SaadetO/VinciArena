@@ -4,7 +4,7 @@ import {
   ProfileInfoDto,
   TeamDetailsInfoDto,
   UserSummaryDto,
-  Team,
+  FullTeamDto,
 } from '../types';
 import { UserContext } from '../contexts/UserContext';
 import { useSnackbar } from './useSnackbar';
@@ -19,7 +19,7 @@ interface UseTeamsOptions {
       { code: number; message: string; subtitle?: string } | undefined
     >
   >;
-  setTeams?: Dispatch<SetStateAction<Team[]>>;
+  setTeams?: Dispatch<SetStateAction<FullTeamDto[]>>;
 }
 
 export const useTeams = (options?: UseTeamsOptions) => {

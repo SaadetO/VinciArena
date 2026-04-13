@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Team } from '../../../types';
+import { FullTeamDto } from '../../../types';
 import { useTeams } from '../../../hooks/useTeams';
 
 export const useTeamsPage = () => {
-  const [teams, setTeams] = useState<Team[]>([]);
+  const [teams, setTeams] = useState<FullTeamDto[]>([]);
   const { getAll, isGettingAllTeams } = useTeams({ setTeams });
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
