@@ -173,8 +173,8 @@ public class DemoApplication {
               "2026-04-01T20:00:00", 8, 8, null, TournamentStatus.IN_PROGRESS),
 
           new TournamentMockData("Vinci Easter Cup 2026",
-              "Tournoi de Pâques ouvert à toutes les teams actives", "2026-04-15", "2026-04-25",
-              "2026-04-08T20:00:00", 8, 7, null, TournamentStatus.REGISTRATION_OPEN),
+              "Tournoi de Pâques ouvert à toutes les teams actives", "2027-04-15", "2027-04-25",
+              "2027-04-08T20:00:00", 8, 7, null, TournamentStatus.REGISTRATION_OPEN),
           new TournamentMockData("Elite Championship 2026",
               "Compétition élite réservée aux meilleures teams", "2026-05-15", "2026-05-30",
               "2026-05-11T20:00:00", 16, 14, null, TournamentStatus.REGISTRATION_OPEN)};

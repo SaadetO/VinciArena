@@ -23,7 +23,7 @@ export const TournamentBanner = ({
       padding="5rem"
     >
       <Stack spacing="0.75rem" alignItems="center" direction="row">
-        <Typography variant="h1">
+        <Typography variant="h1" data-testid="tournament-banner-name">
           {tournament ? (
             tournament.name
           ) : (
@@ -37,6 +37,7 @@ export const TournamentBanner = ({
             <TournamentStatusChip status={tournament.status} />
             <Tooltip title="Date limite d'inscription" arrow>
               <Chip
+                data-testid="tournament-banner-deadline"
                 size="medium"
                 variant="text"
                 icon={
