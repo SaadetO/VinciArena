@@ -23,7 +23,7 @@ export const JoinTeamModalContent = ({
   }, [requestedTeam, onSelect]);
 
   useEffect(() => {
-    getAll();
+    getAll({ isActive: true });
   }, [getAll]);
 
   return (

@@ -107,8 +107,7 @@ export const AdminManagementModal = ({
               padding: '1rem',
               transform:
                 isGettingUsers && users.length > 0 ? 'scale(0.98)' : 'none',
-              transition:
-                'transform 0.3s cubic-bezier(0.2, 0, 0, 1), opacity 0.3s cubic-bezier(0.2, 0, 0, 1)',
+              transition: 'transform 0.3s cubic-bezier(0.2, 0, 0, 1)',
             }}
           >
             {isGettingUsers && users.length === 0 ? (

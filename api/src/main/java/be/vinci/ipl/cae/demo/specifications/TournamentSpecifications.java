@@ -10,7 +10,6 @@ import jakarta.persistence.criteria.Subquery;
 import java.lang.reflect.Member;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Locale;
 import org.springframework.data.jpa.domain.Specification;
 
 /**
@@ -48,13 +47,7 @@ public final class TournamentSpecifications {
    * @return the specification
    */
   public static Specification<Tournament> searchByName(String keyword) {
-    return (root, query, cb) -> {
-      if (keyword == null || keyword.isBlank()) {
-        return null;
-      }
-
-      return cb.like(cb.lower(root.get("name")), "%" + keyword.toLowerCase(Locale.ROOT) + "%");
-    };
+    return CommonSpecifications.searchByAttribute("name", keyword);
   }
 
   /**

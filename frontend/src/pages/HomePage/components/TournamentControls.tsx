@@ -1,8 +1,8 @@
 import { Stack } from '@mui/material';
-import { TournamentSearchBar } from './TournamentSearchBar';
 import { Tabs, TabOption } from '../../../components/Tabs';
 import { TournamentFilterButton } from './TournamentFilterButton';
 import { TournamentFilters } from '../../../utils/tournamentUtils';
+import { SearchBar } from '../../../components/SearchBar';
 
 const timeframeOptions: TabOption<'past' | 'current' | 'future'>[] = [
   { label: 'À venir', value: 'future' },
@@ -59,7 +59,7 @@ export const TournamentControls = ({
           }
         />
         <Stack direction="row" alignItems="center" spacing="0.75rem">
-          <TournamentSearchBar
+          <SearchBar
             searchQuery={filters.searchQuery}
             setSearchQuery={(searchQuery) =>
               setFilters({ ...filters, searchQuery })
