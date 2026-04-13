@@ -11,7 +11,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
+import be.vinci.ipl.cae.demo.models.dtos.FullTeamDto;
 import be.vinci.ipl.cae.demo.models.dtos.TeamDetailsDto;
 import be.vinci.ipl.cae.demo.models.dtos.UserSummaryDto;
 import be.vinci.ipl.cae.demo.models.entities.JoinRequest;
@@ -125,11 +125,13 @@ class TeamServiceTest {
     when(teamRepository.findAll(any())).thenReturn(List.of(team1, team2));
 
     // Act
-    Iterable<Team> result = teamService.getAllTeams(true, null);
+    List<FullTeamDto> result = teamService.getAllTeams(true, null);
 
     // Assert
     assertNotNull(result);
-    assertEquals(List.of(team1, team2), result);
+    assertEquals(2, result.size());
+    assertEquals("Team 1", result.get(0).getName());
+    assertEquals("Team 2", result.get(1).getName());
     verify(teamRepository).findAll(any());
   }
 
@@ -262,7 +264,7 @@ class TeamServiceTest {
     when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
 
     // Act
-    Team result = teamService.designateSecondManager(1L, 2L, creator);
+    teamService.designateSecondManager(1L, 2L, creator);
   }
 
   @Test

@@ -1,6 +1,8 @@
 package be.vinci.ipl.cae.demo.services;
 
+import be.vinci.ipl.cae.demo.models.dtos.FullTeamDto;
 import be.vinci.ipl.cae.demo.models.dtos.JoinRequestDto;
+import be.vinci.ipl.cae.demo.models.dtos.MemberSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.TeamDetailsDto;
 import be.vinci.ipl.cae.demo.models.dtos.UserSummaryDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
@@ -11,6 +13,7 @@ import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.TeamRepository;
 import be.vinci.ipl.cae.demo.specifications.TeamSpecifications;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.data.jpa.domain.Specification;
@@ -187,10 +190,32 @@ public class TeamService {
    * @param searchQuery the search query
    * @return a list of teams matching the criteria
    */
-  public List<Team> getAllTeams(boolean isActive, String searchQuery) {
+  public List<FullTeamDto> getAllTeams(boolean isActive, String searchQuery) {
     Specification<Team> spec = Specification.where(TeamSpecifications.isActive(isActive))
         .and(TeamSpecifications.searchByName(searchQuery));
-    return teamRepository.findAll(spec);
+
+    return teamRepository.findAll(spec).stream().map(this::mapTeamToFullTeamDto).toList();
+  }
+
+  /**
+   * Map a team entity to a full team DTO.
+   *
+   * @param team the team entity
+   * @return the full team DTO
+   */
+  public FullTeamDto mapTeamToFullTeamDto(Team team) {
+    if (team == null) {
+      return null;
+    }
+
+    List<MemberSummaryDto> safeMembers = team.getMembers() == null ? Collections.emptyList()
+        : team.getMembers().stream().map(memberService::mapMemberToSummary).toList();
+
+    return FullTeamDto.builder().idTeam(team.getIdTeam()).name(team.getName())
+        .isActive(team.getIsActive())
+        .managerId1(team.getManager1() != null ? team.getManager1().getIdMember() : null)
+        .managerId2(team.getManager2() != null ? team.getManager2().getIdMember() : null)
+        .members(safeMembers).build();
   }
 
   /**

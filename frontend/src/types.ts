@@ -89,7 +89,6 @@ interface UserSummaryDto {
 interface MemberSummaryDto {
   id: number;
   tag: string;
-  specialty: string | null;
   avatar: string | null;
 }
 
@@ -97,6 +96,12 @@ interface Team {
   idTeam: number;
   name: string;
   isActive: boolean;
+}
+
+interface FullTeamDto extends Team {
+  members: MemberSummaryDto[];
+  managerId1: number;
+  managerId2: number;
 }
 
 interface JoinRequestDto {
@@ -274,6 +279,7 @@ export type {
   UserContextType,
   ProfileInfoDto,
   Team,
+  FullTeamDto,
   Unavailability,
   JoinRequestDto,
   TeamDetailsInfoDto,

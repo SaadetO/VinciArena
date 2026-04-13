@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Box, IconButton, Stack, Tooltip } from '@mui/material';
-import { MemberSummaryDto, Team } from '../../../types';
+import { FullTeamDto, MemberSummaryDto } from '../../../types';
 import { FilterAutocomplete } from '../components/FilterAutocomplete';
 import { DatePicker } from '@mui/x-date-pickers';
 import { TournamentFilters } from '../../../utils/tournamentUtils';
@@ -43,7 +43,7 @@ export const FilterModalContent = ({
   const [localFilters, setLocalFilters] =
     useState<Partial<TournamentFilters>>(initialFilters);
 
-  const [allTeams, setAllTeams] = useState<Team[]>([]);
+  const [allTeams, setAllTeams] = useState<FullTeamDto[]>([]);
   const [allMembers, setAllMembers] = useState<MemberSummaryDto[]>([]);
 
   const { getAll: getAllTeams, isGettingAllTeams } = useTeams({

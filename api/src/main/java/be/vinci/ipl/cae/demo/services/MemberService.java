@@ -372,9 +372,8 @@ public class MemberService {
    * @param m the member to map
    * @return the MemberSummaryDto
    */
-  private MemberSummaryDto mapMemberToSummary(Member m) {
+  public MemberSummaryDto mapMemberToSummary(Member m) {
     return MemberSummaryDto.builder().id(m.getIdMember()).tag(m.getTag())
-        .specialty(m.getSpecialty() != null ? m.getSpecialty().getName() : null)
         .avatar(m.getProfileImage() != null ? m.getProfileImage().getPath() : null).build();
   }
 

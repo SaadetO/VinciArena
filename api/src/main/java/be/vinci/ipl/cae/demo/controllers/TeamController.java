@@ -1,5 +1,6 @@
 package be.vinci.ipl.cae.demo.controllers;
 
+import be.vinci.ipl.cae.demo.models.dtos.FullTeamDto;
 import be.vinci.ipl.cae.demo.models.dtos.NewTeam;
 import be.vinci.ipl.cae.demo.models.dtos.TeamDetailsDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
@@ -62,7 +63,7 @@ public class TeamController {
    * @return an iterable of all active teams.
    */
   @GetMapping({"", "/"})
-  public Iterable<Team> getAllTeams(@RequestParam(required = false) boolean isActive,
+  public Iterable<FullTeamDto> getAllTeams(@RequestParam(required = false) boolean isActive,
       @RequestParam(required = false) String searchQuery) {
     return teamService.getAllTeams(isActive, searchQuery);
   }

@@ -12,6 +12,5 @@ import lombok.Data;
 public class MemberSummaryDto {
   private Long id;
   private String tag;
-  private String specialty;
   private String avatar;
 }
