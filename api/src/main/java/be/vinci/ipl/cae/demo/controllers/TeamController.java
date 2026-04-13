@@ -62,8 +62,9 @@ public class TeamController {
    * @return an iterable of all active teams.
    */
   @GetMapping({"", "/"})
-  public Iterable<Team> getAllActiveTeams() {
-    return teamService.getAllActiveTeams();
+  public Iterable<Team> getAllTeams(@RequestParam(required = false) boolean isActive,
+      @RequestParam(required = false) String searchQuery) {
+    return teamService.getAllTeams(isActive, searchQuery);
   }
 
   /**
@@ -107,8 +108,6 @@ public class TeamController {
   public Team resignManager(@PathVariable Long id,
       @RequestParam(required = false) Long replacementId,
       @AuthenticationPrincipal Member currentMember) {
-
     return teamService.resignManager(id, currentMember, replacementId);
   }
-
 }

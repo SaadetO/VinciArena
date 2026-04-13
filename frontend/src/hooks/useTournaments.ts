@@ -35,9 +35,9 @@ export const useTournament = (config: UseTournamentOptions) => {
       minDate,
       maxDate,
     }: {
-      statuses: string[] | undefined;
-      members: number[] | undefined;
-      teams: number[] | undefined;
+      statuses?: string[] | undefined;
+      members?: number[] | undefined;
+      teams?: number[] | undefined;
       searchQuery?: string | undefined;
       minDate?: string | undefined;
       maxDate?: string | undefined;

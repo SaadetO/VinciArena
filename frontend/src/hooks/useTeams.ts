@@ -69,12 +69,24 @@ export const useTeams = (options?: UseTeamsOptions) => {
   );
 
   const { execute: getAll, loading: isGettingAllTeams } = useApi(
-    async () => {
-      const response = await fetch('/api/teams', {
-        headers: {
-          Authorization: authenticatedUser?.token ?? '',
+    async ({
+      isActive,
+      searchQuery,
+    }: {
+      isActive?: boolean | undefined;
+      searchQuery?: string | undefined;
+    }) => {
+      const params = new URLSearchParams();
+      if (isActive) params.append('isActive', isActive.toString());
+      if (searchQuery) params.append('searchQuery', searchQuery);
+      const response = await fetch(
+        `/api/teams${params.toString() ? '?' : ''}${params.toString()}`,
+        {
+          headers: {
+            Authorization: authenticatedUser?.token ?? '',
+          },
         },
-      });
+      );
 
       if (!response.ok)
         throw new ApiError(

@@ -55,7 +55,7 @@ export const FilterModalContent = ({
 
   useEffect(() => {
     if (!onlyStatusFilter) {
-      getAllTeams();
+      getAllTeams({ isActive: true });
       getAllMembers({});
     }
   }, [onlyStatusFilter, getAllTeams, getAllMembers]);
