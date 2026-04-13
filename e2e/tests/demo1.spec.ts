@@ -50,7 +50,7 @@ test.describe("Client Demonstration", () => {
 
   test("Demo: Sprint 1", async ({ page, context }) => {
     //Custom timeout
-    test.setTimeout(1200000);
+    test.setTimeout(3 * 300000);
 
     await page.goto("http://localhost:5173/");
 
@@ -62,7 +62,7 @@ test.describe("Client Demonstration", () => {
     await page.getByTestId("register-email-input").fill(vectorr.email);
     await page.getByTestId("register-tag-input").fill(vectorr.tag);
 
-    const specialtyInput = page.getByTestId("register-specialty-input");
+    let specialtyInput = page.getByTestId("register-specialty-input");
     await specialtyInput.fill(vectorr.specialty!.slice(0, 5));
     await page.getByRole("option", { name: vectorr.specialty }).click();
 
@@ -76,7 +76,7 @@ test.describe("Client Demonstration", () => {
 
     await page.locator(".profile-picture-placeholder").click();
     //select avatar n° 12
-    const avatarOption = page.locator('img[src*="/assets/avatars/"]').nth(12);
+    let avatarOption = page.locator('img[src*="/assets/avatars/"]').nth(12);
     await expect(avatarOption).toBeVisible();
     await avatarOption.click();
     await page.getByRole("button", { name: "Confirmer" }).click();
@@ -274,54 +274,76 @@ test.describe("Client Demonstration", () => {
     // TEST MEMBER MANAGEMENT
 
     //open modal
-    await page.getByTestId("admin-menu-button").click();
-    // search lynx
-    await page.getByTestId("admin-search-input").fill(lynx.email);
+    await page.getByTestId("admin-manage-members-button").click();
 
     // check lynx is visible
     const lynxRow = page.getByTestId(`admin-user-row-${lynx.tag}`);
     await expect(lynxRow).toBeVisible();
     // check lynx is admin
-    const lynxSwitch = lynxRow.getByTestId("admin-status-switch");
+    const lynxSwitch = lynxRow
+      .getByTestId("admin-status-switch")
+      .locator("input");
     await expect(lynxSwitch).toBeChecked();
     //remove admin role
     await lynxSwitch.click();
     await expect(lynxSwitch).not.toBeChecked();
 
     //check own admin button is disabled
-    await page.getByTestId("admin-search-input").fill(iron.email);
     const ironRow = page.getByTestId(`admin-user-row-${iron.tag}`);
-    await expect(ironRow.getByTestId("admin-status-switch")).toBeDisabled();
+    await expect(
+      ironRow.getByTestId("admin-status-switch").locator("input"),
+    ).toBeDisabled();
 
     // give vectorr admin role
-    await page.getByTestId("admin-search-input").fill(vectorr.email);
     const vectorSwitch = page
       .getByTestId(`admin-user-row-${vectorr.tag}`)
-      .getByTestId("admin-status-switch");
+      .getByTestId("admin-status-switch")
+      .locator("input");
     await vectorSwitch.click();
     await expect(vectorSwitch).toBeChecked();
+    await page.keyboard.press("Escape");
 
     // CREATE NEW TEAM
     await gotoProfilePage(page);
+    await page.getByTestId("team-create-button").click();
+    iron.team = "TEAM_BETA";
+    await page.getByTestId("create-team-input").fill(iron.team);
+    await page.getByTestId("modal-confirm-button").click();
+    await expect(page.getByText(iron.team).first()).toBeVisible();
+    await logoutUser(page);
 
-    /** 
-    // test remember-me
-    //close browser
-    await context.storageState({ path: "state.json" });
-    await context.close();
-    const newContext = await page
-      .context()
-      .browser()!
-      .newContext({ storageState: "state.json" });
-    const newPage = await newContext.newPage();
+    // check vectorr has admin button
+    await loginUser(page, vectorr.email, vectorr.password, true, vectorr.tag);
+    await expect(
+      page.getByTestId("admin-create-tournament-button"),
+    ).toBeVisible();
+    // check notifications to see rejection
+    await page.goto("http://localhost:5173/notifications");
+    await expect(page.getByText(refusalReason).first()).toBeVisible();
+    //check not a part of team
+    await gotoProfilePage(page);
+    await expect(page.getByTestId("user-team-chip")).toBeHidden();
 
-    // reopen page
-    await newPage.goto("http://localhost:5173/");
-    //verify its still logged in
-    await expect(newPage.getByTestId("user-menu-button")).toBeVisible();
-    await expect(newPage.getByText(lynx.tag)).toBeVisible();
+    // TEST CHANGE PROFILE INFO
+    // change image
+    await page.getByTestId("profile-avatar-clickable").click();
+    avatarOption = page.locator('img[src*="/assets/avatars/"]').nth(8);
+    await expect(avatarOption).toBeVisible();
+    await avatarOption.click();
+    await page.getByRole("button", { name: "Confirmer" }).click();
 
-    await newContext.close();
-    */
+    //change specialty
+    await page.getByTestId("profile-edit-button").click();
+    await page.getByTestId("edit-menu-specialty").click();
+    specialtyInput = page.getByTestId("specialty-select-input");
+    await specialtyInput.fill("perturbateur");
+    await page.keyboard.press("Enter");
+    await page.getByTestId("modal-confirm-button").click();
+    // check specialty change
+    const specialtyChip = page.getByTestId("profile-specialty-display");
+    await expect(specialtyChip).toHaveText(/Perturbateur/i);
+
+    await logoutUser(page);
+    await loginUser(page, lynx.email, lynx.password, true, lynx.tag);
   });
 });

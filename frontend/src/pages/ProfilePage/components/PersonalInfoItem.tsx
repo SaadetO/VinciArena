@@ -61,6 +61,7 @@ export const PersonalInfoItem = ({ user, setUser }: PersonalInfoItemProps) => {
           {user ? (
             <>
               <Avatar
+                data-testid="profile-avatar-image"
                 src={user.avatar ? `/assets/avatars/${user.avatar}` : undefined}
                 sx={{
                   width: '2rem',
@@ -120,6 +121,7 @@ export const PersonalInfoItem = ({ user, setUser }: PersonalInfoItemProps) => {
         <Stack direction="row" spacing="0.75rem" alignItems="center">
           {user?.specialty ? (
             <Chip
+              data-testid="profile-specialty-display"
               label={
                 user.specialty.charAt(0).toUpperCase() + user.specialty.slice(1)
               }

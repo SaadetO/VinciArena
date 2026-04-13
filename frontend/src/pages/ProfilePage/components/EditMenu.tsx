@@ -67,6 +67,7 @@ export const EditMenu = ({
   return (
     <>
       <Button
+        data-testid="profile-edit-button"
         variant="contained"
         color="secondary"
         onClick={handleMenuClick}
@@ -101,10 +102,14 @@ export const EditMenu = ({
         }}
       >
         <MenuItem onClick={handlePasswordChange}>
-          <Typography variant="h5">Modifier le Mot de passe</Typography>
+          <Typography variant="h5" data-testid="edit-menu-password">
+            Modifier le Mot de passe
+          </Typography>
         </MenuItem>
         <MenuItem onClick={handleSpecialtyChange}>
-          <Typography variant="h5">Modifier la Spécialité</Typography>
+          <Typography variant="h5" data-testid="edit-menu-specialty">
+            Modifier la Spécialité
+          </Typography>
         </MenuItem>
       </Menu>
     </>

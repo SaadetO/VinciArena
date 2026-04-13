@@ -161,6 +161,7 @@ export const AdminManagementModal = ({
 
       <Stack sx={{ padding: '0 1rem' }}>
         <TextField
+          data-testid="admin-search-input"
           placeholder="Rechercher par tag ou email..."
           fullWidth
           value={searchQuery}

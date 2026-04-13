@@ -31,7 +31,7 @@ export const UserItem = ({
   if (!user) {
     return (
       <ListItem
-        data-testid={`admin-user-row-${user!.tag}`}
+        data-testid="admin-user-row-loading"
         sx={{
           borderRadius: '0.5rem',
           mb: '0.25rem',
@@ -60,6 +60,7 @@ export const UserItem = ({
 
   return (
     <ListItem
+      data-testid={`admin-user-row-${user.tag}`}
       key={user.id}
       sx={{
         borderRadius: '0.5rem',
