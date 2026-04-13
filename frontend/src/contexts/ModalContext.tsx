@@ -19,6 +19,7 @@ import {
 } from 'react';
 import { ModalConfig } from '../types';
 import { ModalControllerContext } from './ModalControllerContext';
+import { ModalScrollSx } from '../themes';
 
 interface ModalContextType {
   openModal: (config: ModalConfig) => void;
@@ -115,37 +116,9 @@ const ModalContextProvider = ({ children }: { children: ReactNode }) => {
             )}
             <Stack
               maxHeight="20rem"
-              sx={{
-                position: 'relative',
-                '&::before': {
-                  content: '""',
-                  display: 'block',
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  height: '2rem',
-                  zIndex: 100,
-                  background: (theme) =>
-                    `linear-gradient(to bottom, ${theme.palette.background.s1}, transparent)`,
-                  width: '100%',
-                  opacity: canScrollTop ? 1 : 0,
-                  pointerEvents: 'none',
-                },
-                '&::after': {
-                  content: '""',
-                  display: 'block',
-                  position: 'absolute',
-                  bottom: 0,
-                  left: 0,
-                  height: '2rem',
-                  zIndex: 100,
-                  background: (theme) =>
-                    `linear-gradient(to top, ${theme.palette.background.s1}, transparent)`,
-                  width: '100%',
-                  opacity: canScrollBottom ? 1 : 0,
-                  pointerEvents: 'none',
-                },
-              }}
+              sx={ModalScrollSx}
+              data-scrolltop={canScrollTop}
+              data-scrollbottom={canScrollBottom}
             >
               {config?.children && (
                 <DialogContent

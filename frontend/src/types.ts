@@ -1,5 +1,5 @@
-/* eslint-disable no-unused-vars */
 import { ReactNode } from 'react';
+import { TournamentFilters, YearGroup } from './utils/tournamentUtils';
 
 interface MainContext {}
 
@@ -118,11 +118,7 @@ interface TeamDetailsInfoDto {
   joinRequests: JoinRequestDto[] | null;
 }
 
-export enum NotificationType {
-  TEAM = 'TEAM',
-  MATCH = 'MATCH',
-  TOURNAMENT = 'TOURNAMENT',
-}
+export type NotificationType = 'TEAM' | 'MATCH' | 'TOURNAMENT';
 interface NotificationDto {
   idNotification: number;
   content: string;
@@ -254,6 +250,22 @@ export class ApiError extends Error {
   }
 }
 
+export type MemberQueryStatus = 'ADMIN' | 'MEMBER' | 'BANNED';
+
+interface MemberFilters {
+  status?: MemberQueryStatus;
+  searchQuery?: string;
+}
+
+interface HomePageContextType {
+  filters: TournamentFilters;
+  setFilters: (filters: TournamentFilters) => void;
+  authenticatedUser: AuthenticatedUser | null;
+  isGettingTournaments: boolean;
+  tournaments: TournamentDto[];
+  groupedTournaments: YearGroup[];
+}
+
 export type {
   MainContext,
   User,
@@ -281,4 +293,6 @@ export type {
   TeamSummaryDto,
   TournamentStatus,
   TournamentFormData,
+  MemberFilters,
+  HomePageContextType,
 };

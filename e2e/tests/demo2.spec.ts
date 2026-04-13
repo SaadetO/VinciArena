@@ -1,12 +1,16 @@
 import { test, expect } from "@playwright/test";
-import {
-  gotoProfilePage,
-  loginUser,
-  logoutUser,
-  sendJoinRequest,
-} from "./utils/auth-utils";
+test.beforeAll(async () => {
+  console.log("\n\x1b[1m\x1b[41m\x1b[37m ATTENTION \x1b[0m");
+  console.log(
+    "\x1b[31mThis test requires a fresh database state to run correctly.\x1b[0m",
+  );
+  console.log(
+    "\x1b[31mPlease ensure you have restarted the backend if you have made any modifications\x1b[0m",
+  );
+  console.log("\x1b[31mor executed any other E2E tests.\x1b[0m\n");
+});
 
-test("test", async ({ page }) => {
+test("Demo: Sprint 2", async ({ page }) => {
   await page.goto("http://localhost:5173/");
   test.setTimeout(3 * 300000);
   // check tournament info

@@ -62,8 +62,11 @@ public class TournamentController {
       @RequestParam(required = false) List<TournamentStatus> statuses,
       @RequestParam(required = false) List<Long> teamsIds,
       @RequestParam(required = false) List<Long> membersIds,
-      @RequestParam(required = false) String search) {
-    return tournamentService.getTournaments(statuses, teamsIds, membersIds, search);
+      @RequestParam(required = false) String search,
+      @RequestParam(required = false) LocalDate minDate,
+      @RequestParam(required = false) LocalDate maxDate) {
+    return tournamentService.getTournaments(statuses, teamsIds, membersIds, search, minDate,
+        maxDate);
   }
 
   /**
@@ -98,7 +101,6 @@ public class TournamentController {
   @PreAuthorize("hasRole('ADMIN')") // Security handled here
   public TournamentDetailsDto createTournament(@Valid @RequestBody NewTournament newTournament,
       @AuthenticationPrincipal Member currentMember) {
-
     validateNewTournament(newTournament, currentMember, null); // Removed currentMember check here
 
     Tournament createdTournament = tournamentService.createTournament(newTournament);
@@ -220,5 +222,4 @@ public class TournamentController {
       @AuthenticationPrincipal Member currentMember) {
     return tournamentService.registerTeam(id, currentMember);
   }
-
 }

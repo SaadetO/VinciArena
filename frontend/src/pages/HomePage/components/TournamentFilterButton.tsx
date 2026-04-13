@@ -1,12 +1,9 @@
 import { IconButton, Badge, Tooltip, Box } from '@mui/material';
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { Sliders } from '@gravity-ui/icons';
 import { TournamentFilters } from '../../../utils/tournamentUtils';
 import { useModal } from '../../../hooks/useModal';
 import { filterModal } from '../modals/filterModal';
-import { useTeams } from '../../../hooks/useTeams';
-import { useMembers } from '../../../hooks/useMembers';
-import { MemberSummaryDto, Team } from '../../../types';
 
 interface TournamentFilterButtonProps {
   filters: TournamentFilters;
@@ -27,49 +24,50 @@ export const TournamentFilterButton = ({
 }: TournamentFilterButtonProps) => {
   const { openModal } = useModal();
 
-  const [allTeams, setAllTeams] = useState<Team[]>([]);
-  const [allMembers, setAllMembers] = useState<MemberSummaryDto[]>([]);
-
-  const { getAll: getAllTeams } = useTeams({ setTeams: setAllTeams });
-  const { getAllSummaries: getAllMembers } = useMembers({
-    setSummaries: setAllMembers,
-  });
-
   // Ref to hold the latest local filter state from inside the modal
-  const filtersRef = useRef({
-    teams: [] as number[],
-    members: [] as number[],
-    statuses: [] as string[],
+  const filtersRef = useRef<Partial<TournamentFilters>>({
+    teams: [],
+    members: [],
+    statuses: [],
+    dates: {
+      minDate: undefined,
+      maxDate: undefined,
+    },
   });
 
   const activeFilterCount = onlyStatusFilter
     ? filters.statuses.length
-    : filters.teams.length + filters.members.length + filters.statuses.length;
+    : filters.teams.length +
+      filters.members.length +
+      filters.statuses.length +
+      (filters.dates?.minDate ? 1 : 0) +
+      (filters.dates?.maxDate ? 1 : 0);
 
   const handleOpenFilterModal = () => {
     filtersRef.current = {
       teams: [...filters.teams],
       members: [...filters.members],
       statuses: [...filters.statuses],
+      dates: { ...filters.dates },
     };
 
     openModal(
       filterModal({
-        initialTeams: filters.teams,
-        initialMembers: filters.members,
-        initialStatuses: filters.statuses,
+        initialFilters: {
+          teams: filters.teams,
+          members: filters.members,
+          statuses: filters.statuses,
+          dates: filters.dates,
+        },
         showStatusFilter: filters.timeFrame === 'future',
         onlyStatusFilter,
         isAdmin,
-        cachedTeams: allTeams,
-        cachedMembers: allMembers,
-        fetchTeams: getAllTeams,
-        fetchMembers: getAllMembers,
         onFiltersChange: (f) => {
           filtersRef.current = f;
         },
         onConfirm: (close) => {
           setFilters({ ...filters, ...filtersRef.current });
+          console.log(filtersRef.current);
           close();
         },
       }),

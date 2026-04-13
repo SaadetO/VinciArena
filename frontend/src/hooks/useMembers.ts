@@ -8,6 +8,7 @@ import {
   SpecialtyDto,
   MemberSummaryDto,
   ApiError,
+  MemberQueryStatus,
 } from '../types';
 import { useSnackbar } from './useSnackbar';
 
@@ -30,13 +31,25 @@ export const useMembers = (options?: UseMembersOptions) => {
   const { showSnackbar } = useSnackbar();
 
   const { execute: getAllSummaries, loading: isGettingSummaries } = useApi(
-    async () => {
-      const response = await fetch(`/api/members`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: authenticatedUser?.token ?? '',
+    async ({
+      status,
+      searchQuery,
+    }: {
+      status?: MemberQueryStatus;
+      searchQuery?: string;
+    }) => {
+      const params = new URLSearchParams();
+      if (status) params.append('statuses', status.toString());
+      if (searchQuery) params.append('search', searchQuery);
+      const response = await fetch(
+        `/api/members${params.size > 0 ? '?' : ''}${params.toString()}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: authenticatedUser?.token ?? '',
+          },
         },
-      });
+      );
       if (!response.ok) {
         throw new ApiError(
           'Échec de la récupération des membres.',
@@ -59,13 +72,25 @@ export const useMembers = (options?: UseMembersOptions) => {
   );
 
   const { execute: getAll, loading: isGettingUsers } = useApi(
-    async () => {
-      const response = await fetch(`/api/members/full`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: authenticatedUser?.token ?? '',
+    async ({
+      status,
+      searchQuery,
+    }: {
+      status?: MemberQueryStatus;
+      searchQuery?: string;
+    }) => {
+      const params = new URLSearchParams();
+      if (status !== undefined) params.append('status', status);
+      if (searchQuery) params.append('searchQuery', searchQuery);
+      const response = await fetch(
+        `/api/members/full${params.size > 0 ? '?' : ''}${params.toString()}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: authenticatedUser?.token ?? '',
+          },
         },
-      });
+      );
       if (!response.ok) {
         throw new ApiError(
           'Échec de la récupération des membres.',
@@ -348,6 +373,20 @@ export const useMembers = (options?: UseMembersOptions) => {
     },
   );
 
+  const checkIsLastMember = async (id: number): Promise<boolean> => {
+    const response = await fetch(`/api/members/${id}/is-last`, {
+      headers: {
+        Authorization: `Bearer ${authenticatedUser?.token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Erreur lors de la vérification du membre');
+    }
+
+    return response.json();
+  };
+
   return {
     getAll,
     getById,
@@ -364,5 +403,6 @@ export const useMembers = (options?: UseMembersOptions) => {
     isUpdatingSpecialty,
     isTogglingAdmin,
     isBanningMember,
+    checkIsLastMember,
   };
 };

@@ -67,7 +67,7 @@ describe('useMembers hook', () => {
     const { result } = renderHook(() => useMembers({ setUsers }), { wrapper });
 
     await act(async () => {
-      await result.current.getAll();
+      await result.current.getAll({});
     });
 
     expect(setUsers).toHaveBeenCalledWith([mockMember]);
@@ -159,7 +159,7 @@ describe('useMembers hook', () => {
     });
 
     await act(async () => {
-      await result.current.getAllSummaries();
+      await result.current.getAllSummaries({});
     });
 
     expect(setSummaries).toHaveBeenCalledWith(mockSummaries);
@@ -171,7 +171,7 @@ describe('useMembers hook', () => {
     } as Response);
 
     await act(async () => {
-      await result.current.getAllSummaries();
+      await result.current.getAllSummaries({});
     });
 
     // verify error snackbar was called

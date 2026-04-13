@@ -19,6 +19,7 @@ export interface TournamentFilters {
   members: number[];
   timeFrame: 'past' | 'current' | 'future';
   statuses: string[];
+  dates: { minDate: string | undefined; maxDate: string | undefined };
 }
 
 export const TIMEFRAME_STATUS_MAP: Record<string, string[]> = {

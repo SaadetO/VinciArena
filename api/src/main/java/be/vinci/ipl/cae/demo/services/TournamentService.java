@@ -25,17 +25,17 @@ import be.vinci.ipl.cae.demo.repositories.MatchRepository;
 import be.vinci.ipl.cae.demo.repositories.MatchResultConfirmationRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.TournamentRepository;
+import be.vinci.ipl.cae.demo.specifications.TournamentSpecifications;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 
 /**
  * Tournament service.
@@ -151,7 +151,6 @@ public class TournamentService {
   @Scheduled(initialDelay = 5000, fixedDelay = 60000)
   @Transactional
   public void updateAllTournamentStates() {
-
     System.out.println("Tournaments: Updating database...");
 
     List<TournamentStatus> activeStatuses =
@@ -191,26 +190,28 @@ public class TournamentService {
     TournamentStatus status = t.getStatus();
 
     return switch (status) {
-
       // registrationDeadline arrives -> if not enough registrations: CANCELLED
       //                              else: REGISTRATION_CLOSED
       case REGISTRATION_OPEN -> {
         if (!t.getRegistrationDeadline().isAfter(now)) {
-          yield (t.getRegistrationsNumber() < 2) ? TournamentStatus.CANCELLED
-              : TournamentStatus.REGISTRATION_CLOSED;
+          yield (t.getRegistrationsNumber() < 2)
+            ? TournamentStatus.CANCELLED
+            : TournamentStatus.REGISTRATION_CLOSED;
         }
         yield status;
       }
-
       // cancel tournament if it's not planned and the startDate arrives
-      case REGISTRATION_CLOSED ->
-          (!t.getStartDate().isAfter(today)) ? TournamentStatus.CANCELLED : status;
+      case REGISTRATION_CLOSED -> (!t.getStartDate().isAfter(today))
+        ? TournamentStatus.CANCELLED
+        : status;
       // start tournament if its planned and startDate arrives
-      case PLANNED -> (!t.getStartDate().isAfter(today)) ? TournamentStatus.IN_PROGRESS : status;
-
+      case PLANNED -> (!t.getStartDate().isAfter(today))
+        ? TournamentStatus.IN_PROGRESS
+        : status;
       // finish tournament if endDate arrives
-      case IN_PROGRESS -> (!t.getEndDate().isAfter(today)) ? TournamentStatus.DONE : status;
-
+      case IN_PROGRESS -> (!t.getEndDate().isAfter(today))
+        ? TournamentStatus.DONE
+        : status;
       default -> status;
     };
   }
@@ -225,53 +226,20 @@ public class TournamentService {
    * @return the filtered and sorted list of tournaments.
    */
   public Iterable<TournamentSummaryDto> getTournaments(List<TournamentStatus> statuses,
-      List<Long> teamsIds, List<Long> membersIds, String search) {
-    Set<Long> filteredTeamIds = new HashSet<>();
-    if (teamsIds != null && !teamsIds.isEmpty()) {
-      filteredTeamIds.addAll(teamsIds);
-    }
+      List<Long> teamsIds, List<Long> membersIds, String search, LocalDate minDate,
+      LocalDate maxDate) {
+    Specification<Tournament> spec = Specification.where(null);
 
-    Set<Long> tournamentIdsFromMembers = new HashSet<>();
-    if (membersIds != null && !membersIds.isEmpty()) {
-      Iterable<MatchLineup> matchLineups =
-          matchLineupRepository.findByMembersIdMemberIn(membersIds);
-      for (MatchLineup matchLineup : matchLineups) {
-        tournamentIdsFromMembers.add(matchLineup.getMatch().getTournament().getIdTournament());
-      }
-    }
+    spec = spec.and(TournamentSpecifications.hasStatuses(statuses))
+        .and(TournamentSpecifications.searchByName(search))
+        .and(TournamentSpecifications.isBetweenDates(minDate, maxDate))
+        .and(TournamentSpecifications.hasTeams(teamsIds))
+        .and(TournamentSpecifications.hasMembersInMatches(membersIds));
 
-    boolean hasTeamFilter = teamsIds != null && !teamsIds.isEmpty();
-    boolean hasMemberFilter = membersIds != null && !membersIds.isEmpty();
-    boolean hasFilters = hasTeamFilter || hasMemberFilter;
+    Sort sort = Sort.by(Sort.Direction.DESC, "startDate");
+    List<Tournament> filteredTournaments = tournamentRepository.findAll(spec, sort);
 
-    Iterable<Tournament> allTournaments;
-    if (statuses == null || statuses.isEmpty()) {
-      allTournaments = tournamentRepository.findAllByOrderByStartDateDesc();
-    } else {
-      allTournaments = tournamentRepository.findAllByStatusInOrderByStartDateDesc(statuses);
-    }
-
-    // Additional filtering
-    List<TournamentSummaryDto> result = new ArrayList<>();
-    for (Tournament t : allTournaments) {
-      boolean matchMember = tournamentIdsFromMembers.contains(t.getIdTournament());
-      boolean matchTeam = false;
-      for (Team team : t.getTeams()) {
-        if (filteredTeamIds.contains(team.getIdTeam())) {
-          matchTeam = true;
-          break;
-        }
-      }
-
-      boolean matchSearch = search == null || search.isBlank() || t.getName()
-          .toLowerCase(java.util.Locale.ROOT).contains(search.toLowerCase(java.util.Locale.ROOT));
-
-      if ((!hasFilters || matchTeam || matchMember) && matchSearch) {
-        result.add(mapToSummaryDto(t));
-      }
-    }
-
-    return result;
+    return filteredTournaments.stream().map(this::mapToSummaryDto).toList();
   }
 
   private TournamentSummaryDto mapToSummaryDto(Tournament t) {

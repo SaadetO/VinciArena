@@ -1,35 +1,20 @@
 import { FilterModalContent } from './FilterModalContent';
-import { MemberSummaryDto, ModalConfig, Team } from '../../../types';
+import { ModalConfig } from '../../../types';
+import { TournamentFilters } from '../../../utils/tournamentUtils';
 
 export const filterModal = ({
-  initialTeams,
-  initialMembers,
-  initialStatuses,
+  initialFilters,
   showStatusFilter,
   onlyStatusFilter,
   isAdmin,
-  cachedTeams,
-  cachedMembers,
-  fetchTeams,
-  fetchMembers,
   onFiltersChange,
   onConfirm,
 }: {
-  initialTeams: number[];
-  initialMembers: number[];
-  initialStatuses: string[];
+  initialFilters: Partial<TournamentFilters>;
   showStatusFilter: boolean;
   onlyStatusFilter?: boolean;
   isAdmin?: boolean;
-  cachedTeams: Team[];
-  cachedMembers: MemberSummaryDto[];
-  fetchTeams: () => Promise<Team[] | null>;
-  fetchMembers: () => Promise<MemberSummaryDto[] | null>;
-  onFiltersChange: (filters: {
-    teams: number[];
-    members: number[];
-    statuses: string[];
-  }) => void;
+  onFiltersChange: (filters: Partial<TournamentFilters>) => void;
   onConfirm: (close: () => void) => void;
 }): ModalConfig => ({
   title: 'Filtres avancés',
@@ -38,16 +23,10 @@ export const filterModal = ({
   cancelLabel: 'Annuler',
   children: (
     <FilterModalContent
-      initialTeams={initialTeams}
-      initialMembers={initialMembers}
-      initialStatuses={initialStatuses}
+      initialFilters={initialFilters}
       showStatusFilter={showStatusFilter}
       onlyStatusFilter={onlyStatusFilter}
       isAdmin={isAdmin}
-      cachedTeams={cachedTeams}
-      cachedMembers={cachedMembers}
-      fetchTeams={fetchTeams}
-      fetchMembers={fetchMembers}
       onFiltersChange={onFiltersChange}
     />
   ),

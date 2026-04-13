@@ -1,6 +1,5 @@
 import { Box, Stack, Tooltip } from '@mui/material';
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { checkOverlap, getDurationString } from '../../../utils/date';
@@ -90,51 +89,49 @@ export const UnavailabilitiesModalContent = ({
       alignItems="center"
       justifyContent="center"
     >
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <DatePicker
-          autoFocus
-          format="DD/MM/YYYY"
-          name="startDate"
-          value={dates.startDate}
-          onChange={(date) => handleDateChange(date, 'startDate')}
-          disablePast
-          slotProps={{
-            textField: {
-              inputProps: {
-                'data-testid': 'unavailability-start-date',
-                placeholder: 'DD/MM/YYYY',
-              },
+      <DatePicker
+        autoFocus
+        format="DD/MM/YYYY"
+        name="startDate"
+        value={dates.startDate}
+        onChange={(date) => handleDateChange(date, 'startDate')}
+        disablePast
+        slotProps={{
+          textField: {
+            inputProps: {
+              'data-testid': 'unavailability-start-date',
+              placeholder: 'DD/MM/YYYY',
             },
-          }}
-        />
-        <Tooltip title={getDurationString(dates)} arrow placement="top">
-          <Box>
-            <ArrowRight
-              style={{
-                color: theme.palette.text.secondary,
-                cursor: 'help',
-                height: '1rem',
-                width: '1rem',
-              }}
-            />
-          </Box>
-        </Tooltip>
-        <DatePicker
-          format="DD/MM/YYYY"
-          name="endDate"
-          value={dates.endDate}
-          onChange={(date) => handleDateChange(date, 'endDate')}
-          disablePast
-          slotProps={{
-            textField: {
-              inputProps: {
-                'data-testid': 'unavailability-end-date',
-                placeholder: 'DD/MM/YYYY',
-              },
+          },
+        }}
+      />
+      <Tooltip title={getDurationString(dates)} arrow placement="top">
+        <Box>
+          <ArrowRight
+            style={{
+              color: theme.palette.text.secondary,
+              cursor: 'help',
+              height: '1rem',
+              width: '1rem',
+            }}
+          />
+        </Box>
+      </Tooltip>
+      <DatePicker
+        format="DD/MM/YYYY"
+        name="endDate"
+        value={dates.endDate}
+        onChange={(date) => handleDateChange(date, 'endDate')}
+        disablePast
+        slotProps={{
+          textField: {
+            inputProps: {
+              'data-testid': 'unavailability-end-date',
+              placeholder: 'DD/MM/YYYY',
             },
-          }}
-        />
-      </LocalizationProvider>
+          },
+        }}
+      />
     </Stack>
   );
 };
