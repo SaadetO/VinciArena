@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -194,7 +195,8 @@ public class TeamService {
     Specification<Team> spec = Specification.where(TeamSpecifications.isActive(isActive))
         .and(TeamSpecifications.searchByName(searchQuery));
 
-    return teamRepository.findAll(spec).stream().map(this::mapTeamToFullTeamDto).toList();
+    Sort sort = Sort.by("name").ascending();
+    return teamRepository.findAll(spec, sort).stream().map(this::mapTeamToFullTeamDto).toList();
   }
 
   /**

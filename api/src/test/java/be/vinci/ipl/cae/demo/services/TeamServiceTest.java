@@ -29,6 +29,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.server.ResponseStatusException;
 
 @ExtendWith(MockitoExtension.class)
@@ -122,7 +123,7 @@ class TeamServiceTest {
     Team teamInactive = new Team();
     teamInactive.setIsActive(false);
 
-    when(teamRepository.findAll(any())).thenReturn(List.of(team1, team2));
+    when(teamRepository.findAll(any(), any(Sort.class))).thenReturn(List.of(team1, team2));
 
     // Act
     List<FullTeamDto> result = teamService.getAllTeams(true, null);
@@ -132,7 +133,7 @@ class TeamServiceTest {
     assertEquals(2, result.size());
     assertEquals("Team 1", result.get(0).getName());
     assertEquals("Team 2", result.get(1).getName());
-    verify(teamRepository).findAll(any());
+    verify(teamRepository).findAll(any(), any(Sort.class));
   }
 
   @Test
