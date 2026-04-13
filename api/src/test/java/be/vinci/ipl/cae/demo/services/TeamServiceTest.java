@@ -12,9 +12,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import be.vinci.ipl.cae.demo.models.dtos.UserSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.TeamDetailsDto;
-
+import be.vinci.ipl.cae.demo.models.dtos.UserSummaryDto;
 import be.vinci.ipl.cae.demo.models.entities.JoinRequest;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.RequestStatus;
@@ -91,8 +90,9 @@ class TeamServiceTest {
     when(teamRepository.existsByName("Taken Name")).thenReturn(true);
 
     // Act + Assert
-    assertThrows(ResponseStatusException.class,
-        () -> teamService.createTeam("Taken Name", creator));
+    assertThrows(ResponseStatusException.class, () ->
+      teamService.createTeam("Taken Name", creator)
+    );
     verify(teamRepository, never()).save(any(Team.class));
     verify(memberRepository, never()).save(any(Member.class));
   }
@@ -113,7 +113,7 @@ class TeamServiceTest {
   }
 
   @Test
-  void getAllActiveTeams() {
+  void getAllTeams() {
     // Arrange
     Team team1 = new Team();
     team1.setName("Team 1");
@@ -122,15 +122,15 @@ class TeamServiceTest {
     Team teamInactive = new Team();
     teamInactive.setIsActive(false);
 
-    when(teamRepository.findByIsActiveTrue()).thenReturn(List.of(team1, team2));
+    when(teamRepository.findAll(any())).thenReturn(List.of(team1, team2));
 
     // Act
-    Iterable<Team> result = teamService.getAllActiveTeams();
+    Iterable<Team> result = teamService.getAllTeams(true, null);
 
     // Assert
     assertNotNull(result);
     assertEquals(List.of(team1, team2), result);
-    verify(teamRepository).findByIsActiveTrue();
+    verify(teamRepository).findAll(any());
   }
 
   @Test
@@ -139,9 +139,8 @@ class TeamServiceTest {
     when(teamRepository.findById(1L)).thenReturn(Optional.empty());
 
     // Act + Assert
-    assertThrows(
-        ResponseStatusException.class,
-        () -> teamService.designateSecondManager(1L, 2L, creator)
+    assertThrows(ResponseStatusException.class, () ->
+      teamService.designateSecondManager(1L, 2L, creator)
     );
   }
 
@@ -194,7 +193,6 @@ class TeamServiceTest {
     // Act + Assert
     assertThrows(ResponseStatusException.class,
         () -> teamService.designateSecondManager(1L, 2L, creator));
-
   }
 
   @Test
@@ -220,7 +218,6 @@ class TeamServiceTest {
     // Arrange + Act
     assertThrows(ResponseStatusException.class,
         () -> teamService.designateSecondManager(1L, 2L, creator));
-
   }
 
   @Test
@@ -349,8 +346,9 @@ class TeamServiceTest {
   @Test
   void getTeamDetails_NotFound() {
     when(teamRepository.findById(1L)).thenReturn(Optional.empty());
-    assertThrows(ResponseStatusException.class,
-        () -> teamService.getTeamDetails(1L, null));
+    assertThrows(ResponseStatusException.class, () ->
+      teamService.getTeamDetails(1L, null)
+    );
   }
 
   @Test
@@ -634,7 +632,6 @@ class TeamServiceTest {
 
     // Assert
     assertAll(() -> assertNull(creator.getTeam()), () -> assertNull(team.getManager2()));
-
   }
 
   @Test
@@ -658,7 +655,6 @@ class TeamServiceTest {
     // Assert
     assertAll(() -> assertNull(team.getManager1()), () -> assertNull(creator.getTeam()),
         () -> assertFalse(team.getIsActive()));
-
   }
 
   @Test
@@ -805,7 +801,6 @@ class TeamServiceTest {
 
     // Assert
     assertThrows(ResponseStatusException.class, () -> teamService.resignManager(1L, creator, 2L));
-
   }
 
   @Test

@@ -9,9 +9,11 @@ import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.repositories.JoinRequestRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.TeamRepository;
+import be.vinci.ipl.cae.demo.specifications.TeamSpecifications;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -128,10 +130,10 @@ public class TeamService {
    * @return true is member is a manager; false otherwise
    */
   public boolean isManager(Team team, Member member) {
-    return team.getManager1() != null
-        && team.getManager1().getIdMember().equals(member.getIdMember())
-        || (team.getManager2() != null
-            && team.getManager2().getIdMember().equals(member.getIdMember()));
+    if (team == null || member == null) {
+      return false;
+    }
+    return isManager1(team, member) || isManager2(team, member);
   }
 
   /**
@@ -179,12 +181,16 @@ public class TeamService {
   }
 
   /**
-   * Get all active teams.
+   * Get all teams with optional filtering by active status and search query.
    *
-   * @return an iterable containing all active teams
+   * @param isActive the active status
+   * @param searchQuery the search query
+   * @return a list of teams matching the criteria
    */
-  public Iterable<Team> getAllActiveTeams() {
-    return teamRepository.findByIsActiveTrue();
+  public List<Team> getAllTeams(boolean isActive, String searchQuery) {
+    Specification<Team> spec = Specification.where(TeamSpecifications.isActive(isActive))
+        .and(TeamSpecifications.searchByName(searchQuery));
+    return teamRepository.findAll(spec);
   }
 
   /**
@@ -291,7 +297,6 @@ public class TeamService {
    */
   @Transactional
   public Team resignManager(Long teamId, Member currentMember, Long replacementId) {
-
     Team team = teamRepository.findById(teamId).orElseThrow(
         () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "La team n'existe pas."));
 
@@ -329,7 +334,6 @@ public class TeamService {
       } else {
         team.setManager2(replacement);
       }
-
     } else {
       // Normally, a team's manager1 should never be null if the team is active.
       // (manager2 takes manager1 place, and manager2 is set to null)

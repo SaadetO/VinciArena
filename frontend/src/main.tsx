@@ -21,6 +21,7 @@ import { TournamentPage } from './pages/TournamentPage/index.tsx';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import 'dayjs/locale/fr';
+import { TeamsPage } from './pages/TeamsPage/index.tsx';
 
 const router = createBrowserRouter([
   {
@@ -34,6 +35,10 @@ const router = createBrowserRouter([
       {
         path: 'teams',
         children: [
+          {
+            path: '',
+            element: <TeamsPage />,
+          },
           {
             path: ':id',
             element: <TeamPage />,

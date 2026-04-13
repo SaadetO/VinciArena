@@ -1,22 +1,24 @@
 import { InputBase, Stack } from '@mui/material';
 import { Magnifier } from '@gravity-ui/icons';
 
-interface TournamentSearchBarProps {
+interface SearchBarProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
+  fullwidth?: boolean;
 }
 
-export const TournamentSearchBar = ({
+export const SearchBar = ({
   searchQuery,
   setSearchQuery,
-}: TournamentSearchBarProps) => {
+  fullwidth = false,
+}: SearchBarProps) => {
   return (
     <InputBase
       sx={{
         bgcolor: 'background.s2',
         borderRadius: '1.125rem',
         height: '2.75rem',
-        width: '12rem',
+        width: fullwidth ? '100%' : '12rem',
         p: '0 0.375rem 0 1rem',
         '&:focus-within': {
           outline: '2px solid',
