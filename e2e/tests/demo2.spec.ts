@@ -100,5 +100,64 @@ test("test", async ({ page }) => {
   await page.getByTestId("modal-confirm-button").click();
   await page.getByTestId("user-menu-button").click();
   await page.getByRole("heading", { name: "Se Déconnecter" }).click();
-  //
+  //test tournament modification and publish + registeration to tournament
+  await page.getByTestId("header-login-button").click();
+  await page.getByTestId("login-email-input").click();
+  await page.getByTestId("login-email-input").fill("lea@mail.com");
+  await page.getByTestId("login-password-input").click();
+  await page.getByTestId("login-password-input").fill("Password1!");
+  await page.getByTestId("login-submit-button").click();
+  await expect(page.locator(".MuiBox-root.css-1bg6rai")).toBeVisible();
+  await page.getByRole("link", { name: "Vinci Easter Cup 2026 7 / 8" }).click();
+  await page.getByRole("link", { name: "logo Vinci Arena" }).click();
+  await page.getByRole("link", { name: "Nebula Nexus Invitational 0" }).click();
+  await page.getByTestId("tournament-edit-button").click();
+  await page.getByRole("textbox", { name: "ex: Worlds" }).click();
+  await page.getByRole("textbox", { name: "ex: Worlds" }).fill("Nebula Nexus");
+  await page.getByRole("button", { name: "Détails" }).click();
+  await page.getByRole("button").nth(5).click();
+  await page.getByRole("button").nth(5).click();
+  await page.getByRole("button").nth(5).click();
+  await page.getByRole("button").nth(5).click();
+  await page.getByRole("button", { name: "Modifier" }).click();
+  await expect(page.getByTestId("tournament-banner-name")).toBeVisible();
+  await page.getByTestId("tournament-primary-action-button").click();
+  await page.getByTestId("modal-confirm-button").click();
+  await expect(page.getByText("Inscriptions")).toBeVisible();
+  await page.getByTestId("tournament-register-button").click();
+  await page.getByTestId("modal-confirm-button").click();
+  await expect(page.getByTestId("ErrorOutlineIcon")).toBeVisible();
+  await page.getByTestId("notification-menu-button").click();
+  await page
+    .getByRole("listitem")
+    .filter({ hasText: "Iron souhaite rejoindre" })
+    .click();
+  await page.locator(".MuiBackdrop-root").click();
+  await page.getByTestId("join-request-accept-button").click();
+  await page.getByTestId("nav-tournaments-tab").click();
+  await page
+    .getByRole("link", { name: "Nebula Nexus 0 / 12 Mer. 3 -" })
+    .click();
+  await page.getByTestId("tournament-register-button").click();
+  await page.getByTestId("modal-confirm-button").click();
+  await expect(page.getByRole("alert").getByRole("img")).toBeVisible();
+  await page.getByRole("link", { name: "TEAM_ALPHA" }).click();
+  await expect(
+    page.getByRole("link", { name: "Nebula Nexus 1 / 12 Mer. 3 -" }),
+  ).toBeVisible();
+  await page.getByTestId("nav-tournaments-tab").click();
+  await page.getByRole("link", { name: "Vinci Easter Cup 2026 7 / 8" }).click();
+  await page.getByTestId("tournament-register-button").click();
+  await page.getByTestId("modal-confirm-button").click();
+  await expect(
+    page.locator("span").filter({ hasText: "Inscriptions closes" }),
+  ).toBeVisible();
+  await page.getByTestId("user-menu-button").click();
+  await page.getByRole("heading", { name: "Mon Profil" }).click();
+  await page.getByTestId("team-view-button").click();
+  await expect(
+    page.getByRole("link", { name: "Vinci Easter Cup 2026 8 / 8" }),
+  ).toBeVisible();
+  await page.getByTestId("user-menu-button").click();
+  await page.getByRole("heading", { name: "Se Déconnecter" }).click();
 });
