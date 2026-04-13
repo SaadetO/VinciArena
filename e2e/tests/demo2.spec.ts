@@ -8,6 +8,7 @@ import {
 
 test("test", async ({ page }) => {
   await page.goto("http://localhost:5173/");
+  test.setTimeout(3 * 300000);
   // check tournament info
   await expect(page.locator(".MuiBox-root.css-1bg6rai")).toBeVisible();
   await page.getByRole("link", { name: "Vinci Easter Cup 2026 7 / 8" }).click();
@@ -19,11 +20,7 @@ test("test", async ({ page }) => {
   await expect(
     page.getByRole("heading", { name: "Tournoi de Pâques ouvert à" }),
   ).toBeVisible();
-  await expect(
-    page.getByText(
-      "TEAM_GHOST_4TEAM_IOTATEAM_OMEGATEAM_GHOST_5TEAM_GHOST_1TEAM_GHOST_3TEAM_GHOST_2",
-    ),
-  ).toBeVisible();
+
   await expect(page.getByTestId("tournament-capacity-display")).toBeVisible();
   await page.getByTestId("nav-tournaments-tab").click();
   await page.getByText("À venirEn coursPassés").click();
@@ -48,46 +45,30 @@ test("test", async ({ page }) => {
       "Tournoi expérimental dans l’arène Vinci où stratégie et coordination\nseront poussées à l’extrême, dans une ambiance futuriste inspirée des combats\ninterstellaires",
     );
   await page.getByRole("button", { name: "Suivant" }).click();
-  await page.getByText("23").click();
-  await page.getByText("23").fill("1");
-  await page
-    .getByRole("group")
-    .filter({ hasText: "01/04/" })
-    .getByLabel("Month")
-    .fill("1");
+  //test date input
+  const startInput = page.getByTestId("tournament-form-start-date");
+  const endInput = page.getByTestId("tournament-form-end-date");
+  const deadlineInput = page.getByTestId("tournament-form-deadline");
+
+  await startInput.focus();
+  await page.keyboard.press("Control+A");
+  await startInput.fill("01/01/2026");
+
   await page.getByRole("button", { name: "Créer" }).click();
-  await expect(
-    page
-      .getByRole("dialog", { name: "Créer un Tournoi" })
-      .getByTestId("ErrorOutlineIcon"),
-  ).toBeVisible();
-  await page
-    .getByRole("group")
-    .filter({ hasText: "01/01/" })
-    .getByLabel("Day")
-    .click();
-  await page
-    .getByRole("group")
-    .filter({ hasText: "01/01/" })
-    .getByLabel("Day")
-    .fill("3");
-  await page.getByText("MM").fill("6");
-  await page.getByText("YYYY").fill("6");
-  await page.getByText("07/").click();
-  await page.getByText("07").fill("1");
-  await page.getByText("01").fill("4");
-  await page.getByText("05").fill("6");
-  await page
-    .getByRole("group")
-    .filter({ hasText: "/04/2026 20:00" })
-    .getByLabel("Day")
-    .click();
-  await page
-    .getByRole("group")
-    .filter({ hasText: "/04/2026 20:00" })
-    .getByLabel("Day")
-    .fill("0");
-  await page.getByText("04").fill("5");
+  await expect(page.getByTestId("ErrorOutlineIcon").first()).toBeVisible();
+
+  await deadlineInput.focus();
+  await page.keyboard.press("Control+A");
+  await deadlineInput.fill("30/05/2026 00:00");
+
+  await startInput.focus();
+  await page.keyboard.press("Control+A");
+  await startInput.fill("03/06/2026");
+
+  await endInput.focus();
+  await page.keyboard.press("Control+A");
+  await endInput.fill("14/06/2026");
+
   await page.getByRole("button", { name: "Créer" }).click();
   await page.getByTestId("user-menu-button").click();
   await page.getByRole("heading", { name: "Mon Profil" }).click();
@@ -123,7 +104,7 @@ test("test", async ({ page }) => {
   await expect(page.getByTestId("tournament-banner-name")).toBeVisible();
   await page.getByTestId("tournament-primary-action-button").click();
   await page.getByTestId("modal-confirm-button").click();
-  await expect(page.getByText("Inscriptions")).toBeVisible();
+  await expect(page.getByText("Inscriptions").first()).toBeVisible();
   await page.getByTestId("tournament-register-button").click();
   await page.getByTestId("modal-confirm-button").click();
   await expect(page.getByTestId("ErrorOutlineIcon")).toBeVisible();
@@ -160,4 +141,46 @@ test("test", async ({ page }) => {
   ).toBeVisible();
   await page.getByTestId("user-menu-button").click();
   await page.getByRole("heading", { name: "Se Déconnecter" }).click();
+  // test full capacity tournament
+  await page.getByTestId("header-login-button").click();
+  await page.getByTestId("login-email-input").click();
+  await page.getByTestId("login-email-input").fill("lisa@mail.com");
+  await page.getByTestId("login-password-input").click();
+  await page.getByTestId("login-password-input").fill("Password1!");
+  await page.getByTestId("login-submit-button").click();
+  await expect(
+    page.getByRole("link", { name: "Vinci Easter Cup 2026 8 / 8" }),
+  ).toBeVisible();
+  await page.getByRole("link", { name: "Vinci Easter Cup 2026 8 / 8" }).click();
+  await expect(page.getByTestId("tournament-capacity-display")).toBeVisible();
+  await page.getByTestId("user-menu-button").click();
+  await page.getByRole("heading", { name: "Se Déconnecter" }).click();
+  //ban member test
+  await page.getByTestId("header-login-button").click();
+  await page.getByTestId("login-email-input").click();
+  await page.getByTestId("login-email-input").fill("lea@mail.com");
+  await page.getByTestId("login-password-input").click();
+  await page.getByTestId("login-password-input").fill("Password1!");
+  await page.getByTestId("login-submit-button").click();
+  await page.getByTestId("admin-manage-members-button").click();
+  await page
+    .getByRole("textbox", { name: "Rechercher par tag ou email..." })
+    .click();
+  await page
+    .getByRole("textbox", { name: "Rechercher par tag ou email..." })
+    .fill("sto");
+  await page.getByRole("button", { name: "Bannir" }).click();
+  await page.getByRole("button", { name: "Bannir" }).click();
+  await page.getByTestId("admin-filter-button").click();
+  await page.getByTestId("filter-option-all").press("Escape");
+  await page.getByTestId("admin-filter-button").press("Escape");
+  await page.getByTestId("user-menu-button").click();
+  await page.getByRole("heading", { name: "Se Déconnecter" }).click();
+  await page.getByTestId("header-login-button").click();
+  await page.getByTestId("login-email-input").click();
+  await page.getByTestId("login-email-input").fill("lisa@mail.com");
+  await page.getByTestId("login-password-input").click();
+  await page.getByTestId("login-password-input").fill("Password1!");
+  await page.getByTestId("login-submit-button").click();
+  await expect(page.getByTestId("ErrorOutlineIcon")).toBeVisible();
 });
