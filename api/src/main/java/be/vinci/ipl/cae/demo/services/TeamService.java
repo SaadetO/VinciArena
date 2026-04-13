@@ -144,8 +144,8 @@ public class TeamService {
    * @return true is member is a manager1; false otherwise
    */
   public boolean isManager1(Team team, Member member) {
-    return (team.getManager1() != null
-        && team.getManager1().getIdMember().equals(member.getIdMember()));
+    return team.getManager1() != null
+        && team.getManager1().getIdMember().equals(member.getIdMember());
   }
 
   /**
@@ -156,8 +156,8 @@ public class TeamService {
    * @return true is member is a manager2; false otherwise
    */
   public boolean isManager2(Team team, Member member) {
-    return (team.getManager2() != null
-        && team.getManager2().getIdMember().equals(member.getIdMember()));
+    return team.getManager2() != null
+        && team.getManager2().getIdMember().equals(member.getIdMember());
   }
 
   /**

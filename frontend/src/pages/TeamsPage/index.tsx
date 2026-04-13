@@ -1,32 +1,11 @@
 import { Container, Grid2 } from '@mui/material';
 import { SearchBar } from '../../components/SearchBar';
-import { useEffect, useState } from 'react';
-import { useTeams } from '../../hooks/useTeams';
-import { Team } from '../../types';
 import { TeamItem } from './components/TeamItem';
+import { useTeamsPage } from './hooks/useTeamsPage';
 
 export const TeamsPage = () => {
-  const [teams, setTeams] = useState<Team[]>([]);
-  const { getAll, isGettingAllTeams } = useTeams({ setTeams });
-  const [searchQuery, setSearchQuery] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
-
-  useEffect(() => {
-    getAll({ searchQuery: debouncedSearch });
-  }, [getAll, debouncedSearch]);
-
-  useEffect(() => {
-    console.log(searchQuery);
-    if (searchQuery === '') {
-      setDebouncedSearch('');
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      setDebouncedSearch(searchQuery);
-    }, 400);
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
+  const { teams, isGettingAllTeams, searchQuery, setSearchQuery } =
+    useTeamsPage();
   return (
     <Container
       maxWidth="md"
