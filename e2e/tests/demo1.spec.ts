@@ -342,8 +342,6 @@ test.describe("Client Demonstration", () => {
     // check specialty change
     const specialtyChip = page.getByTestId("profile-specialty-display");
     await expect(specialtyChip).toHaveText(/Perturbateur/i);
-
-    await logoutUser(page);
-    await loginUser(page, lynx.email, lynx.password, true, lynx.tag);
+    await page.close();
   });
 });
