@@ -29,4 +29,76 @@ test("test", async ({ page }) => {
   await page.getByText("À venirEn coursPassés").click();
   await page.getByRole("button", { name: "Passés" }).click();
   await page.getByRole("link", { name: "Spring Arena Cup 2025 7 / 8" }).click();
+  // test create tournament
+  await page.getByTestId("header-login-button").click();
+  await page.getByTestId("login-email-input").click();
+  await page.getByTestId("login-email-input").fill("tibo@mail.com");
+  await page.getByTestId("login-password-input").click();
+  await page.getByTestId("login-password-input").fill("Password1!");
+  await page.getByTestId("login-submit-button").click();
+  await page.getByTestId("admin-create-tournament-button").click();
+  await page.getByRole("textbox", { name: "ex: Worlds" }).click();
+  await page
+    .getByRole("textbox", { name: "ex: Worlds" })
+    .fill("Nebula Nexus Invitational");
+  await page.getByRole("textbox", { name: "Décrivez votre tournoi" }).click();
+  await page
+    .getByRole("textbox", { name: "Décrivez votre tournoi" })
+    .fill(
+      "Tournoi expérimental dans l’arène Vinci où stratégie et coordination\nseront poussées à l’extrême, dans une ambiance futuriste inspirée des combats\ninterstellaires",
+    );
+  await page.getByRole("button", { name: "Suivant" }).click();
+  await page.getByText("23").click();
+  await page.getByText("23").fill("1");
+  await page
+    .getByRole("group")
+    .filter({ hasText: "01/04/" })
+    .getByLabel("Month")
+    .fill("1");
+  await page.getByRole("button", { name: "Créer" }).click();
+  await expect(
+    page
+      .getByRole("dialog", { name: "Créer un Tournoi" })
+      .getByTestId("ErrorOutlineIcon"),
+  ).toBeVisible();
+  await page
+    .getByRole("group")
+    .filter({ hasText: "01/01/" })
+    .getByLabel("Day")
+    .click();
+  await page
+    .getByRole("group")
+    .filter({ hasText: "01/01/" })
+    .getByLabel("Day")
+    .fill("3");
+  await page.getByText("MM").fill("6");
+  await page.getByText("YYYY").fill("6");
+  await page.getByText("07/").click();
+  await page.getByText("07").fill("1");
+  await page.getByText("01").fill("4");
+  await page.getByText("05").fill("6");
+  await page
+    .getByRole("group")
+    .filter({ hasText: "/04/2026 20:00" })
+    .getByLabel("Day")
+    .click();
+  await page
+    .getByRole("group")
+    .filter({ hasText: "/04/2026 20:00" })
+    .getByLabel("Day")
+    .fill("0");
+  await page.getByText("04").fill("5");
+  await page.getByRole("button", { name: "Créer" }).click();
+  await page.getByTestId("user-menu-button").click();
+  await page.getByRole("heading", { name: "Mon Profil" }).click();
+  await page.getByTestId("team-quit-button").click();
+  await page.getByTestId("modal-confirm-button").click();
+  await page.getByTestId("team-join-button").click();
+  await page.getByTestId("join-team-autocomplete-input").click();
+  await page.getByTestId("join-team-autocomplete-input").fill("te");
+  await page.getByRole("option", { name: "TEAM_ALPHA" }).click();
+  await page.getByTestId("modal-confirm-button").click();
+  await page.getByTestId("user-menu-button").click();
+  await page.getByRole("heading", { name: "Se Déconnecter" }).click();
+  //
 });
