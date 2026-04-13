@@ -1,7 +1,6 @@
 package be.vinci.ipl.cae.demo.specifications;
 
 import be.vinci.ipl.cae.demo.models.entities.Team;
-import java.util.Locale;
 import org.springframework.data.jpa.domain.Specification;
 
 /**
@@ -39,12 +38,6 @@ public final class TeamSpecifications {
    * @return the specification
    */
   public static Specification<Team> searchByName(String keyword) {
-    return (root, query, cb) -> {
-      if (keyword == null || keyword.isBlank()) {
-        return null;
-      }
-
-      return cb.like(cb.lower(root.get("name")), "%" + keyword.toLowerCase(Locale.ROOT) + "%");
-    };
+    return CommonSpecifications.searchByAttribute("name", keyword);
   }
 }

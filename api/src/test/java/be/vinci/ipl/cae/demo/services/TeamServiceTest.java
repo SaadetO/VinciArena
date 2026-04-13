@@ -122,7 +122,7 @@ class TeamServiceTest {
     Team teamInactive = new Team();
     teamInactive.setIsActive(false);
 
-    when(teamRepository.findByIsActiveTrue()).thenReturn(List.of(team1, team2));
+    when(teamRepository.findAll(any())).thenReturn(List.of(team1, team2));
 
     // Act
     Iterable<Team> result = teamService.getAllTeams(true, null);
@@ -130,7 +130,7 @@ class TeamServiceTest {
     // Assert
     assertNotNull(result);
     assertEquals(List.of(team1, team2), result);
-    verify(teamRepository).findByIsActiveTrue();
+    verify(teamRepository).findAll(any());
   }
 
   @Test
