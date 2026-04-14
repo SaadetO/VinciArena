@@ -1,5 +1,6 @@
 package be.vinci.ipl.cae.demo.services;
 
+import be.vinci.ipl.cae.demo.exceptions.AlreadyConfirmedException;
 import be.vinci.ipl.cae.demo.exceptions.ForbiddenException;
 import be.vinci.ipl.cae.demo.exceptions.MatchNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.ResultNotFoundException;
@@ -105,7 +106,38 @@ public class MatchService {
     }
   }
 
+  /**
+   * Updates the confirmation for the correct team.
+   *
+   * @param match the match
+   * @param member the member
+   * @param confirmation the confirmation entity
+   */
+  private void updateConfirmation(Match match, Member member,
+      MatchResultConfirmation confirmation) {
 
+    Long teamId = member.getTeam().getIdTeam();
+
+    boolean isTeam1 = match.getTeam1() != null
+        && match.getTeam1().getIdTeam().equals(teamId);
+
+    if (isTeam1) {
+
+      if (confirmation.getConfirmationTeam1() != null) {
+        throw new AlreadyConfirmedException("Already confirmed or contested");
+      }
+
+      confirmation.setConfirmationTeam1(true);
+
+    } else {
+
+      if (confirmation.getConfirmationTeam2() != null) {
+        throw new AlreadyConfirmedException("Already confirmed or contested");
+      }
+
+      confirmation.setConfirmationTeam2(true);
+    }
+  }
 
 
 }
