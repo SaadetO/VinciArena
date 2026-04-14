@@ -42,6 +42,7 @@ export const useAdminAction = () => {
     openModal(
       banModal({
         tag,
+        isLastMember: isLast,
         onConfirm: async (close) => {
           setLoading(true);
           await banMember(id);
