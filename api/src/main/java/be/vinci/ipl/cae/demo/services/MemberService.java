@@ -13,6 +13,7 @@ import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.ProfileImage;
 import be.vinci.ipl.cae.demo.models.entities.Specialty;
 import be.vinci.ipl.cae.demo.models.entities.Team;
+import be.vinci.ipl.cae.demo.models.entities.Unavailability;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.ProfileImageRepository;
 import be.vinci.ipl.cae.demo.repositories.SpecialtyRepository;
@@ -22,6 +23,7 @@ import be.vinci.ipl.cae.demo.specifications.MemberSpecifications;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import jakarta.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -572,5 +574,21 @@ public class MemberService {
       return false;
     }
     return team.getMembers().stream().map(Member::getIdMember).toList().contains(memberId);
+  }
+
+  /**
+   * Checks if a member is free at a specific date and time.
+   */
+  public boolean isMemberFreeAt(Member member, LocalDateTime dateTime) {
+    Iterable<Unavailability> unavailibilitiess = unavailabilityRepository.findByMember(member);
+    for (Unavailability unavailability : unavailibilitiess) {
+      boolean startsBeforeOrAt = !dateTime.isBefore(unavailability.getStartDate());
+      boolean endsAfterOrAt = !dateTime.isAfter(unavailability.getEndDate());
+
+      if (startsBeforeOrAt && endsAfterOrAt) {
+        return false; // Conflict found
+      }
+    }
+    return true;
   }
 }
