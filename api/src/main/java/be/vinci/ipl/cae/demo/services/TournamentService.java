@@ -477,7 +477,7 @@ public class TournamentService {
 
       matchesInCurrentWave++;
     }
-    
+
     LocalDateTime actualFinishTime = currentTimeCursor.plusMinutes(matchDurationMins);
 
     // Fail-fast validation
