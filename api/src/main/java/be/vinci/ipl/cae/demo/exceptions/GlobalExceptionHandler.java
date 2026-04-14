@@ -33,7 +33,9 @@ public class GlobalExceptionHandler {
       CannotBanSelfException.class,
       RegistrationClosedException.class,
       InsufficientTeamMembersException.class,
-      InactiveTeamException.class
+      InactiveTeamException.class,
+      TournamentNotInRegistrationClosedException.class,
+      ImpossibleTournamentException.class
   })
   public ResponseEntity<Map<String, String>> handleBadRequestExceptions(RuntimeException ex) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", ex.getMessage()));

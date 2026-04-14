@@ -18,8 +18,8 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -70,7 +70,7 @@ public class Tournament {
   @ManyToMany
   @JoinTable(name = "tournament_registrations", joinColumns = @JoinColumn(name = "id_tournament"),
       inverseJoinColumns = @JoinColumn(name = "id_team"))
-  private Set<Team> teams = new HashSet<>();
+  private List<Team> teams = new ArrayList<>();
 
   /**
    * Set max number of teams for the current tournament.
@@ -136,6 +136,9 @@ public class Tournament {
     }
     return true;
   }
+
+  public List<Team> getTeams() {
+    return teams;
+  }
+
 }
-
-

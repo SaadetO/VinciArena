@@ -1,11 +1,13 @@
 package be.vinci.ipl.cae.demo.services;
 
 import be.vinci.ipl.cae.demo.exceptions.DuplicateRegistrationException;
+import be.vinci.ipl.cae.demo.exceptions.ImpossibleTournamentException;
 import be.vinci.ipl.cae.demo.exceptions.InactiveTeamException;
 import be.vinci.ipl.cae.demo.exceptions.InsufficientTeamMembersException;
 import be.vinci.ipl.cae.demo.exceptions.NotManagerException;
 import be.vinci.ipl.cae.demo.exceptions.RegistrationClosedException;
 import be.vinci.ipl.cae.demo.exceptions.TournamentNotFoundException;
+import be.vinci.ipl.cae.demo.exceptions.TournamentNotInRegistrationClosedException;
 import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.MatchTeamDto;
 import be.vinci.ipl.cae.demo.models.dtos.NewTournament;
@@ -15,6 +17,7 @@ import be.vinci.ipl.cae.demo.models.dtos.TournamentSummaryDto;
 import be.vinci.ipl.cae.demo.models.entities.Match;
 import be.vinci.ipl.cae.demo.models.entities.MatchLineup;
 import be.vinci.ipl.cae.demo.models.entities.MatchResultConfirmation;
+import be.vinci.ipl.cae.demo.models.entities.MatchStatus;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.NotificationType;
 import be.vinci.ipl.cae.demo.models.entities.Team;
@@ -26,9 +29,11 @@ import be.vinci.ipl.cae.demo.repositories.MatchResultConfirmationRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.TournamentRepository;
 import be.vinci.ipl.cae.demo.specifications.TournamentSpecifications;
+import be.vinci.ipl.cae.demo.utils.BracketGenerator;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Sort;
@@ -242,6 +247,12 @@ public class TournamentService {
     return filteredTournaments.stream().map(this::mapToSummaryDto).toList();
   }
 
+  /**
+   * Maps a tournament to a summary DTO.
+   *
+   * @param t the tournament to map
+   * @return the tournament summary DTO
+   */
   private TournamentSummaryDto mapToSummaryDto(Tournament t) {
     return new TournamentSummaryDto(t.getIdTournament(), t.getName(), t.getDescription(),
         t.getStartDate(), t.getEndDate(), t.getRegistrationDeadline(), t.getStatus(),
@@ -327,6 +338,13 @@ public class TournamentService {
     return tournament;
   }
 
+  /**
+   * Checks if a tournament exists and has the given status.
+   *
+   * @param tournamentId the tournament id
+   * @param status the status to check
+   * @return the tournament if it exists and has the given status, null otherwise
+   */
   private Tournament doesTournamentExistInTheGivenStatus(Long tournamentId,
       TournamentStatus status) {
     Tournament tournament = tournamentRepository.findById(tournamentId).orElse(null);
@@ -382,5 +400,129 @@ public class TournamentService {
 
     tournamentRepository.save(tournament);
     return getTournamentDetails(idTournament);
+  }
+
+  /**
+   * Generate matches for a tournament.
+   *
+   * @param tournamentId the ID of the tournament
+   */
+  @Transactional
+  public void generateMatches(Long tournamentId) {
+    Tournament tournament = fetchAndValidateTournament(tournamentId);
+
+    List<Match> generatedMatches = BracketGenerator.generateBracket(tournament.getTeams());
+
+    scheduleMatches(generatedMatches, tournament);
+
+    List<Match> savedMatches = matchRepository.saveAll(generatedMatches);
+
+    generateAndSaveDefaultLineups(savedMatches);
+
+    tournament.setStatus(TournamentStatus.IN_PROGRESS);
+    tournamentRepository.save(tournament);
+  }
+
+  /**
+   * Fetch and validate a tournament by its ID.
+   *
+   * @param tournamentId the ID of the tournament
+   * @return the tournament
+   */
+  private Tournament fetchAndValidateTournament(Long tournamentId) {
+    Tournament tournament = tournamentRepository.findById(tournamentId)
+        .orElseThrow(() -> new TournamentNotFoundException("Tournament not found"));
+
+    if (tournament.getStatus() != TournamentStatus.REGISTRATION_CLOSED) {
+      throw new TournamentNotInRegistrationClosedException(
+          "Matches can only be generated for a registration-closed tournament");
+    }
+    return tournament;
+  }
+
+  /**
+   * Schedule matches for a tournament.
+   *
+   * @param matches the matches to schedule
+   * @param tournament the tournament
+   */
+  private void scheduleMatches(List<Match> matches, Tournament tournament) {
+    final int matchDurationMins = 45;
+    final int bufferMins = 15;
+    final int maxConcurrentMatches = 10;
+
+    matches.sort(Comparator.comparingInt(Match::getTurn));
+
+    LocalDateTime currentTimeCursor = tournament.getStartDate().atTime(10, 0);
+    int currentRound = 1;
+    int matchesInCurrentWave = 0;
+
+    for (Match match : matches) {
+      // Move to next round
+      if (match.getTurn() > currentRound) {
+        currentRound = match.getTurn();
+        currentTimeCursor = currentTimeCursor.plusMinutes(matchDurationMins + bufferMins);
+        matchesInCurrentWave = 0;
+      }
+
+      // Move to next wave if current servers are full
+      if (matchesInCurrentWave >= maxConcurrentMatches) {
+        currentTimeCursor = currentTimeCursor.plusMinutes(matchDurationMins + bufferMins);
+        matchesInCurrentWave = 0;
+      }
+
+      match.setDateHour(currentTimeCursor);
+      match.setTournament(tournament);
+      match.setStatus(MatchStatus.PLANNED);
+
+      matchesInCurrentWave++;
+    }
+
+    LocalDateTime actualFinishTime = currentTimeCursor.plusMinutes(matchDurationMins);
+
+    // Fail-fast validation
+    if (actualFinishTime.isAfter(tournament.getEndDate().atTime(10, 0))) {
+      throw new ImpossibleTournamentException("Tournament is physically impossible to complete! "
+          + "You need more concurrent servers or a later end date. " + "Estimated finish: "
+          + actualFinishTime);
+    }
+  }
+
+  /**
+   * Generate and save default lineups for a list of matches.
+   *
+   * @param savedMatches the saved matches
+   */
+  private void generateAndSaveDefaultLineups(List<Match> savedMatches) {
+    List<MatchLineup> defaultLineups = new ArrayList<>();
+
+    for (Match match : savedMatches) {
+      if (match.getTeam1() != null) {
+        defaultLineups.add(createDefaultLineup(match, match.getTeam1()));
+      }
+      if (match.getTeam2() != null) {
+        defaultLineups.add(createDefaultLineup(match, match.getTeam2()));
+      }
+    }
+
+    matchLineupRepository.saveAll(defaultLineups);
+  }
+
+  /**
+   * Create a default lineup for a match and team.
+   *
+   * @param match the match
+   * @param team the team
+   * @return the default lineup
+   */
+  private MatchLineup createDefaultLineup(Match match, Team team) {
+    MatchLineup lineup = new MatchLineup();
+    lineup.setMatch(match);
+    lineup.setTeam(team);
+    lineup.setScore(0);
+    lineup.setWinner(false);
+    lineup.setHasForfeited(false);
+
+    return lineup;
   }
 }
