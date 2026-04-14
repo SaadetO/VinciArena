@@ -1,10 +1,14 @@
 package be.vinci.ipl.cae.demo.services;
 
+import be.vinci.ipl.cae.demo.exceptions.AccountBannedException;
+import be.vinci.ipl.cae.demo.exceptions.CannotBanAdminException;
+import be.vinci.ipl.cae.demo.exceptions.CannotBanSelfException;
+import be.vinci.ipl.cae.demo.exceptions.EmailAlreadyTakenException;
+import be.vinci.ipl.cae.demo.exceptions.InvalidCredentialsException;
+import be.vinci.ipl.cae.demo.exceptions.InvalidPasswordException;
+import be.vinci.ipl.cae.demo.exceptions.MemberAlreadyBannedException;
 import be.vinci.ipl.cae.demo.exceptions.MemberNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.NotAdminException;
-import be.vinci.ipl.cae.demo.exceptions.CannotBanAdminException;
-import be.vinci.ipl.cae.demo.exceptions.MemberAlreadyBannedException;
-import be.vinci.ipl.cae.demo.exceptions.CannotBanSelfException;
 import be.vinci.ipl.cae.demo.exceptions.NotAuthenticatedException;
 import be.vinci.ipl.cae.demo.models.dtos.AuthenticatedUser;
 import be.vinci.ipl.cae.demo.models.dtos.MemberSummaryDto;
@@ -32,10 +36,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import be.vinci.ipl.cae.demo.exceptions.AccountBannedException;
-import be.vinci.ipl.cae.demo.exceptions.EmailAlreadyTakenException;
-import be.vinci.ipl.cae.demo.exceptions.InvalidCredentialsException;
-import be.vinci.ipl.cae.demo.exceptions.InvalidPasswordException;
 
 /**
  * Service handling authentication and registration for members.
@@ -168,7 +168,8 @@ public class MemberService {
     }
 
     if (!password.matches(".*[^a-zA-Z0-9].*")) {
-      throw new InvalidPasswordException("Le mot de passe doit contenir au moins un caractère spécial");
+      throw new InvalidPasswordException(
+          "Le mot de passe doit contenir au moins un caractère spécial");
     }
   }
 
@@ -439,6 +440,10 @@ public class MemberService {
    * @throws CannotBanSelfException if the user tries to ban themselves
    */
   private void checkBanValidity(Member member, Member requester) {
+    if (member.getIdMember().equals(requester.getIdMember())) {
+      throw new CannotBanSelfException("Tu ne peux pas te bannir toi-même");
+    }
+
     if (member.isAdmin()) {
       throw new CannotBanAdminException("Impossible de bannir un admin");
     }
@@ -447,9 +452,6 @@ public class MemberService {
       throw new MemberAlreadyBannedException("Membre déjà banni");
     }
 
-    if (member.getIdMember().equals(requester.getIdMember())) {
-      throw new CannotBanSelfException("Tu ne peux pas te bannir toi-même");
-    }
   }
 
   /**
