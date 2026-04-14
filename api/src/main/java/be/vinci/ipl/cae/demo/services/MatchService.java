@@ -1,5 +1,6 @@
 package be.vinci.ipl.cae.demo.services;
 
+import be.vinci.ipl.cae.demo.exceptions.ForbiddenException;
 import be.vinci.ipl.cae.demo.exceptions.MatchNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.ResultNotFoundException;
 import be.vinci.ipl.cae.demo.models.entities.Match;
@@ -77,6 +78,34 @@ public class MatchService {
     return matchResultConfirmationRepository.findById(matchId)
         .orElseThrow(() -> new ResultNotFoundException("Result not found"));
   }
+
+  /**
+   * Checks if a user is allowed to confirm the result of a match.
+   *
+   * @param match the match
+   * @param member the member
+   * @throws ForbiddenException if the user is not part of the match
+   */
+  private void validateUserCanConfirm(Match match, Member member) {
+
+    if (member.getTeam() == null) {
+      throw new ForbiddenException("User has no team");
+    }
+
+    Long teamId = member.getTeam().getIdTeam();
+
+    boolean isTeam1 = match.getTeam1() != null
+        && match.getTeam1().getIdTeam().equals(teamId);
+
+    boolean isTeam2 = match.getTeam2() != null
+        && match.getTeam2().getIdTeam().equals(teamId);
+
+    if (!isTeam1 && !isTeam2) {
+      throw new ForbiddenException("User not part of this match");
+    }
+  }
+
+
 
 
 }
