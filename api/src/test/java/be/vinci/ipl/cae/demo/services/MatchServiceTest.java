@@ -76,4 +76,20 @@ public class MatchServiceTest {
     verify(confirmationRepository).save(confirmation);
   }
 
+  @Test
+  void confirmResult_team2_success() {
+    // Arrange
+    member.setTeam(match.getTeam2());
+
+    when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
+    when(memberRepository.findByEmail("test@mail.com")).thenReturn(member);
+    when(confirmationRepository.findById(1L)).thenReturn(Optional.of(confirmation));
+
+    // Act
+    matchService.confirmResult(1L, "test@mail.com");
+
+    // Assert
+    assertTrue(confirmation.getConfirmationTeam2());
+  }
+
 }
