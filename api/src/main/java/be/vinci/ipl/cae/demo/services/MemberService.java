@@ -564,8 +564,13 @@ public class MemberService {
     return false;
   }
 
-  public boolean isMemberOfTeam(Member member, Team team){
-    if(member == null || team == null) return false;
-    return team.getMembers().contains(member);
+  /**
+   * Checks if a member is part of a specific team.
+   */
+  public boolean isMemberOfTeam(Long memberId, Team team) {
+    if (memberId == null || team == null) {
+      return false;
+    }
+    return team.getMembers().stream().map(Member::getIdMember).toList().contains(memberId);
   }
 }

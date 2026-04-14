@@ -48,16 +48,26 @@ public class MatchService {
 
   private void validateMatchLineup(MatchLineupDto newLineup, Long matchId, Member currentMember) {
     Match match = matchRepository.getMatchByIdMatch(matchId);
-    Long memberId = currentMember.getIdMember();
+    Team team = currentMember.getTeam();
 
     if (match == null) {
       // MatchNotFoundException
     }
     // if not manager of one of the teams in the match
-    if (memberService.isManagerOfTeam(memberId, match.getTeam1()) && memberService.isManagerOfTeam(
-        memberId, match.getTeam2())) {
+    if (memberService.isManagerOfTeam(currentMember, match.getTeam1()) && memberService.isManagerOfTeam(
+        currentMember, match.getTeam2())) {
       throw new ForbiddenException("Cannot choose lineup if you aren't the manager of the team.");
     }
+
+    // check members are in this team
+    for (Long id : newLineup.playerIds()) {
+      if(!memberService.isMemberOfTeam(id, team)){
+        throw new ForbiddenException("Cannot add a member who is not in your team");
+      }
+    }
+
+    // check all selected members are available
+
 
 
 
