@@ -12,97 +12,52 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-  /**
-   * Handle TournamentNotFoundException.
-   *
-   * @param ex the exception
-   * @return response entity with 404 status
-   */
-  @ExceptionHandler(TournamentNotFoundException.class)
-  public ResponseEntity<Map<String, String>> handleTournamentNotFound(
-      TournamentNotFoundException ex) {
+  @ExceptionHandler({
+      TournamentNotFoundException.class
+  })
+  public ResponseEntity<Map<String, String>> handleNotFoundExceptions(RuntimeException ex) {
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", ex.getMessage()));
   }
 
-  /**
-   * Handle DuplicateRegistrationException.
-   *
-   * @param ex the exception
-   * @return response entity with 409 status
-   */
-  @ExceptionHandler(DuplicateRegistrationException.class)
-  public ResponseEntity<Map<String, String>> handleDuplicateRegistration(
-      DuplicateRegistrationException ex) {
+  @ExceptionHandler({
+      EmailAlreadyTakenException.class,
+      DuplicateRegistrationException.class
+  })
+  public ResponseEntity<Map<String, String>> handleConflictExceptions(RuntimeException ex) {
     return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", ex.getMessage()));
   }
 
-  /**
-   * Handle RegistrationClosedException.
-   *
-   * @param ex the exception
-   * @return response entity with 400 status
-   */
-  @ExceptionHandler(RegistrationClosedException.class)
-  public ResponseEntity<Map<String, String>> handleRegistrationClosed(
-      RegistrationClosedException ex) {
+  @ExceptionHandler({
+      InvalidPasswordException.class,
+      MemberAlreadyBannedException.class,
+      CannotBanSelfException.class,
+      RegistrationClosedException.class,
+      InsufficientTeamMembersException.class,
+      InactiveTeamException.class,
+      TournamentNotInRegistrationClosedException.class,
+      ImpossibleTournamentException.class
+  })
+  public ResponseEntity<Map<String, String>> handleBadRequestExceptions(RuntimeException ex) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", ex.getMessage()));
   }
 
-  /**
-   * Handle InsufficientTeamMembersException.
-   *
-   * @param ex the exception
-   * @return response entity with 400 status
-   */
-  @ExceptionHandler(InsufficientTeamMembersException.class)
-  public ResponseEntity<Map<String, String>> handleInsufficientTeamMembers(
-      InsufficientTeamMembersException ex) {
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", ex.getMessage()));
-  }
-
-  /**
-   * Handle InactiveTeamException.
-   *
-   * @param ex the exception
-   * @return response entity with 400 status
-   */
-  @ExceptionHandler(InactiveTeamException.class)
-  public ResponseEntity<Map<String, String>> handleInactiveTeam(InactiveTeamException ex) {
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", ex.getMessage()));
-  }
-
-  /**
-   * Handle NotManagerException.
-   *
-   * @param ex the exception
-   * @return response entity with 403 status
-   */
-  @ExceptionHandler(NotManagerException.class)
-  public ResponseEntity<Map<String, String>> handleNotManager(NotManagerException ex) {
+  @ExceptionHandler({
+      AccountBannedException.class,
+      NotAdminException.class,
+      CannotBanAdminException.class,
+      ForbiddenException.class,
+      NotManagerException.class
+  })
+  public ResponseEntity<Map<String, String>> handleForbiddenExceptions(RuntimeException ex) {
     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", ex.getMessage()));
   }
 
-  /**
-   * Handle ImpossibleTournamentException.
-   *
-   * @param ex the exception
-   * @return response entity with 400 status
-   */
-  @ExceptionHandler(ImpossibleTournamentException.class)
-  public ResponseEntity<Map<String, String>> handleImpossibleTournament(
-      ImpossibleTournamentException ex) {
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", ex.getMessage()));
+  @ExceptionHandler({
+      InvalidCredentialsException.class,
+      NotAuthenticatedException.class
+  })
+  public ResponseEntity<Map<String, String>> handleUnauthorizedExceptions(RuntimeException ex) {
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", ex.getMessage()));
   }
 
-  /**
-   * Handle TournamentNotInRegistrationClosedException.
-   *
-   * @param ex the exception
-   * @return response entity with 400 status
-   */
-  @ExceptionHandler(TournamentNotInRegistrationClosedException.class)
-  public ResponseEntity<Map<String, String>> handleTournamentNotInRegistrationClosed(
-      TournamentNotInRegistrationClosedException ex) {
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", ex.getMessage()));
-  }
 }
