@@ -11,6 +11,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -56,4 +57,18 @@ public class Member {
 
   private boolean isDeleted;
 
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Member member = (Member) o;
+    return Objects.equals(idMember, member.idMember);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(idMember);
+  }
 }
