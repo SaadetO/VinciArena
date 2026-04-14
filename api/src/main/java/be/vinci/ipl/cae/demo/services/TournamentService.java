@@ -31,7 +31,6 @@ import be.vinci.ipl.cae.demo.specifications.TournamentSpecifications;
 import be.vinci.ipl.cae.demo.utils.BracketGenerator;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -59,15 +58,10 @@ public class TournamentService {
   /**
    * Constructor.
    */
-  public TournamentService(
-    TournamentRepository tournamentRepository,
-    MemberRepository memberRepository,
-    MatchLineupRepository matchLineupRepository,
-    MatchRepository matchRepository,
-    MatchResultConfirmationRepository confirmationRepository,
-    TeamService teamService,
-    NotificationService notificationService
-  ) {
+  public TournamentService(TournamentRepository tournamentRepository,
+      MemberRepository memberRepository, MatchLineupRepository matchLineupRepository,
+      MatchRepository matchRepository, MatchResultConfirmationRepository confirmationRepository,
+      TeamService teamService, NotificationService notificationService) {
     this.tournamentRepository = tournamentRepository;
     this.memberRepository = memberRepository;
     this.matchLineupRepository = matchLineupRepository;
@@ -81,103 +75,58 @@ public class TournamentService {
    * Get complete details of a tournament (teams, matches, scores).
    */
   public TournamentDetailsDto getTournamentDetails(Long idTournament) {
-    Tournament tournament = tournamentRepository
-      .findById(idTournament)
-      .orElse(null);
+    Tournament tournament = tournamentRepository.findById(idTournament).orElse(null);
     if (tournament == null) {
       return null;
     }
 
     // Map participating teams
-    List<TeamSummaryDto> teams = tournament
-      .getTeams()
-      .stream()
-      .map(t -> new TeamSummaryDto(t.getIdTeam(), t.getName()))
-      .toList();
+    List<TeamSummaryDto> teams = tournament.getTeams().stream()
+        .map(t -> new TeamSummaryDto(t.getIdTeam(), t.getName())).toList();
 
     // Fetch and map matches
     List<Match> matchesEntities =
-      matchRepository.findByTournamentIdTournamentOrderByDateHourAsc(
-        idTournament
-      );
+        matchRepository.findByTournamentIdTournamentOrderByDateHourAsc(idTournament);
     List<MatchSummaryDto> matches = new ArrayList<>();
 
     for (Match match : matchesEntities) {
       // Fetch lineups for results
-      List<MatchLineup> lineups = matchLineupRepository.findByIdIdMatch(
-        match.getIdMatch()
-      );
+      List<MatchLineup> lineups = matchLineupRepository.findByIdIdMatch(match.getIdMatch());
 
       MatchTeamDto team1Dto = createMatchTeamDto(match.getTeam1(), lineups);
       MatchTeamDto team2Dto = createMatchTeamDto(match.getTeam2(), lineups);
 
       // Fetch confirmation status
       Optional<MatchResultConfirmation> confirmation =
-        confirmationRepository.findById(match.getIdMatch());
+          confirmationRepository.findById(match.getIdMatch());
       boolean isConfirmed =
-        confirmation.isPresent() &&
-        Boolean.TRUE.equals(confirmation.get().getConfirmationTeam1()) &&
-        Boolean.TRUE.equals(confirmation.get().getConfirmationTeam2());
+          confirmation.isPresent() && Boolean.TRUE.equals(confirmation.get().getConfirmationTeam1())
+              && Boolean.TRUE.equals(confirmation.get().getConfirmationTeam2());
 
-      matches.add(
-        new MatchSummaryDto(
-          match.getIdMatch(),
-          match.getDateHour(),
-          match.getTurn(),
-          match.getStatus(),
-          isConfirmed,
-          team1Dto,
-          team2Dto
-        )
-      );
+      matches.add(new MatchSummaryDto(match.getIdMatch(), match.getDateHour(), match.getTurn(),
+          match.getStatus(), isConfirmed, team1Dto, team2Dto));
     }
 
-    return new TournamentDetailsDto(
-      tournament.getIdTournament(),
-      tournament.getName(),
-      tournament.getDescription(),
-      tournament.getStartDate(),
-      tournament.getEndDate(),
-      tournament.getRegistrationDeadline(),
-      tournament.getStatus(),
-      tournament.getCapacity(),
-      tournament.getRegistrationsNumber(),
-      teams,
-      matches
-    );
+    return new TournamentDetailsDto(tournament.getIdTournament(), tournament.getName(),
+        tournament.getDescription(), tournament.getStartDate(), tournament.getEndDate(),
+        tournament.getRegistrationDeadline(), tournament.getStatus(), tournament.getCapacity(),
+        tournament.getRegistrationsNumber(), teams, matches);
   }
 
-  private MatchTeamDto createMatchTeamDto(
-    Team team,
-    List<MatchLineup> lineups
-  ) {
+  private MatchTeamDto createMatchTeamDto(Team team, List<MatchLineup> lineups) {
     if (team == null) {
       return null;
     }
 
-    MatchLineup lineup = lineups
-      .stream()
-      .filter(l -> l.getTeam().getIdTeam().equals(team.getIdTeam()))
-      .findFirst()
-      .orElse(null);
+    MatchLineup lineup = lineups.stream()
+        .filter(l -> l.getTeam().getIdTeam().equals(team.getIdTeam())).findFirst().orElse(null);
 
     if (lineup == null) {
-      return new MatchTeamDto(
-        team.getIdTeam(),
-        team.getName(),
-        null,
-        false,
-        false
-      );
+      return new MatchTeamDto(team.getIdTeam(), team.getName(), null, false, false);
     }
 
-    return new MatchTeamDto(
-      team.getIdTeam(),
-      team.getName(),
-      lineup.getScore(),
-      lineup.isWinner(),
-      lineup.isHasForfeited()
-    );
+    return new MatchTeamDto(team.getIdTeam(), team.getName(), lineup.getScore(), lineup.isWinner(),
+        lineup.isHasForfeited());
   }
 
   /**
@@ -208,15 +157,11 @@ public class TournamentService {
   public void updateAllTournamentStates() {
     System.out.println("Tournaments: Updating database...");
 
-    List<TournamentStatus> activeStatuses = List.of(
-      TournamentStatus.PLANNED,
-      TournamentStatus.IN_PROGRESS,
-      TournamentStatus.REGISTRATION_OPEN,
-      TournamentStatus.REGISTRATION_CLOSED
-    );
+    List<TournamentStatus> activeStatuses =
+        List.of(TournamentStatus.PLANNED, TournamentStatus.IN_PROGRESS,
+            TournamentStatus.REGISTRATION_OPEN, TournamentStatus.REGISTRATION_CLOSED);
 
-    Iterable<Tournament> activeTournaments =
-      tournamentRepository.findAllByStatusIn(activeStatuses);
+    Iterable<Tournament> activeTournaments = tournamentRepository.findAllByStatusIn(activeStatuses);
     List<Tournament> updatedTournaments = new ArrayList<>();
 
     for (Tournament t : activeTournaments) {
@@ -231,9 +176,7 @@ public class TournamentService {
 
     if (!updatedTournaments.isEmpty()) {
       tournamentRepository.saveAll(updatedTournaments);
-      System.out.println(
-        "Updated " + updatedTournaments.size() + " tournament states."
-      );
+      System.out.println("Updated " + updatedTournaments.size() + " tournament states.");
     } else {
       System.out.println("No update needed.");
     }
@@ -286,28 +229,19 @@ public class TournamentService {
    * @param search a search string to filter tournaments by name
    * @return the filtered and sorted list of tournaments.
    */
-  public Iterable<TournamentSummaryDto> getTournaments(
-    List<TournamentStatus> statuses,
-    List<Long> teamsIds,
-    List<Long> membersIds,
-    String search,
-    LocalDate minDate,
-    LocalDate maxDate
-  ) {
+  public Iterable<TournamentSummaryDto> getTournaments(List<TournamentStatus> statuses,
+      List<Long> teamsIds, List<Long> membersIds, String search, LocalDate minDate,
+      LocalDate maxDate) {
     Specification<Tournament> spec = Specification.where(null);
 
-    spec = spec
-      .and(TournamentSpecifications.hasStatuses(statuses))
-      .and(TournamentSpecifications.searchByName(search))
-      .and(TournamentSpecifications.isBetweenDates(minDate, maxDate))
-      .and(TournamentSpecifications.hasTeams(teamsIds))
-      .and(TournamentSpecifications.hasMembersInMatches(membersIds));
+    spec = spec.and(TournamentSpecifications.hasStatuses(statuses))
+        .and(TournamentSpecifications.searchByName(search))
+        .and(TournamentSpecifications.isBetweenDates(minDate, maxDate))
+        .and(TournamentSpecifications.hasTeams(teamsIds))
+        .and(TournamentSpecifications.hasMembersInMatches(membersIds));
 
     Sort sort = Sort.by(Sort.Direction.DESC, "startDate");
-    List<Tournament> filteredTournaments = tournamentRepository.findAll(
-      spec,
-      sort
-    );
+    List<Tournament> filteredTournaments = tournamentRepository.findAll(spec, sort);
 
     return filteredTournaments.stream().map(this::mapToSummaryDto).toList();
   }
@@ -319,17 +253,9 @@ public class TournamentService {
    * @return the tournament summary DTO
    */
   private TournamentSummaryDto mapToSummaryDto(Tournament t) {
-    return new TournamentSummaryDto(
-      t.getIdTournament(),
-      t.getName(),
-      t.getDescription(),
-      t.getStartDate(),
-      t.getEndDate(),
-      t.getRegistrationDeadline(),
-      t.getStatus(),
-      t.getCapacity(),
-      t.getRegistrationsNumber()
-    );
+    return new TournamentSummaryDto(t.getIdTournament(), t.getName(), t.getDescription(),
+        t.getStartDate(), t.getEndDate(), t.getRegistrationDeadline(), t.getStatus(),
+        t.getCapacity(), t.getRegistrationsNumber());
   }
 
   /**
@@ -340,18 +266,13 @@ public class TournamentService {
    * @param currentMember the current member
    * @return the updated tournament if it has been updated, null otherwise.
    */
-  public Tournament updateTournament(
-    Long tournamentId,
-    NewTournament newTournament,
-    Member currentMember
-  ) {
+  public Tournament updateTournament(Long tournamentId, NewTournament newTournament,
+      Member currentMember) {
     if (!currentMember.isAdmin()) {
       return null;
     }
 
-    Tournament tournament = tournamentRepository
-      .findById(tournamentId)
-      .orElse(null);
+    Tournament tournament = tournamentRepository.findById(tournamentId).orElse(null);
 
     if (tournament == null) {
       return null;
@@ -395,10 +316,8 @@ public class TournamentService {
    * @return the tournament if it's status has been changed to REGISTRATION_OPEN, null otherwise.
    */
   public Tournament publishTournament(Long tournamentId, Member currentMember) {
-    Tournament tournament = doesTournamentExistInTheGivenStatus(
-      tournamentId,
-      TournamentStatus.IN_PREPARATION
-    );
+    Tournament tournament =
+        doesTournamentExistInTheGivenStatus(tournamentId, TournamentStatus.IN_PREPARATION);
 
     if (tournament == null) {
       return null;
@@ -412,12 +331,8 @@ public class TournamentService {
 
     tournamentRepository.save(tournament);
     notificationService.notifyAllMembers(
-      "Nouveau Tournoi ! " +
-        tournament.getName() +
-        " vient d'ouvrir ses portes.",
-      NotificationType.TOURNAMENT,
-      tournamentId
-    );
+        "Nouveau Tournoi ! " + tournament.getName() + " vient d'ouvrir ses portes.",
+        NotificationType.TOURNAMENT, tournamentId);
 
     return tournament;
   }
@@ -429,13 +344,9 @@ public class TournamentService {
    * @param status the status to check
    * @return the tournament if it exists and has the given status, null otherwise
    */
-  private Tournament doesTournamentExistInTheGivenStatus(
-    Long tournamentId,
-    TournamentStatus status
-  ) {
-    Tournament tournament = tournamentRepository
-      .findById(tournamentId)
-      .orElse(null);
+  private Tournament doesTournamentExistInTheGivenStatus(Long tournamentId,
+      TournamentStatus status) {
+    Tournament tournament = tournamentRepository.findById(tournamentId).orElse(null);
 
     if (tournament == null) {
       return null;
@@ -455,14 +366,9 @@ public class TournamentService {
    * @param currentMember the member requesting to register the team
    */
   @Transactional
-  public TournamentDetailsDto registerTeam(
-    Long idTournament,
-    Member currentMember
-  ) {
+  public TournamentDetailsDto registerTeam(Long idTournament, Member currentMember) {
     // Reload member within the transactional session to avoid LazyInitializationException
-    Member member = memberRepository
-      .findById(currentMember.getIdMember())
-      .orElse(null);
+    Member member = memberRepository.findById(currentMember.getIdMember()).orElse(null);
     if (member == null) {
       throw new InactiveTeamException("User not found");
     }
@@ -473,33 +379,22 @@ public class TournamentService {
     }
 
     if (!teamService.isManager(team, member)) {
-      throw new NotManagerException(
-        "Only a team manager can register the team"
-      );
+      throw new NotManagerException("Only a team manager can register the team");
     }
 
     if (team.getMembers().size() < 4) {
-      throw new InsufficientTeamMembersException(
-        "Team must have at least 4 members to register"
-      );
+      throw new InsufficientTeamMembersException("Team must have at least 4 members to register");
     }
 
-    Tournament tournament = tournamentRepository
-      .findById(idTournament)
-      .orElseThrow(() ->
-        new TournamentNotFoundException("Tournament not found")
-      );
+    Tournament tournament = tournamentRepository.findById(idTournament)
+        .orElseThrow(() -> new TournamentNotFoundException("Tournament not found"));
 
     if (team.getTournaments().contains(tournament)) {
-      throw new DuplicateRegistrationException(
-        "Team is already registered for this tournament"
-      );
+      throw new DuplicateRegistrationException("Team is already registered for this tournament");
     }
 
     if (!tournament.registerTeam(team)) {
-      throw new RegistrationClosedException(
-        "Registration closed or deadline passed"
-      );
+      throw new RegistrationClosedException("Registration closed or deadline passed");
     }
 
     tournamentRepository.save(tournament);
@@ -515,9 +410,7 @@ public class TournamentService {
   public void generateMatches(Long tournamentId) {
     Tournament tournament = fetchAndValidateTournament(tournamentId);
 
-    List<Match> generatedMatches = BracketGenerator.generateBracket(
-      tournament.getTeams()
-    );
+    List<Match> generatedMatches = BracketGenerator.generateBracket(tournament.getTeams());
 
     scheduleMatches(generatedMatches, tournament);
 
@@ -536,16 +429,12 @@ public class TournamentService {
    * @return the tournament
    */
   private Tournament fetchAndValidateTournament(Long tournamentId) {
-    Tournament tournament = tournamentRepository
-      .findById(tournamentId)
-      .orElseThrow(() ->
-        new TournamentNotFoundException("Tournament not found")
-      );
+    Tournament tournament = tournamentRepository.findById(tournamentId)
+        .orElseThrow(() -> new TournamentNotFoundException("Tournament not found"));
 
     if (tournament.getStatus() != TournamentStatus.REGISTRATION_CLOSED) {
       throw new TournamentNotInRegistrationClosedException(
-        "Matches can only be generated for a registration-closed tournament"
-      );
+          "Matches can only be generated for a registration-closed tournament");
     }
     return tournament;
   }
@@ -557,9 +446,9 @@ public class TournamentService {
    * @param tournament the tournament
    */
   private void scheduleMatches(List<Match> matches, Tournament tournament) {
-    final int MATCH_DURATION_MINS = 45;
-    final int BUFFER_MINS = 15;
-    final int MAX_CONCURRENT_MATCHES = 10;
+    final int matchDurationMins = 45;
+    final int bufferMins = 15;
+    final int maxConcurrentMatches = 10;
 
     matches.sort(Comparator.comparingInt(Match::getTurn));
 
@@ -571,17 +460,13 @@ public class TournamentService {
       // Move to next round
       if (match.getTurn() > currentRound) {
         currentRound = match.getTurn();
-        currentTimeCursor = currentTimeCursor.plusMinutes(
-          MATCH_DURATION_MINS + BUFFER_MINS
-        );
+        currentTimeCursor = currentTimeCursor.plusMinutes(matchDurationMins + bufferMins);
         matchesInCurrentWave = 0;
       }
 
       // Move to next wave if current servers are full
-      if (matchesInCurrentWave >= MAX_CONCURRENT_MATCHES) {
-        currentTimeCursor = currentTimeCursor.plusMinutes(
-          MATCH_DURATION_MINS + BUFFER_MINS
-        );
+      if (matchesInCurrentWave >= maxConcurrentMatches) {
+        currentTimeCursor = currentTimeCursor.plusMinutes(matchDurationMins + bufferMins);
         matchesInCurrentWave = 0;
       }
 
@@ -593,16 +478,11 @@ public class TournamentService {
     }
 
     // Fail-fast validation
-    LocalDateTime estimatedFinishTime = currentTimeCursor.plusMinutes(
-      MATCH_DURATION_MINS
-    );
+    LocalDateTime estimatedFinishTime = currentTimeCursor.plusMinutes(matchDurationMins);
     if (estimatedFinishTime.isAfter(tournament.getEndDate().atTime(10, 0))) {
-      throw new IllegalStateException(
-        "Tournament is physically impossible to complete! " +
-          "You need more concurrent servers or a later end date. " +
-          "Estimated finish: " +
-          estimatedFinishTime
-      );
+      throw new IllegalStateException("Tournament is physically impossible to complete! "
+          + "You need more concurrent servers or a later end date. " + "Estimated finish: "
+          + estimatedFinishTime);
     }
   }
 

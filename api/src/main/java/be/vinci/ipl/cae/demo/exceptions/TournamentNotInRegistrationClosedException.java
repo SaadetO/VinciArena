@@ -3,9 +3,7 @@ package be.vinci.ipl.cae.demo.exceptions;
 /**
  * Exception thrown when a user is not authenticated.
  */
-public class TournamentNotInRegistrationClosedException
-  extends RuntimeException
-{
+public class TournamentNotInRegistrationClosedException extends RuntimeException {
 
   /**
    * Constructor.
