@@ -126,6 +126,20 @@ public class MatchServiceTest {
         () -> matchService.confirmResult(1L, "test@mail.com"));
   }
 
+  @Test
+  void confirmResult_user_not_in_match() {
+    Team otherTeam = new Team();
+    otherTeam.setIdTeam(99L);
+    member.setTeam(otherTeam);
+
+    when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
+    when(memberRepository.findByEmail("test@mail.com")).thenReturn(member);
+    when(confirmationRepository.findById(1L)).thenReturn(Optional.of(confirmation));
+
+    assertThrows(ForbiddenException.class,
+        () -> matchService.confirmResult(1L, "test@mail.com"));
+  }
+
 
 
 }
