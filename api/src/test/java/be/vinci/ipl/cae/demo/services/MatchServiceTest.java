@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import be.vinci.ipl.cae.demo.exceptions.MatchNotFoundException;
+import be.vinci.ipl.cae.demo.exceptions.ResultNotFoundException;
 import be.vinci.ipl.cae.demo.models.entities.Match;
 import be.vinci.ipl.cae.demo.models.entities.MatchResultConfirmation;
 import be.vinci.ipl.cae.demo.models.entities.Member;
@@ -101,6 +102,17 @@ public class MatchServiceTest {
     assertThrows(MatchNotFoundException.class,
         () -> matchService.confirmResult(1L, "test@mail.com"));
   }
+
+  @Test
+  void confirmResult_result_not_found() {
+    when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
+    when(memberRepository.findByEmail("test@mail.com")).thenReturn(member);
+    when(confirmationRepository.findById(1L)).thenReturn(Optional.empty());
+
+    assertThrows(ResultNotFoundException.class,
+        () -> matchService.confirmResult(1L, "test@mail.com"));
+  }
+
 
 
 }
