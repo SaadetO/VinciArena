@@ -1,10 +1,13 @@
 package be.vinci.ipl.cae.demo.services;
 
 import be.vinci.ipl.cae.demo.exceptions.MatchNotFoundException;
+import be.vinci.ipl.cae.demo.exceptions.ResultNotFoundException;
 import be.vinci.ipl.cae.demo.models.entities.Match;
+import be.vinci.ipl.cae.demo.models.entities.MatchResultConfirmation;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.repositories.MatchLineupRepository;
 import be.vinci.ipl.cae.demo.repositories.MatchRepository;
+import be.vinci.ipl.cae.demo.repositories.MatchResultConfirmationRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.TeamRepository;
 import be.vinci.ipl.cae.demo.repositories.TournamentRepository;
@@ -20,6 +23,7 @@ public class MatchService {
   private final MemberRepository memberRepository;
   private final TournamentRepository tournamentRepository;
   private final MatchLineupRepository matchLineupRepository;
+  private final MatchResultConfirmationRepository matchResultConfirmationRepository;
 
   /**
    * Constructor.
@@ -31,12 +35,13 @@ public class MatchService {
    */
   public MatchService(MatchRepository matchRepository, TeamRepository teamRepository,
       MemberRepository memberRepository, TournamentRepository tournamentRepository,
-      MatchLineupRepository matchLineupRepository) {
+      MatchLineupRepository matchLineupRepository, MatchResultConfirmationRepository matchResultConfirmation) {
     this.matchRepository = matchRepository;
     this.teamRepository = teamRepository;
     this.memberRepository = memberRepository;
     this.tournamentRepository = tournamentRepository;
     this.matchLineupRepository = matchLineupRepository;
+    this.matchResultConfirmationRepository = matchResultConfirmation;
   }
 
   /**
@@ -58,8 +63,19 @@ public class MatchService {
    * @return the member
    */
   private Member getMember(String email) {
-
     return memberRepository.findByEmail(email);
+  }
+
+  /**
+   * Retrieves the confirmation of a match result.
+   *
+   * @param matchId the id of the match
+   * @return the confirmation entity
+   * @throws ResultNotFoundException if not found
+   */
+  private MatchResultConfirmation getConfirmation(Long matchId) {
+    return matchResultConfirmationRepository.findById(matchId)
+        .orElseThrow(() -> new ResultNotFoundException("Result not found"));
   }
 
 
