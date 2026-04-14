@@ -1,7 +1,7 @@
 package be.vinci.ipl.cae.demo.exceptions;
 
 /**
- * Exception thrown when a user is not authenticated.
+ * Exception thrown when a tournament is not in registration closed state.
  */
 public class TournamentNotInRegistrationClosedException extends RuntimeException {
 

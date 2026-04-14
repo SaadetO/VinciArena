@@ -82,4 +82,27 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", ex.getMessage()));
   }
 
+  /**
+   * Handle ImpossibleTournamentException.
+   *
+   * @param ex the exception
+   * @return response entity with 400 status
+   */
+  @ExceptionHandler(ImpossibleTournamentException.class)
+  public ResponseEntity<Map<String, String>> handleImpossibleTournament(
+      ImpossibleTournamentException ex) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", ex.getMessage()));
+  }
+
+  /**
+   * Handle TournamentNotInRegistrationClosedException.
+   *
+   * @param ex the exception
+   * @return response entity with 400 status
+   */
+  @ExceptionHandler(TournamentNotInRegistrationClosedException.class)
+  public ResponseEntity<Map<String, String>> handleTournamentNotInRegistrationClosed(
+      TournamentNotInRegistrationClosedException ex) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", ex.getMessage()));
+  }
 }

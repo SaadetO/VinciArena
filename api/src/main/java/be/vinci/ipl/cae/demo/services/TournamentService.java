@@ -1,6 +1,7 @@
 package be.vinci.ipl.cae.demo.services;
 
 import be.vinci.ipl.cae.demo.exceptions.DuplicateRegistrationException;
+import be.vinci.ipl.cae.demo.exceptions.ImpossibleTournamentException;
 import be.vinci.ipl.cae.demo.exceptions.InactiveTeamException;
 import be.vinci.ipl.cae.demo.exceptions.InsufficientTeamMembersException;
 import be.vinci.ipl.cae.demo.exceptions.NotManagerException;
@@ -476,13 +477,14 @@ public class TournamentService {
 
       matchesInCurrentWave++;
     }
+    
+    LocalDateTime actualFinishTime = currentTimeCursor.plusMinutes(matchDurationMins);
 
     // Fail-fast validation
-    LocalDateTime estimatedFinishTime = currentTimeCursor.plusMinutes(matchDurationMins);
-    if (estimatedFinishTime.isAfter(tournament.getEndDate().atTime(10, 0))) {
-      throw new IllegalStateException("Tournament is physically impossible to complete! "
+    if (actualFinishTime.isAfter(tournament.getEndDate().atTime(10, 0))) {
+      throw new ImpossibleTournamentException("Tournament is physically impossible to complete! "
           + "You need more concurrent servers or a later end date. " + "Estimated finish: "
-          + estimatedFinishTime);
+          + actualFinishTime);
     }
   }
 

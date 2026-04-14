@@ -304,6 +304,11 @@ export const useTournament = (config: UseTournamentOptions) => {
       if (!response.ok) {
         if (response.status === 404)
           throw new ApiError('Tournoi introuvable.', response.status);
+        else if (response.status === 400)
+          throw new ApiError(
+            'Tournoi impossible, les matchs du tournoi ne peuvent pas tous être générés avant la fin de celui-ci.',
+            response.status,
+          );
         throw new ApiError(
           'Échec de la génération des matchs.',
           response.status,
