@@ -38,6 +38,19 @@ public class GlobalExceptionHandler {
   }
 
   /**
+   * Handle MatchNotFoundException.
+   *
+   * @param ex the exception
+   * @return response entity with 404 status
+   */
+  @ExceptionHandler(MatchNotFoundException.class)
+  public ResponseEntity<Map<String, String>> handleMatchNotFound(
+      MatchNotFoundException ex
+  ) {
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", ex.getMessage()));
+  }
+
+  /**
    * Handle DuplicateRegistrationException.
    *
    * @param ex the exception
