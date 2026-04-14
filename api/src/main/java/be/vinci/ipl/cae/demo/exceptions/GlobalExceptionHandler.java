@@ -108,4 +108,17 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", ex.getMessage()));
   }
 
+  /**
+   * Handle TeamNotInMatchException.
+   *
+   * @param ex the exception
+   * @return response entity with 400 status
+   */
+  @ExceptionHandler(TeamNotInMatchException.class)
+  public ResponseEntity<Map<String, String>> handleTeamNotInMatch(
+      TeamNotInMatchException ex
+  ) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", ex.getMessage()));
+  }
+
 }
