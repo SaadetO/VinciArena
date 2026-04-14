@@ -19,4 +19,5 @@ public interface MatchRepository extends CrudRepository<Match, Long> {
    */
   List<Match> findByTournamentIdTournamentOrderByDateHourAsc(Long idTournament);
 
+  Match getMatchByIdMatch(Long matchId);
 }
