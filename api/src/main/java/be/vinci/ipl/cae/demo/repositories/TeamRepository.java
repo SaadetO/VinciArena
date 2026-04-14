@@ -2,6 +2,7 @@ package be.vinci.ipl.cae.demo.repositories;
 
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Team;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.CrudRepository;
@@ -36,4 +37,6 @@ public interface TeamRepository extends CrudRepository<Team, Long>, JpaSpecifica
    * @return an iterable of all active teams
    */
   Iterable<Team> findByIsActiveTrue();
+
+
 }
