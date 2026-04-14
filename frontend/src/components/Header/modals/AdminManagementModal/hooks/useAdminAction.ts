@@ -15,10 +15,11 @@ export const useAdminAction = () => {
 
   const [users, setUsers] = useState<Member[]>([]);
   const [pendingIds, setPendingIds] = useState<number[]>([]);
-  const { getAll, toggleAdmin, isGettingUsers, banMember } = useMembers({
-    setUsers,
-    setPendingIds,
-  });
+  const { getAll, toggleAdmin, isGettingUsers, banMember, checkIsLastMember } =
+    useMembers({
+      setUsers,
+      setPendingIds,
+    });
 
   const handleToggleAdmin = async (user: Member) => {
     if (user.id === authenticatedUser?.id) {
@@ -34,10 +35,14 @@ export const useAdminAction = () => {
     toggleAdmin(user.id, user.admin);
   };
 
-  const handleBan = (id: number, tag: string) => {
+  const handleBan = async (id: number, tag: string) => {
+    const isLast = await checkIsLastMember(id);
+
+    console.log('isLastMember =', isLast);
     openModal(
       banModal({
         tag,
+        isLastMember: isLast,
         onConfirm: async (close) => {
           setLoading(true);
           await banMember(id);
