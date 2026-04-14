@@ -1,5 +1,6 @@
 package be.vinci.ipl.cae.demo.services;
 
+import be.vinci.ipl.cae.demo.models.entities.Match;
 import be.vinci.ipl.cae.demo.repositories.MatchLineupRepository;
 import be.vinci.ipl.cae.demo.repositories.MatchRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
@@ -35,4 +36,7 @@ public class MatchService {
     this.tournamentRepository = tournamentRepository;
     this.matchLineupRepository = matchLineupRepository;
   }
+
+
+
 }
