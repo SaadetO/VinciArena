@@ -1,6 +1,8 @@
 package be.vinci.ipl.cae.demo.services;
+
 import be.vinci.ipl.cae.demo.exceptions.MatchNotFoundException;
 import be.vinci.ipl.cae.demo.models.entities.Match;
+import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.repositories.MatchLineupRepository;
 import be.vinci.ipl.cae.demo.repositories.MatchRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
@@ -47,6 +49,16 @@ public class MatchService {
   private Match getMatch(Long matchId) {
     return matchRepository.findById(matchId)
         .orElseThrow(() -> new MatchNotFoundException("Match not found"));
+  }
+
+  /**
+   * Retrieves a member by email.
+   *
+   * @param email the email of the member
+   * @return the member
+   */
+  private Member getMember(String email) {
+    return memberRepository.findByEmail(email);
   }
 
 
