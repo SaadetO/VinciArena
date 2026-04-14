@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
   @ExceptionHandler({
-      TournamentNotFoundException.class
+      TournamentNotFoundException.class,
+      TeamNotFoundException.class,
+      MemberNotFoundException.class
   })
   public ResponseEntity<Map<String, String>> handleNotFoundExceptions(RuntimeException ex) {
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", ex.getMessage()));
@@ -21,7 +23,12 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler({
       EmailAlreadyTakenException.class,
-      DuplicateRegistrationException.class
+      DuplicateRegistrationException.class,
+      TeamNameAlreadyTakenException.class,
+      NoManagerSpotsLeftException.class,
+      LastManagerCannotQuitException.class,
+      ReplacementRequiredException.class,
+      MemberAlreadyManagerException.class
   })
   public ResponseEntity<Map<String, String>> handleConflictExceptions(RuntimeException ex) {
     return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", ex.getMessage()));
@@ -35,7 +42,10 @@ public class GlobalExceptionHandler {
       InsufficientTeamMembersException.class,
       InactiveTeamException.class,
       TournamentNotInRegistrationClosedException.class,
-      ImpossibleTournamentException.class
+      ImpossibleTournamentException.class,
+      InvalidTeamNameException.class,
+      UserAlreadyInTeamException.class,
+      UserNotInTeamException.class
   })
   public ResponseEntity<Map<String, String>> handleBadRequestExceptions(RuntimeException ex) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", ex.getMessage()));
