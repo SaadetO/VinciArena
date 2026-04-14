@@ -1,9 +1,11 @@
 package be.vinci.ipl.cae.demo.services;
 
-import be.vinci.ipl.cae.demo.exceptions.BadRequestException;
-import be.vinci.ipl.cae.demo.exceptions.ForbiddenException;
 import be.vinci.ipl.cae.demo.exceptions.MemberNotFoundException;
-import be.vinci.ipl.cae.demo.exceptions.UnauthorizedException;
+import be.vinci.ipl.cae.demo.exceptions.NotAdminException;
+import be.vinci.ipl.cae.demo.exceptions.CannotBanAdminException;
+import be.vinci.ipl.cae.demo.exceptions.MemberAlreadyBannedException;
+import be.vinci.ipl.cae.demo.exceptions.CannotBanSelfException;
+import be.vinci.ipl.cae.demo.exceptions.NotAuthenticatedException;
 import be.vinci.ipl.cae.demo.models.dtos.AuthenticatedUser;
 import be.vinci.ipl.cae.demo.models.dtos.MemberSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.NewMember;
@@ -391,13 +393,13 @@ public class MemberService {
    *
    * @param email the email of the authenticated user
    * @return the authenticated member
-   * @throws UnauthorizedException if the user is not authenticated
+   * @throws NotAuthenticatedException if the user is not authenticated
    */
   private Member getAuthenticatedMember(String email) {
     Member member = memberRepository.findByEmail(email);
 
     if (member == null) {
-      throw new UnauthorizedException("Utilisateur non authentifié");
+      throw new NotAuthenticatedException("Utilisateur non authentifié");
     }
 
     return member;
@@ -407,11 +409,11 @@ public class MemberService {
    * Check if the requester is an admin.
    *
    * @param requester the member performing the action
-   * @throws ForbiddenException if the member is not an admin
+   * @throws NotAdminException if the member is not an admin
    */
   private void checkAdmin(Member requester) {
     if (!requester.isAdmin()) {
-      throw new ForbiddenException("Accès réservé aux admins");
+      throw new NotAdminException("Accès réservé aux admins");
     }
   }
 
@@ -432,20 +434,21 @@ public class MemberService {
    *
    * @param member the member to ban
    * @param requester the member performing the action
-   * @throws ForbiddenException if trying to ban an admin
-   * @throws BadRequestException if the operation is invalid
+   * @throws CannotBanAdminException if trying to ban an admin
+   * @throws MemberAlreadyBannedException if the member is already banned
+   * @throws CannotBanSelfException if the user tries to ban themselves
    */
   private void checkBanValidity(Member member, Member requester) {
     if (member.isAdmin()) {
-      throw new ForbiddenException("Impossible de bannir un admin");
+      throw new CannotBanAdminException("Impossible de bannir un admin");
     }
 
     if (member.isDeleted()) {
-      throw new BadRequestException("Membre déjà banni");
+      throw new MemberAlreadyBannedException("Membre déjà banni");
     }
 
     if (member.getIdMember().equals(requester.getIdMember())) {
-      throw new BadRequestException("Tu ne peux pas te bannir toi-même");
+      throw new CannotBanSelfException("Tu ne peux pas te bannir toi-même");
     }
   }
 
@@ -505,10 +508,12 @@ public class MemberService {
    *
    * @param id the ID of the member to ban
    * @param requesterEmail the email of the authenticated user
-   * @throws UnauthorizedException if the user is not authenticated
-   * @throws ForbiddenException if access is denied
+   * @throws NotAuthenticatedException if the user is not authenticated
+   * @throws NotAdminException if the requester is not an admin
    * @throws MemberNotFoundException if the member does not exist
-   * @throws BadRequestException if the operation is invalid
+   * @throws CannotBanAdminException if trying to ban an admin
+   * @throws MemberAlreadyBannedException if the member is already banned
+   * @throws CannotBanSelfException if the user tries to ban themselves
    */
   @Transactional
   public void banMember(Long id, String requesterEmail) {
