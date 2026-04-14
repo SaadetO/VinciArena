@@ -1,5 +1,6 @@
 package be.vinci.ipl.cae.demo.services;
 
+import be.vinci.ipl.cae.demo.repositories.MatchLineupRepository;
 import be.vinci.ipl.cae.demo.repositories.MatchRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.TeamRepository;
@@ -15,6 +16,7 @@ public class MatchService {
   private  final TeamRepository teamRepository;
   private final MemberRepository memberRepository;
   private final TournamentRepository tournamentRepository;
+  private final MatchLineupRepository matchLineupRepository;
 
   /**
    * Constructor.
@@ -25,10 +27,12 @@ public class MatchService {
    * @param tournamentRepository the tournament repository
    */
   public MatchService(MatchRepository matchRepository, TeamRepository teamRepository,
-      MemberRepository memberRepository, TournamentRepository tournamentRepository) {
+      MemberRepository memberRepository, TournamentRepository tournamentRepository ,
+      MatchLineupRepository matchLineupRepository) {
     this.matchRepository = matchRepository;
     this.teamRepository = teamRepository;
     this.memberRepository = memberRepository;
     this.tournamentRepository = tournamentRepository;
+    this.matchLineupRepository = matchLineupRepository;
   }
 }
