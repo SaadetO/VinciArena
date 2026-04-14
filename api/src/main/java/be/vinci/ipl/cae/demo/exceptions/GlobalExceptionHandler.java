@@ -25,6 +25,19 @@ public class GlobalExceptionHandler {
   }
 
   /**
+   * Handle TeamNotFoundException.
+   *
+   * @param ex the exception
+   * @return response entity with 404 status
+   */
+  @ExceptionHandler(TeamNotFoundException.class)
+  public ResponseEntity<Map<String, String>> handleTeamNotFound(
+      TeamNotFoundException ex
+  ) {
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", ex.getMessage()));
+  }
+
+  /**
    * Handle DuplicateRegistrationException.
    *
    * @param ex the exception
