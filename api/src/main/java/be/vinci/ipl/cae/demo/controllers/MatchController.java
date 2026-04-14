@@ -1,6 +1,9 @@
 package be.vinci.ipl.cae.demo.controllers;
 
 import be.vinci.ipl.cae.demo.services.MatchService;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,6 +20,17 @@ public class MatchController {
     this.matchService = matchService;
   }
 
+  /**
+   * Confirms the result of a match.
+   *
+   * @param id the id of the match
+   * @param email the authenticated user's email
+   */
+  @PatchMapping("/{id}/confirm")
+  public void confirmMatchResult(@PathVariable Long id,
+      @AuthenticationPrincipal String email){
+    matchService.confirmResult(id,email);
+  }
 
 
 }
