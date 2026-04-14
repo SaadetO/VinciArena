@@ -66,34 +66,11 @@ public class TeamService {
    * @return the team details; joinRequests is null if currentMember is not a team manager
    */
   public TeamDetailsDto getTeamDetails(Long id, Member currentMember) {
-    Team team = teamRepository.findById(id).orElse(null);
-    if (team == null) {
-      throw new TeamNotFoundException(
-          "La team n'existe pas ou n'est plus active.");
-    }
+    Team team = getExistingTeam(id);
 
-    List<UserSummaryDto> managers = new ArrayList<>();
-    if (team.getManager1() != null) {
-      managers.add(memberService.getUserSummary(team.getManager1()));
-    }
-    if (team.getManager2() != null) {
-      managers.add(memberService.getUserSummary(team.getManager2()));
-    }
-
-    List<UserSummaryDto> members = team.getMembers().stream().filter(member -> !member.isDeleted())
-        .map(memberService::getUserSummary).collect(Collectors.toList());
-
-    List<JoinRequestDto> joinRequests = null;
-
-    if (currentMember != null && isManager(team, currentMember)) {
-      joinRequests = joinRequestRepository
-          .findAllByRequestedTeamAndStatus(team, RequestStatus.PENDING).stream()
-          .map(jr -> JoinRequestDto.builder().idJoinRequest(jr.getIdJoinRequest())
-              .idTeam(jr.getRequestedTeam().getIdTeam()).teamName(jr.getRequestedTeam().getName())
-              .status(jr.getStatus()).expirationDate(jr.getExpirationDate())
-              .requester(memberService.getUserSummary(jr.getMember())).build())
-          .collect(Collectors.toList());
-    }
+    List<UserSummaryDto> managers = getManagersSummary(team);
+    List<UserSummaryDto> members = getMembersSummary(team);
+    List<JoinRequestDto> joinRequests = getPendingJoinRequests(team, currentMember);
 
     return TeamDetailsDto.builder().idTeam(team.getIdTeam()).name(team.getName())
         .isActive(team.getIsActive()).managers(managers).members(members).joinRequests(joinRequests)
@@ -238,34 +215,14 @@ public class TeamService {
    */
   @Transactional
   public Team designateSecondManager(Long teamId, Long memberId, Member currentMember) {
-    Team team = teamRepository.findById(teamId).orElse(null);
-    if (team == null) {
-      throw new TeamNotFoundException(
-          "La team n'existe pas ou n'est plus active.");
-    }
+    Team team = getExistingTeam(teamId);
+    requireManager(team, currentMember);
 
-    // Check if currentMember is a manager
-    boolean isManager = isManager(team, currentMember);
-    if (!isManager) {
-      throw new NotManagerException(
-          "L'utilisateur n'a pas les droits de responsable.");
-    }
-
-    Member memberToDesignate = memberRepository.findById(memberId).orElse(null);
-    if (memberToDesignate == null) {
-      throw new MemberNotFoundException("L'utilisateur n'existe pas.");
-    }
-
-    // Check if member belongs to the team
-    if (memberToDesignate.getTeam() == null
-        || !memberToDesignate.getTeam().getIdTeam().equals(teamId)) {
-      throw new UserNotInTeamException(
-          "L'utilisateur ne fait pas partie de la Team.");
-    }
+    Member memberToDesignate = getExistingMember(memberId);
+    requireTeamMembership(memberToDesignate, teamId);
 
     // Check if member is already a manager
-    if ((team.getManager1() != null && team.getManager1().getIdMember().equals(memberId))
-        || (team.getManager2() != null && team.getManager2().getIdMember().equals(memberId))) {
+    if (isManager(team, memberToDesignate)) {
       return team; // Already a manager
     }
 
@@ -295,8 +252,7 @@ public class TeamService {
           "L'utilisateur ne fait pas partie de la Team.");
     }
 
-    Team team = teamRepository.findById(currentMember.getTeam().getIdTeam())
-        .orElseThrow(() -> new TeamNotFoundException("Team not found"));
+    Team team = getExistingTeam(currentMember.getTeam().getIdTeam());
 
     if (isManager1(team, currentMember)) {
       if (team.getManager2() != null) {
@@ -332,18 +288,10 @@ public class TeamService {
    */
   @Transactional
   public Team resignManager(Long teamId, Member currentMember, Long replacementId) {
-    Team team = teamRepository.findById(teamId).orElseThrow(
-        () -> new TeamNotFoundException("La team n'existe pas."));
-
-    // Vérifier que c’est bien un manager
-    if (!isManager(team, currentMember)) {
-      throw new NotManagerException(
-          "L'utilisateur n'est pas responsable de cette team.");
-    }
+    Team team = getExistingTeam(teamId);
+    requireManager(team, currentMember);
 
     boolean isManager1 = isManager1(team, currentMember);
-    // boolean isManager2 = isManager2(team, currentMember);
-
     boolean hasOtherManager = hasOtherManager(team, currentMember);
 
     if (!hasOtherManager && replacementId == null) {
@@ -352,13 +300,8 @@ public class TeamService {
     }
 
     if (replacementId != null) {
-      Member replacement = memberRepository.findById(replacementId).orElseThrow(
-          () -> new MemberNotFoundException("Le remplaçant n'existe pas."));
-
-      if (replacement.getTeam() == null || !replacement.getTeam().getIdTeam().equals(teamId)) {
-        throw new UserNotInTeamException(
-            "Le remplaçant doit appartenir à la team.");
-      }
+      Member replacement = getExistingMember(replacementId);
+      requireTeamMembership(replacement, teamId);
 
       if (isManager(team, replacement)) {
         throw new MemberAlreadyManagerException("Ce membre est déjà responsable.");
@@ -382,4 +325,84 @@ public class TeamService {
 
     return teamRepository.save(team);
   }
+
+  /**
+   * Retrieves an existing team or throws an exception.
+   *
+   * @param teamId the team ID
+   * @return the team
+   * @throws TeamNotFoundException if the team does not exist
+   */
+  private Team getExistingTeam(Long teamId) {
+    return teamRepository.findById(teamId).orElseThrow(
+        () -> new TeamNotFoundException("La team n'existe pas ou n'est plus active."));
+  }
+
+  /**
+   * Validates that the member is a manager of the team.
+   *
+   * @param team the team
+   * @param member the member
+   * @throws NotManagerException if the member is not a manager
+   */
+  private void requireManager(Team team, Member member) {
+    if (!isManager(team, member)) {
+      throw new NotManagerException("L'utilisateur n'a pas les droits de responsable.");
+    }
+  }
+
+  /**
+   * Retrieves an existing member or throws an exception.
+   *
+   * @param memberId the member ID
+   * @return the member
+   * @throws MemberNotFoundException if the member does not exist
+   */
+  private Member getExistingMember(Long memberId) {
+    return memberRepository.findById(memberId).orElseThrow(
+        () -> new MemberNotFoundException("L'utilisateur n'existe pas."));
+  }
+
+  /**
+   * Validates that a member belongs to a specific team.
+   *
+   * @param member the member
+   * @param teamId the team ID
+   * @throws UserNotInTeamException if the member is not in the team
+   */
+  private void requireTeamMembership(Member member, Long teamId) {
+    if (member.getTeam() == null || !member.getTeam().getIdTeam().equals(teamId)) {
+      throw new UserNotInTeamException("L'utilisateur ne fait pas partie de la Team.");
+    }
+  }
+
+  private List<UserSummaryDto> getManagersSummary(Team team) {
+    List<UserSummaryDto> managers = new ArrayList<>();
+    if (team.getManager1() != null) {
+      managers.add(memberService.getUserSummary(team.getManager1()));
+    }
+    if (team.getManager2() != null) {
+      managers.add(memberService.getUserSummary(team.getManager2()));
+    }
+    return managers;
+  }
+
+  private List<UserSummaryDto> getMembersSummary(Team team) {
+    return team.getMembers().stream().filter(member -> !member.isDeleted())
+        .map(memberService::getUserSummary).collect(Collectors.toList());
+  }
+
+  private List<JoinRequestDto> getPendingJoinRequests(Team team, Member currentMember) {
+    if (currentMember == null || !isManager(team, currentMember)) {
+      return null;
+    }
+    return joinRequestRepository
+        .findAllByRequestedTeamAndStatus(team, RequestStatus.PENDING).stream()
+        .map(jr -> JoinRequestDto.builder().idJoinRequest(jr.getIdJoinRequest())
+            .idTeam(jr.getRequestedTeam().getIdTeam()).teamName(jr.getRequestedTeam().getName())
+            .status(jr.getStatus()).expirationDate(jr.getExpirationDate())
+            .requester(memberService.getUserSummary(jr.getMember())).build())
+        .collect(Collectors.toList());
+  }
 }
+
