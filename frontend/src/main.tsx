@@ -20,8 +20,11 @@ import { SnackbarProvider } from './contexts/SnackbarContext.tsx';
 import { TournamentPage } from './pages/TournamentPage/index.tsx';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from 'dayjs';
 import 'dayjs/locale/fr';
 import { TeamsPage } from './pages/TeamsPage/index.tsx';
+
+dayjs.locale('fr');
 
 const router = createBrowserRouter([
   {

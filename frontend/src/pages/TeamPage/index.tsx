@@ -16,7 +16,7 @@ import {
   TournamentFilters,
 } from '../../utils/tournamentUtils';
 import { useTournament } from '../../hooks/useTournaments';
-import { TournamentListSkeleton } from '../HomePage/components/TournamentListSkeleton';
+import { TournamentListSkeleton } from '../../components/TournamentListSkeleton';
 import { TournamentControls } from '../HomePage/components/TournamentControls';
 
 export const TeamPage = () => {

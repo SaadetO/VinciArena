@@ -57,10 +57,10 @@ export const groupTournamentsByYearAndMonth = (
 ): YearGroup[] => {
   const grouped = tournaments.reduce(
     (acc, tournament) => {
-      const date = new Date(tournament.startDate);
-      const year = date.getFullYear().toString();
+      const d = dayjs(tournament.startDate);
+      const year = d.year().toString();
 
-      const monthKey = date.toLocaleDateString('fr-FR', { month: 'long' });
+      const monthKey = d.format('MMMM');
       const capitalizedMonthKey =
         monthKey.charAt(0).toUpperCase() + monthKey.slice(1);
 
@@ -70,7 +70,7 @@ export const groupTournamentsByYearAndMonth = (
       // if accumulator[year] doesn't have the month, add it
       if (!acc[year][capitalizedMonthKey]) {
         acc[year][capitalizedMonthKey] = {
-          monthNumber: date.getMonth(),
+          monthNumber: d.month(),
           tournaments: [],
         };
       }

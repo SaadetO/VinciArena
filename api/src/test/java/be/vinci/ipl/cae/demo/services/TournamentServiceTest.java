@@ -192,7 +192,7 @@ class TournamentServiceTest {
     when(memberRepository.findById(1L)).thenReturn(Optional.of(manager));
     when(tournamentRepository.findById(100L)).thenReturn(Optional.of(tournament));
     when(teamService.isManager(team, manager)).thenReturn(true);
-    when(matchRepository.findByTournamentIdTournamentOrderByDateHourAsc(100L)).thenReturn(java.util.List.of());
+    when(matchRepository.findByTournamentIdTournament(100L)).thenReturn(java.util.List.of());
 
     // Act
     TournamentDetailsDto result = tournamentService.registerTeam(100L, manager);

@@ -17,6 +17,6 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
    * @param idTournament the id of the tournament
    * @return a list of matches
    */
-  List<Match> findByTournamentIdTournamentOrderByDateHourAsc(Long idTournament);
+  List<Match> findByTournamentIdTournament(Long idTournament);
 
 }

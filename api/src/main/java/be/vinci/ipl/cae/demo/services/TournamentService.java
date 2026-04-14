@@ -9,6 +9,7 @@ import be.vinci.ipl.cae.demo.exceptions.RegistrationClosedException;
 import be.vinci.ipl.cae.demo.exceptions.TournamentNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.TournamentNotInRegistrationClosedException;
 import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryDto;
+import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryTournamentDto;
 import be.vinci.ipl.cae.demo.models.dtos.MatchTeamDto;
 import be.vinci.ipl.cae.demo.models.dtos.NewTournament;
 import be.vinci.ipl.cae.demo.models.dtos.TeamSummaryDto;
@@ -81,37 +82,53 @@ public class TournamentService {
       return null;
     }
 
-    // Map participating teams
     List<TeamSummaryDto> teams = tournament.getTeams().stream()
         .map(t -> new TeamSummaryDto(t.getIdTeam(), t.getName())).toList();
 
-    // Fetch and map matches
-    List<Match> matchesEntities =
-        matchRepository.findByTournamentIdTournamentOrderByDateHourAsc(idTournament);
+    List<Match> matchesEntities = matchRepository.findByTournamentIdTournament(idTournament);
     List<MatchSummaryDto> matches = new ArrayList<>();
 
     for (Match match : matchesEntities) {
-      // Fetch lineups for results
+
+      if (isByeMatch(match)) {
+        continue;
+      }
+
       List<MatchLineup> lineups = matchLineupRepository.findByIdIdMatch(match.getIdMatch());
 
       MatchTeamDto team1Dto = createMatchTeamDto(match.getTeam1(), lineups);
       MatchTeamDto team2Dto = createMatchTeamDto(match.getTeam2(), lineups);
 
-      // Fetch confirmation status
       Optional<MatchResultConfirmation> confirmation =
           confirmationRepository.findById(match.getIdMatch());
       boolean isConfirmed =
           confirmation.isPresent() && Boolean.TRUE.equals(confirmation.get().getConfirmationTeam1())
               && Boolean.TRUE.equals(confirmation.get().getConfirmationTeam2());
 
+
       matches.add(new MatchSummaryDto(match.getIdMatch(), match.getDateHour(), match.getTurn(),
-          match.getStatus(), isConfirmed, team1Dto, team2Dto));
+          match.getStatus(), isConfirmed, team1Dto, team2Dto,
+          new MatchSummaryTournamentDto(tournament.getIdTournament(), tournament.getName())));
     }
 
     return new TournamentDetailsDto(tournament.getIdTournament(), tournament.getName(),
         tournament.getDescription(), tournament.getStartDate(), tournament.getEndDate(),
         tournament.getRegistrationDeadline(), tournament.getStatus(), tournament.getCapacity(),
         tournament.getRegistrationsNumber(), teams, matches);
+  }
+
+  private boolean isByeMatch(Match match) {
+    boolean hasExactlyOneTeam = (match.getTeam1() == null) ^ (match.getTeam2() == null);
+    boolean isBye = false;
+
+    if (hasExactlyOneTeam && match.getNextMatch() != null) {
+      Team singleTeam = (match.getTeam1() != null) ? match.getTeam1() : match.getTeam2();
+      Match nextMatch = match.getNextMatch();
+
+      isBye = singleTeam.equals(nextMatch.getTeam1()) || singleTeam.equals(nextMatch.getTeam2());
+    }
+
+    return isBye;
   }
 
   private MatchTeamDto createMatchTeamDto(Team team, List<MatchLineup> lineups) {
@@ -447,44 +464,40 @@ public class TournamentService {
    * @param tournament the tournament
    */
   private void scheduleMatches(List<Match> matches, Tournament tournament) {
-    final int matchDurationMins = 45;
-    final int bufferMins = 15;
-    final int maxConcurrentMatches = 10;
+    final int matchDurationMins = 60;
+    final int bufferMins = 30;
+    final int daysBetweenRounds = 1;
+    final int startTimeHour = 10;
 
     matches.sort(Comparator.comparingInt(Match::getTurn));
 
-    LocalDateTime currentTimeCursor = tournament.getStartDate().atTime(10, 0);
+    LocalDateTime currentTimeCursor = tournament.getStartDate().atTime(startTimeHour, 0);
     int currentRound = 1;
-    int matchesInCurrentWave = 0;
 
     for (Match match : matches) {
-      // Move to next round
       if (match.getTurn() > currentRound) {
         currentRound = match.getTurn();
-        currentTimeCursor = currentTimeCursor.plusMinutes(matchDurationMins + bufferMins);
-        matchesInCurrentWave = 0;
+        currentTimeCursor = currentTimeCursor.plusDays(daysBetweenRounds).withHour(startTimeHour)
+            .withMinute(0).withSecond(0).withNano(0);
       }
 
-      // Move to next wave if current servers are full
-      if (matchesInCurrentWave >= maxConcurrentMatches) {
+      if (isByeMatch(match)) {
+        match.setDateHour(currentTimeCursor);
+        match.setStatus(MatchStatus.PLAYED);
+      } else {
+        match.setDateHour(currentTimeCursor);
+        match.setStatus(MatchStatus.PLANNED);
         currentTimeCursor = currentTimeCursor.plusMinutes(matchDurationMins + bufferMins);
-        matchesInCurrentWave = 0;
       }
 
-      match.setDateHour(currentTimeCursor);
       match.setTournament(tournament);
-      match.setStatus(MatchStatus.PLANNED);
-
-      matchesInCurrentWave++;
     }
 
-    LocalDateTime actualFinishTime = currentTimeCursor.plusMinutes(matchDurationMins);
+    LocalDateTime actualFinishTime = currentTimeCursor;
 
-    // Fail-fast validation
     if (actualFinishTime.isAfter(tournament.getEndDate().atTime(10, 0))) {
-      throw new ImpossibleTournamentException("Tournament is physically impossible to complete! "
-          + "You need more concurrent servers or a later end date. " + "Estimated finish: "
-          + actualFinishTime);
+      tournament.setStatus(TournamentStatus.CANCELLED);
+      throw new ImpossibleTournamentException("Tournament is physically impossible to complete!");
     }
   }
 

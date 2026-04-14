@@ -216,6 +216,12 @@ interface MatchSummaryDto {
   isConfirmed: boolean;
   team1: MatchTeamDto;
   team2: MatchTeamDto;
+  tournament: MatchSummaryDtoTournament;
+}
+
+interface MatchSummaryDtoTournament {
+  id: number;
+  name: string;
 }
 
 interface TournamentDetailsInfoDto {
