@@ -292,6 +292,47 @@ export const useTournament = (config: UseTournamentOptions) => {
     },
   );
 
+  const { execute: generateMatches, loading: isGeneratingMatches } = useApi(
+    async (id: number) => {
+      const response = await fetch(`/api/tournaments/${id}/matches`, {
+        method: 'POST',
+        headers: {
+          Authorization: authenticatedUser?.token ?? '',
+        },
+      });
+
+      if (!response.ok) {
+        if (response.status === 404)
+          throw new ApiError('Tournoi introuvable.', response.status);
+        throw new ApiError(
+          'Échec de la génération des matchs.',
+          response.status,
+        );
+      }
+    },
+    {
+      onSuccess: () => {
+        showSnackbar({
+          message: 'Matchs générés avec succès.',
+          severity: 'success',
+        });
+      },
+      onError: (err) => {
+        const status = err instanceof ApiError ? err.status : 500;
+
+        const message =
+          status === 404
+            ? "Ce tournoi n'existe pas ou a été supprimé."
+            : 'Une erreur est survenue lors de la génération des matchs.';
+
+        showSnackbar({
+          message,
+          severity: 'error',
+        });
+      },
+    },
+  );
+
   return {
     getAll,
     getById,
@@ -299,10 +340,12 @@ export const useTournament = (config: UseTournamentOptions) => {
     update,
     publish,
     register,
+    generateMatches,
     isGettingTournaments,
     isGettingTournamentById,
     isCreating,
     isPublishing,
     isRegistering,
+    isGeneratingMatches,
   };
 };

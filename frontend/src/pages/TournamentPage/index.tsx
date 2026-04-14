@@ -12,7 +12,8 @@ import { AdminActionCard } from './components/AdminActionCard';
 import { useTournamentModal } from '../../hooks/useTournamentModal';
 import { useModal } from '../../hooks/useModal';
 import { useModalController } from '../../hooks/useModalController';
-import { publishTournamentModal } from '../../modals/publishTournamentModal';
+import { publishTournamentModal } from './modals/publishTournamentModal';
+import { generateMatchesModal } from './modals/generateMatchesModal';
 
 export const TournamentPage = () => {
   const { id } = useParams();
@@ -28,12 +29,16 @@ export const TournamentPage = () => {
   const { openModal } = useModal();
   const { setLoading } = useModalController();
 
-  const { getById, publish, register, isGettingTournamentById } = useTournament(
-    {
-      setTournament,
-      setError,
-    },
-  );
+  const {
+    getById,
+    publish,
+    register,
+    generateMatches,
+    isGettingTournamentById,
+  } = useTournament({
+    setTournament,
+    setError,
+  });
 
   const handleAdminAction = async (status: string) => {
     if (!idNbr) return;
@@ -47,8 +52,13 @@ export const TournamentPage = () => {
         }),
       );
     } else if (status === 'REGISTRATION_CLOSED') {
-      // TODO
-      console.log('Generating matches...');
+      openModal(
+        generateMatchesModal(async (close) => {
+          setLoading(true);
+          await generateMatches(idNbr);
+          close();
+        }),
+      );
     }
   };
 
