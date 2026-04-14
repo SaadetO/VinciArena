@@ -58,6 +58,7 @@ public class MatchService {
    * @return the member
    */
   private Member getMember(String email) {
+
     return memberRepository.findByEmail(email);
   }
 
