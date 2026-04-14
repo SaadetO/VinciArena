@@ -82,4 +82,33 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", ex.getMessage()));
   }
 
+  @ExceptionHandler({
+      EmailAlreadyTakenException.class
+  })
+  public ResponseEntity<Map<String, String>> handleConflictExceptions(RuntimeException ex) {
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", ex.getMessage()));
+  }
+
+  @ExceptionHandler({
+      InvalidPasswordException.class
+  })
+  public ResponseEntity<Map<String, String>> handleBadRequestExceptions(RuntimeException ex) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", ex.getMessage()));
+  }
+
+  @ExceptionHandler({
+      AccountBannedException.class,
+      ForbiddenException.class
+  })
+  public ResponseEntity<Map<String, String>> handleForbiddenExceptions(RuntimeException ex) {
+    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", ex.getMessage()));
+  }
+
+  @ExceptionHandler({
+      InvalidCredentialsException.class
+  })
+  public ResponseEntity<Map<String, String>> handleUnauthorizedExceptions(RuntimeException ex) {
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", ex.getMessage()));
+  }
+
 }
