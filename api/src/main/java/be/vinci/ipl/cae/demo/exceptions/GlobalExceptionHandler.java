@@ -118,7 +118,16 @@ public class GlobalExceptionHandler {
   public ResponseEntity<Map<String, String>> handleTeamNotInMatch(
       TeamNotInMatchException ex
   ) {
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", ex.getMessage()));
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(Map.of("message", ex.getMessage()));
+  }
+
+  @ExceptionHandler(MatchNotPlayedException.class)
+  public ResponseEntity<Map<String, String>> handleMatchNotPlayed(
+      MatchNotPlayedException ex
+  ) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(Map.of("message", ex.getMessage()));
   }
 
 }
