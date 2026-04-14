@@ -90,7 +90,9 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler({
-      InvalidPasswordException.class
+      InvalidPasswordException.class,
+      MemberAlreadyBannedException.class,
+      CannotBanSelfException.class
   })
   public ResponseEntity<Map<String, String>> handleBadRequestExceptions(RuntimeException ex) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", ex.getMessage()));
@@ -98,6 +100,8 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler({
       AccountBannedException.class,
+      NotAdminException.class,
+      CannotBanAdminException.class,
       ForbiddenException.class
   })
   public ResponseEntity<Map<String, String>> handleForbiddenExceptions(RuntimeException ex) {
@@ -105,7 +109,8 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler({
-      InvalidCredentialsException.class
+      InvalidCredentialsException.class,
+      NotAuthenticatedException.class
   })
   public ResponseEntity<Map<String, String>> handleUnauthorizedExceptions(RuntimeException ex) {
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", ex.getMessage()));
