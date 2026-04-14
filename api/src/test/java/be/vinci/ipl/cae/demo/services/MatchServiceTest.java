@@ -1,5 +1,9 @@
 package be.vinci.ipl.cae.demo.services;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import be.vinci.ipl.cae.demo.models.entities.Match;
 import be.vinci.ipl.cae.demo.models.entities.MatchResultConfirmation;
 import be.vinci.ipl.cae.demo.models.entities.Member;
@@ -7,7 +11,9 @@ import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.repositories.MatchRepository;
 import be.vinci.ipl.cae.demo.repositories.MatchResultConfirmationRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -51,6 +57,23 @@ public class MatchServiceTest {
 
     confirmation = new MatchResultConfirmation();
     confirmation.setId(1L);
+  }
+
+  @Test
+  void confirmResult_team1_success() {
+    // Arrange
+    member.setTeam(match.getTeam1());
+
+    when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
+    when(memberRepository.findByEmail("test@mail.com")).thenReturn(member);
+    when(confirmationRepository.findById(1L)).thenReturn(Optional.of(confirmation));
+
+    // Act
+    matchService.confirmResult(1L, "test@mail.com");
+
+    // Assert
+    assertTrue(confirmation.getConfirmationTeam1());
+    verify(confirmationRepository).save(confirmation);
   }
 
 }
