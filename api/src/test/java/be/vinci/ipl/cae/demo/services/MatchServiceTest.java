@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import be.vinci.ipl.cae.demo.exceptions.AlreadyConfirmedException;
 import be.vinci.ipl.cae.demo.exceptions.ForbiddenException;
 import be.vinci.ipl.cae.demo.exceptions.MatchNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.ResultNotFoundException;
@@ -140,6 +141,18 @@ public class MatchServiceTest {
         () -> matchService.confirmResult(1L, "test@mail.com"));
   }
 
+  @Test
+  void confirmResult_already_confirmed_team1() {
+    member.setTeam(match.getTeam1());
+    confirmation.setConfirmationTeam1(true);
+
+    when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
+    when(memberRepository.findByEmail("test@mail.com")).thenReturn(member);
+    when(confirmationRepository.findById(1L)).thenReturn(Optional.of(confirmation));
+
+    assertThrows(AlreadyConfirmedException.class,
+        () -> matchService.confirmResult(1L, "test@mail.com"));
+  }
 
 
 }
