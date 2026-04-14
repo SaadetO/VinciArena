@@ -28,10 +28,12 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
+import be.vinci.ipl.cae.demo.exceptions.AccountBannedException;
+import be.vinci.ipl.cae.demo.exceptions.EmailAlreadyTakenException;
+import be.vinci.ipl.cae.demo.exceptions.InvalidCredentialsException;
+import be.vinci.ipl.cae.demo.exceptions.InvalidPasswordException;
 
 /**
  * Service handling authentication and registration for members.
@@ -132,15 +134,15 @@ public class MemberService {
     Member member = memberRepository.findByEmail(email);
 
     if (member == null) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Identifiants invalides");
+      throw new InvalidCredentialsException("Identifiants invalides");
     }
 
     if (member.isDeleted()) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Compte banni");
+      throw new AccountBannedException("Compte banni");
     }
 
     if (!passwordEncoder.matches(password, member.getPassword())) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Identifiants invalides");
+      throw new InvalidCredentialsException("Identifiants invalides");
     }
 
     return createJwtToken(email);
@@ -148,28 +150,23 @@ public class MemberService {
 
   private void validatePassword(String password) {
     if (password == null || password.length() < 8) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-          "Le mot de passe doit contenir au moins 8 caractères");
+      throw new InvalidPasswordException("Le mot de passe doit contenir au moins 8 caractères");
     }
 
     if (!password.matches(".*[A-Z].*")) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-          "Le mot de passe doit contenir au moins une majuscule");
+      throw new InvalidPasswordException("Le mot de passe doit contenir au moins une majuscule");
     }
 
     if (!password.matches(".*[a-z].*")) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-          "Le mot de passe doit contenir au moins une minuscule");
+      throw new InvalidPasswordException("Le mot de passe doit contenir au moins une minuscule");
     }
 
     if (!password.matches(".*\\d.*")) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-          "Le mot de passe doit contenir au moins un chiffre");
+      throw new InvalidPasswordException("Le mot de passe doit contenir au moins un chiffre");
     }
 
     if (!password.matches(".*[^a-zA-Z0-9].*")) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-          "Le mot de passe doit contenir au moins un caractère spécial");
+      throw new InvalidPasswordException("Le mot de passe doit contenir au moins un caractère spécial");
     }
   }
 
@@ -183,7 +180,7 @@ public class MemberService {
     validatePassword(newMember.getPassword());
 
     if (memberRepository.existsByEmail(newMember.getEmail())) {
-      throw new ResponseStatusException(HttpStatus.CONFLICT, "Email déjà utilisé");
+      throw new EmailAlreadyTakenException("Email déjà utilisé");
     }
 
     Member member = new Member();
