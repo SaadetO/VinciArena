@@ -1,9 +1,11 @@
 package be.vinci.ipl.cae.demo.services;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import be.vinci.ipl.cae.demo.exceptions.MatchNotFoundException;
 import be.vinci.ipl.cae.demo.models.entities.Match;
 import be.vinci.ipl.cae.demo.models.entities.MatchResultConfirmation;
 import be.vinci.ipl.cae.demo.models.entities.Member;
@@ -91,5 +93,14 @@ public class MatchServiceTest {
     // Assert
     assertTrue(confirmation.getConfirmationTeam2());
   }
+
+  @Test
+  void confirmResult_match_not_found() {
+    when(matchRepository.findById(1L)).thenReturn(Optional.empty());
+
+    assertThrows(MatchNotFoundException.class,
+        () -> matchService.confirmResult(1L, "test@mail.com"));
+  }
+
 
 }
