@@ -161,7 +161,7 @@ public class MatchService {
 
     validateUserCanConfirm(match, member);
 
-    updateConfirmation(match, member, confirmation);
+    updateConfirmationStatus(match, member, confirmation, true);
 
     matchResultConfirmationRepository.save(confirmation);
   }
@@ -180,7 +180,7 @@ public class MatchService {
 
     validateUserCanConfirm(match, member);
 
-    updateContest(match, member, confirmation);
+    updateConfirmationStatus(match, member, confirmation, false);
 
     matchResultConfirmationRepository.save(confirmation);
   }
