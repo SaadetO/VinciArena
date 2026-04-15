@@ -113,6 +113,41 @@ public class MatchService {
   }
 
   /**
+   * Updates the confirmation status (confirm or contest) for the correct team.
+   *
+   * @param match the match
+   * @param member the member
+   * @param confirmation the confirmation entity
+   * @param status true for confirm, false for contest
+   */
+  private void updateConfirmationStatus(Match match, Member member,
+      MatchResultConfirmation confirmation,
+      boolean status) {
+
+    Long teamId = member.getTeam().getIdTeam();
+
+    boolean isTeam1 = match.getTeam1() != null
+        && match.getTeam1().getIdTeam().equals(teamId);
+
+    if (isTeam1) {
+
+      if (confirmation.getConfirmationTeam1() != null) {
+        throw new AlreadyConfirmedException("Already confirmed or contested");
+      }
+
+      confirmation.setConfirmationTeam1(status);
+
+    } else {
+
+      if (confirmation.getConfirmationTeam2() != null) {
+        throw new AlreadyConfirmedException("Already confirmed or contested");
+      }
+
+      confirmation.setConfirmationTeam2(status);
+    }
+  }
+
+  /**
    * Confirms the result of a match for the authenticated user.
    *
    * @param matchId the id of the match
