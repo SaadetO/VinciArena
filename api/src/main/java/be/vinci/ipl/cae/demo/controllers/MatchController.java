@@ -40,5 +40,4 @@ public class MatchController {
     matchService.confirmResult(id, email);
   }
 
-
 }

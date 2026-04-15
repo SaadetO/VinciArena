@@ -35,9 +35,12 @@ public class MatchService {
    * @param memberRepository the member repository
    * @param tournamentRepository the tournament repository
    */
-  public MatchService(MatchRepository matchRepository, TeamRepository teamRepository,
-      MemberRepository memberRepository, TournamentRepository tournamentRepository,
-      MatchLineupRepository matchLineupRepository, MatchResultConfirmationRepository matchResultConfirmation) {
+  public MatchService(MatchRepository matchRepository,
+      TeamRepository teamRepository,
+      MemberRepository memberRepository,
+      TournamentRepository tournamentRepository,
+      MatchLineupRepository matchLineupRepository,
+      MatchResultConfirmationRepository matchResultConfirmation) {
     this.matchRepository = matchRepository;
     this.teamRepository = teamRepository;
     this.memberRepository = memberRepository;

@@ -1,5 +1,15 @@
 package be.vinci.ipl.cae.demo.services;
 
+import be.vinci.ipl.cae.demo.exceptions.LastManagerCannotQuitException;
+import be.vinci.ipl.cae.demo.exceptions.MemberAlreadyManagerException;
+import be.vinci.ipl.cae.demo.exceptions.MemberNotFoundException;
+import be.vinci.ipl.cae.demo.exceptions.NoManagerSpotsLeftException;
+import be.vinci.ipl.cae.demo.exceptions.NotManagerException;
+import be.vinci.ipl.cae.demo.exceptions.ReplacementRequiredException;
+import be.vinci.ipl.cae.demo.exceptions.TeamNameAlreadyTakenException;
+import be.vinci.ipl.cae.demo.exceptions.TeamNotFoundException;
+import be.vinci.ipl.cae.demo.exceptions.UserAlreadyInTeamException;
+import be.vinci.ipl.cae.demo.exceptions.UserNotInTeamException;
 import be.vinci.ipl.cae.demo.models.dtos.FullTeamDto;
 import be.vinci.ipl.cae.demo.models.dtos.JoinRequestDto;
 import be.vinci.ipl.cae.demo.models.dtos.MemberSummaryDto;
@@ -18,16 +28,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import be.vinci.ipl.cae.demo.exceptions.LastManagerCannotQuitException;
-import be.vinci.ipl.cae.demo.exceptions.MemberAlreadyManagerException;
-import be.vinci.ipl.cae.demo.exceptions.MemberNotFoundException;
-import be.vinci.ipl.cae.demo.exceptions.NoManagerSpotsLeftException;
-import be.vinci.ipl.cae.demo.exceptions.NotManagerException;
-import be.vinci.ipl.cae.demo.exceptions.ReplacementRequiredException;
-import be.vinci.ipl.cae.demo.exceptions.TeamNameAlreadyTakenException;
-import be.vinci.ipl.cae.demo.exceptions.TeamNotFoundException;
-import be.vinci.ipl.cae.demo.exceptions.UserAlreadyInTeamException;
-import be.vinci.ipl.cae.demo.exceptions.UserNotInTeamException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
