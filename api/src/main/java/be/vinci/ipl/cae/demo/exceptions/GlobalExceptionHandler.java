@@ -36,7 +36,12 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler({
       EmailAlreadyTakenException.class,
-      DuplicateRegistrationException.class
+      DuplicateRegistrationException.class,
+      TeamNameAlreadyTakenException.class,
+      NoManagerSpotsLeftException.class,
+      LastManagerCannotQuitException.class,
+      ReplacementRequiredException.class,
+      MemberAlreadyManagerException.class
   })
   public ResponseEntity<Map<String, String>> handleConflictExceptions(RuntimeException ex) {
     return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", ex.getMessage()));
@@ -57,6 +62,9 @@ public class GlobalExceptionHandler {
       InactiveTeamException.class,
       TournamentNotInRegistrationClosedException.class,
       ImpossibleTournamentException.class,
+      InvalidTeamNameException.class,
+      UserAlreadyInTeamException.class,
+      UserNotInTeamException.class,
       TeamNotInMatchException.class,
       MatchNotPlayedException.class
   })

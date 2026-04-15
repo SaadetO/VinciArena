@@ -19,9 +19,9 @@ public class MatchController {
   private final MatchService matchService;
 
   /**
-   * Constructor.
+   * Constructor for MatchController.
    *
-   * @param matchService the match service
+   * @param matchService the injected MatchService
    */
   public MatchController(MatchService matchService) {
     this.matchService = matchService;

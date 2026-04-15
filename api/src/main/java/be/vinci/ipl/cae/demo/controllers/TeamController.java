@@ -1,5 +1,6 @@
 package be.vinci.ipl.cae.demo.controllers;
 
+import be.vinci.ipl.cae.demo.exceptions.InvalidTeamNameException;
 import be.vinci.ipl.cae.demo.models.dtos.FullTeamDto;
 import be.vinci.ipl.cae.demo.models.dtos.NewTeam;
 import be.vinci.ipl.cae.demo.models.dtos.TeamDetailsDto;
@@ -18,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 /**
  * TeamController to handle team-related requests.
@@ -51,7 +51,7 @@ public class TeamController {
   public Team createTeam(@RequestBody NewTeam newTeam,
       @AuthenticationPrincipal Member currentMember) {
     if (newTeam == null || newTeam.getName() == null || newTeam.getName().isBlank()) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+      throw new InvalidTeamNameException("Le nom de l'équipe ne peut pas être vide.");
     }
 
     return teamService.createTeam(newTeam.getName(), currentMember);
