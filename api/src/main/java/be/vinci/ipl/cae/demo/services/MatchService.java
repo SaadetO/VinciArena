@@ -55,7 +55,7 @@ public class MatchService {
     Team team = currentMember.getTeam();
 
     if (match == null) {
-      // MatchNotFoundException
+      // matchnotfoundException
     }
     // if not manager of one of the teams in the match
     if (memberService.isManagerOfTeam(currentMember, match.getTeam1())
@@ -63,7 +63,10 @@ public class MatchService {
         currentMember, match.getTeam2())) {
       throw new ForbiddenException("Cannot choose lineup if you aren't the manager of the team.");
     }
-    // check all the members exist
+    // check number of selected for lineup
+    if(newLineup.playerIds().size()>4){
+      throw
+    }
 
     // check members are in this team
     for (Long id : newLineup.playerIds()) {
