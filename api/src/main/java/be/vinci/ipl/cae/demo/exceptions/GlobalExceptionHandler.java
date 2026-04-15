@@ -12,6 +12,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+  /**
+   * Handles not found exceptions.
+   *
+   * @param ex the exception
+   * @return a 404 response with error message
+   */
+
   @ExceptionHandler({
       TournamentNotFoundException.class,
       TeamNotFoundException.class,
@@ -21,6 +28,12 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", ex.getMessage()));
   }
 
+  /**
+   * Handles conflict exceptions.
+   *
+   * @param ex the exception
+   * @return a 409 response with error message
+   */
   @ExceptionHandler({
       EmailAlreadyTakenException.class,
       DuplicateRegistrationException.class
@@ -29,6 +42,12 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", ex.getMessage()));
   }
 
+  /**
+   * Handles bad request exceptions.
+   *
+   * @param ex the exception
+   * @return a 400 response with error message
+   */
   @ExceptionHandler({
       InvalidPasswordException.class,
       MemberAlreadyBannedException.class,
@@ -45,17 +64,31 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", ex.getMessage()));
   }
 
+  /**
+   * Handles forbidden exceptions.
+   *
+   * @param ex the exception
+   * @return a 403 response with error message
+   */
   @ExceptionHandler({
       AccountBannedException.class,
       NotAdminException.class,
       CannotBanAdminException.class,
       ForbiddenException.class,
-      NotManagerException.class
+      NotManagerException.class,
+      MemberHasNoTeamException.class,
+      UserNotInMatchException.class
   })
   public ResponseEntity<Map<String, String>> handleForbiddenExceptions(RuntimeException ex) {
     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", ex.getMessage()));
   }
 
+  /**
+   * Handles unauthorized exceptions.
+   *
+   * @param ex the exception
+   * @return a 401 response with error message
+   */
   @ExceptionHandler({
       InvalidCredentialsException.class,
       NotAuthenticatedException.class
