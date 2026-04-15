@@ -22,7 +22,8 @@ public class GlobalExceptionHandler {
   @ExceptionHandler({
       TournamentNotFoundException.class,
       TeamNotFoundException.class,
-      MatchNotFoundException.class
+      MatchNotFoundException.class,
+      JoinRequestNotFoundException.class
   })
   public ResponseEntity<Map<String, String>> handleNotFoundExceptions(RuntimeException ex) {
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", ex.getMessage()));
@@ -41,7 +42,8 @@ public class GlobalExceptionHandler {
       NoManagerSpotsLeftException.class,
       LastManagerCannotQuitException.class,
       ReplacementRequiredException.class,
-      MemberAlreadyManagerException.class
+      MemberAlreadyManagerException.class,
+      JoinRequestAlreadyExistsException.class
   })
   public ResponseEntity<Map<String, String>> handleConflictExceptions(RuntimeException ex) {
     return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", ex.getMessage()));
@@ -66,7 +68,8 @@ public class GlobalExceptionHandler {
       UserAlreadyInTeamException.class,
       UserNotInTeamException.class,
       TeamNotInMatchException.class,
-      MatchNotPlayedException.class
+      MatchNotPlayedException.class,
+      InvalidJoinRequestException.class
   })
   public ResponseEntity<Map<String, String>> handleBadRequestExceptions(RuntimeException ex) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", ex.getMessage()));
