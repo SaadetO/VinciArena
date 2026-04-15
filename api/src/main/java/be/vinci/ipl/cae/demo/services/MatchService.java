@@ -167,6 +167,7 @@ public class MatchService {
    * @param email the email of the authenticated user
    */
   public void confirmResult(Long matchId, String email) {
+    handleMatchResult(matchId, email, true);
   }
 
   /**
