@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
   @ExceptionHandler({
-      TournamentNotFoundException.class
+      TournamentNotFoundException.class,
+      TeamNotFoundException.class,
+      MatchNotFoundException.class
   })
   public ResponseEntity<Map<String, String>> handleNotFoundExceptions(RuntimeException ex) {
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", ex.getMessage()));
@@ -35,7 +37,9 @@ public class GlobalExceptionHandler {
       InsufficientTeamMembersException.class,
       InactiveTeamException.class,
       TournamentNotInRegistrationClosedException.class,
-      ImpossibleTournamentException.class
+      ImpossibleTournamentException.class,
+      TeamNotInMatchException.class,
+      MatchNotPlayedException.class
   })
   public ResponseEntity<Map<String, String>> handleBadRequestExceptions(RuntimeException ex) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", ex.getMessage()));
