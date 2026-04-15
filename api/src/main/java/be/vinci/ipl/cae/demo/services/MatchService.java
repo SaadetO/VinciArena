@@ -1,22 +1,25 @@
 package be.vinci.ipl.cae.demo.services;
 
 import be.vinci.ipl.cae.demo.exceptions.ForbiddenException;
-import be.vinci.ipl.cae.demo.exceptions.InvalidBanException;
 import be.vinci.ipl.cae.demo.exceptions.InvalidLineupSizeException;
+import be.vinci.ipl.cae.demo.exceptions.MatchLineupNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.MatchNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.MemberNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.MemberNotInTeamException;
 import be.vinci.ipl.cae.demo.exceptions.MemberUnavailableException;
 import be.vinci.ipl.cae.demo.models.dtos.MatchLineupDto;
+import be.vinci.ipl.cae.demo.models.dtos.NewMatchLineupDto;
 import be.vinci.ipl.cae.demo.models.entities.Match;
 import be.vinci.ipl.cae.demo.models.entities.MatchLineup;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Team;
+import be.vinci.ipl.cae.demo.repositories.MatchLineupRepository;
 import be.vinci.ipl.cae.demo.repositories.MatchRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.TeamRepository;
 import be.vinci.ipl.cae.demo.repositories.TournamentRepository;
-import java.util.Optional;
+import java.util.HashSet;
+import java.util.Set;
 import org.springframework.stereotype.Service;
 
 /**
@@ -30,6 +33,7 @@ public class MatchService {
   private final MemberRepository memberRepository;
   private final TournamentRepository tournamentRepository;
   private final MemberService memberService;
+  private final MatchLineupRepository matchLineupRepository;
 
   /**
    * Constructor.
@@ -41,21 +45,26 @@ public class MatchService {
    */
   public MatchService(MatchRepository matchRepository, TeamRepository teamRepository,
       MemberRepository memberRepository, TournamentRepository tournamentRepository,
-      MemberService memberService) {
+      MemberService memberService, MatchLineupRepository matchLineupRepository) {
     this.matchRepository = matchRepository;
     this.teamRepository = teamRepository;
     this.memberRepository = memberRepository;
     this.tournamentRepository = tournamentRepository;
     this.memberService = memberService;
+    this.matchLineupRepository = matchLineupRepository;
   }
 
-  public MatchLineupDto updateLineup(MatchLineupDto newLineup, Long matchId, Member currentMember) {
-    validateMatchLineup(newLineup, matchId, currentMember);
+  public MatchLineupDto updateLineup(NewMatchLineupDto newLineup, Long matchId, Member currentMember) {
+    Set<Member> membersSet = validateMatchLineup(newLineup, matchId, currentMember);
     Match match = matchRepository.getMatchByIdMatch(matchId);
-    return null;
+    Team team = currentMember.getTeam();
+    MatchLineup matchLineup = matchLineupRepository.findByMatchAndTeam(match, team)
+        .orElseThrow(MatchLineupNotFoundException::new);
+    matchLineup.replaceLineup(membersSet);
+    return MatchLineupDto.fromEntity(matchLineup);
   }
 
-  private void validateMatchLineup(MatchLineupDto newLineup, Long matchId, Member currentMember) {
+  private Set<Member> validateMatchLineup(NewMatchLineupDto newLineup, Long matchId, Member currentMember) {
     Match match = matchRepository.getMatchByIdMatch(matchId);
     if (match == null) {
       throw new MatchNotFoundException("Match " + matchId + " not found.");
@@ -65,11 +74,8 @@ public class MatchService {
         && !memberService.isManagerOfTeam(currentMember, match.getTeam2())) {
       throw new ForbiddenException("You are not a manager for either team in this match.");
     }
-    // check number of selected for lineup
-    if (newLineup.playerIds().size() > 4) {
-      throw new InvalidLineupSizeException();
-    }
     Team team = currentMember.getTeam();
+    Set<Member> memberSet = new HashSet<>();
     // check members are in this team
     for (Long id : newLineup.playerIds()) {
       // check member exists
@@ -85,7 +91,9 @@ public class MatchService {
       if (!memberService.isMemberFreeAt(member, match.getDateHour())) {
         throw new MemberUnavailableException("Member " + id + " is not available for this date.");
       }
+      memberSet.add(member);
     }
+    return memberSet;
 
   }
 }

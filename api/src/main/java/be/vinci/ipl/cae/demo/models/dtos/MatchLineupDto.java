@@ -1,12 +1,28 @@
 package be.vinci.ipl.cae.demo.models.dtos;
 
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import be.vinci.ipl.cae.demo.models.entities.MatchLineup;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public record MatchLineupDto(
-    @NotNull(message = "Player set cannot be null")
-    @Size(max = 4, message = "Lineup cannot exceed 4 players")
-    Set<Long> playerIds
+    Long matchId,
+    Long teamId,
+    String teamName,
+    Set<MemberSummary> players
 ) {
+  public record MemberSummary(Long id, String tag) {
+
+  }
+    public static MatchLineupDto fromEntity(MatchLineup entity) {
+      Set<MemberSummary> summaries = entity.getMembers().stream()
+          .map(m -> new MemberSummary(m.getIdMember(), m.getTag()))
+          .collect(Collectors.toSet());
+
+      return new MatchLineupDto(
+          entity.getMatch().getIdMatch(),
+          entity.getTeam().getIdTeam(),
+          entity.getTeam().getName(),
+          summaries
+      );
+  }
 }
