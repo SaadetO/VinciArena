@@ -247,5 +247,18 @@ public class MatchServiceTest {
         () -> matchService.contestResult(1L, "test@mail.com"));
   }
 
+  @Test
+  void contestResult_already_confirmed_team1() {
+    member.setTeam(match.getTeam1());
+    confirmation.setConfirmationTeam1(true);
+
+    when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
+    when(memberRepository.findByEmail("test@mail.com")).thenReturn(member);
+    when(confirmationRepository.findById(1L)).thenReturn(Optional.of(confirmation));
+
+    assertThrows(AlreadyConfirmedException.class,
+        () -> matchService.contestResult(1L, "test@mail.com"));
+  }
+
 
 }
