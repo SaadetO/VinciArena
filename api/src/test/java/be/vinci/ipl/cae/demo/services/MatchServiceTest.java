@@ -221,6 +221,18 @@ public class MatchServiceTest {
         () -> matchService.contestResult(1L, "test@mail.com"));
   }
 
+  @Test
+  void contestResult_user_no_team() {
+    member.setTeam(null);
+
+    when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
+    when(memberRepository.findByEmail("test@mail.com")).thenReturn(member);
+    when(confirmationRepository.findById(1L)).thenReturn(Optional.of(confirmation));
+
+    assertThrows(MemberHasNoTeamException.class,
+        () -> matchService.contestResult(1L, "test@mail.com"));
+  }
+
 
 
 }
