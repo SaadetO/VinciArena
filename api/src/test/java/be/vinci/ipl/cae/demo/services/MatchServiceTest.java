@@ -211,6 +211,16 @@ public class MatchServiceTest {
         () -> matchService.contestResult(1L, "test@mail.com"));
   }
 
+  @Test
+  void contestResult_result_not_found() {
+    when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
+    when(memberRepository.findByEmail("test@mail.com")).thenReturn(member);
+    when(confirmationRepository.findById(1L)).thenReturn(Optional.empty());
+
+    assertThrows(ResultNotFoundException.class,
+        () -> matchService.contestResult(1L, "test@mail.com"));
+  }
+
 
 
 }
