@@ -1,5 +1,6 @@
 package be.vinci.ipl.cae.demo.services;
 
+import be.vinci.ipl.cae.demo.exceptions.ForbiddenException;
 import be.vinci.ipl.cae.demo.models.dtos.FullTeamDto;
 import be.vinci.ipl.cae.demo.models.dtos.JoinRequestDto;
 import be.vinci.ipl.cae.demo.models.dtos.MemberSummaryDto;
@@ -16,6 +17,7 @@ import jakarta.persistence.SecondaryTable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -41,10 +43,10 @@ public class TeamService {
   /**
    * Constructor.
    *
-   * @param teamRepository the team repository
-   * @param memberRepository the member repository
+   * @param teamRepository        the team repository
+   * @param memberRepository      the member repository
    * @param joinRequestRepository the join-request repository
-   * @param memberService the member service
+   * @param memberService         the member service
    */
   public TeamService(TeamRepository teamRepository, MemberRepository memberRepository,
       JoinRequestRepository joinRequestRepository, MemberService memberService) {
@@ -57,7 +59,7 @@ public class TeamService {
   /**
    * Get team details.
    *
-   * @param id the team ID
+   * @param id            the team ID
    * @param currentMember the current member
    * @return the team details; joinRequests is null if currentMember is not a team manager
    */
@@ -82,12 +84,12 @@ public class TeamService {
     List<JoinRequestDto> joinRequests = null;
 
     if (currentMember != null && isManager(team, currentMember)) {
-      joinRequests = joinRequestRepository
-          .findAllByRequestedTeamAndStatus(team, RequestStatus.PENDING).stream()
-          .map(jr -> JoinRequestDto.builder().idJoinRequest(jr.getIdJoinRequest())
-              .idTeam(jr.getRequestedTeam().getIdTeam()).teamName(jr.getRequestedTeam().getName())
-              .status(jr.getStatus()).expirationDate(jr.getExpirationDate())
-              .requester(memberService.getUserSummary(jr.getMember())).build())
+      joinRequests = joinRequestRepository.findAllByRequestedTeamAndStatus(team,
+              RequestStatus.PENDING).stream().map(
+              jr -> JoinRequestDto.builder().idJoinRequest(jr.getIdJoinRequest())
+                  .idTeam(jr.getRequestedTeam().getIdTeam()).teamName(jr.getRequestedTeam().getName())
+                  .status(jr.getStatus()).expirationDate(jr.getExpirationDate())
+                  .requester(memberService.getUserSummary(jr.getMember())).build())
           .collect(Collectors.toList());
     }
 
@@ -100,7 +102,7 @@ public class TeamService {
    * Create a new team. The creator becomes manager1 of the team.
    *
    * @param teamName the name for the new team
-   * @param creator the member creating the team
+   * @param creator  the member creating the team
    * @return the created team, or null
    */
   @Transactional
@@ -133,7 +135,7 @@ public class TeamService {
   /**
    * Check if member is a manager of a given team.
    *
-   * @param team the given team
+   * @param team   the given team
    * @param member the member to check for manager status
    * @return true is member is a manager; false otherwise
    */
@@ -147,31 +149,31 @@ public class TeamService {
   /**
    * Check if member is a manager1 of a given team.
    *
-   * @param team the given team
+   * @param team   the given team
    * @param member the member to check for manager1 status
    * @return true is member is a manager1; false otherwise
    */
   public boolean isManager1(Team team, Member member) {
-    return team.getManager1() != null
-        && team.getManager1().getIdMember().equals(member.getIdMember());
+    return team.getManager1() != null && team.getManager1().getIdMember()
+        .equals(member.getIdMember());
   }
 
   /**
    * Check if member is a manager2 of a given team.
    *
-   * @param team the given team
+   * @param team   the given team
    * @param member the member to check for manager2 status
    * @return true is member is a manager2; false otherwise
    */
   public boolean isManager2(Team team, Member member) {
-    return team.getManager2() != null
-        && team.getManager2().getIdMember().equals(member.getIdMember());
+    return team.getManager2() != null && team.getManager2().getIdMember()
+        .equals(member.getIdMember());
   }
 
   /**
    * Check if the team has another manager than the one given in parameter.
    *
-   * @param team the given team
+   * @param team   the given team
    * @param member one of or the only manager of the team
    * @return true if the team has another manager than the given member, false otherwise.
    */
@@ -191,7 +193,7 @@ public class TeamService {
   /**
    * Get all teams with optional filtering by active status and search query.
    *
-   * @param isActive the active status
+   * @param isActive    the active status
    * @param searchQuery the search query
    * @return a list of teams matching the criteria
    */
@@ -227,8 +229,8 @@ public class TeamService {
   /**
    * Designate a member as a manager of a team.
    *
-   * @param teamId the team ID
-   * @param memberId the member ID to designate
+   * @param teamId        the team ID
+   * @param memberId      the member ID to designate
    * @param currentMember the authenticated member
    * @return the updated team, or null if unauthorized, team/member not found, or no spots left
    */
@@ -253,15 +255,15 @@ public class TeamService {
     }
 
     // Check if member belongs to the team
-    if (memberToDesignate.getTeam() == null
-        || !memberToDesignate.getTeam().getIdTeam().equals(teamId)) {
+    if (memberToDesignate.getTeam() == null || !memberToDesignate.getTeam().getIdTeam()
+        .equals(teamId)) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
           "L'utilisateur ne fait pas partie de la Team.");
     }
 
     // Check if member is already a manager
-    if ((team.getManager1() != null && team.getManager1().getIdMember().equals(memberId))
-        || (team.getManager2() != null && team.getManager2().getIdMember().equals(memberId))) {
+    if ((team.getManager1() != null && team.getManager1().getIdMember().equals(memberId)) || (
+        team.getManager2() != null && team.getManager2().getIdMember().equals(memberId))) {
       return team; // Already a manager
     }
 
@@ -321,7 +323,7 @@ public class TeamService {
   /**
    * Allow a manager to resign from their role, optionally designating a replacement.
    *
-   * @param teamId the team ID
+   * @param teamId        the team ID
    * @param currentMember the manager who wants to resign
    * @param replacementId the ID of the replacement member (required if no other manager remains)
    * @return the updated team
@@ -379,10 +381,25 @@ public class TeamService {
     return teamRepository.save(team);
   }
 
-  public Set<Member> getAvailableMembers(LocalDateTime dateTime, Member currentMember){
-    Team team = currentMember.getTeam();
-    for (Member member : team.getMembers()) {
-     if()
+  /**
+   * Returns the set of team members available at a specific time. Only accessible by managers.
+   *
+   * @param dateTime      the time to check
+   * @param currentMember the manager requesting the list
+   * @return set of available members
+   * @throws ForbiddenException if the user is not a manager
+   */
+  public Set<Member> getAvailableMembers(LocalDateTime dateTime, Member currentMember) {
+    if (!currentMember.isAdmin()) {
+      throw new ForbiddenException("Not a manager");
     }
+    Team team = currentMember.getTeam();
+    Set<Member> availableMembers = new HashSet<>();
+    for (Member member : team.getMembers()) {
+      if (memberService.isMemberFreeAt(member, dateTime)) {
+        availableMembers.add(member);
+      }
+    }
+    return availableMembers;
   }
 }
