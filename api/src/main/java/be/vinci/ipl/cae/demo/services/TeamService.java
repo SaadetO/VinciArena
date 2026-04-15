@@ -12,9 +12,13 @@ import be.vinci.ipl.cae.demo.repositories.JoinRequestRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.TeamRepository;
 import be.vinci.ipl.cae.demo.specifications.TeamSpecifications;
+import jakarta.persistence.SecondaryTable;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -373,5 +377,12 @@ public class TeamService {
     }
 
     return teamRepository.save(team);
+  }
+
+  public Set<Member> getAvailableMembers(LocalDateTime dateTime, Member currentMember){
+    Team team = currentMember.getTeam();
+    for (Member member : team.getMembers()) {
+     if()
+    }
   }
 }

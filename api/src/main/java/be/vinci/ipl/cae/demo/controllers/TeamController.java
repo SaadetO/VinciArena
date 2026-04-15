@@ -6,6 +6,10 @@ import be.vinci.ipl.cae.demo.models.dtos.TeamDetailsDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.services.TeamService;
+import java.time.LocalDateTime;
+import java.util.Set;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.format.annotation.DateTimeFormat.ISO;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -41,7 +45,7 @@ public class TeamController {
   /**
    * Create a new team. The authenticated member becomes the team's manager.
    *
-   * @param newTeam the team creation request body.
+   * @param newTeam       the team creation request body.
    * @param currentMember the authenticated member.
    * @return the created team.
    */
@@ -71,7 +75,7 @@ public class TeamController {
   /**
    * Get team details.
    *
-   * @param id the team ID
+   * @param id            the team ID
    * @param currentMember the current member
    * @return the team details
    */
@@ -84,8 +88,8 @@ public class TeamController {
   /**
    * Designate a member as a manager of a team.
    *
-   * @param id the team ID
-   * @param idMember the member ID to designate
+   * @param id            the team ID
+   * @param idMember      the member ID to designate
    * @param currentMember the authenticated member
    * @return the updated team
    */
@@ -99,7 +103,7 @@ public class TeamController {
   /**
    * Allow a manager to resign from their role, optionally designating a replacement.
    *
-   * @param id the team ID
+   * @param id            the team ID
    * @param replacementId the ID of the replacement member (optional)
    * @param currentMember the authenticated member
    * @return the updated team
@@ -111,4 +115,11 @@ public class TeamController {
       @AuthenticationPrincipal Member currentMember) {
     return teamService.resignManager(id, currentMember, replacementId);
   }
+
+  @GetMapping("/my-team/available-members")
+  @PreAuthorize("isAuthenticated()")
+  public Set<Member> getAvailable(
+      @RequestParam("date" )@DateTimeFormat(iso = ISO.DATE_TIME) LocalDateTime dateTime,
+      @AuthenticationPrincipal Member currentMember)
+  { return null;}
 }
