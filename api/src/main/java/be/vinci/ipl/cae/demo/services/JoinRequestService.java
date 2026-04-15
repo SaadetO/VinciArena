@@ -1,6 +1,9 @@
 package be.vinci.ipl.cae.demo.services;
 
-import be.vinci.ipl.cae.demo.exceptions.*;
+import be.vinci.ipl.cae.demo.exceptions.InvalidJoinRequestException;
+import be.vinci.ipl.cae.demo.exceptions.JoinRequestAlreadyExistsException;
+import be.vinci.ipl.cae.demo.exceptions.JoinRequestNotFoundException;
+import be.vinci.ipl.cae.demo.exceptions.UserAlreadyInTeamException;
 import be.vinci.ipl.cae.demo.models.dtos.JoinRequestDto;
 import be.vinci.ipl.cae.demo.models.entities.JoinRequest;
 import be.vinci.ipl.cae.demo.models.entities.Member;
@@ -47,8 +50,9 @@ public class JoinRequestService {
    * @param teamId the ID of the team to join
    * @param requester the member requesting to join
    * @return the created JoinRequestDto
-   * @throws ResponseStatusException if team not found, user already in team or already has a
-   *         pending request for that team
+   * @throws TeamNotFoundException if the team does not exist
+   * @throws UserAlreadyInTeamException if the user is already in a team
+   * @throws JoinRequestAlreadyExistsException if a request already exists
    */
   public JoinRequestDto createJoinRequest(Long teamId, Member requester) {
     Team requestedTeam = teamService.getExistingTeam(teamId);
@@ -78,8 +82,9 @@ public class JoinRequestService {
    * @param rejectionReason the reason for rejection (required if REJECTED)
    * @param manager the manager performing the action
    * @return the updated JoinRequestDto
-   * @throws ResponseStatusException if the request doesn't exist, is not pending, or the user is
-   *         not authorized
+   * @throws JoinRequestNotFoundException if the request does not exist
+   * @throws InvalidJoinRequestException if the status is invalid or missing rejection reason
+   * @throws NotManagerException if the member is not a manager
    */
   @Transactional
   public JoinRequestDto updateJoinRequestStatus(Long requestId, RequestStatus newStatus,
@@ -141,7 +146,8 @@ public class JoinRequestService {
     if (newStatus == null) {
       throw new InvalidJoinRequestException("Le statut est obligatoire");
     }
-    if (newStatus == RequestStatus.REJECTED && (rejectionReason == null || rejectionReason.isBlank())) {
+    if (newStatus == RequestStatus.REJECTED
+        && (rejectionReason == null || rejectionReason.isBlank())) {
       throw new InvalidJoinRequestException("Une raison est obligatoire pour refuser une demande");
     }
   }
