@@ -18,7 +18,12 @@ public class MatchController {
 
   private final MatchService matchService;
 
-  public MatchController(MatchService matchService){
+  /**
+   * Constructor.
+   *
+   * @param matchService the match service
+   */
+  public MatchController(MatchService matchService) {
     this.matchService = matchService;
   }
 
@@ -31,9 +36,8 @@ public class MatchController {
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @PatchMapping("/{id}/confirm")
   public void confirmMatchResult(@PathVariable Long id,
-      @AuthenticationPrincipal String email){
-    matchService.confirmResult(id,email);
+      @AuthenticationPrincipal String email) {
+    matchService.confirmResult(id, email);
   }
-
 
 }
