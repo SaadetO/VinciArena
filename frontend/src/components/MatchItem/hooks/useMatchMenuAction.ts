@@ -3,7 +3,20 @@ export const useMatchMenuAction = () => {
 
   const handleEditComposition = () => {};
 
-  const handleContestScore = () => {};
+  const handleContestScore = async (matchId: number) => {
+    try {
+      await fetch(`/api/matches/${matchId}/contest`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: localStorage.getItem('token') ?? '',
+        },
+      });
+
+      console.log('Contest success');
+    } catch (error) {
+      console.error('Error contesting match', error);
+    }
+  };
 
   const handleConfirmScore = async (matchId: number) => {
     try {
