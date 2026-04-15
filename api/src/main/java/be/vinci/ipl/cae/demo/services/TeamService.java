@@ -71,6 +71,9 @@ public class TeamService {
     List<UserSummaryDto> managers = getManagersSummary(team);
     List<UserSummaryDto> members = getMembersSummary(team);
     List<JoinRequestDto> joinRequests = getPendingJoinRequests(team, currentMember);
+    if (joinRequests.isEmpty()) {
+      joinRequests = null;
+    }
 
     return TeamDetailsDto.builder().idTeam(team.getIdTeam()).name(team.getName())
         .isActive(team.getIsActive()).managers(managers).members(members).joinRequests(joinRequests)
@@ -394,7 +397,7 @@ public class TeamService {
 
   private List<JoinRequestDto> getPendingJoinRequests(Team team, Member currentMember) {
     if (currentMember == null || !isManager(team, currentMember)) {
-      return null;
+      return new ArrayList<>();
     }
     return joinRequestRepository
         .findAllByRequestedTeamAndStatus(team, RequestStatus.PENDING).stream()
