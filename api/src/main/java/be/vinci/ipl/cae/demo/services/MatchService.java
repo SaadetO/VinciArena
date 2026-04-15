@@ -1,7 +1,6 @@
 package be.vinci.ipl.cae.demo.services;
 
 import be.vinci.ipl.cae.demo.exceptions.ForbiddenException;
-import be.vinci.ipl.cae.demo.exceptions.InvalidLineupSizeException;
 import be.vinci.ipl.cae.demo.exceptions.MatchLineupNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.MatchNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.MemberNotFoundException;
@@ -16,11 +15,10 @@ import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.repositories.MatchLineupRepository;
 import be.vinci.ipl.cae.demo.repositories.MatchRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
-import be.vinci.ipl.cae.demo.repositories.TeamRepository;
-import be.vinci.ipl.cae.demo.repositories.TournamentRepository;
 import java.util.HashSet;
 import java.util.Set;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Match service.
@@ -47,6 +45,7 @@ public class MatchService {
     this.memberService = memberService;
     this.matchLineupRepository = matchLineupRepository;
   }
+
 
   public MatchLineupDto updateLineup(NewMatchLineupDto newLineup, Long matchId, Member currentMember) {
     Set<Member> membersSet = validateMatchLineup(newLineup, matchId, currentMember);

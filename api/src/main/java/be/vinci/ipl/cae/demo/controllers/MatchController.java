@@ -5,12 +5,14 @@ import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.services.MatchService;
 import be.vinci.ipl.cae.demo.services.MemberService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -32,13 +34,13 @@ public class MatchController {
    * @param newMatchLineupDto new lineup
    * @param currentMember     current member
    */
+  @ResponseStatus(HttpStatus.OK)
   @PatchMapping("/lineup/match/{id}")
   @PreAuthorize("isAuthenticated()")
   public void updateLineup(@PathVariable Long id,
       @Valid @RequestBody NewMatchLineupDto newMatchLineupDto,
       @AuthenticationPrincipal Member currentMember) {
     matchService.updateLineup(newMatchLineupDto, id, currentMember);
-
   }
 
 

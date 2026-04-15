@@ -1,0 +1,68 @@
+@baseUrl = http://localhost:3000
+
+### 2: Login Manager Alpha
+POST {{baseUrl}}/auths/login
+Content-Type: application/json
+
+{
+  "email": "lea@mail.com",
+  "password": "Password1!"
+}
+
+> {% client.global.set("auth_token", response.body.token); %}
+
+
+### 2: Update Lineup - Success (4 Players)
+# Assuming match ID 1 was created in your seed data
+PATCH {{baseUrl}}/matches/lineup/match/1
+Authorization: {{auth_token}}
+Content-Type: application/json
+
+{
+  "playerIds": [1, 2]
+}
+
+
+### 3: Update Lineup - Failure (Too many players)
+# Should return 400 Bad Request due to Size(max = 4)
+PATCH {{baseUrl}}/matches/lineup/match/1
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+{
+  "playerIds": [1, 2, 3, 4, 5]
+}
+
+
+### 4: Update Lineup - Failure (Forbidden)
+# Log in as a manager of TEAM_IOTA and try to change TEAM_ALPHA's match (ID 1)
+# First, log in as Lisa
+POST {{baseUrl}}/auths/login
+Content-Type: application/json
+
+{
+  "email": "lisa@mail.com",
+  "password": "Password1!"
+}
+
+> {% client.global.set("lisa_token", response.body.token); %}
+
+### Try to update Match 1 (Alpha vs Omega) as Lisa (Iota)
+PATCH {{baseUrl}}/matches/lineup/match/1
+Authorization: Bearer {{lisa_token}}
+Content-Type: application/json
+
+{
+  "playerIds": [5, 6]
+}
+
+
+### 5: Update Lineup - Failure (No Auth)
+# Should return 401 Unauthorized
+PATCH {{baseUrl}}/matches/lineup/match/1
+Content-Type: application/json
+
+{
+  "playerIds": [1]
+}
+
