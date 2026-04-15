@@ -15,6 +15,7 @@ import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.repositories.MatchLineupRepository;
 import be.vinci.ipl.cae.demo.repositories.MatchRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import org.springframework.stereotype.Service;
@@ -88,5 +89,31 @@ public class MatchService {
     }
     return memberSet;
 
+  }
+
+  /**
+   * Returns the set of team members available at a specific time. Only accessible by managers.
+   *
+   */
+  public Set<Member> getAvailableMembersForMatch(Long matchId, Member currentMember) {
+    if (!currentMember.isAdmin()) {
+      throw new ForbiddenException("Not a manager");
+    }
+
+    // Extract the date from the match directly
+    Match match = matchRepository.findById(matchId)
+        .orElseThrow(MatchNotFoundException::new);
+
+    LocalDateTime dateTime = match.getDateHour();
+
+    // The rest of your logic remains the same
+    Team team = currentMember.getTeam();
+    Set<Member> availableMembers = new HashSet<>();
+    for (Member member : team.getMembers()) {
+      if (memberService.isMemberFreeAt(member, dateTime)) {
+        availableMembers.add(member);
+      }
+    }
+    return availableMembers;
   }
 }

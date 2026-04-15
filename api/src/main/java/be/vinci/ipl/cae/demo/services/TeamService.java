@@ -1,13 +1,10 @@
 package be.vinci.ipl.cae.demo.services;
 
-import be.vinci.ipl.cae.demo.exceptions.ForbiddenException;
-import be.vinci.ipl.cae.demo.exceptions.MatchNotFoundException;
 import be.vinci.ipl.cae.demo.models.dtos.FullTeamDto;
 import be.vinci.ipl.cae.demo.models.dtos.JoinRequestDto;
 import be.vinci.ipl.cae.demo.models.dtos.MemberSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.TeamDetailsDto;
 import be.vinci.ipl.cae.demo.models.dtos.UserSummaryDto;
-import be.vinci.ipl.cae.demo.models.entities.Match;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.RequestStatus;
 import be.vinci.ipl.cae.demo.models.entities.Team;
@@ -16,14 +13,9 @@ import be.vinci.ipl.cae.demo.repositories.MatchRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.TeamRepository;
 import be.vinci.ipl.cae.demo.specifications.TeamSpecifications;
-import jakarta.persistence.SecondaryTable;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
-import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -40,7 +32,6 @@ public class TeamService {
 
   private final TeamRepository teamRepository;
   private final MemberRepository memberRepository;
-  private final MatchRepository matchRepository;
   private final JoinRequestRepository joinRequestRepository;
   private final MemberService memberService;
 
@@ -53,10 +44,9 @@ public class TeamService {
    * @param memberService         the member service
    */
   public TeamService(TeamRepository teamRepository, MemberRepository memberRepository,
-      JoinRequestRepository joinRequestRepository, MemberService memberService, MatchRepository matchRepository) {
+      JoinRequestRepository joinRequestRepository, MemberService memberService) {
     this.teamRepository = teamRepository;
     this.memberRepository = memberRepository;
-    this.matchRepository = matchRepository;
     this.joinRequestRepository = joinRequestRepository;
     this.memberService = memberService;
   }
@@ -386,29 +376,4 @@ public class TeamService {
     return teamRepository.save(team);
   }
 
-  /**
-   * Returns the set of team members available at a specific time. Only accessible by managers.
-   *
-   */
-  public Set<Member> getAvailableMembersForMatch(Long matchId, Member currentMember) {
-    if (!currentMember.isAdmin()) {
-      throw new ForbiddenException("Not a manager");
-    }
-
-    // Extract the date from the match directly
-    Match match = matchRepository.findById(matchId)
-        .orElseThrow(MatchNotFoundException::new);
-
-    LocalDateTime dateTime = match.getDateHour();
-
-    // The rest of your logic remains the same
-    Team team = currentMember.getTeam();
-    Set<Member> availableMembers = new HashSet<>();
-    for (Member member : team.getMembers()) {
-      if (memberService.isMemberFreeAt(member, dateTime)) {
-        availableMembers.add(member);
-      }
-    }
-    return availableMembers;
-  }
 }
