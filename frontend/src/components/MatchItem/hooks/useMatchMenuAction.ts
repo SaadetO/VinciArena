@@ -4,6 +4,10 @@ import { useContext } from 'react';
 import { UserContext } from '../../../contexts/UserContext';
 import { ApiError } from '../../../types';
 
+const { authenticatedUser } = useContext(UserContext);
+const { showSnackbar } = useSnackbar();
+
+
 export const useMatchMenuAction = () => {
   const handleForfeit = () => {};
 
