@@ -162,13 +162,5 @@ export const formatAndCapitalize = (
   formatStr: string,
 ): string => {
   const formatted = d.format(formatStr);
-
-  // capitalize the first letter of the day label or the month label
-
-  const parts = formatted.split(' ');
-  for (let i = 0; i < parts.length; i++) {
-    parts[i] = parts[i].charAt(0).toUpperCase() + parts[i].slice(1);
-  }
-
-  return parts.join(' ');
+  return formatted.charAt(0).toUpperCase() + formatted.slice(1);
 };

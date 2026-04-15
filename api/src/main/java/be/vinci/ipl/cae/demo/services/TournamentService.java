@@ -499,6 +499,8 @@ public class TournamentService {
       tournament.setStatus(TournamentStatus.CANCELLED);
       throw new ImpossibleTournamentException("Tournament is physically impossible to complete!");
     }
+
+    tournament.setEndDate(actualFinishTime.toLocalDate());
   }
 
   /**

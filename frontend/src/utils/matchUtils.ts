@@ -2,9 +2,7 @@ import dayjs from 'dayjs';
 import { MatchSummaryDto } from '../types';
 
 export interface DayGroup {
-  /** Pre-formatted label, e.g. "Vendredi 20 Février" */
   day: string;
-  /** ISO date string (YYYY-MM-DD) used for sorting */
   dateKey: string;
   matches: MatchSummaryDto[];
 }
@@ -19,8 +17,8 @@ export interface MatchYearGroup {
  * Groups matches by year and day.
  * Each day label is formatted as "Vendredi 20 Février" (capitalised, in French).
  *
- * @param matches The matches to group.
- * @returns An array of year groups, each containing day groups, sorted descending.
+ * @param {MatchSummaryDto[]} matches The matches to group.
+ * @return {MatchYearGroup[]} An array of year groups, each containing day groups, sorted descending.
  */
 export const groupMatchesByYearAndDay = (
   matches: MatchSummaryDto[],
@@ -31,7 +29,6 @@ export const groupMatchesByYearAndDay = (
       const year = d.year().toString();
       const dateKey = d.format('YYYY-MM-DD');
 
-      // "dddd D MMMM" → e.g. "vendredi 20 février"
       const rawLabel = d.format('dddd D MMMM');
       const dayLabel = rawLabel
         .split(' ')
@@ -60,7 +57,6 @@ export const groupMatchesByYearAndDay = (
     ([year, daysObj]) => {
       const daysData: DayGroup[] = Object.entries(daysObj).map(
         ([dateKey, data]) => {
-          // Sort matches within a day by time (latest first)
           const sortedMatches = [...data.matches].sort(
             (a, b) =>
               new Date(b.dateHour).getTime() - new Date(a.dateHour).getTime(),
@@ -74,7 +70,6 @@ export const groupMatchesByYearAndDay = (
         },
       );
 
-      // Sort days descending (latest first within a year)
       daysData.sort((a, b) => b.dateKey.localeCompare(a.dateKey));
 
       return {
@@ -85,7 +80,6 @@ export const groupMatchesByYearAndDay = (
     },
   );
 
-  // Sort years descending (most recent year first)
   yearGroups.sort((a, b) => b.yearNumber - a.yearNumber);
 
   return yearGroups;

@@ -3,6 +3,7 @@ import { MatchSummaryDto } from '../../types';
 import { VersusItem } from './components/VersusItem';
 import dayjs from 'dayjs';
 import { Link } from 'react-router-dom';
+import { MatchMenu } from './components/MatchMenu';
 
 interface MatchItemProps {
   match: MatchSummaryDto;
@@ -29,15 +30,14 @@ export const MatchItem = ({ match }: MatchItemProps) => {
           </Typography>
         </Grid2>
         <VersusItem match={match} />
-        <Grid2 pr="0.75rem" size={3} display="flex" alignItems="center">
-          <Stack
-            padding="0 0.75rem"
-            borderRadius="0.5rem"
-            // border="1px solid"
-            borderColor="divider"
-            height="2rem"
-            justifyContent="center"
-          ></Stack>
+        <Grid2
+          pr="0.75rem"
+          size={3}
+          display="flex"
+          alignItems="center"
+          justifyContent="flex-end"
+        >
+          <MatchMenu match={match} />
         </Grid2>
       </Grid2>
       <Stack

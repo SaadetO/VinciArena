@@ -7,12 +7,12 @@ import java.time.LocalDateTime;
  * Match Summary DTO with confirmation state and nested teams.
  */
 public record MatchSummaryDto(
-  Long idMatch,
-  LocalDateTime dateHour,
-  Integer turn,
-  MatchStatus status,
-  boolean isConfirmed,
-  MatchTeamDto team1,
-  MatchTeamDto team2,
-  MatchSummaryTournamentDto tournament
+    Long idMatch,
+    LocalDateTime dateHour,
+    Integer turn,
+    MatchStatus status,
+    boolean isConfirmed,
+    MatchTeamDto team1,
+    MatchTeamDto team2,
+    MatchSummaryTournamentDto tournament
 ) {}

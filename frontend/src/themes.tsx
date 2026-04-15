@@ -831,6 +831,7 @@ export const theme = createTheme({
     MuiMenuItem: {
       styleOverrides: {
         root: {
+          gap: '0.625rem',
           borderRadius: '0.5rem',
           padding: '0.375rem 0.75rem',
           minHeight: '2.25rem',
