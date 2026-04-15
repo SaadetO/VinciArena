@@ -40,4 +40,10 @@ public class MatchController {
     matchService.confirmResult(id, email);
   }
 
+  @PatchMapping("/{id}/contest")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void contestMatchResult(@PathVariable Long id,
+      @AuthenticationPrincipal String email) {
+    matchService.contestResult(id,email);
+  }
 }

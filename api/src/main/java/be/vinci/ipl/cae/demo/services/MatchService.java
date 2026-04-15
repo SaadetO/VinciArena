@@ -215,9 +215,4 @@ public class MatchService {
 
     matchResultConfirmationRepository.save(confirmation);
   }
-
-
-
-
-
 }
