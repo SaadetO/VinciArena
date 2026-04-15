@@ -197,7 +197,7 @@ public class MatchService {
     match.setStatus(MatchStatus.FORFEIT);
 
     // TODO:
-    //  Set the other team as the winner (if they haven't declared forfeit as well ?)
+    //  Set the other team as the winner (if they haven't declared forfeit as well ? IMPOSSIBLE)
     //    QUESTION: what if the other team also declare forfeit ?
     //  Eliminate the team from the tournament (calling TeamService ?)
     //    QUESTION: which service should be eliminating the team from the tournament ?

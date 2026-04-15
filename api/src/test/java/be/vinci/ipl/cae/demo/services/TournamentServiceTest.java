@@ -23,6 +23,7 @@ import be.vinci.ipl.cae.demo.repositories.MatchLineupRepository;
 import be.vinci.ipl.cae.demo.repositories.MatchRepository;
 import be.vinci.ipl.cae.demo.repositories.MatchResultConfirmationRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
+import be.vinci.ipl.cae.demo.repositories.TeamRepository;
 import be.vinci.ipl.cae.demo.repositories.TournamentRepository;
 import java.time.LocalDate;
 import java.util.Optional;
@@ -50,6 +51,9 @@ class TournamentServiceTest {
   private MatchResultConfirmationRepository confirmationRepository;
 
   @Mock
+  private TeamRepository teamRepository;
+
+  @Mock
   private TeamService teamService;
 
   @Mock
@@ -71,7 +75,8 @@ class TournamentServiceTest {
   void setUp() {
     tournamentService =
         new TournamentService(tournamentRepository, memberRepository, matchLineupRepository,
-            matchRepository, confirmationRepository, teamService, notificationService);
+            matchRepository, confirmationRepository, teamRepository, teamService,
+            notificationService);
 
     memberAdmin = new Member();
     memberAdmin.setAdmin(true);

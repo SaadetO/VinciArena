@@ -6,6 +6,7 @@ import be.vinci.ipl.cae.demo.exceptions.InactiveTeamException;
 import be.vinci.ipl.cae.demo.exceptions.InsufficientTeamMembersException;
 import be.vinci.ipl.cae.demo.exceptions.NotManagerException;
 import be.vinci.ipl.cae.demo.exceptions.RegistrationClosedException;
+import be.vinci.ipl.cae.demo.exceptions.TeamNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.TournamentNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.TournamentNotInRegistrationClosedException;
 import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryDto;
@@ -28,6 +29,7 @@ import be.vinci.ipl.cae.demo.repositories.MatchLineupRepository;
 import be.vinci.ipl.cae.demo.repositories.MatchRepository;
 import be.vinci.ipl.cae.demo.repositories.MatchResultConfirmationRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
+import be.vinci.ipl.cae.demo.repositories.TeamRepository;
 import be.vinci.ipl.cae.demo.repositories.TournamentRepository;
 import be.vinci.ipl.cae.demo.specifications.TournamentSpecifications;
 import be.vinci.ipl.cae.demo.utils.BracketGenerator;
@@ -54,6 +56,7 @@ public class TournamentService {
   private final MatchLineupRepository matchLineupRepository;
   private final MatchRepository matchRepository;
   private final MatchResultConfirmationRepository confirmationRepository;
+  private final TeamRepository teamRepository;
   private final NotificationService notificationService;
   private final TeamService teamService;
 
@@ -63,12 +66,14 @@ public class TournamentService {
   public TournamentService(TournamentRepository tournamentRepository,
       MemberRepository memberRepository, MatchLineupRepository matchLineupRepository,
       MatchRepository matchRepository, MatchResultConfirmationRepository confirmationRepository,
+      TeamRepository teamRepository,
       TeamService teamService, NotificationService notificationService) {
     this.tournamentRepository = tournamentRepository;
     this.memberRepository = memberRepository;
     this.matchLineupRepository = matchLineupRepository;
     this.matchRepository = matchRepository;
     this.confirmationRepository = confirmationRepository;
+    this.teamRepository = teamRepository;
     this.notificationService = notificationService;
     this.teamService = teamService;
   }
@@ -539,5 +544,27 @@ public class TournamentService {
     lineup.setHasForfeited(false);
 
     return lineup;
+  }
+
+  public void eliminateTeam(Long teamId, Long matchId, Long tournamentId) {
+    Team team = teamRepository.findById(teamId).orElse(null);
+
+    if (team == null) {
+      throw new TeamNotFoundException("Team not found");
+    }
+
+    Tournament tournament = tournamentRepository.findById(tournamentId).orElse(null);
+
+    if (tournament == null) {
+      throw new TournamentNotFoundException("Tournament not found");
+    }
+
+    MatchLineup lineup = matchLineupRepository.findByIdIdMatch(matchId)
+        .stream().findFirst().orElse(null);
+
+    if (lineup == null) {
+      // TODO: create a new exception for this case
+      throw new RuntimeException("Match line up not found");
+    }
   }
 }
