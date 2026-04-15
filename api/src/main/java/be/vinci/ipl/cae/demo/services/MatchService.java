@@ -197,5 +197,27 @@ public class MatchService {
     }
   }
 
+  /**
+   * Contests the result of a match for the authenticated user.
+   *
+   * @param matchId the id of the match
+   * @param email the email of the authenticated user
+   */
+  public void contestResult(Long matchId, String email) {
+
+    Match match = getMatch(matchId);
+    Member member = getMember(email);
+    MatchResultConfirmation confirmation = getConfirmation(matchId);
+
+    validateUserCanConfirm(match, member);
+
+    updateContest(match, member, confirmation);
+
+    matchResultConfirmationRepository.save(confirmation);
+  }
+
+
+
+
 
 }
