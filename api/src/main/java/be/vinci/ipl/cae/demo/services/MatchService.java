@@ -163,4 +163,39 @@ public class MatchService {
 
     matchResultConfirmationRepository.save(confirmation);
   }
+
+  /**
+   * Updates the contestation for the correct team.
+   *
+   * @param match the match
+   * @param member the member
+   * @param confirmation the confirmation entity
+   */
+  private void updateContest(Match match, Member member,
+      MatchResultConfirmation confirmation) {
+
+    Long teamId = member.getTeam().getIdTeam();
+
+    boolean isTeam1 = match.getTeam1() != null
+        && match.getTeam1().getIdTeam().equals(teamId);
+
+    if (isTeam1) {
+
+      if (confirmation.getConfirmationTeam1() != null) {
+        throw new AlreadyConfirmedException("Already confirmed or contested");
+      }
+
+      confirmation.setConfirmationTeam1(false);
+
+    } else {
+
+      if (confirmation.getConfirmationTeam2() != null) {
+        throw new AlreadyConfirmedException("Already confirmed or contested");
+      }
+
+      confirmation.setConfirmationTeam2(false);
+    }
+  }
+
+
 }
