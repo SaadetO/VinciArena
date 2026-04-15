@@ -52,7 +52,7 @@ export const useMatchMenuAction = () => {
         severity: 'success',
       });
 
-      window.location.reload(); // refresh simple
+      window.location.reload();
     } catch (error) {
       showSnackbar({
         message: 'Erreur lors de la confirmation',
