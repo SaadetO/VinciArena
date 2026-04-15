@@ -4,7 +4,7 @@ import tournamentHeroHeader from '../../../assets/images/tournament_hero_header.
 import { TournamentStatusChip } from '../../../components/TournamentItem/components/TournamentStatusChip';
 import { TournamentDate } from '../../../components/TournamentItem/components/TournamentDate';
 import { CalendarXmark } from '@gravity-ui/icons';
-import { formatDate } from '../../../utils/date';
+import dayjs from 'dayjs';
 
 export const TournamentBanner = ({
   tournament,
@@ -43,7 +43,9 @@ export const TournamentBanner = ({
                 icon={
                   <CalendarXmark style={{ width: '1rem', height: '1rem' }} />
                 }
-                label={formatDate(tournament.registrationDeadline, false)}
+                label={dayjs(tournament.registrationDeadline).format(
+                  'D MMMM YYYY',
+                )}
               />
             </Tooltip>
             <TournamentDate

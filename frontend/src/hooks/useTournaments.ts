@@ -260,7 +260,7 @@ export const useTournament = (config: UseTournamentOptions) => {
         throw new ApiError("Échec de l'inscription.", response.status);
       }
 
-      return await response.json();
+      return response.json();
     },
     {
       onSuccess: (data) => {
@@ -292,6 +292,62 @@ export const useTournament = (config: UseTournamentOptions) => {
     },
   );
 
+  const { execute: generateMatches, loading: isGeneratingMatches } = useApi(
+    async (id: number) => {
+      const response = await fetch(`/api/tournaments/${id}/matches`, {
+        method: 'POST',
+        headers: {
+          Authorization: authenticatedUser?.token ?? '',
+        },
+      });
+
+      if (!response.ok) {
+        if (response.status === 404)
+          throw new ApiError('Tournoi introuvable.', response.status);
+        else if (response.status === 400)
+          throw new ApiError('Tournoi impossible.', response.status);
+        throw new ApiError(
+          'Échec de la génération des matchs.',
+          response.status,
+        );
+      }
+
+      return response.json();
+    },
+    {
+      onSuccess: (data) => {
+        setTournament?.(data);
+        showSnackbar({
+          message: 'Matchs générés avec succès.',
+          severity: 'success',
+        });
+      },
+      onError: (err) => {
+        const status = err instanceof ApiError ? err.status : 500;
+
+        const message =
+          status === 404
+            ? "Ce tournoi n'existe pas ou a été supprimé."
+            : status === 400
+              ? 'La date de fin du tournoi est trop proche pour pouvoir planifier tous les matchs. Tournoi annulé.'
+              : 'Une erreur est survenue lors de la génération des matchs.';
+
+        if (status === 400)
+          setTournament?.((prev) => {
+            if (!prev) return prev;
+            return {
+              ...prev,
+              status: 'CANCELLED',
+            };
+          });
+        showSnackbar({
+          message,
+          severity: 'error',
+        });
+      },
+    },
+  );
+
   return {
     getAll,
     getById,
@@ -299,10 +355,12 @@ export const useTournament = (config: UseTournamentOptions) => {
     update,
     publish,
     register,
+    generateMatches,
     isGettingTournaments,
     isGettingTournamentById,
     isCreating,
     isPublishing,
     isRegistering,
+    isGeneratingMatches,
   };
 };

@@ -1,4 +1,4 @@
-import { ModalConfig } from '../types';
+import { ModalConfig } from '../../../types';
 
 export const publishTournamentModal = (
   onConfirm: (close: () => void) => void,

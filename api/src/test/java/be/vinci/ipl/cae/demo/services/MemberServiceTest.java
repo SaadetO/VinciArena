@@ -3,10 +3,12 @@ package be.vinci.ipl.cae.demo.services;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
-import be.vinci.ipl.cae.demo.exceptions.BadRequestException;
-import be.vinci.ipl.cae.demo.exceptions.ForbiddenException;
+import be.vinci.ipl.cae.demo.exceptions.CannotBanAdminException;
+import be.vinci.ipl.cae.demo.exceptions.CannotBanSelfException;
+import be.vinci.ipl.cae.demo.exceptions.MemberAlreadyBannedException;
 import be.vinci.ipl.cae.demo.exceptions.MemberNotFoundException;
-import be.vinci.ipl.cae.demo.exceptions.UnauthorizedException;
+import be.vinci.ipl.cae.demo.exceptions.NotAdminException;
+import be.vinci.ipl.cae.demo.exceptions.NotAuthenticatedException;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
@@ -81,7 +83,7 @@ class MemberServiceTest {
     when(memberRepository.findByEmail("user@mail.com")).thenReturn(user);
 
     // Act & Assert
-    assertThrows(ForbiddenException.class, () -> {
+    assertThrows(NotAdminException.class, () -> {
       memberService.banMember(1L, "user@mail.com");
     });
   }
@@ -119,7 +121,7 @@ class MemberServiceTest {
     when(memberRepository.findById(1L)).thenReturn(Optional.of(target));
 
     // Act & Assert
-    assertThrows(BadRequestException.class, () -> {
+    assertThrows(MemberAlreadyBannedException.class, () -> {
       memberService.banMember(1L, "admin@mail.com");
     });
   }
@@ -137,7 +139,7 @@ class MemberServiceTest {
     when(memberRepository.findById(1L)).thenReturn(Optional.of(admin));
 
     // Act & Assert
-    assertThrows(ForbiddenException.class, () -> {
+    assertThrows(CannotBanSelfException.class, () -> {
       memberService.banMember(1L, "admin@mail.com");
     });
   }
@@ -158,7 +160,7 @@ class MemberServiceTest {
     when(memberRepository.findById(1L)).thenReturn(Optional.of(target));
 
     // Act & Assert
-    assertThrows(ForbiddenException.class, () -> {
+    assertThrows(CannotBanAdminException.class, () -> {
       memberService.banMember(1L, "admin@mail.com");
     });
   }
@@ -170,7 +172,7 @@ class MemberServiceTest {
     when(memberRepository.findByEmail("admin@mail.com")).thenReturn(null);
 
     // Act & Assert
-    assertThrows(UnauthorizedException.class, () -> {
+    assertThrows(NotAuthenticatedException.class, () -> {
       memberService.banMember(1L, "admin@mail.com");
     });
   }

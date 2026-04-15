@@ -15,10 +15,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -187,8 +185,8 @@ public class DemoApplication {
         t.setStatus(data.status());
         t.setWinner(teamMap.get(data.winnerTeamName));
 
-        // Remplissage des teams inscrites (Set<Team>)
-        Set<Team> registered = new HashSet<>();
+        // Remplissage des teams inscrites (List<Team>)
+        List<Team> registered = new ArrayList<>();
         for (int i = 0; i < data.teamCount() && i < poolOfTeams.size(); i++) {
           registered.add(poolOfTeams.get(i));
         }
