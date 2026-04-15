@@ -55,6 +55,10 @@ class TournamentServiceTest {
   @Mock
   private NotificationService notificationService;
 
+  @Mock
+  private MatchService matchService;
+
+  @Mock
   private TournamentService tournamentService;
 
   private Member memberAdmin;
@@ -69,9 +73,8 @@ class TournamentServiceTest {
 
   @BeforeEach
   void setUp() {
-    tournamentService =
-        new TournamentService(tournamentRepository, memberRepository, matchLineupRepository,
-            matchRepository, confirmationRepository, teamService, notificationService);
+    tournamentService = new TournamentService(tournamentRepository, memberRepository,
+        matchLineupRepository, matchRepository, teamService, notificationService, matchService);
 
     memberAdmin = new Member();
     memberAdmin.setAdmin(true);

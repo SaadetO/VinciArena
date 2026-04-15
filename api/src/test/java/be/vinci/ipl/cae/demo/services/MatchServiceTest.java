@@ -123,8 +123,7 @@ public class MatchServiceTest {
     when(memberRepository.findByEmail("test@mail.com")).thenReturn(member);
     when(confirmationRepository.findById(1L)).thenReturn(Optional.of(confirmation));
 
-    assertThrows(ForbiddenException.class,
-        () -> matchService.confirmResult(1L, "test@mail.com"));
+    assertThrows(ForbiddenException.class, () -> matchService.confirmResult(1L, "test@mail.com"));
   }
 
   @Test
@@ -137,8 +136,7 @@ public class MatchServiceTest {
     when(memberRepository.findByEmail("test@mail.com")).thenReturn(member);
     when(confirmationRepository.findById(1L)).thenReturn(Optional.of(confirmation));
 
-    assertThrows(ForbiddenException.class,
-        () -> matchService.confirmResult(1L, "test@mail.com"));
+    assertThrows(ForbiddenException.class, () -> matchService.confirmResult(1L, "test@mail.com"));
   }
 
   @Test

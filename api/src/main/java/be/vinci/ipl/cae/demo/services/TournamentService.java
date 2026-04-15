@@ -9,15 +9,14 @@ import be.vinci.ipl.cae.demo.exceptions.RegistrationClosedException;
 import be.vinci.ipl.cae.demo.exceptions.TournamentNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.TournamentNotInRegistrationClosedException;
 import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryDto;
-import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryTournamentDto;
-import be.vinci.ipl.cae.demo.models.dtos.MatchTeamDto;
+
 import be.vinci.ipl.cae.demo.models.dtos.NewTournament;
 import be.vinci.ipl.cae.demo.models.dtos.TeamSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.TournamentDetailsDto;
 import be.vinci.ipl.cae.demo.models.dtos.TournamentSummaryDto;
 import be.vinci.ipl.cae.demo.models.entities.Match;
 import be.vinci.ipl.cae.demo.models.entities.MatchLineup;
-import be.vinci.ipl.cae.demo.models.entities.MatchResultConfirmation;
+
 import be.vinci.ipl.cae.demo.models.entities.MatchStatus;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.NotificationType;
@@ -26,7 +25,6 @@ import be.vinci.ipl.cae.demo.models.entities.Tournament;
 import be.vinci.ipl.cae.demo.models.entities.TournamentStatus;
 import be.vinci.ipl.cae.demo.repositories.MatchLineupRepository;
 import be.vinci.ipl.cae.demo.repositories.MatchRepository;
-import be.vinci.ipl.cae.demo.repositories.MatchResultConfirmationRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.TournamentRepository;
 import be.vinci.ipl.cae.demo.specifications.TournamentSpecifications;
@@ -36,7 +34,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
+
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -53,63 +51,42 @@ public class TournamentService {
   private final MemberRepository memberRepository;
   private final MatchLineupRepository matchLineupRepository;
   private final MatchRepository matchRepository;
-  private final MatchResultConfirmationRepository confirmationRepository;
   private final NotificationService notificationService;
   private final TeamService teamService;
+  private final MatchService matchService;
 
   /**
    * Constructor.
    */
   public TournamentService(TournamentRepository tournamentRepository,
       MemberRepository memberRepository, MatchLineupRepository matchLineupRepository,
-      MatchRepository matchRepository, MatchResultConfirmationRepository confirmationRepository,
-      TeamService teamService, NotificationService notificationService) {
+      MatchRepository matchRepository, TeamService teamService,
+      NotificationService notificationService, MatchService matchService) {
     this.tournamentRepository = tournamentRepository;
     this.memberRepository = memberRepository;
     this.matchLineupRepository = matchLineupRepository;
     this.matchRepository = matchRepository;
-    this.confirmationRepository = confirmationRepository;
     this.notificationService = notificationService;
     this.teamService = teamService;
+    this.matchService = matchService;
   }
 
   /**
    * Get complete details of a tournament (teams, matches, scores).
+   *
+   * @param idTournament the id of the tournament
+   * @return the tournament details
    */
   public TournamentDetailsDto getTournamentDetails(Long idTournament) {
     Tournament tournament = tournamentRepository.findById(idTournament).orElse(null);
+
     if (tournament == null) {
       return null;
     }
 
-    List<TeamSummaryDto> teams = tournament.getTeams().stream()
-        .map(t -> new TeamSummaryDto(t.getIdTeam(), t.getName())).toList();
+    List<TeamSummaryDto> teams = getTeams(tournament);
 
-    List<Match> matchesEntities = matchRepository.findByTournamentIdTournament(idTournament);
-    List<MatchSummaryDto> matches = new ArrayList<>();
-
-    for (Match match : matchesEntities) {
-
-      if (isByeMatch(match)) {
-        continue;
-      }
-
-      List<MatchLineup> lineups = matchLineupRepository.findByIdIdMatch(match.getIdMatch());
-
-      MatchTeamDto team1Dto = createMatchTeamDto(match.getTeam1(), lineups);
-      MatchTeamDto team2Dto = createMatchTeamDto(match.getTeam2(), lineups);
-
-      Optional<MatchResultConfirmation> confirmation =
-          confirmationRepository.findById(match.getIdMatch());
-      boolean isConfirmed =
-          confirmation.isPresent() && Boolean.TRUE.equals(confirmation.get().getConfirmationTeam1())
-              && Boolean.TRUE.equals(confirmation.get().getConfirmationTeam2());
-
-
-      matches.add(new MatchSummaryDto(match.getIdMatch(), match.getDateHour(), match.getTurn(),
-          match.getStatus(), isConfirmed, team1Dto, team2Dto,
-          new MatchSummaryTournamentDto(tournament.getIdTournament(), tournament.getName())));
-    }
+    List<MatchSummaryDto> matches = getMatchesSummaryDto(tournament);
 
     return new TournamentDetailsDto(tournament.getIdTournament(), tournament.getName(),
         tournament.getDescription(), tournament.getStartDate(), tournament.getEndDate(),
@@ -117,6 +94,49 @@ public class TournamentService {
         tournament.getRegistrationsNumber(), teams, matches);
   }
 
+  /**
+   * Get the teams of a tournament
+   *
+   * @param tournament the tournament
+   * @return the teams of the tournament
+   */
+  private List<TeamSummaryDto> getTeams(Tournament tournament) {
+    return tournament.getTeams().stream().map(t -> new TeamSummaryDto(t.getIdTeam(), t.getName()))
+        .toList();
+  }
+
+  /**
+   * Get the matches of a tournament
+   *
+   * @param tournament the tournament
+   * @return the matches of the tournament
+   */
+  private List<MatchSummaryDto> getMatchesSummaryDto(Tournament tournament) {
+    if (tournament.getStatus() != TournamentStatus.REGISTRATION_OPEN) {
+      return new ArrayList<>();
+    }
+
+    List<Match> matchesEntities =
+        matchRepository.findByTournamentIdTournament(tournament.getIdTournament());
+    List<MatchSummaryDto> matches = new ArrayList<>();
+
+    for (Match match : matchesEntities) {
+      if (isByeMatch(match)) {
+        continue;
+      }
+
+      matches.add(matchService.mapMatchToSummaryDto(match, tournament));
+    }
+
+    return matches;
+  }
+
+  /**
+   * Check if a match is a bye match
+   *
+   * @param match the match
+   * @return true if the match is a bye match, false otherwise
+   */
   private boolean isByeMatch(Match match) {
     boolean hasExactlyOneTeam = (match.getTeam1() == null) ^ (match.getTeam2() == null);
     boolean isBye = false;
@@ -129,22 +149,6 @@ public class TournamentService {
     }
 
     return isBye;
-  }
-
-  private MatchTeamDto createMatchTeamDto(Team team, List<MatchLineup> lineups) {
-    if (team == null) {
-      return null;
-    }
-
-    MatchLineup lineup = lineups.stream()
-        .filter(l -> l.getTeam().getIdTeam().equals(team.getIdTeam())).findFirst().orElse(null);
-
-    if (lineup == null) {
-      return new MatchTeamDto(team.getIdTeam(), team.getName(), null, false, false);
-    }
-
-    return new MatchTeamDto(team.getIdTeam(), team.getName(), lineup.getScore(), lineup.isWinner(),
-        lineup.isHasForfeited());
   }
 
   /**
@@ -436,7 +440,6 @@ public class TournamentService {
 
     generateAndSaveDefaultLineups(savedMatches);
 
-    tournament.setStatus(TournamentStatus.IN_PROGRESS);
     tournamentRepository.save(tournament);
   }
 
