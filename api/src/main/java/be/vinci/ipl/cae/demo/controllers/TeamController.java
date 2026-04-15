@@ -116,10 +116,5 @@ public class TeamController {
     return teamService.resignManager(id, currentMember, replacementId);
   }
 
-  @GetMapping("/my-team/available-members")
-  @PreAuthorize("isAuthenticated()")
-  public Set<Member> getAvailable(
-      @RequestParam("date" )@DateTimeFormat(iso = ISO.DATE_TIME) LocalDateTime dateTime,
-      @AuthenticationPrincipal Member currentMember)
-  { return null;}
+
 }
