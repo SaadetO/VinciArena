@@ -1,15 +1,18 @@
 package be.vinci.ipl.cae.demo.services;
 
 import be.vinci.ipl.cae.demo.exceptions.ForbiddenException;
+import be.vinci.ipl.cae.demo.exceptions.MatchNotFoundException;
 import be.vinci.ipl.cae.demo.models.dtos.FullTeamDto;
 import be.vinci.ipl.cae.demo.models.dtos.JoinRequestDto;
 import be.vinci.ipl.cae.demo.models.dtos.MemberSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.TeamDetailsDto;
 import be.vinci.ipl.cae.demo.models.dtos.UserSummaryDto;
+import be.vinci.ipl.cae.demo.models.entities.Match;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.RequestStatus;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.repositories.JoinRequestRepository;
+import be.vinci.ipl.cae.demo.repositories.MatchRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.TeamRepository;
 import be.vinci.ipl.cae.demo.specifications.TeamSpecifications;
@@ -37,6 +40,7 @@ public class TeamService {
 
   private final TeamRepository teamRepository;
   private final MemberRepository memberRepository;
+  private final MatchRepository matchRepository;
   private final JoinRequestRepository joinRequestRepository;
   private final MemberService memberService;
 
@@ -49,9 +53,10 @@ public class TeamService {
    * @param memberService         the member service
    */
   public TeamService(TeamRepository teamRepository, MemberRepository memberRepository,
-      JoinRequestRepository joinRequestRepository, MemberService memberService) {
+      JoinRequestRepository joinRequestRepository, MemberService memberService, MatchRepository matchRepository) {
     this.teamRepository = teamRepository;
     this.memberRepository = memberRepository;
+    this.matchRepository = matchRepository;
     this.joinRequestRepository = joinRequestRepository;
     this.memberService = memberService;
   }
@@ -384,15 +389,19 @@ public class TeamService {
   /**
    * Returns the set of team members available at a specific time. Only accessible by managers.
    *
-   * @param dateTime      the time to check
-   * @param currentMember the manager requesting the list
-   * @return set of available members
-   * @throws ForbiddenException if the user is not a manager
    */
-  public Set<Member> getAvailableMembers(LocalDateTime dateTime, Member currentMember) {
+  public Set<Member> getAvailableMembersForMatch(Long matchId, Member currentMember) {
     if (!currentMember.isAdmin()) {
       throw new ForbiddenException("Not a manager");
     }
+
+    // Extract the date from the match directly
+    Match match = matchRepository.findById(matchId)
+        .orElseThrow(MatchNotFoundException::new);
+
+    LocalDateTime dateTime = match.getDateHour();
+
+    // The rest of your logic remains the same
     Team team = currentMember.getTeam();
     Set<Member> availableMembers = new HashSet<>();
     for (Member member : team.getMembers()) {
