@@ -177,6 +177,6 @@ public class MatchService {
    * @param email the email of the authenticated user
    */
   public void contestResult(Long matchId, String email) {
-
+    handleMatchResult(matchId, email, false);
   }
 }
