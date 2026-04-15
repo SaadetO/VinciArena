@@ -57,7 +57,8 @@ public class MatchService {
    */
   private Match getMatch(Long matchId) {
     return matchRepository.findById(matchId)
-        .orElseThrow(() -> new MatchNotFoundException("Match not found"));
+        .orElseThrow(() ->
+            new MatchNotFoundException("Match not found"));
   }
 
   /**
