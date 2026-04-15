@@ -51,8 +51,8 @@ export const useMatchMenu = ({ match }: MatchMenuProps) => {
     hasAnySection,
     handleForfeit,
     handleEditComposition,
-    handleContestScore: () => handleContestScore(match.id),
-    handleConfirmScore: () => handleConfirmScore(match.id),
+    handleContestScore: () => handleContestScore(match.idMatch),
+    handleConfirmScore: () => handleConfirmScore(match.idMatch),
     handleEncodeScore,
     handleEditScore,
   };
