@@ -3,9 +3,13 @@ export const useMatchMenuAction = () => {
 
   const handleEditComposition = () => {};
 
-  const handleContestScore = () => {};
+  const handleContestScore = (matchId: number) => {
 
-  const handleConfirmScore = () => {};
+  };
+
+  const handleConfirmScore = (matchId: number) => {
+    
+  };
 
   const handleEncodeScore = () => {};
 
