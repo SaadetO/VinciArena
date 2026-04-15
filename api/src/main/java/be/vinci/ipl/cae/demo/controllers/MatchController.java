@@ -28,14 +28,16 @@ public class MatchController {
   /**
    * Replaces the old matchLineup with the new lineup
    *
-   * @param id id of the match
+   * @param id                id of the match
    * @param newMatchLineupDto new lineup
-   * @param currentMember current member
+   * @param currentMember     current member
    */
   @PatchMapping("/lineup/match/{id}")
   @PreAuthorize("isAuthenticated()")
-  public void updateLineup(@PathVariable Long id,@Valid @RequestBody NewMatchLineupDto newMatchLineupDto, @AuthenticationPrincipal Member currentMember){
-
+  public void updateLineup(@PathVariable Long id,
+      @Valid @RequestBody NewMatchLineupDto newMatchLineupDto,
+      @AuthenticationPrincipal Member currentMember) {
+    matchService.updateLineup(newMatchLineupDto, id, currentMember);
 
   }
 

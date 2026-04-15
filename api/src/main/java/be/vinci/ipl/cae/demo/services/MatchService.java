@@ -29,9 +29,7 @@ import org.springframework.stereotype.Service;
 public class MatchService {
 
   private final MatchRepository matchRepository;
-  private final TeamRepository teamRepository;
   private final MemberRepository memberRepository;
-  private final TournamentRepository tournamentRepository;
   private final MemberService memberService;
   private final MatchLineupRepository matchLineupRepository;
 
@@ -39,17 +37,13 @@ public class MatchService {
    * Constructor.
    *
    * @param matchRepository      the match repository
-   * @param teamRepository       the team repository
    * @param memberRepository     the member repository
-   * @param tournamentRepository the tournament repository
    */
-  public MatchService(MatchRepository matchRepository, TeamRepository teamRepository,
-      MemberRepository memberRepository, TournamentRepository tournamentRepository,
+  public MatchService(MatchRepository matchRepository,
+      MemberRepository memberRepository,
       MemberService memberService, MatchLineupRepository matchLineupRepository) {
     this.matchRepository = matchRepository;
-    this.teamRepository = teamRepository;
     this.memberRepository = memberRepository;
-    this.tournamentRepository = tournamentRepository;
     this.memberService = memberService;
     this.matchLineupRepository = matchLineupRepository;
   }
