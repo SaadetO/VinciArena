@@ -300,7 +300,7 @@ public class TeamService {
    * @return the team
    * @throws TeamNotFoundException if the team does not exist
    */
-  private Team getExistingTeam(Long teamId) {
+  public Team getExistingTeam(Long teamId) {
     return teamRepository.findById(teamId).orElseThrow(
         () -> new TeamNotFoundException("La team n'existe pas ou n'est plus active."));
   }
@@ -312,7 +312,7 @@ public class TeamService {
    * @param member the member
    * @throws NotManagerException if the member is not a manager
    */
-  private void requireManager(Team team, Member member) {
+  public void requireManager(Team team, Member member) {
     if (!isManager(team, member)) {
       throw new NotManagerException("L'utilisateur n'a pas les droits de responsable.");
     }
