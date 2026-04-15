@@ -1,5 +1,6 @@
 import { useSnackbar } from '../../../hooks/useSnackbar';
 
+const { showSnackbar } = useSnackbar();
 
 export const useMatchMenuAction = () => {
   const handleForfeit = () => {};
@@ -23,16 +24,28 @@ export const useMatchMenuAction = () => {
 
   const handleConfirmScore = async (matchId: number) => {
     try {
-      await fetch(`/api/matches/${matchId}/confirm`, {
+      const response = await fetch(`/api/matches/${matchId}/confirm`, {
         method: 'PATCH',
         headers: {
           Authorization: localStorage.getItem('token') ?? '',
         },
       });
 
-      console.log('Confirm success');
+      if (!response.ok) {
+        throw new Error();
+      }
+
+      showSnackbar({
+        message: 'Résultat confirmé !',
+        severity: 'success',
+      });
+
+      window.location.reload(); // refresh simple
     } catch (error) {
-      console.error('Error confirming match', error);
+      showSnackbar({
+        message: 'Erreur lors de la confirmation',
+        severity: 'error',
+      });
     }
   };
 
