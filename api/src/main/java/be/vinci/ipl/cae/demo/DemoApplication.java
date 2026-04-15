@@ -1,11 +1,16 @@
 package be.vinci.ipl.cae.demo;
 
+import be.vinci.ipl.cae.demo.models.entities.Match;
+import be.vinci.ipl.cae.demo.models.entities.MatchLineup;
+import be.vinci.ipl.cae.demo.models.entities.MatchStatus;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.ProfileImage;
 import be.vinci.ipl.cae.demo.models.entities.Specialty;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.models.entities.Tournament;
 import be.vinci.ipl.cae.demo.models.entities.TournamentStatus;
+import be.vinci.ipl.cae.demo.repositories.MatchLineupRepository;
+import be.vinci.ipl.cae.demo.repositories.MatchRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.ProfileImageRepository;
 import be.vinci.ipl.cae.demo.repositories.SpecialtyRepository;
@@ -19,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.StreamSupport;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -49,11 +55,12 @@ public class DemoApplication {
   @Bean
   CommandLineRunner seed(MemberRepository memberRepo, TeamRepository teamRepo,
       SpecialtyRepository specRepo, ProfileImageRepository imageRepo,
-      TournamentRepository tournamentRepo) {
+      TournamentRepository tournamentRepo, MatchRepository matchRepo, MatchLineupRepository matchLineupRepo) {
     return args -> {
       // Create Specialities
       String[] specialities = {"architecte", "exécuteur", "tacticien", "gardien", "catalyseur",
           "perturbateur", "guérisseur"};
+      Map<String, Team> teamMap = new HashMap<>();
       Map<String, Specialty> specMap = new HashMap<>();
       for (String specialty : specialities) {
         Specialty spec = new Specialty();
@@ -98,7 +105,7 @@ public class DemoApplication {
           new MemberMockData("zoe@mail.com", "Vector", "catalyseur", "2026-02-04", false, false,
               "TEAM_IOTA")};
 
-      Map<String, Team> teamMap = new HashMap<>();
+
       String pw = "Password1!";
       String encodedPw = new BCryptPasswordEncoder().encode(pw);
 
@@ -205,7 +212,59 @@ public class DemoApplication {
         tournamentRepo.save(t);
       }
 
+      // create mock matches
+      Tournament springBattle = StreamSupport.stream(tournamentRepo.findAll().spliterator(), false)
+          .filter(t -> t.getName().equals("Spring Battle Series 2026"))
+          .findFirst()
+          .orElse(null);
+      Team alpha = teamRepo.findByName("TEAM_ALPHA");
+      Team omega = teamRepo.findByName("TEAM_OMEGA");
+      Team iota = teamRepo.findByName("TEAM_IOTA");
+      Team ghost1 = teamRepo.findByName("TEAM_GHOST_1");
+      // MATCH 1: Alpha vs Omega
+      Match match1 = new Match();
+      match1.setTournament(springBattle);
+      match1.setTeam1(alpha);
+      match1.setTeam2(omega);
+      match1.setTurn(1);
+      match1.setDateHour(LocalDateTime.now().plusDays(2).withHour(14).withMinute(0));
+      match1.setStatus(MatchStatus.PLANNED);
+      match1 = matchRepo.save(match1);
+
+      // MATCH 2: Iota vs Ghost 1
+      Match match2 = new Match();
+      match2.setTournament(springBattle);
+      match2.setTeam1(iota);
+      match2.setTeam2(ghost1);
+      match2.setTurn(1);
+      match2.setDateHour(LocalDateTime.now().plusDays(2).withHour(16).withMinute(30));
+      match2.setStatus(MatchStatus.PLANNED);
+      match2 = matchRepo.save(match2);
+      createEmptyMatchLineup(match1, alpha, matchLineupRepo );
+      createEmptyMatchLineup(match1, omega, matchLineupRepo);
+
+      // Match 2 slots
+      createEmptyMatchLineup(match2, iota, matchLineupRepo);
+      createEmptyMatchLineup(match2, ghost1, matchLineupRepo);
+
+
     };
+
+  }
+  private void createEmptyMatchLineup(Match match, Team team, MatchLineupRepository lineupRepo) {
+    if (team == null || match == null) return;
+
+    MatchLineup lineup = new MatchLineup();
+    lineup.setMatch(match);
+    lineup.setTeam(team);
+    lineup.setScore(0);
+    lineup.setWinner(false);
+    lineup.setHasForfeited(false);
+
+    // Initialize with an empty set, no members added
+    lineup.setMembers(new HashSet<>());
+
+    lineupRepo.save(lineup);
   }
 
 }

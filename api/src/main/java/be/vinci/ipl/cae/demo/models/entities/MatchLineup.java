@@ -55,11 +55,9 @@ public class MatchLineup {
    * Replaces current lineup list with the given one.
    *
    * @param updatedMembers new lineup
-   * @return true if member added.
    */
-  public boolean replaceLineup(Set<Member> updatedMembers) {
+  public void replaceLineup(Set<Member> updatedMembers) {
     this.members = updatedMembers;
-    return true;
   }
 
 }

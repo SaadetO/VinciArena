@@ -79,11 +79,11 @@ public class MatchService {
       }
       // check member is part of team
       if (!memberService.isMemberOfTeam(id, team)) {
-        throw new MemberNotInTeamException("Member " + id + " is not in " + team.getName());
+        throw new MemberNotInTeamException();
       }
       // check member is available in this date
       if (!memberService.isMemberFreeAt(member, match.getDateHour())) {
-        throw new MemberUnavailableException("Member " + id + " is not available for this date.");
+        throw new MemberUnavailableException();
       }
       memberSet.add(member);
     }
