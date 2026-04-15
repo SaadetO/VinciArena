@@ -64,7 +64,7 @@ public class GlobalExceptionHandler {
       ImpossibleTournamentException.class,
       InvalidTeamNameException.class,
       UserAlreadyInTeamException.class,
-      UserNotInTeamException.class
+      UserNotInTeamException.class,
       TeamNotInMatchException.class,
       MatchNotPlayedException.class
   })
