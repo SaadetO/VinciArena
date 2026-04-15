@@ -1,21 +1,24 @@
-import { useApi } from '../../../hooks/useApi';
-import { useSnackbar } from '../../../hooks/useSnackbar';
-import { useContext } from 'react';
-import { UserContext } from '../../../contexts/UserContext';
-import { ApiError } from '../../../types';
-
-const { authenticatedUser } = useContext(UserContext);
-const { showSnackbar } = useSnackbar();
-
-
 export const useMatchMenuAction = () => {
   const handleForfeit = () => {};
 
   const handleEditComposition = () => {};
 
-  const handleContestScore = (matchId: number) => {};
+  const handleContestScore = () => {};
 
-  const handleConfirmScore = (matchId: number) => {};
+  const handleConfirmScore = async (matchId: number) => {
+    try {
+      await fetch(`/api/matches/${matchId}/confirm`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: localStorage.getItem('token') ?? '',
+        },
+      });
+
+      console.log('Confirm success');
+    } catch (error) {
+      console.error('Error confirming match', error);
+    }
+  };
 
   const handleEncodeScore = () => {};
 
