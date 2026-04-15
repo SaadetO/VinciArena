@@ -1,11 +1,15 @@
 package be.vinci.ipl.cae.demo.services;
 
 import be.vinci.ipl.cae.demo.exceptions.ForbiddenException;
+import be.vinci.ipl.cae.demo.exceptions.InvalidBanException;
+import be.vinci.ipl.cae.demo.exceptions.InvalidLineupSizeException;
+import be.vinci.ipl.cae.demo.exceptions.MatchNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.MemberNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.MemberNotInTeamException;
 import be.vinci.ipl.cae.demo.exceptions.MemberUnavailableException;
 import be.vinci.ipl.cae.demo.models.dtos.MatchLineupDto;
 import be.vinci.ipl.cae.demo.models.entities.Match;
+import be.vinci.ipl.cae.demo.models.entities.MatchLineup;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.repositories.MatchRepository;
@@ -46,31 +50,29 @@ public class MatchService {
   }
 
   public MatchLineupDto updateLineup(MatchLineupDto newLineup, Long matchId, Member currentMember) {
-    //validate
+    validateMatchLineup(newLineup, matchId, currentMember);
+    Match match = matchRepository.getMatchByIdMatch(matchId);
     return null;
   }
 
   private void validateMatchLineup(MatchLineupDto newLineup, Long matchId, Member currentMember) {
     Match match = matchRepository.getMatchByIdMatch(matchId);
-    Team team = currentMember.getTeam();
-
     if (match == null) {
-      // matchnotfoundException
+      throw new MatchNotFoundException("Match " + matchId + " not found.");
     }
     // if not manager of one of the teams in the match
-    if (memberService.isManagerOfTeam(currentMember, match.getTeam1())
-        && memberService.isManagerOfTeam(
-        currentMember, match.getTeam2())) {
-      throw new ForbiddenException("Cannot choose lineup if you aren't the manager of the team.");
+    if (!memberService.isManagerOfTeam(currentMember, match.getTeam1())
+        && !memberService.isManagerOfTeam(currentMember, match.getTeam2())) {
+      throw new ForbiddenException("You are not a manager for either team in this match.");
     }
     // check number of selected for lineup
-    if(newLineup.playerIds().size()>4){
-      throw
+    if (newLineup.playerIds().size() > 4) {
+      throw new InvalidLineupSizeException();
     }
-
+    Team team = currentMember.getTeam();
     // check members are in this team
     for (Long id : newLineup.playerIds()) {
-      //check member exists
+      // check member exists
       Member member = memberRepository.findById(id).orElse(null);
       if (member == null) {
         throw new MemberNotFoundException("Member with " + id + " does not exist");
