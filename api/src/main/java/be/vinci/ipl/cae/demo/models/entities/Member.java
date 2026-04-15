@@ -71,4 +71,19 @@ public class Member {
   public int hashCode() {
     return Objects.hashCode(idMember);
   }
+
+  /**
+   * Checks if this member is free given a list of their unavailabilities.
+   */
+  public boolean isFreeAt(LocalDateTime dateTime, Iterable<Unavailability> unavailabilities) {
+    for (Unavailability unavailability : unavailabilities) {
+      boolean startsBeforeOrAt = !dateTime.isBefore(unavailability.getStartDate());
+      boolean endsAfterOrAt = !dateTime.isAfter(unavailability.getEndDate());
+
+      if (startsBeforeOrAt && endsAfterOrAt) {
+        return false;
+      }
+    }
+    return true;
+  }
 }

@@ -580,15 +580,7 @@ public class MemberService {
    * Checks if a member is free at a specific date and time.
    */
   public boolean isMemberFreeAt(Member member, LocalDateTime dateTime) {
-    Iterable<Unavailability> unavailibilitiess = unavailabilityRepository.findByMember(member);
-    for (Unavailability unavailability : unavailibilitiess) {
-      boolean startsBeforeOrAt = !dateTime.isBefore(unavailability.getStartDate());
-      boolean endsAfterOrAt = !dateTime.isAfter(unavailability.getEndDate());
-
-      if (startsBeforeOrAt && endsAfterOrAt) {
-        return false; // Conflict found
-      }
-    }
-    return true;
+    Iterable<Unavailability> unavailabilities = unavailabilityRepository.findByMember(member);
+    return member.isFreeAt(dateTime, unavailabilities);
   }
 }
