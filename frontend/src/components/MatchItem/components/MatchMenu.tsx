@@ -154,7 +154,7 @@ export const MatchMenu = ({ match }: MatchMenuProps) => {
                 }}
               >
                 <PencilToLine style={{ color: theme.palette.text.secondary }} />
-                <Typography variant="h5">Encoder les scores</Typography>
+                <Typography variant="h5">Encoder les Scores</Typography>
               </MenuItem>
             )}
             {showAdminModify && (
@@ -167,7 +167,7 @@ export const MatchMenu = ({ match }: MatchMenuProps) => {
                 <PencilToSquare
                   style={{ color: theme.palette.text.secondary }}
                 />
-                <Typography variant="h5">Modifier les scores</Typography>
+                <Typography variant="h5">Modifier les Scores</Typography>
               </MenuItem>
             )}
           </>
