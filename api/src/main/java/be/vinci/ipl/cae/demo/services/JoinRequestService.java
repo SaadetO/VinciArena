@@ -3,6 +3,8 @@ package be.vinci.ipl.cae.demo.services;
 import be.vinci.ipl.cae.demo.exceptions.InvalidJoinRequestException;
 import be.vinci.ipl.cae.demo.exceptions.JoinRequestAlreadyExistsException;
 import be.vinci.ipl.cae.demo.exceptions.JoinRequestNotFoundException;
+import be.vinci.ipl.cae.demo.exceptions.NotManagerException;
+import be.vinci.ipl.cae.demo.exceptions.TeamNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.UserAlreadyInTeamException;
 import be.vinci.ipl.cae.demo.models.dtos.JoinRequestDto;
 import be.vinci.ipl.cae.demo.models.entities.JoinRequest;
