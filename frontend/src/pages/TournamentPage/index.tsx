@@ -3,7 +3,7 @@ import { useContext, useEffect, useMemo, useState } from 'react';
 import { TournamentDetailsInfoDto } from '../../types';
 import { useTournament } from '../../hooks/useTournaments';
 import { useParams } from 'react-router-dom';
-import { Container, Grid2, Stack, Typography } from '@mui/material';
+import { Container, Grid2, Stack } from '@mui/material';
 import { TeamsCard } from './components/TeamsCard';
 import { UserContext } from '../../contexts/UserContext';
 import { NotFoundPage } from '../NotFoundPage';
@@ -14,6 +14,8 @@ import { useModal } from '../../hooks/useModal';
 import { useModalController } from '../../hooks/useModalController';
 import { publishTournamentModal } from './modals/publishTournamentModal';
 import { generateMatchesModal } from './modals/generateMatchesModal';
+import { groupMatchesByYearAndDay } from '../../utils/matchUtils';
+import { MatchYearGroup } from '../../components/MatchYearGroup';
 
 export const TournamentPage = () => {
   const { id } = useParams();
@@ -96,8 +98,13 @@ export const TournamentPage = () => {
     }
   }, [tournament?.status, authenticatedUser, setError]);
 
-  if (error && !isGettingTournamentById) return <NotFoundPage error={error} />;
+  useEffect(() => {
+    console.log(tournament);
+  }, [tournament]);
 
+  const groupedMatches = groupMatchesByYearAndDay(tournament?.matches ?? []);
+
+  if (error && !isGettingTournamentById) return <NotFoundPage error={error} />;
   return (
     <>
       <TournamentBanner tournament={tournament} />
@@ -121,19 +128,15 @@ export const TournamentPage = () => {
                 )}
                 {(!authenticatedUser?.admin ||
                   (tournament?.status !== 'IN_PREPARATION' &&
-                    tournament?.status !== 'REGISTRATION_CLOSED')) && (
-                  <Stack
-                    sx={{
-                      background: (theme) => theme.palette.background.s1,
-                    }}
-                    padding="5rem 1rem 20rem"
-                    borderRadius="1.5rem"
-                  >
-                    <Typography variant="h5" textAlign="center">
-                      Placeholder for matches section
-                    </Typography>
-                  </Stack>
-                )}
+                    tournament?.status !== 'REGISTRATION_CLOSED')) &&
+                  groupedMatches.map((yearGroup) => (
+                    <MatchYearGroup
+                      key={yearGroup.year}
+                      year={yearGroup.year}
+                      daysData={yearGroup.daysData}
+                      showYearLabel={groupedMatches.length > 1}
+                    />
+                  ))}
               </Stack>
             </Grid2>
           )}

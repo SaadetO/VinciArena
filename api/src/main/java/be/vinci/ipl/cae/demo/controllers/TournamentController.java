@@ -230,8 +230,9 @@ public class TournamentController {
    */
   @PostMapping("/{id}/matches")
   @PreAuthorize("hasRole('ADMIN')")
-  public void generateMatch(@PathVariable Long id) {
+  public TournamentDetailsDto generateMatch(@PathVariable Long id) {
     System.out.println("Generating matches for tournament " + id);
     tournamentService.generateMatches(id);
+    return tournamentService.getTournamentDetails(id);
   }
 }

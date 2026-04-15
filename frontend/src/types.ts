@@ -205,17 +205,17 @@ interface MatchSummaryDto {
   idMatch: number;
   dateHour: string;
   turn: number;
-  status:
-    | 'IN_PREPARATION'
-    | 'REGISTRATION_OPEN'
-    | 'REGISTRATION_CLOSED'
-    | 'PLANNED'
-    | 'IN_PROGRESS'
-    | 'DONE';
+  status: 'PLANNED' | 'PLAYED' | 'FORFEIT';
   teams: Team[];
   isConfirmed: boolean;
   team1: MatchTeamDto;
   team2: MatchTeamDto;
+  tournament: MatchSummaryDtoTournament;
+}
+
+interface MatchSummaryDtoTournament {
+  id: number;
+  name: string;
 }
 
 interface TournamentDetailsInfoDto {
