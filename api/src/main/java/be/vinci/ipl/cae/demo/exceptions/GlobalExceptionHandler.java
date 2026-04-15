@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
   /**
-   * Handle NOT FOUND HttpStatus exceptions
+   * Handle NOT FOUND HttpStatus exceptions.
    *
    * @param ex the thrown exception
    * @return http response entity with status NOT FOUND described by the message in parameter
@@ -28,7 +28,7 @@ public class GlobalExceptionHandler {
   }
 
   /**
-   * Handle CONFLICT HttpStatus exceptions
+   * Handle CONFLICT HttpStatus exceptions.
    *
    * @param ex the thrown exception
    * @return http response entity with status CONFLICT described by the message in parameter
@@ -47,7 +47,7 @@ public class GlobalExceptionHandler {
   }
 
   /**
-   * Handle Bad REQUEST HttpStatus exceptions
+   * Handle Bad REQUEST HttpStatus exceptions.
    *
    * @param ex the thrown exception
    * @return http response entity with status BAD REQUEST described by the message in parameter
@@ -70,7 +70,7 @@ public class GlobalExceptionHandler {
   }
 
   /**
-   * Handle FORBIDDEN HttpStatus exceptions
+   * Handle FORBIDDEN HttpStatus exceptions.
    *
    * @param ex the thrown exception
    * @return http response entity with status FORBIDDEN described by the message in parameter
@@ -87,7 +87,7 @@ public class GlobalExceptionHandler {
   }
 
   /**
-   * Handle UNAUTHORIZED HttpStatus exceptions
+   * Handle UNAUTHORIZED HttpStatus exceptions.
    *
    * @param ex the thrown exception
    * @return http response entity with status UNAUTHORIZED described by the message in parameter
