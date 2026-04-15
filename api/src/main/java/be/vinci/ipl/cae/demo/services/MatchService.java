@@ -147,13 +147,7 @@ public class MatchService {
     }
   }
 
-  /**
-   * Confirms the result of a match for the authenticated user.
-   *
-   * @param matchId the id of the match
-   * @param email the email of the authenticated user
-   */
-  public void confirmResult(Long matchId, String email) {
+  private void handleMatchResult(Long matchId, String email, boolean status) {
 
     Match match = getMatch(matchId);
     Member member = getMember(email);
@@ -161,9 +155,18 @@ public class MatchService {
 
     validateUserCanConfirm(match, member);
 
-    updateConfirmationStatus(match, member, confirmation, true);
+    updateConfirmationStatus(match, member, confirmation, status);
 
     matchResultConfirmationRepository.save(confirmation);
+  }
+
+  /**
+   * Confirms the result of a match for the authenticated user.
+   *
+   * @param matchId the id of the match
+   * @param email the email of the authenticated user
+   */
+  public void confirmResult(Long matchId, String email) {
   }
 
   /**
@@ -174,14 +177,5 @@ public class MatchService {
    */
   public void contestResult(Long matchId, String email) {
 
-    Match match = getMatch(matchId);
-    Member member = getMember(email);
-    MatchResultConfirmation confirmation = getConfirmation(matchId);
-
-    validateUserCanConfirm(match, member);
-
-    updateConfirmationStatus(match, member, confirmation, false);
-
-    matchResultConfirmationRepository.save(confirmation);
   }
 }
