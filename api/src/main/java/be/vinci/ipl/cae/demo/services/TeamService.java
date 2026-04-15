@@ -229,15 +229,7 @@ public class TeamService {
       return team; // Already a manager
     }
 
-    // Check for open spots
-    if (team.getManager1() == null) {
-      team.setManager1(memberToDesignate);
-    } else if (team.getManager2() == null) {
-      team.setManager2(memberToDesignate);
-    } else {
-      throw new NoManagerSpotsLeftException(
-          "Il n'y a plus de place de responsable libre dans l'équipe."); // Both spots taken
-    }
+    assignManagerSpot(team, memberToDesignate);
 
     return teamRepository.save(team);
   }
@@ -257,23 +249,8 @@ public class TeamService {
 
     Team team = getExistingTeam(currentMember.getTeam().getIdTeam());
 
-    if (isManager1(team, currentMember)) {
-      if (team.getManager2() != null) {
-        team.setManager1(team.getManager2());
-        team.setManager2(null);
-      } else if (1 < team.getMembers().size()) {
-        throw new LastManagerCannotQuitException(
-            "Member cannot quit team as the last manager.");
-      } else {
-        team.setManager1(null);
-      }
-    } else if (isManager2(team, currentMember)) {
-      team.setManager2(null);
-    }
-
-    if (team.getManager1() == null && team.getManager2() == null) {
-      team.setIsActive(false);
-    }
+    handleManagerQuitting(team, currentMember);
+    deactivateIfEmpty(team);
 
     currentMember.setTeam(null);
     memberRepository.save(currentMember);
@@ -294,7 +271,6 @@ public class TeamService {
     Team team = getExistingTeam(teamId);
     requireManager(team, currentMember);
 
-    boolean isManager1 = isManager1(team, currentMember);
     boolean hasOtherManager = hasOtherManager(team, currentMember);
 
     if (!hasOtherManager && replacementId == null) {
@@ -302,29 +278,17 @@ public class TeamService {
           "Un remplaçant est obligatoire pour quitter le rôle de responsable.");
     }
 
+    Member replacement = null;
     if (replacementId != null) {
-      Member replacement = getExistingMember(replacementId);
+      replacement = getExistingMember(replacementId);
       requireTeamMembership(replacement, teamId);
 
       if (isManager(team, replacement)) {
         throw new MemberAlreadyManagerException("Ce membre est déjà responsable.");
       }
-
-      if (isManager1) {
-        team.setManager1(replacement);
-      } else {
-        team.setManager2(replacement);
-      }
-    } else {
-      // Normally, a team's manager1 should never be null if the team is active.
-      // (manager2 takes manager1 place, and manager2 is set to null)
-      // See attribute "manager1" in Team model
-      if (isManager1) {
-        team.setManager1(null);
-      } else {
-        team.setManager2(null);
-      }
     }
+
+    replaceOrRemoveManager(team, currentMember, replacement);
 
     return teamRepository.save(team);
   }
@@ -406,6 +370,47 @@ public class TeamService {
             .status(jr.getStatus()).expirationDate(jr.getExpirationDate())
             .requester(memberService.getUserSummary(jr.getMember())).build())
         .collect(Collectors.toList());
+  }
+
+  private void assignManagerSpot(Team team, Member memberToDesignate) {
+    if (team.getManager1() == null) {
+      team.setManager1(memberToDesignate);
+    } else if (team.getManager2() == null) {
+      team.setManager2(memberToDesignate);
+    } else {
+      throw new NoManagerSpotsLeftException(
+          "Il n'y a plus de place de responsable libre dans l'équipe.");
+    }
+  }
+
+  private void handleManagerQuitting(Team team, Member currentMember) {
+    if (isManager1(team, currentMember)) {
+      if (team.getManager2() != null) {
+        team.setManager1(team.getManager2());
+        team.setManager2(null);
+      } else if (1 < team.getMembers().size()) {
+        throw new LastManagerCannotQuitException(
+            "Member cannot quit team as the last manager.");
+      } else {
+        team.setManager1(null);
+      }
+    } else if (isManager2(team, currentMember)) {
+      team.setManager2(null);
+    }
+  }
+
+  private void deactivateIfEmpty(Team team) {
+    if (team.getManager1() == null && team.getManager2() == null) {
+      team.setIsActive(false);
+    }
+  }
+
+  private void replaceOrRemoveManager(Team team, Member currentManager, Member replacement) {
+    if (isManager1(team, currentManager)) {
+      team.setManager1(replacement);
+    } else {
+      team.setManager2(replacement);
+    }
   }
 }
 
