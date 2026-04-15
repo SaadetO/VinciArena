@@ -19,7 +19,6 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Match service.
@@ -35,8 +34,8 @@ public class MatchService {
   /**
    * Constructor.
    *
-   * @param matchRepository      the match repository
-   * @param memberRepository     the member repository
+   * @param matchRepository  the match repository
+   * @param memberRepository the member repository
    */
   public MatchService(MatchRepository matchRepository,
       MemberRepository memberRepository,
@@ -48,7 +47,8 @@ public class MatchService {
   }
 
 
-  public MatchLineupDto updateLineup(NewMatchLineupDto newLineup, Long matchId, Member currentMember) {
+  public MatchLineupDto updateLineup(NewMatchLineupDto newLineup, Long matchId,
+      Member currentMember) {
     Set<Member> membersSet = validateMatchLineup(newLineup, matchId, currentMember);
     Match match = matchRepository.getMatchByIdMatch(matchId);
     Team team = currentMember.getTeam();
@@ -58,7 +58,8 @@ public class MatchService {
     return MatchLineupDto.fromEntity(matchLineup);
   }
 
-  private Set<Member> validateMatchLineup(NewMatchLineupDto newLineup, Long matchId, Member currentMember) {
+  private Set<Member> validateMatchLineup(NewMatchLineupDto newLineup, Long matchId,
+      Member currentMember) {
     Match match = matchRepository.getMatchByIdMatch(matchId);
     if (match == null) {
       throw new MatchNotFoundException("Match " + matchId + " not found.");
@@ -96,7 +97,8 @@ public class MatchService {
    *
    */
   public Set<Member> getAvailableMembersForMatch(Long matchId, Member currentMember) {
-    if (!currentMember.isAdmin()) {
+
+    if (!memberService.isManagerOfTeam(currentMember, currentMember.getTeam())) {
       throw new ForbiddenException("Not a manager");
     }
 
