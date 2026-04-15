@@ -1,8 +1,8 @@
 import { useSnackbar } from '../../../hooks/useSnackbar';
 
-const { showSnackbar } = useSnackbar();
-
 export const useMatchMenuAction = () => {
+  const { showSnackbar } = useSnackbar();
+
   const handleForfeit = () => {};
 
   const handleEditComposition = () => {};
