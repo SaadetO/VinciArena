@@ -1,6 +1,9 @@
 package be.vinci.ipl.cae.demo.services;
 
 import be.vinci.ipl.cae.demo.exceptions.ForbiddenException;
+import be.vinci.ipl.cae.demo.exceptions.MemberNotFoundException;
+import be.vinci.ipl.cae.demo.exceptions.MemberNotInTeamException;
+import be.vinci.ipl.cae.demo.exceptions.MemberUnavailableException;
 import be.vinci.ipl.cae.demo.models.dtos.MatchLineupDto;
 import be.vinci.ipl.cae.demo.models.entities.Match;
 import be.vinci.ipl.cae.demo.models.entities.Member;
@@ -9,6 +12,7 @@ import be.vinci.ipl.cae.demo.repositories.MatchRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.TeamRepository;
 import be.vinci.ipl.cae.demo.repositories.TournamentRepository;
+import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 /**
@@ -54,23 +58,29 @@ public class MatchService {
       // MatchNotFoundException
     }
     // if not manager of one of the teams in the match
-    if (memberService.isManagerOfTeam(currentMember, match.getTeam1()) && memberService.isManagerOfTeam(
+    if (memberService.isManagerOfTeam(currentMember, match.getTeam1())
+        && memberService.isManagerOfTeam(
         currentMember, match.getTeam2())) {
       throw new ForbiddenException("Cannot choose lineup if you aren't the manager of the team.");
     }
+    // check all the members exist
 
     // check members are in this team
     for (Long id : newLineup.playerIds()) {
-      if(!memberService.isMemberOfTeam(id, team)){
-        throw new ForbiddenException("Cannot add a member who is not in your team");
+      //check member exists
+      Member member = memberRepository.findById(id).orElse(null);
+      if (member == null) {
+        throw new MemberNotFoundException("Member with " + id + " does not exist");
+      }
+      // check member is part of team
+      if (!memberService.isMemberOfTeam(id, team)) {
+        throw new MemberNotInTeamException("Member " + id + " is not in " + team.getName());
+      }
+      // check member is available in this date
+      if (!memberService.isMemberFreeAt(member, match.getDateHour())) {
+        throw new MemberUnavailableException("Member " + id + " is not available for this date.");
       }
     }
-
-    // check all selected members are available
-
-
-
-
 
   }
 }
