@@ -203,6 +203,14 @@ public class MatchServiceTest {
     assertFalse(confirmation.getConfirmationTeam2());
   }
 
+  @Test
+  void contestResult_match_not_found() {
+    when(matchRepository.findById(1L)).thenReturn(Optional.empty());
+
+    assertThrows(MatchNotFoundException.class,
+        () -> matchService.contestResult(1L, "test@mail.com"));
+  }
+
 
 
 }
