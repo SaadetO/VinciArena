@@ -113,14 +113,16 @@ public class MatchService {
   }
 
   /**
-   * Updates the confirmation for the correct team.
+   * Updates the confirmation status (confirm or contest) for the correct team.
    *
    * @param match the match
    * @param member the member
    * @param confirmation the confirmation entity
+   * @param status true for confirm, false for contest
    */
-  private void updateConfirmation(Match match, Member member,
-      MatchResultConfirmation confirmation) {
+  private void updateConfirmationStatus(Match match, Member member,
+      MatchResultConfirmation confirmation,
+      boolean status) {
 
     Long teamId = member.getTeam().getIdTeam();
 
@@ -133,7 +135,7 @@ public class MatchService {
         throw new AlreadyConfirmedException("Already confirmed or contested");
       }
 
-      confirmation.setConfirmationTeam1(true);
+      confirmation.setConfirmationTeam1(status);
 
     } else {
 
@@ -141,8 +143,21 @@ public class MatchService {
         throw new AlreadyConfirmedException("Already confirmed or contested");
       }
 
-      confirmation.setConfirmationTeam2(true);
+      confirmation.setConfirmationTeam2(status);
     }
+  }
+
+  private void handleMatchResult(Long matchId, String email, boolean status) {
+
+    Match match = getMatch(matchId);
+    Member member = getMember(email);
+    MatchResultConfirmation confirmation = getConfirmation(matchId);
+
+    validateUserCanConfirm(match, member);
+
+    updateConfirmationStatus(match, member, confirmation, status);
+
+    matchResultConfirmationRepository.save(confirmation);
   }
 
   /**
@@ -152,15 +167,16 @@ public class MatchService {
    * @param email the email of the authenticated user
    */
   public void confirmResult(Long matchId, String email) {
+    handleMatchResult(matchId, email, true);
+  }
 
-    Match match = getMatch(matchId);
-    Member member = getMember(email);
-    MatchResultConfirmation confirmation = getConfirmation(matchId);
-
-    validateUserCanConfirm(match, member);
-
-    updateConfirmation(match, member, confirmation);
-
-    matchResultConfirmationRepository.save(confirmation);
+  /**
+   * Contests the result of a match for the authenticated user.
+   *
+   * @param matchId the id of the match
+   * @param email the email of the authenticated user
+   */
+  public void contestResult(Long matchId, String email) {
+    handleMatchResult(matchId, email, false);
   }
 }

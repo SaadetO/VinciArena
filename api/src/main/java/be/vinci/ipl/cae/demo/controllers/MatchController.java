@@ -40,4 +40,16 @@ public class MatchController {
     matchService.confirmResult(id, email);
   }
 
+  /**
+   * Contests the result of a match.
+   *
+   * @param id the id of the match
+   * @param email the authenticated user's email
+   */
+  @PatchMapping("/{id}/contest")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void contestMatchResult(@PathVariable Long id,
+      @AuthenticationPrincipal String email) {
+    matchService.contestResult(id,email);
+  }
 }
