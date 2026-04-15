@@ -1,5 +1,6 @@
 package be.vinci.ipl.cae.demo.services;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
@@ -167,6 +168,23 @@ public class MatchServiceTest {
 
     assertThrows(AlreadyConfirmedException.class,
         () -> matchService.confirmResult(1L, "test@mail.com"));
+  }
+
+  @Test
+  void contestResult_team1_success() {
+    // Arrange
+    member.setTeam(match.getTeam1());
+
+    when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
+    when(memberRepository.findByEmail("test@mail.com")).thenReturn(member);
+    when(confirmationRepository.findById(1L)).thenReturn(Optional.of(confirmation));
+
+    // Act
+    matchService.contestResult(1L, "test@mail.com");
+
+    // Assert
+    assertFalse(confirmation.getConfirmationTeam1());
+    verify(confirmationRepository).save(confirmation);
   }
 
 
