@@ -16,7 +16,7 @@ import {
   TournamentFilters,
 } from '../../utils/tournamentUtils';
 import { useTournament } from '../../hooks/useTournaments';
-import { TournamentListSkeleton } from '../HomePage/components/TournamentListSkeleton';
+import { TournamentListSkeleton } from '../../components/TournamentListSkeleton';
 import { TournamentControls } from '../HomePage/components/TournamentControls';
 
 export const TeamPage = () => {
@@ -148,19 +148,23 @@ export const TeamPage = () => {
               </Stack>
             </Stack>
           </Grid2>
-          <Grid2 size={{ xs: 12, desktop: 5.5, lg: 4.5 }}>
-            <Stack spacing="1.5rem" pt="1.5rem">
-              <ManagerCard team={team} setTeam={setTeam} />
-              <MembersCard team={team} />
-              {team?.managers?.find((e) => e.id === authenticatedUser?.id) && (
-                <JoinRequestsCard
-                  isLoading={isGettingTeam}
-                  team={team}
-                  setTeam={setTeam}
-                />
-              )}
-            </Stack>
-          </Grid2>
+          {(team?.isActive || isGettingTeam) && (
+            <Grid2 size={{ xs: 12, desktop: 5.5, lg: 4.5 }}>
+              <Stack spacing="1.5rem" pt="1.5rem">
+                <ManagerCard team={team} setTeam={setTeam} />
+                <MembersCard team={team} />
+                {team?.managers?.find(
+                  (e) => e.id === authenticatedUser?.id,
+                ) && (
+                  <JoinRequestsCard
+                    isLoading={isGettingTeam}
+                    team={team}
+                    setTeam={setTeam}
+                  />
+                )}
+              </Stack>
+            </Grid2>
+          )}
         </Grid2>
       </Container>
     </>

@@ -1,7 +1,7 @@
 import { Stack, Typography, Container } from '@mui/material';
 import { TournamentYearGroup } from '../../components/TournamentYearGroup';
 import { TournamentControls } from './components/TournamentControls';
-import { TournamentListSkeleton } from './components/TournamentListSkeleton';
+import { TournamentListSkeleton } from '../../components/TournamentListSkeleton';
 import { useHomePage } from './hooks/useHomePage';
 
 export const HomePage = () => {

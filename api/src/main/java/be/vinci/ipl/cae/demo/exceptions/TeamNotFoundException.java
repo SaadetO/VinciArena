@@ -1,7 +1,7 @@
 package be.vinci.ipl.cae.demo.exceptions;
 
 /**
- * Exception thrown when a team cannot be found.
+ * Exception thrown when a team is not found.
  */
 public class TeamNotFoundException extends RuntimeException {
 

@@ -260,7 +260,7 @@ export const useTournament = (config: UseTournamentOptions) => {
         throw new ApiError("Échec de l'inscription.", response.status);
       }
 
-      return await response.json();
+      return response.json();
     },
     {
       onSuccess: (data) => {
@@ -305,18 +305,18 @@ export const useTournament = (config: UseTournamentOptions) => {
         if (response.status === 404)
           throw new ApiError('Tournoi introuvable.', response.status);
         else if (response.status === 400)
-          throw new ApiError(
-            'Tournoi impossible, les matchs du tournoi ne peuvent pas tous être générés avant la fin de celui-ci.',
-            response.status,
-          );
+          throw new ApiError('Tournoi impossible.', response.status);
         throw new ApiError(
           'Échec de la génération des matchs.',
           response.status,
         );
       }
+
+      return response.json();
     },
     {
-      onSuccess: () => {
+      onSuccess: (data) => {
+        setTournament?.(data);
         showSnackbar({
           message: 'Matchs générés avec succès.',
           severity: 'success',
@@ -328,8 +328,18 @@ export const useTournament = (config: UseTournamentOptions) => {
         const message =
           status === 404
             ? "Ce tournoi n'existe pas ou a été supprimé."
-            : 'Une erreur est survenue lors de la génération des matchs.';
+            : status === 400
+              ? 'La date de fin du tournoi est trop proche pour pouvoir planifier tous les matchs. Tournoi annulé.'
+              : 'Une erreur est survenue lors de la génération des matchs.';
 
+        if (status === 400)
+          setTournament?.((prev) => {
+            if (!prev) return prev;
+            return {
+              ...prev,
+              status: 'CANCELLED',
+            };
+          });
         showSnackbar({
           message,
           severity: 'error',

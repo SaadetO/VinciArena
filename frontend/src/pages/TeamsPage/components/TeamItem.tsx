@@ -1,27 +1,8 @@
-import {
-  Avatar,
-  Box,
-  Chip,
-  Stack,
-  StackProps,
-  Tooltip,
-  Typography,
-} from '@mui/material';
+import { Avatar, Box, Chip, Stack, Tooltip, Typography } from '@mui/material';
 import { FullTeamDto } from '../../../types';
 import { Link } from 'react-router-dom';
 import { useUser } from '../../../hooks/useUser';
 import { TeamItemSkeleton } from './TeamItemSkeleton';
-
-const props: StackProps = {
-  borderRadius: '0.75rem',
-  sx: {
-    background: (theme) => theme.palette.background.s1,
-    textDecoration: 'none',
-  },
-  overflow: 'hidden',
-  border: '1px solid',
-  borderColor: 'divider',
-};
 
 interface TeamItemProps {
   team?: FullTeamDto;
@@ -29,64 +10,64 @@ interface TeamItemProps {
 
 export const TeamItem = ({ team }: TeamItemProps) => {
   if (!team) return <TeamItemSkeleton />;
-  if (team.isActive)
-    return (
-      <Stack component={Link} to={`/teams/${team.idTeam}`} {...props}>
-        <TeamItemContent team={team} />
-      </Stack>
-    );
-  return (
-    <Stack {...props}>
-      <TeamItemContent team={team} />
-    </Stack>
-  );
-};
 
-const TeamItemContent = ({ team }: { team: FullTeamDto }) => {
   return (
-    <Tooltip
-      title={
-        <MembersPopup
-          members={team.members}
-          managerId1={team.managerId1}
-          managerId2={team.managerId2}
-        />
-      }
-      arrow
-      disableHoverListener={team.members.length === 0}
-      disableFocusListener={team.members.length === 0}
-      disableTouchListener={team.members.length === 0}
+    <Stack
+      component={Link}
+      to={`/teams/${team.idTeam}`}
+      borderRadius="0.75rem"
+      sx={{
+        background: (theme) => theme.palette.background.s1,
+        textDecoration: 'none',
+      }}
+      overflow="hidden"
+      border="1px solid"
+      borderColor="divider"
     >
-      <Box>
-        <Stack
-          py="0.75rem"
-          alignItems="center"
-          sx={{ background: (theme) => theme.palette.background.s2 }}
-        >
-          <Typography variant="h5">{team.name}</Typography>
-        </Stack>
-        <Stack
-          padding="0.25rem 0.25rem 0.25rem 0.625rem"
-          alignItems="center"
-          direction="row"
-        >
-          <Typography
-            variant="h6"
-            color="secondary"
-            flex="1"
-            lineHeight="1.375rem"
-          >
-            {team.members.length} membre{team.members.length !== 1 ? 's' : ''}
-          </Typography>
-          <Chip
-            size="small"
-            sx={{ height: '1.375rem' }}
-            color={team.isActive ? 'primary' : 'secondary'}
-            label={team.isActive ? 'Active' : 'Inactive'}
+      <Tooltip
+        title={
+          <MembersPopup
+            members={team.members}
+            managerId1={team.managerId1}
+            managerId2={team.managerId2}
           />
-        </Stack>
-      </Box>
-    </Tooltip>
+        }
+        arrow
+        disableHoverListener={team.members.length === 0}
+        disableFocusListener={team.members.length === 0}
+        disableTouchListener={team.members.length === 0}
+      >
+        <Box>
+          <Stack
+            py="0.75rem"
+            alignItems="center"
+            sx={{ background: (theme) => theme.palette.background.s2 }}
+          >
+            <Typography variant="h5">{team.name}</Typography>
+          </Stack>
+          <Stack
+            padding="0.25rem 0.25rem 0.25rem 0.625rem"
+            alignItems="center"
+            direction="row"
+          >
+            <Typography
+              variant="h6"
+              color="secondary"
+              flex="1"
+              lineHeight="1.375rem"
+            >
+              {team.members.length} membre{team.members.length !== 1 ? 's' : ''}
+            </Typography>
+            <Chip
+              size="small"
+              sx={{ height: '1.375rem' }}
+              color={team.isActive ? 'primary' : 'secondary'}
+              label={team.isActive ? 'Active' : 'Inactive'}
+            />
+          </Stack>
+        </Box>
+      </Tooltip>
+    </Stack>
   );
 };
 

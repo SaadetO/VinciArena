@@ -1,9 +1,10 @@
 package be.vinci.ipl.cae.demo.services;
 
 import be.vinci.ipl.cae.demo.exceptions.AlreadyConfirmedException;
-import be.vinci.ipl.cae.demo.exceptions.ForbiddenException;
 import be.vinci.ipl.cae.demo.exceptions.MatchNotFoundException;
+import be.vinci.ipl.cae.demo.exceptions.MemberHasNoTeamException;
 import be.vinci.ipl.cae.demo.exceptions.ResultNotFoundException;
+import be.vinci.ipl.cae.demo.exceptions.UserNotInMatchException;
 import be.vinci.ipl.cae.demo.models.entities.Match;
 import be.vinci.ipl.cae.demo.models.entities.MatchResultConfirmation;
 import be.vinci.ipl.cae.demo.models.entities.Member;
@@ -58,7 +59,8 @@ public class MatchService {
    */
   private Match getMatch(Long matchId) {
     return matchRepository.findById(matchId)
-        .orElseThrow(() -> new MatchNotFoundException("Match not found"));
+        .orElseThrow(() ->
+            new MatchNotFoundException("Match not found"));
   }
 
   /**
@@ -88,12 +90,13 @@ public class MatchService {
    *
    * @param match the match
    * @param member the member
-   * @throws ForbiddenException if the user is not part of the match
+   * @throws MemberHasNoTeamException if the user has no team
+   * @throws UserNotInMatchException if the user is not part of the match
    */
   private void validateUserCanConfirm(Match match, Member member) {
 
     if (member.getTeam() == null) {
-      throw new ForbiddenException("User has no team");
+      throw new MemberHasNoTeamException("User has no team");
     }
 
     Long teamId = member.getTeam().getIdTeam();
@@ -105,7 +108,7 @@ public class MatchService {
         && match.getTeam2().getIdTeam().equals(teamId);
 
     if (!isTeam1 && !isTeam2) {
-      throw new ForbiddenException("User not part of this match");
+      throw new UserNotInMatchException("User not part of this match");
     }
   }
 

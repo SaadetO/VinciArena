@@ -13,25 +13,26 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
   /**
-   * Handle NOT FOUND HttpStatus exceptions.
+   * Handles not found exceptions.
    *
-   * @param ex the thrown exception
-   * @return http response entity with status NOT FOUND described by the message in parameter
+   * @param ex the exception
+   * @return a 404 response with error message
    */
+
   @ExceptionHandler({
       TournamentNotFoundException.class,
       TeamNotFoundException.class,
-      MemberNotFoundException.class
+      MatchNotFoundException.class
   })
   public ResponseEntity<Map<String, String>> handleNotFoundExceptions(RuntimeException ex) {
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", ex.getMessage()));
   }
 
   /**
-   * Handle CONFLICT HttpStatus exceptions.
+   * Handles conflict exceptions.
    *
-   * @param ex the thrown exception
-   * @return http response entity with status CONFLICT described by the message in parameter
+   * @param ex the exception
+   * @return a 409 response with error message
    */
   @ExceptionHandler({
       EmailAlreadyTakenException.class,
@@ -47,10 +48,10 @@ public class GlobalExceptionHandler {
   }
 
   /**
-   * Handle Bad REQUEST HttpStatus exceptions.
+   * Handles bad request exceptions.
    *
-   * @param ex the thrown exception
-   * @return http response entity with status BAD REQUEST described by the message in parameter
+   * @param ex the exception
+   * @return a 400 response with error message
    */
   @ExceptionHandler({
       InvalidPasswordException.class,
@@ -64,33 +65,37 @@ public class GlobalExceptionHandler {
       InvalidTeamNameException.class,
       UserAlreadyInTeamException.class,
       UserNotInTeamException.class
+      TeamNotInMatchException.class,
+      MatchNotPlayedException.class
   })
   public ResponseEntity<Map<String, String>> handleBadRequestExceptions(RuntimeException ex) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", ex.getMessage()));
   }
 
   /**
-   * Handle FORBIDDEN HttpStatus exceptions.
+   * Handles forbidden exceptions.
    *
-   * @param ex the thrown exception
-   * @return http response entity with status FORBIDDEN described by the message in parameter
+   * @param ex the exception
+   * @return a 403 response with error message
    */
   @ExceptionHandler({
       AccountBannedException.class,
       NotAdminException.class,
       CannotBanAdminException.class,
       ForbiddenException.class,
-      NotManagerException.class
+      NotManagerException.class,
+      MemberHasNoTeamException.class,
+      UserNotInMatchException.class
   })
   public ResponseEntity<Map<String, String>> handleForbiddenExceptions(RuntimeException ex) {
     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", ex.getMessage()));
   }
 
   /**
-   * Handle UNAUTHORIZED HttpStatus exceptions.
+   * Handles unauthorized exceptions.
    *
-   * @param ex the thrown exception
-   * @return http response entity with status UNAUTHORIZED described by the message in parameter
+   * @param ex the exception
+   * @return a 401 response with error message
    */
   @ExceptionHandler({
       InvalidCredentialsException.class,

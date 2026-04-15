@@ -8,7 +8,9 @@ import static org.mockito.Mockito.when;
 import be.vinci.ipl.cae.demo.exceptions.AlreadyConfirmedException;
 import be.vinci.ipl.cae.demo.exceptions.ForbiddenException;
 import be.vinci.ipl.cae.demo.exceptions.MatchNotFoundException;
+import be.vinci.ipl.cae.demo.exceptions.MemberHasNoTeamException;
 import be.vinci.ipl.cae.demo.exceptions.ResultNotFoundException;
+import be.vinci.ipl.cae.demo.exceptions.UserNotInMatchException;
 import be.vinci.ipl.cae.demo.models.entities.Match;
 import be.vinci.ipl.cae.demo.models.entities.MatchResultConfirmation;
 import be.vinci.ipl.cae.demo.models.entities.Member;
@@ -123,7 +125,7 @@ public class MatchServiceTest {
     when(memberRepository.findByEmail("test@mail.com")).thenReturn(member);
     when(confirmationRepository.findById(1L)).thenReturn(Optional.of(confirmation));
 
-    assertThrows(ForbiddenException.class,
+    assertThrows(MemberHasNoTeamException.class,
         () -> matchService.confirmResult(1L, "test@mail.com"));
   }
 
@@ -137,7 +139,7 @@ public class MatchServiceTest {
     when(memberRepository.findByEmail("test@mail.com")).thenReturn(member);
     when(confirmationRepository.findById(1L)).thenReturn(Optional.of(confirmation));
 
-    assertThrows(ForbiddenException.class,
+    assertThrows(UserNotInMatchException.class,
         () -> matchService.confirmResult(1L, "test@mail.com"));
   }
 
