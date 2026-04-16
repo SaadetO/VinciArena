@@ -32,22 +32,6 @@ public class MatchController {
     this.memberService = memberService;
   }
 
-  /**
-   * Replaces the old matchLineup with the new lineup
-   *
-   * @param id                id of the match
-   * @param newMatchLineupDto new lineup
-   * @param currentMember     current member
-   */
-  @ResponseStatus(HttpStatus.OK)
-  @PatchMapping("/lineup/match/{id}")
-  @PreAuthorize("isAuthenticated()")
-  public void updateLineup(@PathVariable Long id,
-      @Valid @RequestBody NewMatchLineupDto newMatchLineupDto,
-      @AuthenticationPrincipal Member currentMember) {
-    matchService.updateLineup(newMatchLineupDto, id, currentMember);
-  }
-
   @GetMapping("/{matchId}/available-members")
   @PreAuthorize("isAuthenticated()") // Or your specific manager check
   public Set<MemberSummaryDto> getAvailableMembers(
