@@ -29,6 +29,7 @@ public class MatchLineupService {
   private final MatchLineupRepository matchLineupRepository;
   private final MemberRepository memberRepository;
   private final MemberService memberService;
+  private final TeamService teamService;
 
   /**
    * match lineupservice constructor.
@@ -36,25 +37,27 @@ public class MatchLineupService {
   public MatchLineupService(MatchRepository matchRepository,
       MatchLineupRepository matchLineupRepository,
       MemberRepository memberRepository,
-      MemberService memberService) {
+      MemberService memberService, TeamService teamService) {
     this.matchRepository = matchRepository;
     this.matchLineupRepository = matchLineupRepository;
     this.memberRepository = memberRepository;
     this.memberService = memberService;
+    this.teamService = teamService;
   }
 
   /**
-   *Updates the match lineup for the authenticated member's team.
-   * This method validates that the current member is a manager of a team involved in the match,
-   * ensures all provided players belong to that team, and verifies their availability for the
-   * match's date and time. If validation passes, the existing lineup is replaced with the new set
-   * of members.
+   * Updates the match lineup for the team of the authenticated member.
    *
-   * @param newLineup     DTO containing the list of member IDs to be placed in the lineup.
+   * <p>This method validates that the current member is a manager of a team
+   * involved in the match, ensures all provided players belong to that team,
+   * and verifies their availability for the match's date and time. If
+   * validation passes, the existing lineup is replaced.</p>
+   *
+   * @param newLineup     DTO containing the list of member IDs for the lineup.
    * @param matchId       The unique identifier of the match to update.
    * @param currentMember The currently authenticated member performing the update.
    * @return A MatchLineupDto representing the newly updated state of the lineup.
-   */
+   **/
   public MatchLineupDto updateLineup(NewMatchLineupDto newLineup, Long matchId,
       Member currentMember) {
     Set<Member> membersSet = validateMatchLineup(newLineup, matchId, currentMember);
@@ -74,8 +77,8 @@ public class MatchLineupService {
       throw new MatchNotFoundException("Match " + matchId + " not found.");
     }
     // if not manager of one of the teams in the match
-    if (!memberService.isManagerOfTeam(currentMember, match.getTeam1())
-        && !memberService.isManagerOfTeam(currentMember, match.getTeam2())) {
+    if (!teamService.isManager(match.getTeam1(), currentMember)
+        && !teamService.isManager(match.getTeam2(), currentMember)) {
       throw new ForbiddenException("You are not a manager for either team in this match.");
     }
     Team team = currentMember.getTeam();

@@ -37,6 +37,7 @@ public class MatchService {
   private final MemberService memberService;
   private final MatchLineupRepository matchLineupRepository;
   private final MatchResultConfirmationRepository matchResultConfirmationRepository;
+  private final TeamService teamService;
 
   /**
    * Constructor.
@@ -49,13 +50,14 @@ public class MatchService {
   public MatchService(MatchRepository matchRepository, MemberRepository memberRepository,
       MatchLineupRepository matchLineupRepository,
       MemberService memberService,
-      MatchResultConfirmationRepository matchResultConfirmationRepository) {
+      MatchResultConfirmationRepository matchResultConfirmationRepository,
+      TeamService teamService) {
     this.matchRepository = matchRepository;
     this.memberRepository = memberRepository;
     this.memberService = memberService;
     this.matchLineupRepository = matchLineupRepository;
     this.matchResultConfirmationRepository = matchResultConfirmationRepository;
-
+    this.teamService = teamService;
   }
 
   /**
@@ -64,7 +66,7 @@ public class MatchService {
    */
   public Set<Member> getAvailableMembersForMatch(Long matchId, Member currentMember) {
 
-    if (!memberService.isManagerOfTeam(currentMember, currentMember.getTeam())) {
+    if (!teamService.isManager(currentMember.getTeam(), currentMember)) {
       throw new ForbiddenException("Not a manager");
     }
 
