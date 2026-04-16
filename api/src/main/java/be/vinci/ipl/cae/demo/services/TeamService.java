@@ -300,7 +300,7 @@ public class TeamService {
    * @return the team
    * @throws TeamNotFoundException if the team does not exist
    */
-  private Team getExistingTeam(Long teamId) {
+  public Team getExistingTeam(Long teamId) {
     return teamRepository.findById(teamId).orElseThrow(
         () -> new TeamNotFoundException("La team n'existe pas ou n'est plus active."));
   }
@@ -312,7 +312,7 @@ public class TeamService {
    * @param member the member
    * @throws NotManagerException if the member is not a manager
    */
-  private void requireManager(Team team, Member member) {
+  public void requireManager(Team team, Member member) {
     if (!isManager(team, member)) {
       throw new NotManagerException("L'utilisateur n'a pas les droits de responsable.");
     }
@@ -343,6 +343,12 @@ public class TeamService {
     }
   }
 
+  /**
+   * Gets a summary of the team's managers.
+   *
+   * @param team the team
+   * @return list of manager summaries
+   */
   private List<UserSummaryDto> getManagersSummary(Team team) {
     List<UserSummaryDto> managers = new ArrayList<>();
     if (team.getManager1() != null) {
@@ -354,11 +360,24 @@ public class TeamService {
     return managers;
   }
 
+  /**
+   * Gets a summary of the team's active members.
+   *
+   * @param team the team
+   * @return list of member summaries
+   */
   private List<UserSummaryDto> getMembersSummary(Team team) {
     return team.getMembers().stream().filter(member -> !member.isDeleted())
         .map(memberService::getUserSummary).collect(Collectors.toList());
   }
 
+  /**
+   * Retrieves pending join requests for the team if the current user is a manager.
+   *
+   * @param team the team
+   * @param currentMember the authenticated member
+   * @return list of pending join requests or empty list if unauthorized
+   */
   private List<JoinRequestDto> getPendingJoinRequests(Team team, Member currentMember) {
     if (currentMember == null || !isManager(team, currentMember)) {
       return new ArrayList<>();
@@ -372,6 +391,13 @@ public class TeamService {
         .collect(Collectors.toList());
   }
 
+  /**
+   * Assigns a manager spot to a designated member.
+   *
+   * @param team the team
+   * @param memberToDesignate the member to promote to manager
+   * @throws NoManagerSpotsLeftException if no manager spots are available
+   */
   private void assignManagerSpot(Team team, Member memberToDesignate) {
     if (team.getManager1() == null) {
       team.setManager1(memberToDesignate);
@@ -383,6 +409,13 @@ public class TeamService {
     }
   }
 
+  /**
+   * Handles the logic of a manager quitting the team.
+   *
+   * @param team the team
+   * @param currentMember the manager quitting
+   * @throws LastManagerCannotQuitException if they are the last manager trying to quit
+   */
   private void handleManagerQuitting(Team team, Member currentMember) {
     if (isManager1(team, currentMember)) {
       if (team.getManager2() != null) {
@@ -399,12 +432,24 @@ public class TeamService {
     }
   }
 
+  /**
+   * Deactivates the team if it has no remaining managers.
+   *
+   * @param team the team
+   */
   private void deactivateIfEmpty(Team team) {
     if (team.getManager1() == null && team.getManager2() == null) {
       team.setIsActive(false);
     }
   }
 
+  /**
+   * Replaces or removes a manager spot.
+   *
+   * @param team the team
+   * @param currentManager the manager being replaced or removed
+   * @param replacement the new manager (or null to simply remove)
+   */
   private void replaceOrRemoveManager(Team team, Member currentManager, Member replacement) {
     if (isManager1(team, currentManager)) {
       team.setManager1(replacement);
