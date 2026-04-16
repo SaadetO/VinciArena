@@ -52,8 +52,8 @@ export const useMatchMenu = ({ match, tournamentStatus }: MatchMenuProps) => {
     displayMenu,
     handleForfeit,
     handleEditComposition,
-    handleContestScore,
-    handleConfirmScore,
+    handleContestScore: () => handleContestScore(match.idMatch),
+    handleConfirmScore: () => handleConfirmScore(match.idMatch),
     handleEncodeScore,
     handleEditScore,
   };

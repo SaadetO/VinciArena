@@ -1,5 +1,15 @@
 package be.vinci.ipl.cae.demo.services;
 
+import be.vinci.ipl.cae.demo.exceptions.LastManagerCannotQuitException;
+import be.vinci.ipl.cae.demo.exceptions.MemberAlreadyManagerException;
+import be.vinci.ipl.cae.demo.exceptions.MemberNotFoundException;
+import be.vinci.ipl.cae.demo.exceptions.NoManagerSpotsLeftException;
+import be.vinci.ipl.cae.demo.exceptions.NotManagerException;
+import be.vinci.ipl.cae.demo.exceptions.ReplacementRequiredException;
+import be.vinci.ipl.cae.demo.exceptions.TeamNameAlreadyTakenException;
+import be.vinci.ipl.cae.demo.exceptions.TeamNotFoundException;
+import be.vinci.ipl.cae.demo.exceptions.UserAlreadyInTeamException;
+import be.vinci.ipl.cae.demo.exceptions.UserNotInTeamException;
 import be.vinci.ipl.cae.demo.models.dtos.FullTeamDto;
 import be.vinci.ipl.cae.demo.models.dtos.JoinRequestDto;
 import be.vinci.ipl.cae.demo.models.dtos.MemberSummaryDto;
@@ -18,10 +28,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 /**
  * Team service.
@@ -58,33 +66,13 @@ public class TeamService {
    * @return the team details; joinRequests is null if currentMember is not a team manager
    */
   public TeamDetailsDto getTeamDetails(Long id, Member currentMember) {
-    Team team = teamRepository.findById(id).orElse(null);
-    if (team == null) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-          "La team n'existe pas ou n'est plus active.");
-    }
+    Team team = getExistingTeam(id);
 
-    List<UserSummaryDto> managers = new ArrayList<>();
-    if (team.getManager1() != null) {
-      managers.add(memberService.getUserSummary(team.getManager1()));
-    }
-    if (team.getManager2() != null) {
-      managers.add(memberService.getUserSummary(team.getManager2()));
-    }
-
-    List<UserSummaryDto> members = team.getMembers().stream().filter(member -> !member.isDeleted())
-        .map(memberService::getUserSummary).collect(Collectors.toList());
-
-    List<JoinRequestDto> joinRequests = null;
-
-    if (currentMember != null && isManager(team, currentMember)) {
-      joinRequests = joinRequestRepository
-          .findAllByRequestedTeamAndStatus(team, RequestStatus.PENDING).stream()
-          .map(jr -> JoinRequestDto.builder().idJoinRequest(jr.getIdJoinRequest())
-              .idTeam(jr.getRequestedTeam().getIdTeam()).teamName(jr.getRequestedTeam().getName())
-              .status(jr.getStatus()).expirationDate(jr.getExpirationDate())
-              .requester(memberService.getUserSummary(jr.getMember())).build())
-          .collect(Collectors.toList());
+    List<UserSummaryDto> managers = getManagersSummary(team);
+    List<UserSummaryDto> members = getMembersSummary(team);
+    List<JoinRequestDto> joinRequests = getPendingJoinRequests(team, currentMember);
+    if (joinRequests.isEmpty()) {
+      joinRequests = null;
     }
 
     return TeamDetailsDto.builder().idTeam(team.getIdTeam()).name(team.getName())
@@ -102,11 +90,11 @@ public class TeamService {
   @Transactional
   public Team createTeam(String teamName, Member creator) {
     if (teamRepository.existsByName(teamName)) {
-      throw new ResponseStatusException(HttpStatus.CONFLICT, "Le nom de Team est déjà pris.");
+      throw new TeamNameAlreadyTakenException("Le nom de Team est déjà pris.");
     }
 
     if (creator.getTeam() != null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+      throw new UserAlreadyInTeamException(
           "L'utilisateur fait déjà partie d'une équipe");
     }
 
@@ -230,46 +218,18 @@ public class TeamService {
    */
   @Transactional
   public Team designateSecondManager(Long teamId, Long memberId, Member currentMember) {
-    Team team = teamRepository.findById(teamId).orElse(null);
-    if (team == null) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-          "La team n'existe pas ou n'est plus active.");
-    }
+    Team team = getExistingTeam(teamId);
+    requireManager(team, currentMember);
 
-    // Check if currentMember is a manager
-    boolean isManager = isManager(team, currentMember);
-    if (!isManager) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-          "L'utilisateur n'a pas les droits de responsable.");
-    }
-
-    Member memberToDesignate = memberRepository.findById(memberId).orElse(null);
-    if (memberToDesignate == null) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "L'utilisateur n'existe pas.");
-    }
-
-    // Check if member belongs to the team
-    if (memberToDesignate.getTeam() == null
-        || !memberToDesignate.getTeam().getIdTeam().equals(teamId)) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-          "L'utilisateur ne fait pas partie de la Team.");
-    }
+    Member memberToDesignate = getExistingMember(memberId);
+    requireTeamMembership(memberToDesignate, teamId);
 
     // Check if member is already a manager
-    if ((team.getManager1() != null && team.getManager1().getIdMember().equals(memberId))
-        || (team.getManager2() != null && team.getManager2().getIdMember().equals(memberId))) {
+    if (isManager(team, memberToDesignate)) {
       return team; // Already a manager
     }
 
-    // Check for open spots
-    if (team.getManager1() == null) {
-      team.setManager1(memberToDesignate);
-    } else if (team.getManager2() == null) {
-      team.setManager2(memberToDesignate);
-    } else {
-      throw new ResponseStatusException(HttpStatus.CONFLICT,
-          "Il n'y a plus de place de responsable libre dans l'équipe."); // Both spots taken
-    }
+    assignManagerSpot(team, memberToDesignate);
 
     return teamRepository.save(team);
   }
@@ -283,30 +243,14 @@ public class TeamService {
   @Transactional
   public void quitTeam(Member currentMember) {
     if (currentMember.getTeam() == null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+      throw new UserNotInTeamException(
           "L'utilisateur ne fait pas partie de la Team.");
     }
 
-    Team team = teamRepository.findById(currentMember.getTeam().getIdTeam())
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Team not found"));
+    Team team = getExistingTeam(currentMember.getTeam().getIdTeam());
 
-    if (isManager1(team, currentMember)) {
-      if (team.getManager2() != null) {
-        team.setManager1(team.getManager2());
-        team.setManager2(null);
-      } else if (1 < team.getMembers().size()) {
-        throw new ResponseStatusException(HttpStatus.CONFLICT,
-            "Member cannot quit team as the last manager.");
-      } else {
-        team.setManager1(null);
-      }
-    } else if (isManager2(team, currentMember)) {
-      team.setManager2(null);
-    }
-
-    if (team.getManager1() == null && team.getManager2() == null) {
-      team.setIsActive(false);
-    }
+    handleManagerQuitting(team, currentMember);
+    deactivateIfEmpty(team);
 
     currentMember.setTeam(null);
     memberRepository.save(currentMember);
@@ -324,54 +268,194 @@ public class TeamService {
    */
   @Transactional
   public Team resignManager(Long teamId, Member currentMember, Long replacementId) {
-    Team team = teamRepository.findById(teamId).orElseThrow(
-        () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "La team n'existe pas."));
-
-    // Vérifier que c’est bien un manager
-    if (!isManager(team, currentMember)) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-          "L'utilisateur n'est pas responsable de cette team.");
-    }
-
-    boolean isManager1 = isManager1(team, currentMember);
-    // boolean isManager2 = isManager2(team, currentMember);
+    Team team = getExistingTeam(teamId);
+    requireManager(team, currentMember);
 
     boolean hasOtherManager = hasOtherManager(team, currentMember);
 
     if (!hasOtherManager && replacementId == null) {
-      throw new ResponseStatusException(HttpStatus.CONFLICT,
+      throw new ReplacementRequiredException(
           "Un remplaçant est obligatoire pour quitter le rôle de responsable.");
     }
 
+    Member replacement = null;
     if (replacementId != null) {
-      Member replacement = memberRepository.findById(replacementId).orElseThrow(
-          () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Le remplaçant n'existe pas."));
-
-      if (replacement.getTeam() == null || !replacement.getTeam().getIdTeam().equals(teamId)) {
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-            "Le remplaçant doit appartenir à la team.");
-      }
+      replacement = getExistingMember(replacementId);
+      requireTeamMembership(replacement, teamId);
 
       if (isManager(team, replacement)) {
-        throw new ResponseStatusException(HttpStatus.CONFLICT, "Ce membre est déjà responsable.");
-      }
-
-      if (isManager1) {
-        team.setManager1(replacement);
-      } else {
-        team.setManager2(replacement);
-      }
-    } else {
-      // Normally, a team's manager1 should never be null if the team is active.
-      // (manager2 takes manager1 place, and manager2 is set to null)
-      // See attribute "manager1" in Team model
-      if (isManager1) {
-        team.setManager1(null);
-      } else {
-        team.setManager2(null);
+        throw new MemberAlreadyManagerException("Ce membre est déjà responsable.");
       }
     }
 
+    replaceOrRemoveManager(team, currentMember, replacement);
+
     return teamRepository.save(team);
   }
+
+  /**
+   * Retrieves an existing team or throws an exception.
+   *
+   * @param teamId the team ID
+   * @return the team
+   * @throws TeamNotFoundException if the team does not exist
+   */
+  public Team getExistingTeam(Long teamId) {
+    return teamRepository.findById(teamId).orElseThrow(
+        () -> new TeamNotFoundException("La team n'existe pas ou n'est plus active."));
+  }
+
+  /**
+   * Validates that the member is a manager of the team.
+   *
+   * @param team the team
+   * @param member the member
+   * @throws NotManagerException if the member is not a manager
+   */
+  public void requireManager(Team team, Member member) {
+    if (!isManager(team, member)) {
+      throw new NotManagerException("L'utilisateur n'a pas les droits de responsable.");
+    }
+  }
+
+  /**
+   * Retrieves an existing member or throws an exception.
+   *
+   * @param memberId the member ID
+   * @return the member
+   * @throws MemberNotFoundException if the member does not exist
+   */
+  private Member getExistingMember(Long memberId) {
+    return memberRepository.findById(memberId).orElseThrow(
+        () -> new MemberNotFoundException("L'utilisateur n'existe pas."));
+  }
+
+  /**
+   * Validates that a member belongs to a specific team.
+   *
+   * @param member the member
+   * @param teamId the team ID
+   * @throws UserNotInTeamException if the member is not in the team
+   */
+  private void requireTeamMembership(Member member, Long teamId) {
+    if (member.getTeam() == null || !member.getTeam().getIdTeam().equals(teamId)) {
+      throw new UserNotInTeamException("L'utilisateur ne fait pas partie de la Team.");
+    }
+  }
+
+  /**
+   * Gets a summary of the team's managers.
+   *
+   * @param team the team
+   * @return list of manager summaries
+   */
+  private List<UserSummaryDto> getManagersSummary(Team team) {
+    List<UserSummaryDto> managers = new ArrayList<>();
+    if (team.getManager1() != null) {
+      managers.add(memberService.getUserSummary(team.getManager1()));
+    }
+    if (team.getManager2() != null) {
+      managers.add(memberService.getUserSummary(team.getManager2()));
+    }
+    return managers;
+  }
+
+  /**
+   * Gets a summary of the team's active members.
+   *
+   * @param team the team
+   * @return list of member summaries
+   */
+  private List<UserSummaryDto> getMembersSummary(Team team) {
+    return team.getMembers().stream().filter(member -> !member.isDeleted())
+        .map(memberService::getUserSummary).collect(Collectors.toList());
+  }
+
+  /**
+   * Retrieves pending join requests for the team if the current user is a manager.
+   *
+   * @param team the team
+   * @param currentMember the authenticated member
+   * @return list of pending join requests or empty list if unauthorized
+   */
+  private List<JoinRequestDto> getPendingJoinRequests(Team team, Member currentMember) {
+    if (currentMember == null || !isManager(team, currentMember)) {
+      return new ArrayList<>();
+    }
+    return joinRequestRepository
+        .findAllByRequestedTeamAndStatus(team, RequestStatus.PENDING).stream()
+        .map(jr -> JoinRequestDto.builder().idJoinRequest(jr.getIdJoinRequest())
+            .idTeam(jr.getRequestedTeam().getIdTeam()).teamName(jr.getRequestedTeam().getName())
+            .status(jr.getStatus()).expirationDate(jr.getExpirationDate())
+            .requester(memberService.getUserSummary(jr.getMember())).build())
+        .collect(Collectors.toList());
+  }
+
+  /**
+   * Assigns a manager spot to a designated member.
+   *
+   * @param team the team
+   * @param memberToDesignate the member to promote to manager
+   * @throws NoManagerSpotsLeftException if no manager spots are available
+   */
+  private void assignManagerSpot(Team team, Member memberToDesignate) {
+    if (team.getManager1() == null) {
+      team.setManager1(memberToDesignate);
+    } else if (team.getManager2() == null) {
+      team.setManager2(memberToDesignate);
+    } else {
+      throw new NoManagerSpotsLeftException(
+          "Il n'y a plus de place de responsable libre dans l'équipe.");
+    }
+  }
+
+  /**
+   * Handles the logic of a manager quitting the team.
+   *
+   * @param team the team
+   * @param currentMember the manager quitting
+   * @throws LastManagerCannotQuitException if they are the last manager trying to quit
+   */
+  private void handleManagerQuitting(Team team, Member currentMember) {
+    if (isManager1(team, currentMember)) {
+      if (team.getManager2() != null) {
+        team.setManager1(team.getManager2());
+        team.setManager2(null);
+      } else if (1 < team.getMembers().size()) {
+        throw new LastManagerCannotQuitException(
+            "Member cannot quit team as the last manager.");
+      } else {
+        team.setManager1(null);
+      }
+    } else if (isManager2(team, currentMember)) {
+      team.setManager2(null);
+    }
+  }
+
+  /**
+   * Deactivates the team if it has no remaining managers.
+   *
+   * @param team the team
+   */
+  private void deactivateIfEmpty(Team team) {
+    if (team.getManager1() == null && team.getManager2() == null) {
+      team.setIsActive(false);
+    }
+  }
+
+  /**
+   * Replaces or removes a manager spot.
+   *
+   * @param team the team
+   * @param currentManager the manager being replaced or removed
+   * @param replacement the new manager (or null to simply remove)
+   */
+  private void replaceOrRemoveManager(Team team, Member currentManager, Member replacement) {
+    if (isManager1(team, currentManager)) {
+      team.setManager1(replacement);
+    } else {
+      team.setManager2(replacement);
+    }
+  }
 }
+

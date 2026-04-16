@@ -19,9 +19,9 @@ public class MatchController {
   private final MatchService matchService;
 
   /**
-   * Constructs a MatchController with the given MatchService.
+   * Constructor for MatchController.
    *
-   * @param matchService the match service
+   * @param matchService the injected MatchService
    */
   public MatchController(MatchService matchService) {
     this.matchService = matchService;
@@ -35,9 +35,21 @@ public class MatchController {
    */
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @PatchMapping("/{id}/confirm")
-  public void confirmMatchResult(@PathVariable Long id, @AuthenticationPrincipal String email) {
+  public void confirmMatchResult(@PathVariable Long id,
+      @AuthenticationPrincipal String email) {
     matchService.confirmResult(id, email);
   }
 
-
+  /**
+   * Contests the result of a match.
+   *
+   * @param id the id of the match
+   * @param email the authenticated user's email
+   */
+  @PatchMapping("/{id}/contest")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void contestMatchResult(@PathVariable Long id,
+      @AuthenticationPrincipal String email) {
+    matchService.contestResult(id,email);
+  }
 }

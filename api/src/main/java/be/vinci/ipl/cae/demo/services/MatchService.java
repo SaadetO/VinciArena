@@ -1,8 +1,8 @@
 package be.vinci.ipl.cae.demo.services;
 
 import be.vinci.ipl.cae.demo.exceptions.AlreadyConfirmedException;
-import be.vinci.ipl.cae.demo.exceptions.ForbiddenException;
 import be.vinci.ipl.cae.demo.exceptions.MatchNotFoundException;
+import be.vinci.ipl.cae.demo.exceptions.MemberHasNoTeamException;
 import be.vinci.ipl.cae.demo.exceptions.ResultNotFoundException;
 import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryTournamentDto;
@@ -40,7 +40,10 @@ public class MatchService {
    * @param matchLineupRepository the match lineup repository
    * @param matchResultConfirmation the match result confirmation repository
    */
-  public MatchService(MatchRepository matchRepository, MemberRepository memberRepository,
+  public MatchService(MatchRepository matchRepository,
+      TeamRepository teamRepository,
+      MemberRepository memberRepository,
+      TournamentRepository tournamentRepository,
       MatchLineupRepository matchLineupRepository,
       MatchResultConfirmationRepository matchResultConfirmation) {
     this.matchRepository = matchRepository;
@@ -58,7 +61,8 @@ public class MatchService {
    */
   private Match getMatch(Long matchId) {
     return matchRepository.findById(matchId)
-        .orElseThrow(() -> new MatchNotFoundException("Match not found"));
+        .orElseThrow(() ->
+            new MatchNotFoundException("Match not found"));
   }
 
   /**
@@ -88,11 +92,12 @@ public class MatchService {
    *
    * @param match the match
    * @param member the member
-   * @throws ForbiddenException if the user is not part of the match
+   * @throws MemberHasNoTeamException if the user has no team
+   * @throws UserNotInMatchException if the user is not part of the match
    */
   private void validateUserCanConfirm(Match match, Member member) {
     if (member.getTeam() == null) {
-      throw new ForbiddenException("User has no team");
+      throw new MemberHasNoTeamException("User has no team");
     }
 
     Long teamId = member.getTeam().getIdTeam();
@@ -102,19 +107,22 @@ public class MatchService {
     boolean isTeam2 = match.getTeam2() != null && match.getTeam2().getIdTeam().equals(teamId);
 
     if (!isTeam1 && !isTeam2) {
-      throw new ForbiddenException("User not part of this match");
+      throw new UserNotInMatchException("User not part of this match");
     }
   }
 
   /**
-   * Updates the confirmation for the correct team.
+   * Updates the confirmation status (confirm or contest) for the correct team.
    *
    * @param match the match
    * @param member the member
    * @param confirmation the confirmation entity
+   * @param status true for confirm, false for contest
    */
-  private void updateConfirmation(Match match, Member member,
-      MatchResultConfirmation confirmation) {
+  private void updateConfirmationStatus(Match match, Member member,
+      MatchResultConfirmation confirmation,
+      boolean status) {
+
     Long teamId = member.getTeam().getIdTeam();
 
     boolean isTeam1 = match.getTeam1() != null && match.getTeam1().getIdTeam().equals(teamId);
@@ -124,14 +132,28 @@ public class MatchService {
         throw new AlreadyConfirmedException("Already confirmed or contested");
       }
 
-      confirmation.setConfirmationTeam1(true);
+      confirmation.setConfirmationTeam1(status);
+
     } else {
       if (confirmation.getConfirmationTeam2() != null) {
         throw new AlreadyConfirmedException("Already confirmed or contested");
       }
 
-      confirmation.setConfirmationTeam2(true);
+      confirmation.setConfirmationTeam2(status);
     }
+  }
+
+  private void handleMatchResult(Long matchId, String email, boolean status) {
+
+    Match match = getMatch(matchId);
+    Member member = getMember(email);
+    MatchResultConfirmation confirmation = getConfirmation(matchId);
+
+    validateUserCanConfirm(match, member);
+
+    updateConfirmationStatus(match, member, confirmation, status);
+
+    matchResultConfirmationRepository.save(confirmation);
   }
 
   /**

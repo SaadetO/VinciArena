@@ -223,23 +223,23 @@ public class TournamentService {
       case REGISTRATION_OPEN -> {
         if (!t.getRegistrationDeadline().isAfter(now)) {
           yield (t.getRegistrationsNumber() < 2)
-            ? TournamentStatus.CANCELLED
-            : TournamentStatus.REGISTRATION_CLOSED;
+              ? TournamentStatus.CANCELLED
+              : TournamentStatus.REGISTRATION_CLOSED;
         }
         yield status;
       }
       // cancel tournament if it's not planned and the startDate arrives
       case REGISTRATION_CLOSED -> (!t.getStartDate().isAfter(today))
-        ? TournamentStatus.CANCELLED
-        : status;
+          ? TournamentStatus.CANCELLED
+          : status;
       // start tournament if its planned and startDate arrives
       case PLANNED -> (!t.getStartDate().isAfter(today))
-        ? TournamentStatus.IN_PROGRESS
-        : status;
+          ? TournamentStatus.IN_PROGRESS
+          : status;
       // finish tournament if endDate arrives
       case IN_PROGRESS -> (!t.getEndDate().isAfter(today))
-        ? TournamentStatus.DONE
-        : status;
+          ? TournamentStatus.DONE
+          : status;
       default -> status;
     };
   }
