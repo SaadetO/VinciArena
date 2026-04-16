@@ -17,7 +17,6 @@ export const VersusItem = ({ match }: VersusItemProps) => {
       <Grid2
         size={6}
         display="flex"
-        direction="row"
         alignItems="center"
         justifyContent="flex-end"
         gap="1.25rem"
@@ -46,13 +45,7 @@ export const VersusItem = ({ match }: VersusItemProps) => {
           sx={{ rotate: '30deg', background: (theme) => theme.palette.divider }}
         />
       </Stack>
-      <Grid2
-        size={6}
-        display="flex"
-        direction="row"
-        alignItems="center"
-        gap="1.25rem"
-      >
+      <Grid2 size={6} display="flex" alignItems="center" gap="1.25rem">
         {showScore && (
           <Typography
             variant="h4"

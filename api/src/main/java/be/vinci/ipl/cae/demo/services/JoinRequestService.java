@@ -37,9 +37,8 @@ public class JoinRequestService {
    * @param notificationService the notification service
    * @param memberRepository the member repository
    */
-  public JoinRequestService(JoinRequestRepository joinRequestRepository,
-      TeamService teamService, NotificationService notificationService,
-      MemberRepository memberRepository) {
+  public JoinRequestService(JoinRequestRepository joinRequestRepository, TeamService teamService,
+      NotificationService notificationService, MemberRepository memberRepository) {
     this.joinRequestRepository = joinRequestRepository;
     this.teamService = teamService;
     this.notificationService = notificationService;
@@ -105,7 +104,7 @@ public class JoinRequestService {
 
     return mapToDto(joinRequest, team);
   }
-  
+
   /**
    * Validates whether the requester can join the requested team.
    *
@@ -136,7 +135,7 @@ public class JoinRequestService {
   private JoinRequest getPendingJoinRequest(Long requestId) {
     JoinRequest joinRequest = joinRequestRepository.findById(requestId)
         .orElseThrow(() -> new JoinRequestNotFoundException("Demande d'adhésion non trouvée"));
-    
+
     if (joinRequest.getStatus() != RequestStatus.PENDING) {
       throw new InvalidJoinRequestException("Cette demande n'est plus en attente");
     }
@@ -207,7 +206,8 @@ public class JoinRequestService {
   }
 
   /**
-   * Processes the acceptance of a join request by updating member details and cleaning up other requests.
+   * Processes the acceptance of a join request by updating member details and cleaning up other
+   * requests.
    *
    * @param requester the member who was accepted
    * @param team the team they are joining

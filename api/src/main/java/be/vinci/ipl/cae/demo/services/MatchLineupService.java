@@ -19,13 +19,20 @@ import java.util.HashSet;
 import java.util.Set;
 import org.springframework.stereotype.Service;
 
+/**
+ * MatchLineup Service.
+ */
 @Service
 public class MatchLineupService {
+
   private final MatchRepository matchRepository;
   private final MatchLineupRepository matchLineupRepository;
   private final MemberRepository memberRepository;
   private final MemberService memberService;
 
+  /**
+   * match lineupservice constructor.
+   */
   public MatchLineupService(MatchRepository matchRepository,
       MatchLineupRepository matchLineupRepository,
       MemberRepository memberRepository,
@@ -36,7 +43,18 @@ public class MatchLineupService {
     this.memberService = memberService;
   }
 
-
+  /**
+   *Updates the match lineup for the authenticated member's team.
+   * This method validates that the current member is a manager of a team involved in the match,
+   * ensures all provided players belong to that team, and verifies their availability for the
+   * match's date and time. If validation passes, the existing lineup is replaced with the new set
+   * of members.
+   *
+   * @param newLineup     DTO containing the list of member IDs to be placed in the lineup.
+   * @param matchId       The unique identifier of the match to update.
+   * @param currentMember The currently authenticated member performing the update.
+   * @return A MatchLineupDto representing the newly updated state of the lineup.
+   */
   public MatchLineupDto updateLineup(NewMatchLineupDto newLineup, Long matchId,
       Member currentMember) {
     Set<Member> membersSet = validateMatchLineup(newLineup, matchId, currentMember);
@@ -45,6 +63,7 @@ public class MatchLineupService {
     MatchLineup matchLineup = matchLineupRepository.findByMatchAndTeam(match, team)
         .orElseThrow(MatchLineupNotFoundException::new);
     matchLineup.replaceLineup(membersSet);
+    matchLineupRepository.save(matchLineup);
     return MatchLineupDto.fromEntity(matchLineup);
   }
 

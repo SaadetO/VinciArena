@@ -33,4 +33,11 @@ public interface MatchLineupRepository extends JpaRepository<MatchLineup, MatchL
    * @return an iterable of MatchLineups
    */
   Iterable<MatchLineup> findByMembersIdMemberIn(Collection<Long> membersIdMembers);
+
+  /**
+   * Delete matchLineup linked to a list of matches.
+   *
+   * @param matches the matches the matchLineups are linked to
+   */
+  void deleteByMatchIn(List<Match> matches);
 }

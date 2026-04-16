@@ -1,30 +1,28 @@
 package be.vinci.ipl.cae.demo.services;
 
-import be.vinci.ipl.cae.demo.exceptions.ForbiddenException;
-import be.vinci.ipl.cae.demo.exceptions.MatchLineupNotFoundException;
-import be.vinci.ipl.cae.demo.exceptions.MatchNotFoundException;
-import be.vinci.ipl.cae.demo.exceptions.MemberNotFoundException;
-import be.vinci.ipl.cae.demo.exceptions.MemberNotInTeamException;
-import be.vinci.ipl.cae.demo.exceptions.MemberUnavailableException;
-import be.vinci.ipl.cae.demo.models.dtos.MatchLineupDto;
-import be.vinci.ipl.cae.demo.models.dtos.NewMatchLineupDto;
-import be.vinci.ipl.cae.demo.models.entities.Match;
-import be.vinci.ipl.cae.demo.models.entities.MatchLineup;
-import be.vinci.ipl.cae.demo.models.entities.Member;
-import be.vinci.ipl.cae.demo.models.entities.Team;
-import be.vinci.ipl.cae.demo.repositories.MatchLineupRepository;
 import be.vinci.ipl.cae.demo.exceptions.AlreadyConfirmedException;
+import be.vinci.ipl.cae.demo.exceptions.ForbiddenException;
+import be.vinci.ipl.cae.demo.exceptions.MatchNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.MemberHasNoTeamException;
 import be.vinci.ipl.cae.demo.exceptions.ResultNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.UserNotInMatchException;
+import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryDto;
+import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryTournamentDto;
+import be.vinci.ipl.cae.demo.models.dtos.MatchTeamDto;
+import be.vinci.ipl.cae.demo.models.entities.Match;
+import be.vinci.ipl.cae.demo.models.entities.MatchLineup;
 import be.vinci.ipl.cae.demo.models.entities.MatchResultConfirmation;
+import be.vinci.ipl.cae.demo.models.entities.Member;
+import be.vinci.ipl.cae.demo.models.entities.Team;
+import be.vinci.ipl.cae.demo.models.entities.Tournament;
+import be.vinci.ipl.cae.demo.repositories.MatchLineupRepository;
 import be.vinci.ipl.cae.demo.repositories.MatchRepository;
 import be.vinci.ipl.cae.demo.repositories.MatchResultConfirmationRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
-import be.vinci.ipl.cae.demo.repositories.TeamRepository;
-import be.vinci.ipl.cae.demo.repositories.TournamentRepository;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.springframework.stereotype.Service;
 
@@ -34,36 +32,31 @@ import org.springframework.stereotype.Service;
 @Service
 public class MatchService {
 
-
   private final MatchRepository matchRepository;
   private final MemberRepository memberRepository;
   private final MemberService memberService;
-  private final TournamentRepository tournamentRepository;
   private final MatchLineupRepository matchLineupRepository;
   private final MatchResultConfirmationRepository matchResultConfirmationRepository;
 
   /**
    * Constructor.
    *
-   * @param matchRepository  the match repository
-   * @param memberRepository the member repository
+   * @param matchRepository                   the match repository
+   * @param memberRepository                  the member repository
+   * @param matchLineupRepository             the match lineup repository
+   * @param matchResultConfirmationRepository the match result confirmation repository
    */
-  public MatchService(MatchRepository matchRepository,
-      TeamRepository teamRepository,
-      MemberRepository memberRepository,
-      TournamentRepository tournamentRepository,
+  public MatchService(MatchRepository matchRepository, MemberRepository memberRepository,
       MatchLineupRepository matchLineupRepository,
-      MatchResultConfirmationRepository matchResultConfirmation, MemberService memberService) {
+      MemberService memberService,
+      MatchResultConfirmationRepository matchResultConfirmationRepository) {
     this.matchRepository = matchRepository;
     this.memberRepository = memberRepository;
     this.memberService = memberService;
     this.matchLineupRepository = matchLineupRepository;
-    this.tournamentRepository = tournamentRepository;
-    this.matchResultConfirmationRepository = matchResultConfirmation;
+    this.matchResultConfirmationRepository = matchResultConfirmationRepository;
 
   }
-
-
 
   /**
    * Returns the set of team members available at a specific time. Only accessible by managers.
@@ -135,18 +128,15 @@ public class MatchService {
    * @throws UserNotInMatchException  if the user is not part of the match
    */
   private void validateUserCanConfirm(Match match, Member member) {
-
     if (member.getTeam() == null) {
       throw new MemberHasNoTeamException("User has no team");
     }
 
     Long teamId = member.getTeam().getIdTeam();
 
-    boolean isTeam1 = match.getTeam1() != null
-        && match.getTeam1().getIdTeam().equals(teamId);
+    boolean isTeam1 = match.getTeam1() != null && match.getTeam1().getIdTeam().equals(teamId);
 
-    boolean isTeam2 = match.getTeam2() != null
-        && match.getTeam2().getIdTeam().equals(teamId);
+    boolean isTeam2 = match.getTeam2() != null && match.getTeam2().getIdTeam().equals(teamId);
 
     if (!isTeam1 && !isTeam2) {
       throw new UserNotInMatchException("User not part of this match");
@@ -162,13 +152,11 @@ public class MatchService {
    * @param status       true for confirm, false for contest
    */
   private void updateConfirmationStatus(Match match, Member member,
-      MatchResultConfirmation confirmation,
-      boolean status) {
+      MatchResultConfirmation confirmation, boolean status) {
 
     Long teamId = member.getTeam().getIdTeam();
 
-    boolean isTeam1 = match.getTeam1() != null
-        && match.getTeam1().getIdTeam().equals(teamId);
+    boolean isTeam1 = match.getTeam1() != null && match.getTeam1().getIdTeam().equals(teamId);
 
     if (isTeam1) {
 
@@ -219,5 +207,53 @@ public class MatchService {
    */
   public void contestResult(Long matchId, String email) {
     handleMatchResult(matchId, email, false);
+  }
+
+  /**
+   * Maps a match to a summary dto.
+   *
+   * @param match      the match
+   * @param tournament the tournament
+   * @return the summary dto
+   */
+  public MatchSummaryDto mapMatchToSummaryDto(Match match, Tournament tournament) {
+
+    List<MatchLineup> lineups = matchLineupRepository.findByIdIdMatch(match.getIdMatch());
+
+    MatchTeamDto team1Dto = createMatchTeamDto(match.getTeam1(), lineups);
+    MatchTeamDto team2Dto = createMatchTeamDto(match.getTeam2(), lineups);
+
+    Optional<MatchResultConfirmation> confirmation =
+        matchResultConfirmationRepository.findById(match.getIdMatch());
+    boolean isConfirmed =
+        confirmation.isPresent() && Boolean.TRUE.equals(confirmation.get().getConfirmationTeam1())
+            && Boolean.TRUE.equals(confirmation.get().getConfirmationTeam2());
+
+    return new MatchSummaryDto(match.getIdMatch(), match.getDateHour(), match.getTurn(),
+        match.getStatus(), isConfirmed, team1Dto, team2Dto,
+        new MatchSummaryTournamentDto(tournament.getIdTournament(), tournament.getName()));
+  }
+
+  /**
+   * Create a match team dto.
+   *
+   * @param team    the team
+   * @param lineups the lineups
+   * @return the match team dto
+   */
+  private MatchTeamDto createMatchTeamDto(Team team, List<MatchLineup> lineups) {
+    if (team == null) {
+      return null;
+    }
+
+    MatchLineup lineup = lineups.stream()
+        .filter(l -> l.getTeam().getIdTeam().equals(team.getIdTeam())).findFirst().orElse(null);
+
+    if (lineup == null) {
+      return new MatchTeamDto(team.getIdTeam(), team.getName(), null, false, false);
+    }
+
+    return new MatchTeamDto(team.getIdTeam(), team.getName(), lineup.getScore(), lineup.isWinner(),
+        lineup.isHasForfeited());
   }
 }

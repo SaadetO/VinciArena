@@ -83,7 +83,12 @@ export const useTournament = (config: UseTournamentOptions) => {
 
   const { execute: getById, loading: isGettingTournamentById } = useApi(
     async (id: number) => {
-      const response = await fetch(`/api/tournaments/${id}`);
+      const response = await fetch(`/api/tournaments/${id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: authenticatedUser?.token ?? '',
+        },
+      });
       if (!response.ok) {
         if (response.status === 404)
           throw new ApiError('Tournoi introuvable', response.status);
@@ -236,6 +241,59 @@ export const useTournament = (config: UseTournamentOptions) => {
     },
   );
 
+  const { execute: publishMatches, loading: isPublishingMatches } = useApi(
+    async (id: number) => {
+      const response = await fetch(`/api/tournaments/${id}/publish-matches`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: authenticatedUser?.token ?? '',
+        },
+      });
+
+      if (!response.ok) {
+        throw new ApiError(
+          'Échec de la publication des matchs',
+          response.status,
+        );
+      }
+
+      return response.json();
+    },
+    {
+      onOptimism: () => {
+        setTournament?.((prev) => {
+          if (!prev) return prev;
+          return { ...prev, status: 'PLANNED' };
+        });
+      },
+      onSuccess: (data) => {
+        setTournament?.((prev) => {
+          if (!prev) return data;
+          return { ...prev, ...data };
+        });
+        showSnackbar({
+          message: 'Matchs publiés avec succès',
+          severity: 'success',
+        });
+      },
+      onRollback: () => {
+        setTournament?.((prev) => {
+          if (!prev) return prev;
+          return { ...prev, status: 'REGISTRATION_CLOSED' };
+        });
+      },
+      onError: (err) => {
+        showSnackbar({
+          message:
+            err instanceof ApiError
+              ? err.message
+              : 'Une erreur est survenue lors de la publication des matchs',
+          severity: 'error',
+        });
+      },
+    },
+  );
+
   const { execute: register, loading: isRegistering } = useApi(
     async (id: number) => {
       const response = await fetch(`/api/tournaments/${id}/register`, {
@@ -354,12 +412,14 @@ export const useTournament = (config: UseTournamentOptions) => {
     create,
     update,
     publish,
+    publishMatches,
     register,
     generateMatches,
     isGettingTournaments,
     isGettingTournamentById,
     isCreating,
     isPublishing,
+    isPublishingMatches,
     isRegistering,
     isGeneratingMatches,
   };

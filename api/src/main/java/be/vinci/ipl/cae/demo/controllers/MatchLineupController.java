@@ -1,5 +1,6 @@
 package be.vinci.ipl.cae.demo.controllers;
 
+import be.vinci.ipl.cae.demo.models.dtos.MatchLineupDto;
 import be.vinci.ipl.cae.demo.models.dtos.NewMatchLineupDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.services.MatchLineupService;
@@ -30,11 +31,11 @@ public class MatchLineupController {
   @ResponseStatus(HttpStatus.OK)
   @PatchMapping("/match/{id}")
   @PreAuthorize("isAuthenticated()")
-  public void updateLineup(
+  public MatchLineupDto updateLineup(
       @PathVariable Long id,
       @Valid @RequestBody NewMatchLineupDto newMatchLineupDto,
       @AuthenticationPrincipal Member currentMember) {
-    matchLineupService.updateLineup(newMatchLineupDto, id, currentMember);
+    return matchLineupService.updateLineup(newMatchLineupDto, id, currentMember);
   }
 
 }

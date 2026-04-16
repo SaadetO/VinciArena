@@ -62,7 +62,7 @@ public class TeamService {
   /**
    * Get team details.
    *
-   * @param id            the team ID
+   * @param id the team ID
    * @param currentMember the current member
    * @return the team details; joinRequests is null if currentMember is not a team manager
    */
@@ -85,7 +85,7 @@ public class TeamService {
    * Create a new team. The creator becomes manager1 of the team.
    *
    * @param teamName the name for the new team
-   * @param creator  the member creating the team
+   * @param creator the member creating the team
    * @return the created team, or null
    */
   @Transactional
@@ -117,7 +117,7 @@ public class TeamService {
   /**
    * Check if member is a manager of a given team.
    *
-   * @param team   the given team
+   * @param team the given team
    * @param member the member to check for manager status
    * @return true is member is a manager; false otherwise
    */
@@ -131,7 +131,7 @@ public class TeamService {
   /**
    * Check if member is a manager1 of a given team.
    *
-   * @param team   the given team
+   * @param team the given team
    * @param member the member to check for manager1 status
    * @return true is member is a manager1; false otherwise
    */
@@ -143,7 +143,7 @@ public class TeamService {
   /**
    * Check if member is a manager2 of a given team.
    *
-   * @param team   the given team
+   * @param team the given team
    * @param member the member to check for manager2 status
    * @return true is member is a manager2; false otherwise
    */
@@ -155,7 +155,7 @@ public class TeamService {
   /**
    * Check if the team has another manager than the one given in parameter.
    *
-   * @param team   the given team
+   * @param team the given team
    * @param member one of or the only manager of the team
    * @return true if the team has another manager than the given member, false otherwise.
    */
@@ -175,7 +175,7 @@ public class TeamService {
   /**
    * Get all teams with optional filtering by active status and search query.
    *
-   * @param isActive    the active status
+   * @param isActive the active status
    * @param searchQuery the search query
    * @return a list of teams matching the criteria
    */
@@ -211,8 +211,8 @@ public class TeamService {
   /**
    * Designate a member as a manager of a team.
    *
-   * @param teamId        the team ID
-   * @param memberId      the member ID to designate
+   * @param teamId the team ID
+   * @param memberId the member ID to designate
    * @param currentMember the authenticated member
    * @return the updated team, or null if unauthorized, team/member not found, or no spots left
    */
@@ -243,7 +243,8 @@ public class TeamService {
   @Transactional
   public void quitTeam(Member currentMember) {
     if (currentMember.getTeam() == null) {
-      throw new UserNotInTeamException("L'utilisateur ne fait pas partie de la Team.");
+      throw new UserNotInTeamException(
+          "L'utilisateur ne fait pas partie de la Team.");
     }
 
     Team team = getExistingTeam(currentMember.getTeam().getIdTeam());
@@ -260,7 +261,7 @@ public class TeamService {
   /**
    * Allow a manager to resign from their role, optionally designating a replacement.
    *
-   * @param teamId        the team ID
+   * @param teamId the team ID
    * @param currentMember the manager who wants to resign
    * @param replacementId the ID of the replacement member (required if no other manager remains)
    * @return the updated team
@@ -292,7 +293,6 @@ public class TeamService {
     return teamRepository.save(team);
   }
 
-
   /**
    * Retrieves an existing team or throws an exception.
    *
@@ -308,7 +308,7 @@ public class TeamService {
   /**
    * Validates that the member is a manager of the team.
    *
-   * @param team   the team
+   * @param team the team
    * @param member the member
    * @throws NotManagerException if the member is not a manager
    */
@@ -374,7 +374,7 @@ public class TeamService {
   /**
    * Retrieves pending join requests for the team if the current user is a manager.
    *
-   * @param team          the team
+   * @param team the team
    * @param currentMember the authenticated member
    * @return list of pending join requests or empty list if unauthorized
    */
@@ -409,7 +409,7 @@ public class TeamService {
   /**
    * Assigns a manager spot to a designated member.
    *
-   * @param team              the team
+   * @param team the team
    * @param memberToDesignate the member to promote to manager
    * @throws NoManagerSpotsLeftException if no manager spots are available
    */
@@ -427,7 +427,7 @@ public class TeamService {
   /**
    * Handles the logic of a manager quitting the team.
    *
-   * @param team          the team
+   * @param team the team
    * @param currentMember the manager quitting
    * @throws LastManagerCannotQuitException if they are the last manager trying to quit
    */

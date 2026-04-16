@@ -49,7 +49,7 @@ Content-Type: application/json
 
 ### Try to update Match 1 (Alpha vs Omega) as Lisa (Iota)
 PATCH {{baseUrl}}/matches/lineup/match/1
-Authorization:  {{auth_token}}
+Authorization:  {{lisa_token}}
 Content-Type: application/json
 
 {

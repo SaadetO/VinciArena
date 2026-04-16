@@ -556,18 +556,16 @@ public class MemberService {
   }
 
   /**
-   * Checks if a member is a manager of a specific team.
+   * Checks if a member is a manager of a specific team using ID comparison.
    */
   public boolean isManagerOfTeam(Member member, Team team) {
-    if (member == null || team == null) {
-      return false;
-    }
-    Member manager1 = team.getManager1();
-    Member manager2 = team.getManager2();
-    if (member.equals(manager1) || member.equals(manager2)) {
-      return true;
-    }
-    return false;
+    if (member == null || team == null) return false;
+
+    Long memberId = member.getIdMember();
+    boolean isMan1 = team.getManager1() != null && memberId.equals(team.getManager1().getIdMember());
+    boolean isMan2 = team.getManager2() != null && memberId.equals(team.getManager2().getIdMember());
+
+    return isMan1 || isMan2;
   }
 
   /**
