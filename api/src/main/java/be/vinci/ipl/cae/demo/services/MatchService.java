@@ -4,6 +4,7 @@ import be.vinci.ipl.cae.demo.exceptions.AlreadyConfirmedException;
 import be.vinci.ipl.cae.demo.exceptions.MatchNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.MemberHasNoTeamException;
 import be.vinci.ipl.cae.demo.exceptions.ResultNotFoundException;
+import be.vinci.ipl.cae.demo.exceptions.UserNotInMatchException;
 import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryTournamentDto;
 import be.vinci.ipl.cae.demo.models.dtos.MatchTeamDto;
@@ -30,7 +31,7 @@ public class MatchService {
   private final MatchRepository matchRepository;
   private final MemberRepository memberRepository;
   private final MatchLineupRepository matchLineupRepository;
-  private final MatchResultConfirmationRepository confirmationRepository;
+  private final MatchResultConfirmationRepository matchResultConfirmationRepository;
 
   /**
    * Constructor.
@@ -40,16 +41,13 @@ public class MatchService {
    * @param matchLineupRepository the match lineup repository
    * @param matchResultConfirmation the match result confirmation repository
    */
-  public MatchService(MatchRepository matchRepository,
-      TeamRepository teamRepository,
-      MemberRepository memberRepository,
-      TournamentRepository tournamentRepository,
+  public MatchService(MatchRepository matchRepository, MemberRepository memberRepository,
       MatchLineupRepository matchLineupRepository,
-      MatchResultConfirmationRepository matchResultConfirmation) {
+      MatchResultConfirmationRepository matchResultConfirmationRepository) {
     this.matchRepository = matchRepository;
     this.memberRepository = memberRepository;
     this.matchLineupRepository = matchLineupRepository;
-    this.confirmationRepository = matchResultConfirmation;
+    this.matchResultConfirmationRepository = matchResultConfirmationRepository;
   }
 
   /**
@@ -61,8 +59,7 @@ public class MatchService {
    */
   private Match getMatch(Long matchId) {
     return matchRepository.findById(matchId)
-        .orElseThrow(() ->
-            new MatchNotFoundException("Match not found"));
+        .orElseThrow(() -> new MatchNotFoundException("Match not found"));
   }
 
   /**
@@ -83,7 +80,7 @@ public class MatchService {
    * @throws ResultNotFoundException if not found
    */
   private MatchResultConfirmation getConfirmation(Long matchId) {
-    return confirmationRepository.findById(matchId)
+    return matchResultConfirmationRepository.findById(matchId)
         .orElseThrow(() -> new ResultNotFoundException("Result not found"));
   }
 
@@ -120,8 +117,7 @@ public class MatchService {
    * @param status true for confirm, false for contest
    */
   private void updateConfirmationStatus(Match match, Member member,
-      MatchResultConfirmation confirmation,
-      boolean status) {
+      MatchResultConfirmation confirmation, boolean status) {
 
     Long teamId = member.getTeam().getIdTeam();
 
@@ -163,16 +159,19 @@ public class MatchService {
    * @param email the email of the authenticated user
    */
   public void confirmResult(Long matchId, String email) {
-    Match match = getMatch(matchId);
-    Member member = getMember(email);
-    MatchResultConfirmation confirmation = getConfirmation(matchId);
-
-    validateUserCanConfirm(match, member);
-
-    updateConfirmation(match, member, confirmation);
-
-    confirmationRepository.save(confirmation);
+    handleMatchResult(matchId, email, true);
   }
+
+  /**
+   * Contests the result of a match for the authenticated user.
+   *
+   * @param matchId the id of the match
+   * @param email the email of the authenticated user
+   */
+  public void contestResult(Long matchId, String email) {
+    handleMatchResult(matchId, email, false);
+  }
+
 
   /**
    * Maps a match to a summary dto.
@@ -189,7 +188,7 @@ public class MatchService {
     MatchTeamDto team2Dto = createMatchTeamDto(match.getTeam2(), lineups);
 
     Optional<MatchResultConfirmation> confirmation =
-        confirmationRepository.findById(match.getIdMatch());
+        matchResultConfirmationRepository.findById(match.getIdMatch());
     boolean isConfirmed =
         confirmation.isPresent() && Boolean.TRUE.equals(confirmation.get().getConfirmationTeam1())
             && Boolean.TRUE.equals(confirmation.get().getConfirmationTeam2());

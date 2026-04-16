@@ -218,8 +218,8 @@ class JoinRequestServiceTest {
         .when(teamService).requireManager(teamA, intruder);
 
     // Act & Assert
-    assertThrows(NotManagerException.class, () -> joinRequestService
-        .updateJoinRequestStatus(100L, RequestStatus.ACCEPTED, null, intruder));
+    assertThrows(NotManagerException.class, () -> joinRequestService.updateJoinRequestStatus(100L,
+        RequestStatus.ACCEPTED, null, intruder));
   }
 
   @Test

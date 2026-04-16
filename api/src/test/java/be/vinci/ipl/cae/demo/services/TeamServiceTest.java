@@ -109,7 +109,8 @@ class TeamServiceTest {
     when(teamRepository.existsByName("New Team")).thenReturn(false);
 
     // Act + Assert
-    assertThrows(UserAlreadyInTeamException.class, () -> teamService.createTeam("New Team", creator));
+    assertThrows(UserAlreadyInTeamException.class,
+        () -> teamService.createTeam("New Team", creator));
     verify(memberRepository, never()).save(any(Member.class));
     verify(teamRepository, never()).save(any(Team.class));
   }
@@ -826,7 +827,8 @@ class TeamServiceTest {
     when(memberRepository.findById(2L)).thenReturn(Optional.of(manager2));
 
     // Assert
-    assertThrows(MemberAlreadyManagerException.class, () -> teamService.resignManager(1L, creator, 2L));
+    assertThrows(MemberAlreadyManagerException.class,
+        () -> teamService.resignManager(1L, creator, 2L));
   }
 
   @Test
@@ -945,7 +947,8 @@ class TeamServiceTest {
     when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
 
     // Act + Assert
-    assertThrows(ReplacementRequiredException.class, () -> teamService.resignManager(1L, creator, null));
+    assertThrows(ReplacementRequiredException.class,
+        () -> teamService.resignManager(1L, creator, null));
   }
 
   @Test

@@ -94,7 +94,7 @@ public class TournamentService {
   }
 
   /**
-   * Get the teams of a tournament
+   * Get the teams of a tournament.
    *
    * @param tournament the tournament
    * @return the teams of the tournament
@@ -105,7 +105,7 @@ public class TournamentService {
   }
 
   /**
-   * Get the matches of a tournament
+   * Get the matches of a tournament.
    *
    * @param tournament the tournament
    * @return the matches of the tournament
@@ -134,7 +134,7 @@ public class TournamentService {
   }
 
   /**
-   * Check if a match is a bye match
+   * Check if a match is a bye match.
    *
    * @param match the match
    * @return true if the match is a bye match, false otherwise
@@ -173,8 +173,8 @@ public class TournamentService {
   }
 
   /**
-   * Periodically updates tournament statuses based on dates and registration numbers. Runs every 60
-   * seconds to synchronize database state with the current time.
+   * Periodically updates tournament statuses.
+   * Runs every 60 seconds to synchronize database state with the current time.
    */
   @Scheduled(initialDelay = 5000, fixedDelay = 60000)
   @Transactional
@@ -207,8 +207,9 @@ public class TournamentService {
   }
 
   /**
-   * Determines the next status for a tournament based on its current state and timeline. * @param t
-   * The tournament to evaluate
+   * Determines the next status for a tournament based on its current state and timeline.
+   *
+   * @param t The tournament to evaluate
    *
    * @return The calculated TournamentStatus
    */

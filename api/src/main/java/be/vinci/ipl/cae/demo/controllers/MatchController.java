@@ -35,8 +35,7 @@ public class MatchController {
    */
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @PatchMapping("/{id}/confirm")
-  public void confirmMatchResult(@PathVariable Long id,
-      @AuthenticationPrincipal String email) {
+  public void confirmMatchResult(@PathVariable Long id, @AuthenticationPrincipal String email) {
     matchService.confirmResult(id, email);
   }
 
@@ -48,8 +47,7 @@ public class MatchController {
    */
   @PatchMapping("/{id}/contest")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void contestMatchResult(@PathVariable Long id,
-      @AuthenticationPrincipal String email) {
-    matchService.contestResult(id,email);
+  public void contestMatchResult(@PathVariable Long id, @AuthenticationPrincipal String email) {
+    matchService.contestResult(id, email);
   }
 }

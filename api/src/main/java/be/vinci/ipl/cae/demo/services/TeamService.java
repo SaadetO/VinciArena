@@ -94,8 +94,7 @@ public class TeamService {
     }
 
     if (creator.getTeam() != null) {
-      throw new UserAlreadyInTeamException(
-          "L'utilisateur fait déjà partie d'une équipe");
+      throw new UserAlreadyInTeamException("L'utilisateur fait déjà partie d'une équipe");
     }
 
     Team team = new Team();
@@ -243,8 +242,7 @@ public class TeamService {
   @Transactional
   public void quitTeam(Member currentMember) {
     if (currentMember.getTeam() == null) {
-      throw new UserNotInTeamException(
-          "L'utilisateur ne fait pas partie de la Team.");
+      throw new UserNotInTeamException("L'utilisateur ne fait pas partie de la Team.");
     }
 
     Team team = getExistingTeam(currentMember.getTeam().getIdTeam());
@@ -301,8 +299,8 @@ public class TeamService {
    * @throws TeamNotFoundException if the team does not exist
    */
   public Team getExistingTeam(Long teamId) {
-    return teamRepository.findById(teamId).orElseThrow(
-        () -> new TeamNotFoundException("La team n'existe pas ou n'est plus active."));
+    return teamRepository.findById(teamId)
+        .orElseThrow(() -> new TeamNotFoundException("La team n'existe pas ou n'est plus active."));
   }
 
   /**
@@ -326,8 +324,8 @@ public class TeamService {
    * @throws MemberNotFoundException if the member does not exist
    */
   private Member getExistingMember(Long memberId) {
-    return memberRepository.findById(memberId).orElseThrow(
-        () -> new MemberNotFoundException("L'utilisateur n'existe pas."));
+    return memberRepository.findById(memberId)
+        .orElseThrow(() -> new MemberNotFoundException("L'utilisateur n'existe pas."));
   }
 
   /**
@@ -382,8 +380,8 @@ public class TeamService {
     if (currentMember == null || !isManager(team, currentMember)) {
       return new ArrayList<>();
     }
-    return joinRequestRepository
-        .findAllByRequestedTeamAndStatus(team, RequestStatus.PENDING).stream()
+    return joinRequestRepository.findAllByRequestedTeamAndStatus(team, RequestStatus.PENDING)
+        .stream()
         .map(jr -> JoinRequestDto.builder().idJoinRequest(jr.getIdJoinRequest())
             .idTeam(jr.getRequestedTeam().getIdTeam()).teamName(jr.getRequestedTeam().getName())
             .status(jr.getStatus()).expirationDate(jr.getExpirationDate())
@@ -422,8 +420,7 @@ public class TeamService {
         team.setManager1(team.getManager2());
         team.setManager2(null);
       } else if (1 < team.getMembers().size()) {
-        throw new LastManagerCannotQuitException(
-            "Member cannot quit team as the last manager.");
+        throw new LastManagerCannotQuitException("Member cannot quit team as the last manager.");
       } else {
         team.setManager1(null);
       }
