@@ -12,7 +12,7 @@ export const useFilters = ({ open, handleScroll, getAll }: UseFiltersProps) => {
   const { authenticatedUser } = useUser();
   const [filters, setFilters] = useState<MemberFilters>({
     status: undefined,
-    searchQuery: undefined,
+    searchQuery: '',
   });
   const [debouncedSearch, setDebouncedSearch] = useState(filters.searchQuery);
 

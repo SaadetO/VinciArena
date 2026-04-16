@@ -40,7 +40,6 @@ export const TeamsPage = () => {
           <Grid2
             size={12}
             padding="3rem 1.5rem"
-            spacing="0.25rem"
             alignItems="center"
             justifyContent="center"
             bgcolor="background.s1"

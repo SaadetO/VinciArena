@@ -126,10 +126,6 @@ export const TournamentPage = () => {
     }
   }, [tournament?.status, authenticatedUser, setError]);
 
-  useEffect(() => {
-    console.log(tournament);
-  }, [tournament]);
-
   const groupedMatches = groupMatchesByYearAndDay(tournament?.matches ?? []);
 
   if (error && !isGettingTournamentById) return <NotFoundPage error={error} />;
