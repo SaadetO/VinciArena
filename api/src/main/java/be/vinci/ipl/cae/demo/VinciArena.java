@@ -38,7 +38,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @SuppressWarnings("PMD.UseUtilityClass")
 @SpringBootApplication
 @EnableScheduling
-public class DemoApplication {
+public class VinciArena {
 
   /**
    * Main method of the application.
@@ -47,7 +47,7 @@ public class DemoApplication {
    */
   public static void main(String[] args) {
 
-    SpringApplication.run(DemoApplication.class, args);
+    SpringApplication.run(VinciArena.class, args);
   }
 
   private void createEmptyMatchLineup(Match match, Team team,
