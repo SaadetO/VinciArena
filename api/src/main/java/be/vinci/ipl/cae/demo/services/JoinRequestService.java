@@ -71,9 +71,7 @@ public class JoinRequestService {
         requester.getTag() + " souhaite rejoindre " + requestedTeam.getName(),
         NotificationType.TEAM, teamId);
 
-    return JoinRequestDto.builder().idJoinRequest(joinRequest.getIdJoinRequest())
-        .idTeam(requestedTeam.getIdTeam()).teamName(requestedTeam.getName())
-        .status(joinRequest.getStatus()).expirationDate(joinRequest.getExpirationDate()).build();
+    return mapToDto(joinRequest, requestedTeam);
   }
 
   /**
@@ -98,29 +96,14 @@ public class JoinRequestService {
     Team team = joinRequest.getRequestedTeam();
     teamService.requireManager(team, manager);
 
-    if (newStatus == RequestStatus.REJECTED) {
-      joinRequest.setRejectionReason(rejectionReason);
-    }
-    joinRequest.setStatus(newStatus);
-    joinRequestRepository.save(joinRequest);
-
-    Member requester = joinRequest.getMember();
-    String decision = determineDecisionMessage(newStatus, rejectionReason);
-
-    notificationService.notifyMember(requester.getIdMember(),
-        "Votre demande pour rejoindre " + team.getName() + " a été " + decision,
-        NotificationType.TEAM, null);
+    updateAndSaveRequest(joinRequest, newStatus, rejectionReason);
+    notifyRequester(joinRequest.getMember(), team, newStatus, rejectionReason);
 
     if (newStatus == RequestStatus.ACCEPTED) {
-      requester.setTeam(team);
-      memberRepository.save(requester);
-      joinRequestRepository.deleteAllByMemberAndStatus(requester, RequestStatus.PENDING);
+      processAcceptance(joinRequest.getMember(), team);
     }
 
-    return JoinRequestDto.builder().idJoinRequest(joinRequest.getIdJoinRequest())
-        .idTeam(team.getIdTeam()).teamName(team.getName()).status(joinRequest.getStatus())
-        .expirationDate(joinRequest.getExpirationDate())
-        .rejectionReason(joinRequest.getRejectionReason()).build();
+    return mapToDto(joinRequest, team);
   }
 
   private void validateRequesterCanJoin(Member requester, Team requestedTeam) {
@@ -159,5 +142,35 @@ public class JoinRequestService {
       return "acceptée";
     }
     return "rejetée.\n" + rejectionReason;
+  }
+
+  private void updateAndSaveRequest(JoinRequest joinRequest, RequestStatus newStatus,
+      String rejectionReason) {
+    if (newStatus == RequestStatus.REJECTED) {
+      joinRequest.setRejectionReason(rejectionReason);
+    }
+    joinRequest.setStatus(newStatus);
+    joinRequestRepository.save(joinRequest);
+  }
+
+  private void notifyRequester(Member requester, Team team, RequestStatus newStatus,
+      String rejectionReason) {
+    String decision = determineDecisionMessage(newStatus, rejectionReason);
+    notificationService.notifyMember(requester.getIdMember(),
+        "Votre demande pour rejoindre " + team.getName() + " a été " + decision,
+        NotificationType.TEAM, null);
+  }
+
+  private void processAcceptance(Member requester, Team team) {
+    requester.setTeam(team);
+    memberRepository.save(requester);
+    joinRequestRepository.deleteAllByMemberAndStatus(requester, RequestStatus.PENDING);
+  }
+
+  private JoinRequestDto mapToDto(JoinRequest joinRequest, Team team) {
+    return JoinRequestDto.builder().idJoinRequest(joinRequest.getIdJoinRequest())
+        .idTeam(team.getIdTeam()).teamName(team.getName()).status(joinRequest.getStatus())
+        .expirationDate(joinRequest.getExpirationDate())
+        .rejectionReason(joinRequest.getRejectionReason()).build();
   }
 }
