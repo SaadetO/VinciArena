@@ -1,5 +1,5 @@
 import { Grid2, Stack, Typography } from '@mui/material';
-import { MatchSummaryDto } from '../../types';
+import { MatchSummaryDto, TournamentStatus } from '../../types';
 import { VersusItem } from './components/VersusItem';
 import dayjs from 'dayjs';
 import { Link } from 'react-router-dom';
@@ -7,9 +7,10 @@ import { MatchMenu } from './components/MatchMenu';
 
 interface MatchItemProps {
   match: MatchSummaryDto;
+  tournamentStatus: TournamentStatus;
 }
 
-export const MatchItem = ({ match }: MatchItemProps) => {
+export const MatchItem = ({ match, tournamentStatus }: MatchItemProps) => {
   return (
     <Stack
       bgcolor="background.s2"
@@ -37,7 +38,7 @@ export const MatchItem = ({ match }: MatchItemProps) => {
           alignItems="center"
           justifyContent="flex-end"
         >
-          <MatchMenu match={match} />
+          <MatchMenu match={match} tournamentStatus={tournamentStatus} />
         </Grid2>
       </Grid2>
       <Stack
