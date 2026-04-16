@@ -1,17 +1,20 @@
 import { Stack, Typography } from '@mui/material';
 import { MatchDayGroup } from './MatchDayGroup';
 import { DayGroup } from '../utils/matchUtils';
+import { TournamentStatus } from '../types';
 
 interface MatchYearGroupProps {
   year: string;
   daysData: DayGroup[];
   showYearLabel?: boolean;
+  tournamentStatus: TournamentStatus;
 }
 
 export const MatchYearGroup = ({
   year,
   daysData,
   showYearLabel = true,
+  tournamentStatus,
 }: MatchYearGroupProps) => {
   return (
     <Stack spacing="1rem">
@@ -34,6 +37,7 @@ export const MatchYearGroup = ({
           key={dayData.dateKey}
           day={dayData.day}
           matches={dayData.matches}
+          tournamentStatus={tournamentStatus}
         />
       ))}
     </Stack>
