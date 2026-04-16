@@ -10,16 +10,13 @@ import be.vinci.ipl.cae.demo.exceptions.NotManagerException;
 import be.vinci.ipl.cae.demo.exceptions.RegistrationClosedException;
 import be.vinci.ipl.cae.demo.exceptions.TournamentNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.TournamentStatusException;
-
 import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryDto;
-
 import be.vinci.ipl.cae.demo.models.dtos.NewTournament;
 import be.vinci.ipl.cae.demo.models.dtos.TeamSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.TournamentDetailsDto;
 import be.vinci.ipl.cae.demo.models.dtos.TournamentSummaryDto;
 import be.vinci.ipl.cae.demo.models.entities.Match;
 import be.vinci.ipl.cae.demo.models.entities.MatchLineup;
-
 import be.vinci.ipl.cae.demo.models.entities.MatchStatus;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.NotificationType;
@@ -37,7 +34,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -176,41 +172,39 @@ public class TournamentService {
     return tournament;
   }
 
-  // /**
-  // * Periodically updates tournament statuses based on dates and registration numbers. Runs every
-  // 60
-  // * seconds to synchronize database state with the current time.
-  // */
-  // @Scheduled(initialDelay = 5000, fixedDelay = 60000)
-  // @Transactional
-  // public void updateAllTournamentStates() {
-  // System.out.println("Tournaments: Updating database...");
+  /**
+   * Periodically updates tournament statuses based on dates and registration numbers. Runs every 60
+   * seconds to synchronize database state with the current time.
+   */
+  @Scheduled(initialDelay = 5000, fixedDelay = 60000)
+  @Transactional
+  public void updateAllTournamentStates() {
+    System.out.println("Tournaments: Updating database...");
 
-  // List<TournamentStatus> activeStatuses =
-  // List.of(TournamentStatus.PLANNED, TournamentStatus.IN_PROGRESS,
-  // TournamentStatus.REGISTRATION_OPEN, TournamentStatus.REGISTRATION_CLOSED);
+    List<TournamentStatus> activeStatuses =
+        List.of(TournamentStatus.PLANNED, TournamentStatus.IN_PROGRESS,
+            TournamentStatus.REGISTRATION_OPEN, TournamentStatus.REGISTRATION_CLOSED);
 
-  // Iterable<Tournament> activeTournaments =
-  // tournamentRepository.findAllByStatusIn(activeStatuses);
-  // List<Tournament> updatedTournaments = new ArrayList<>();
+    Iterable<Tournament> activeTournaments = tournamentRepository.findAllByStatusIn(activeStatuses);
+    List<Tournament> updatedTournaments = new ArrayList<>();
 
-  // for (Tournament t : activeTournaments) {
-  // TournamentStatus currentStatus = t.getStatus();
-  // TournamentStatus newStatus = determineNewStatus(t);
+    for (Tournament t : activeTournaments) {
+      TournamentStatus currentStatus = t.getStatus();
+      TournamentStatus newStatus = determineNewStatus(t);
 
-  // if (currentStatus != newStatus) {
-  // t.setStatus(newStatus);
-  // updatedTournaments.add(t);
-  // }
-  // }
+      if (currentStatus != newStatus) {
+        t.setStatus(newStatus);
+        updatedTournaments.add(t);
+      }
+    }
 
-  // if (!updatedTournaments.isEmpty()) {
-  // tournamentRepository.saveAll(updatedTournaments);
-  // System.out.println("Updated " + updatedTournaments.size() + " tournament states.");
-  // } else {
-  // System.out.println("No update needed.");
-  // }
-  // }
+    if (!updatedTournaments.isEmpty()) {
+      tournamentRepository.saveAll(updatedTournaments);
+      System.out.println("Updated " + updatedTournaments.size() + " tournament states.");
+    } else {
+      System.out.println("No update needed.");
+    }
+  }
 
   /**
    * Determines the next status for a tournament based on its current state and timeline. * @param t
@@ -346,17 +340,19 @@ public class TournamentService {
    * @return the tournament if it's status has been changed to REGISTRATION_OPEN, null otherwise.
    */
   public Tournament publishTournament(Long tournamentId, Member currentMember) {
-    Tournament tournament = doesTournamentExistInTheGivenStatus(tournamentId, TournamentStatus.IN_PREPARATION);
-    
-    Tournament updatedTournament = updateTournamentStatus(tournament, TournamentStatus.REGISTRATION_OPEN, currentMember);
-    
+    Tournament tournament =
+        doesTournamentExistInTheGivenStatus(tournamentId, TournamentStatus.IN_PREPARATION);
+
+    Tournament updatedTournament =
+        updateTournamentStatus(tournament, TournamentStatus.REGISTRATION_OPEN, currentMember);
+
     notificationService.notifyAllMembers(
         "Nouveau Tournoi ! " + updatedTournament.getName() + " vient d'ouvrir ses portes.",
         NotificationType.TOURNAMENT, tournamentId);
 
     return updatedTournament;
   }
-  
+
   /**
    * Change a tournament status from REGISTRATION_CLOSED to PLANNED.
    *
@@ -365,26 +361,29 @@ public class TournamentService {
    * @return the tournament if it's status has been changed to PLANNED, null otherwise.
    */
   public Tournament publishTournamentMatches(Long tournamentId, Member currentMember) {
-    Tournament tournament = doesTournamentExistInTheGivenStatus(tournamentId, TournamentStatus.REGISTRATION_CLOSED);
-    
-    Tournament updatedTournament = updateTournamentStatus(tournament, TournamentStatus.PLANNED, currentMember);
-    
+    Tournament tournament =
+        doesTournamentExistInTheGivenStatus(tournamentId, TournamentStatus.REGISTRATION_CLOSED);
+
+    Tournament updatedTournament =
+        updateTournamentStatus(tournament, TournamentStatus.PLANNED, currentMember);
+
     notificationService.notifyAllMembers(
         "Les matchs de " + updatedTournament.getName() + " sont maintenant disponibles !",
         NotificationType.TOURNAMENT, tournamentId);
 
     return updatedTournament;
   }
-  
+
   /**
    * Update a tournament status.
    *
-   * @param tournamentId the id of the tournament to update
+   * @param tournament the tournament to update
    * @param status the status to set
    * @param currentMember the current member
    * @return the tournament if it's status has been changed, null otherwise.
    */
-  public Tournament updateTournamentStatus(Tournament tournament, TournamentStatus status, Member currentMember) {
+  public Tournament updateTournamentStatus(Tournament tournament, TournamentStatus status,
+      Member currentMember) {
     if (!currentMember.isAdmin()) {
       throw new NotAdminException("Only admins can update tournament status");
     }
@@ -508,7 +507,7 @@ public class TournamentService {
     for (Match match : existingMatches) {
       match.setNextMatch(null);
     }
-    
+
     matchRepository.saveAll(existingMatches);
 
     matchRepository.deleteAll(existingMatches);

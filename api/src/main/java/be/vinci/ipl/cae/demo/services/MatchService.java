@@ -17,8 +17,6 @@ import be.vinci.ipl.cae.demo.repositories.MatchLineupRepository;
 import be.vinci.ipl.cae.demo.repositories.MatchRepository;
 import be.vinci.ipl.cae.demo.repositories.MatchResultConfirmationRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
-import be.vinci.ipl.cae.demo.repositories.TeamRepository;
-import be.vinci.ipl.cae.demo.repositories.TournamentRepository;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
@@ -38,12 +36,11 @@ public class MatchService {
    * Constructor.
    *
    * @param matchRepository the match repository
-   * @param teamRepository the team repository
    * @param memberRepository the member repository
-   * @param tournamentRepository the tournament repository
+   * @param matchLineupRepository the match lineup repository
+   * @param matchResultConfirmation the match result confirmation repository
    */
-  public MatchService(MatchRepository matchRepository, TeamRepository teamRepository,
-      MemberRepository memberRepository, TournamentRepository tournamentRepository,
+  public MatchService(MatchRepository matchRepository, MemberRepository memberRepository,
       MatchLineupRepository matchLineupRepository,
       MatchResultConfirmationRepository matchResultConfirmation) {
     this.matchRepository = matchRepository;
@@ -155,6 +152,13 @@ public class MatchService {
     confirmationRepository.save(confirmation);
   }
 
+  /**
+   * Maps a match to a summary dto.
+   *
+   * @param match the match
+   * @param tournament the tournament
+   * @return the summary dto
+   */
   public MatchSummaryDto mapMatchToSummaryDto(Match match, Tournament tournament) {
 
     List<MatchLineup> lineups = matchLineupRepository.findByIdIdMatch(match.getIdMatch());
@@ -174,7 +178,7 @@ public class MatchService {
   }
 
   /**
-   * Create a match team dto
+   * Create a match team dto.
    *
    * @param team the team
    * @param lineups the lineups

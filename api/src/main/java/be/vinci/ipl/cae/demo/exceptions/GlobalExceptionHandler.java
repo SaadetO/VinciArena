@@ -12,16 +12,34 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+  /**
+   * Handles 404 exceptions.
+   *
+   * @param ex the exception
+   * @return the response entity
+   */
   @ExceptionHandler({TournamentNotFoundException.class})
   public ResponseEntity<Map<String, String>> handleNotFoundExceptions(RuntimeException ex) {
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", ex.getMessage()));
   }
 
+  /**
+   * Handles 409 exceptions.
+   *
+   * @param ex the exception
+   * @return the response entity
+   */
   @ExceptionHandler({EmailAlreadyTakenException.class, DuplicateRegistrationException.class})
   public ResponseEntity<Map<String, String>> handleConflictExceptions(RuntimeException ex) {
     return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", ex.getMessage()));
   }
 
+  /**
+   * Handles 400 exceptions.
+   *
+   * @param ex the exception
+   * @return the response entity
+   */
   @ExceptionHandler({InvalidPasswordException.class, MemberAlreadyBannedException.class,
       CannotBanSelfException.class, RegistrationClosedException.class,
       InsufficientTeamMembersException.class, InactiveTeamException.class,
@@ -31,12 +49,24 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", ex.getMessage()));
   }
 
+  /**
+   * Handles 403 exceptions.
+   *
+   * @param ex the exception
+   * @return the response entity
+   */
   @ExceptionHandler({AccountBannedException.class, NotAdminException.class,
       CannotBanAdminException.class, ForbiddenException.class, NotManagerException.class})
   public ResponseEntity<Map<String, String>> handleForbiddenExceptions(RuntimeException ex) {
     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", ex.getMessage()));
   }
 
+  /**
+   * Handles 401 exceptions.
+   *
+   * @param ex the exception
+   * @return the response entity
+   */
   @ExceptionHandler({InvalidCredentialsException.class, NotAuthenticatedException.class})
   public ResponseEntity<Map<String, String>> handleUnauthorizedExceptions(RuntimeException ex) {
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", ex.getMessage()));

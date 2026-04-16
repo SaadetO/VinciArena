@@ -39,7 +39,7 @@ const mockSnackbarContext = {
   showSnackbar: mockShowSnackbar,
 };
 
-// test compoenet to use the contexts
+// test componenet to use the contexts
 const wrapper = ({ children }: { children: ReactNode }) => (
   <SnackbarContext.Provider value={mockSnackbarContext}>
     <UserContext.Provider value={AUTH_USER}>
@@ -218,7 +218,12 @@ describe('useTournament basic tests', () => {
       await result.current.getById(42);
     });
 
-    expect(fetch).toHaveBeenCalledWith('/api/tournaments/42');
+    expect(fetch).toHaveBeenCalledWith('/api/tournaments/42', {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: AUTH_USER?.authenticatedUser?.token ?? '',
+      },
+    });
     expect(setTournament).toHaveBeenCalledWith(mockTournament);
 
     // fetch -> error 404

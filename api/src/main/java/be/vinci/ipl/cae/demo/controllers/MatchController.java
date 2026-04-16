@@ -18,6 +18,11 @@ public class MatchController {
 
   private final MatchService matchService;
 
+  /**
+   * Constructs a MatchController with the given MatchService.
+   *
+   * @param matchService the match service
+   */
   public MatchController(MatchService matchService) {
     this.matchService = matchService;
   }

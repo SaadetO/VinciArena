@@ -156,7 +156,7 @@ public class TournamentController {
 
     return tournamentService.getTournamentDetails(publishedTournament.getIdTournament(), null);
   }
-  
+
   /**
    * Patch a tournament in the system. The patch is only possible if the tournament's status is
    * IN_PREPARATION and the member is an admin.
