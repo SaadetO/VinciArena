@@ -105,7 +105,15 @@ public class JoinRequestService {
 
     return mapToDto(joinRequest, team);
   }
-
+  
+  /**
+   * Validates whether the requester can join the requested team.
+   *
+   * @param requester the member requesting to join
+   * @param requestedTeam the team the member wants to join
+   * @throws UserAlreadyInTeamException if the user is already in a team
+   * @throws JoinRequestAlreadyExistsException if a pending request already exists
+   */
   private void validateRequesterCanJoin(Member requester, Team requestedTeam) {
     if (requester.getTeam() != null) {
       throw new UserAlreadyInTeamException("Vous appartenez déjà à une équipe");
@@ -117,6 +125,14 @@ public class JoinRequestService {
     }
   }
 
+  /**
+   * Retrieves a pending join request or throws an exception.
+   *
+   * @param requestId the ID of the join request
+   * @return the pending join request
+   * @throws JoinRequestNotFoundException if the request does not exist
+   * @throws InvalidJoinRequestException if the request is not pending
+   */
   private JoinRequest getPendingJoinRequest(Long requestId) {
     JoinRequest joinRequest = joinRequestRepository.findById(requestId)
         .orElseThrow(() -> new JoinRequestNotFoundException("Demande d'adhésion non trouvée"));
@@ -127,6 +143,13 @@ public class JoinRequestService {
     return joinRequest;
   }
 
+  /**
+   * Validates the new status and reason for updating a join request.
+   *
+   * @param newStatus the new status
+   * @param rejectionReason the rejection reason, required if status is REJECTED
+   * @throws InvalidJoinRequestException if validation fails
+   */
   private void validateJoinRequestUpdate(RequestStatus newStatus, String rejectionReason) {
     if (newStatus == null) {
       throw new InvalidJoinRequestException("Le statut est obligatoire");
@@ -137,6 +160,13 @@ public class JoinRequestService {
     }
   }
 
+  /**
+   * Determines the decision message for the notification.
+   *
+   * @param newStatus the new request status
+   * @param rejectionReason the rejection reason (if any)
+   * @return the message suffix indicating the decision
+   */
   private String determineDecisionMessage(RequestStatus newStatus, String rejectionReason) {
     if (newStatus == RequestStatus.ACCEPTED) {
       return "acceptée";
@@ -144,6 +174,13 @@ public class JoinRequestService {
     return "rejetée.\n" + rejectionReason;
   }
 
+  /**
+   * Updates and saves the join request based on the new status.
+   *
+   * @param joinRequest the join request to update
+   * @param newStatus the new status
+   * @param rejectionReason the rejection reason (if rejected)
+   */
   private void updateAndSaveRequest(JoinRequest joinRequest, RequestStatus newStatus,
       String rejectionReason) {
     if (newStatus == RequestStatus.REJECTED) {
@@ -153,6 +190,14 @@ public class JoinRequestService {
     joinRequestRepository.save(joinRequest);
   }
 
+  /**
+   * Notifies the requester about the decision on their join request.
+   *
+   * @param requester the member who requested to join
+   * @param team the requested team
+   * @param newStatus the decision status
+   * @param rejectionReason the rejection reason (if any)
+   */
   private void notifyRequester(Member requester, Team team, RequestStatus newStatus,
       String rejectionReason) {
     String decision = determineDecisionMessage(newStatus, rejectionReason);
@@ -161,12 +206,25 @@ public class JoinRequestService {
         NotificationType.TEAM, null);
   }
 
+  /**
+   * Processes the acceptance of a join request by updating member details and cleaning up other requests.
+   *
+   * @param requester the member who was accepted
+   * @param team the team they are joining
+   */
   private void processAcceptance(Member requester, Team team) {
     requester.setTeam(team);
     memberRepository.save(requester);
     joinRequestRepository.deleteAllByMemberAndStatus(requester, RequestStatus.PENDING);
   }
 
+  /**
+   * Maps a join request and its related team to a DTO.
+   *
+   * @param joinRequest the join request
+   * @param team the corresponding team
+   * @return the built JoinRequestDto
+   */
   private JoinRequestDto mapToDto(JoinRequest joinRequest, Team team) {
     return JoinRequestDto.builder().idJoinRequest(joinRequest.getIdJoinRequest())
         .idTeam(team.getIdTeam()).teamName(team.getName()).status(joinRequest.getStatus())
