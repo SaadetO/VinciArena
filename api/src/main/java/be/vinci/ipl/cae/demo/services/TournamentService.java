@@ -1,12 +1,15 @@
 package be.vinci.ipl.cae.demo.services;
 
 import be.vinci.ipl.cae.demo.exceptions.DuplicateRegistrationException;
+import be.vinci.ipl.cae.demo.exceptions.ImpossibleTournamentException;
 import be.vinci.ipl.cae.demo.exceptions.InactiveTeamException;
 import be.vinci.ipl.cae.demo.exceptions.InsufficientTeamMembersException;
 import be.vinci.ipl.cae.demo.exceptions.NotManagerException;
 import be.vinci.ipl.cae.demo.exceptions.RegistrationClosedException;
 import be.vinci.ipl.cae.demo.exceptions.TournamentNotFoundException;
+import be.vinci.ipl.cae.demo.exceptions.TournamentNotInRegistrationClosedException;
 import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryDto;
+import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryTournamentDto;
 import be.vinci.ipl.cae.demo.models.dtos.MatchTeamDto;
 import be.vinci.ipl.cae.demo.models.dtos.NewTournament;
 import be.vinci.ipl.cae.demo.models.dtos.TeamSummaryDto;
@@ -15,6 +18,7 @@ import be.vinci.ipl.cae.demo.models.dtos.TournamentSummaryDto;
 import be.vinci.ipl.cae.demo.models.entities.Match;
 import be.vinci.ipl.cae.demo.models.entities.MatchLineup;
 import be.vinci.ipl.cae.demo.models.entities.MatchResultConfirmation;
+import be.vinci.ipl.cae.demo.models.entities.MatchStatus;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.NotificationType;
 import be.vinci.ipl.cae.demo.models.entities.Team;
@@ -26,9 +30,11 @@ import be.vinci.ipl.cae.demo.repositories.MatchResultConfirmationRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.TournamentRepository;
 import be.vinci.ipl.cae.demo.specifications.TournamentSpecifications;
+import be.vinci.ipl.cae.demo.utils.BracketGenerator;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Sort;
@@ -76,37 +82,53 @@ public class TournamentService {
       return null;
     }
 
-    // Map participating teams
     List<TeamSummaryDto> teams = tournament.getTeams().stream()
         .map(t -> new TeamSummaryDto(t.getIdTeam(), t.getName())).toList();
 
-    // Fetch and map matches
-    List<Match> matchesEntities =
-        matchRepository.findByTournamentIdTournamentOrderByDateHourAsc(idTournament);
+    List<Match> matchesEntities = matchRepository.findByTournamentIdTournament(idTournament);
     List<MatchSummaryDto> matches = new ArrayList<>();
 
     for (Match match : matchesEntities) {
-      // Fetch lineups for results
+
+      if (isByeMatch(match)) {
+        continue;
+      }
+
       List<MatchLineup> lineups = matchLineupRepository.findByIdIdMatch(match.getIdMatch());
 
       MatchTeamDto team1Dto = createMatchTeamDto(match.getTeam1(), lineups);
       MatchTeamDto team2Dto = createMatchTeamDto(match.getTeam2(), lineups);
 
-      // Fetch confirmation status
       Optional<MatchResultConfirmation> confirmation =
           confirmationRepository.findById(match.getIdMatch());
       boolean isConfirmed =
           confirmation.isPresent() && Boolean.TRUE.equals(confirmation.get().getConfirmationTeam1())
               && Boolean.TRUE.equals(confirmation.get().getConfirmationTeam2());
 
+
       matches.add(new MatchSummaryDto(match.getIdMatch(), match.getDateHour(), match.getTurn(),
-          match.getStatus(), isConfirmed, team1Dto, team2Dto));
+          match.getStatus(), isConfirmed, team1Dto, team2Dto,
+          new MatchSummaryTournamentDto(tournament.getIdTournament(), tournament.getName())));
     }
 
     return new TournamentDetailsDto(tournament.getIdTournament(), tournament.getName(),
         tournament.getDescription(), tournament.getStartDate(), tournament.getEndDate(),
         tournament.getRegistrationDeadline(), tournament.getStatus(), tournament.getCapacity(),
         tournament.getRegistrationsNumber(), teams, matches);
+  }
+
+  private boolean isByeMatch(Match match) {
+    boolean hasExactlyOneTeam = (match.getTeam1() == null) ^ (match.getTeam2() == null);
+    boolean isBye = false;
+
+    if (hasExactlyOneTeam && match.getNextMatch() != null) {
+      Team singleTeam = (match.getTeam1() != null) ? match.getTeam1() : match.getTeam2();
+      Match nextMatch = match.getNextMatch();
+
+      isBye = singleTeam.equals(nextMatch.getTeam1()) || singleTeam.equals(nextMatch.getTeam2());
+    }
+
+    return isBye;
   }
 
   private MatchTeamDto createMatchTeamDto(Team team, List<MatchLineup> lineups) {
@@ -195,23 +217,23 @@ public class TournamentService {
       case REGISTRATION_OPEN -> {
         if (!t.getRegistrationDeadline().isAfter(now)) {
           yield (t.getRegistrationsNumber() < 2)
-            ? TournamentStatus.CANCELLED
-            : TournamentStatus.REGISTRATION_CLOSED;
+              ? TournamentStatus.CANCELLED
+              : TournamentStatus.REGISTRATION_CLOSED;
         }
         yield status;
       }
       // cancel tournament if it's not planned and the startDate arrives
       case REGISTRATION_CLOSED -> (!t.getStartDate().isAfter(today))
-        ? TournamentStatus.CANCELLED
-        : status;
+          ? TournamentStatus.CANCELLED
+          : status;
       // start tournament if its planned and startDate arrives
       case PLANNED -> (!t.getStartDate().isAfter(today))
-        ? TournamentStatus.IN_PROGRESS
-        : status;
+          ? TournamentStatus.IN_PROGRESS
+          : status;
       // finish tournament if endDate arrives
       case IN_PROGRESS -> (!t.getEndDate().isAfter(today))
-        ? TournamentStatus.DONE
-        : status;
+          ? TournamentStatus.DONE
+          : status;
       default -> status;
     };
   }
@@ -242,6 +264,12 @@ public class TournamentService {
     return filteredTournaments.stream().map(this::mapToSummaryDto).toList();
   }
 
+  /**
+   * Maps a tournament to a summary DTO.
+   *
+   * @param t the tournament to map
+   * @return the tournament summary DTO
+   */
   private TournamentSummaryDto mapToSummaryDto(Tournament t) {
     return new TournamentSummaryDto(t.getIdTournament(), t.getName(), t.getDescription(),
         t.getStartDate(), t.getEndDate(), t.getRegistrationDeadline(), t.getStatus(),
@@ -327,6 +355,13 @@ public class TournamentService {
     return tournament;
   }
 
+  /**
+   * Checks if a tournament exists and has the given status.
+   *
+   * @param tournamentId the tournament id
+   * @param status the status to check
+   * @return the tournament if it exists and has the given status, null otherwise
+   */
   private Tournament doesTournamentExistInTheGivenStatus(Long tournamentId,
       TournamentStatus status) {
     Tournament tournament = tournamentRepository.findById(tournamentId).orElse(null);
@@ -382,5 +417,127 @@ public class TournamentService {
 
     tournamentRepository.save(tournament);
     return getTournamentDetails(idTournament);
+  }
+
+  /**
+   * Generate matches for a tournament.
+   *
+   * @param tournamentId the ID of the tournament
+   */
+  @Transactional
+  public void generateMatches(Long tournamentId) {
+    Tournament tournament = fetchAndValidateTournament(tournamentId);
+
+    List<Match> generatedMatches = BracketGenerator.generateBracket(tournament.getTeams());
+
+    scheduleMatches(generatedMatches, tournament);
+
+    List<Match> savedMatches = matchRepository.saveAll(generatedMatches);
+
+    generateAndSaveDefaultLineups(savedMatches);
+
+    tournament.setStatus(TournamentStatus.IN_PROGRESS);
+    tournamentRepository.save(tournament);
+  }
+
+  /**
+   * Fetch and validate a tournament by its ID.
+   *
+   * @param tournamentId the ID of the tournament
+   * @return the tournament
+   */
+  private Tournament fetchAndValidateTournament(Long tournamentId) {
+    Tournament tournament = tournamentRepository.findById(tournamentId)
+        .orElseThrow(() -> new TournamentNotFoundException("Tournament not found"));
+
+    if (tournament.getStatus() != TournamentStatus.REGISTRATION_CLOSED) {
+      throw new TournamentNotInRegistrationClosedException(
+          "Matches can only be generated for a registration-closed tournament");
+    }
+    return tournament;
+  }
+
+  /**
+   * Schedule matches for a tournament.
+   *
+   * @param matches the matches to schedule
+   * @param tournament the tournament
+   */
+  private void scheduleMatches(List<Match> matches, Tournament tournament) {
+    final int matchDurationMins = 60;
+    final int bufferMins = 30;
+    final int daysBetweenRounds = 1;
+    final int startTimeHour = 10;
+
+    matches.sort(Comparator.comparingInt(Match::getTurn));
+
+    LocalDateTime currentTimeCursor = tournament.getStartDate().atTime(startTimeHour, 0);
+    int currentRound = 1;
+
+    for (Match match : matches) {
+      if (match.getTurn() > currentRound) {
+        currentRound = match.getTurn();
+        currentTimeCursor = currentTimeCursor.plusDays(daysBetweenRounds).withHour(startTimeHour)
+            .withMinute(0).withSecond(0).withNano(0);
+      }
+
+      if (isByeMatch(match)) {
+        match.setDateHour(currentTimeCursor);
+        match.setStatus(MatchStatus.PLAYED);
+      } else {
+        match.setDateHour(currentTimeCursor);
+        match.setStatus(MatchStatus.PLANNED);
+        currentTimeCursor = currentTimeCursor.plusMinutes(matchDurationMins + bufferMins);
+      }
+
+      match.setTournament(tournament);
+    }
+
+    LocalDateTime actualFinishTime = currentTimeCursor;
+
+    if (actualFinishTime.isAfter(tournament.getEndDate().atTime(10, 0))) {
+      tournament.setStatus(TournamentStatus.CANCELLED);
+      throw new ImpossibleTournamentException("Tournament is physically impossible to complete!");
+    }
+
+    tournament.setEndDate(actualFinishTime.toLocalDate());
+  }
+
+  /**
+   * Generate and save default lineups for a list of matches.
+   *
+   * @param savedMatches the saved matches
+   */
+  private void generateAndSaveDefaultLineups(List<Match> savedMatches) {
+    List<MatchLineup> defaultLineups = new ArrayList<>();
+
+    for (Match match : savedMatches) {
+      if (match.getTeam1() != null) {
+        defaultLineups.add(createDefaultLineup(match, match.getTeam1()));
+      }
+      if (match.getTeam2() != null) {
+        defaultLineups.add(createDefaultLineup(match, match.getTeam2()));
+      }
+    }
+
+    matchLineupRepository.saveAll(defaultLineups);
+  }
+
+  /**
+   * Create a default lineup for a match and team.
+   *
+   * @param match the match
+   * @param team the team
+   * @return the default lineup
+   */
+  private MatchLineup createDefaultLineup(Match match, Team team) {
+    MatchLineup lineup = new MatchLineup();
+    lineup.setMatch(match);
+    lineup.setTeam(team);
+    lineup.setScore(0);
+    lineup.setWinner(false);
+    lineup.setHasForfeited(false);
+
+    return lineup;
   }
 }

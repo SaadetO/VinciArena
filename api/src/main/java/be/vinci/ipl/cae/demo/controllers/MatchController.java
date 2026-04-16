@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -56,5 +57,32 @@ public class MatchController {
     return matchService.getAvailableMembersForMatch(matchId, currentMember).stream()
         .map(MemberSummaryDto::fromEntity)
         .collect(Collectors.toSet());
+  }
+
+
+  /**
+   * Confirms the result of a match.
+   *
+   * @param id the id of the match
+   * @param email the authenticated user's email
+   */
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @PatchMapping("/{id}/confirm")
+  public void confirmMatchResult(@PathVariable Long id,
+      @AuthenticationPrincipal String email) {
+    matchService.confirmResult(id, email);
+  }
+
+  /**
+   * Contests the result of a match.
+   *
+   * @param id the id of the match
+   * @param email the authenticated user's email
+   */
+  @PatchMapping("/{id}/contest")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void contestMatchResult(@PathVariable Long id,
+      @AuthenticationPrincipal String email) {
+    matchService.contestResult(id,email);
   }
 }

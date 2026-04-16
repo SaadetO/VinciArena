@@ -13,6 +13,11 @@ public class MatchNotFoundException extends RuntimeException {
     super("Match not found.");
   }
 
+  /**
+   * Constructor.
+   *
+   * @param message the exception message
+   */
   public MatchNotFoundException(String message) {
     super(message);
   }

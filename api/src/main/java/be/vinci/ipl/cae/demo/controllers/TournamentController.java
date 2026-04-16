@@ -222,4 +222,17 @@ public class TournamentController {
       @AuthenticationPrincipal Member currentMember) {
     return tournamentService.registerTeam(id, currentMember);
   }
+
+  /**
+   * Generates matches for a tournament.
+   *
+   * @param id The ID of the tournament
+   */
+  @PostMapping("/{id}/matches")
+  @PreAuthorize("hasRole('ADMIN')")
+  public TournamentDetailsDto generateMatch(@PathVariable Long id) {
+    System.out.println("Generating matches for tournament " + id);
+    tournamentService.generateMatches(id);
+    return tournamentService.getTournamentDetails(id);
+  }
 }

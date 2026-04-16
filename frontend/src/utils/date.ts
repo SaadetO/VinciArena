@@ -1,7 +1,4 @@
 import dayjs from 'dayjs';
-import 'dayjs/locale/fr';
-
-dayjs.locale('fr');
 
 /**
  * Formats a date into a relative time string.

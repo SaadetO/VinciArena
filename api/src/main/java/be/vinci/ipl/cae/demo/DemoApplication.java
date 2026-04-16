@@ -50,6 +50,14 @@ public class DemoApplication {
 
     SpringApplication.run(DemoApplication.class, args);
   }
+  private void createEmptyMatchLineup(Match match, Team team, MatchLineupRepository matchLineupRepo) {
+    // Assuming 3 slots per match per team
+      MatchLineup lineup = new MatchLineup();
+      lineup.setMatch(match);
+      lineup.setTeam(team);
+      lineup.setMembers(new HashSet<>()); // Empty slot
+      matchLineupRepo.save(lineup);
+  }
 
   // default values for test
   @Bean
@@ -194,8 +202,8 @@ public class DemoApplication {
         t.setStatus(data.status());
         t.setWinner(teamMap.get(data.winnerTeamName));
 
-        // Remplissage des teams inscrites (Set<Team>)
-        Set<Team> registered = new HashSet<>();
+        // Remplissage des teams inscrites (List<Team>)
+        List<Team> registered = new ArrayList<>();
         for (int i = 0; i < data.teamCount() && i < poolOfTeams.size(); i++) {
           registered.add(poolOfTeams.get(i));
         }
@@ -211,6 +219,7 @@ public class DemoApplication {
         t.setTeams(registered);
         tournamentRepo.save(t);
       }
+
 
       // create mock matches
       Tournament springBattle = StreamSupport.stream(tournamentRepo.findAll().spliterator(), false)
@@ -249,22 +258,6 @@ public class DemoApplication {
 
 
     };
-
-  }
-  private void createEmptyMatchLineup(Match match, Team team, MatchLineupRepository lineupRepo) {
-    if (team == null || match == null) return;
-
-    MatchLineup lineup = new MatchLineup();
-    lineup.setMatch(match);
-    lineup.setTeam(team);
-    lineup.setScore(0);
-    lineup.setWinner(false);
-    lineup.setHasForfeited(false);
-
-    // Initialize with an empty set, no members added
-    lineup.setMembers(new HashSet<>());
-
-    lineupRepo.save(lineup);
   }
 
 }
