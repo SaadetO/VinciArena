@@ -57,7 +57,6 @@ public class Member {
 
   private boolean isDeleted;
 
-
   @Override
   public boolean equals(Object o) {
     if (o == null || getClass() != o.getClass()) {

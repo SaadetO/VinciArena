@@ -34,7 +34,7 @@ public class MatchController {
   }
 
   /**
-   * Fetches available members for a match.(manager use only
+   * Fetches available members for a match.(manager use only.
    *
    * @param matchId       match id
    * @param currentMember the manager sending the request

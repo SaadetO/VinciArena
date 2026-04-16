@@ -307,8 +307,8 @@ public class MemberService {
           .isAdmin(requestedMember.isAdmin());
 
       var unavailabilities = StreamSupport.stream(
-              unavailabilityRepository.findByMember(requestedMember).spliterator(), false).map(
-              u -> ProfileDto.UnavailabilityDto.builder().id(u.getIdUnavailability())
+              unavailabilityRepository.findByMember(requestedMember).spliterator(), false)
+          .map(u -> ProfileDto.UnavailabilityDto.builder().id(u.getIdUnavailability())
                   .startDate(u.getStartDate()).endDate(u.getEndDate()).build())
           .collect(Collectors.toList());
       builder.unavailabilities(unavailabilities);
@@ -381,7 +381,7 @@ public class MemberService {
   /**
    * Get all members as lightweight summaries (no sensitive data).
    *
-   * @return array of MemberSummaryDto
+   * @return List of MemberSummaryDto
    */
   public List<MemberSummaryDto> getAllMemberSummaries(MemberQueryStatus status,
       String searchQuery) {
@@ -475,7 +475,7 @@ public class MemberService {
       } else {
         Member replacement = team.getMembers().stream()
             .filter(m -> !m.getIdMember().equals(member.getIdMember())).filter(m -> !m.isDeleted())
-            .sorted((m1, m2) -> m1.getCreationDate().compareTo(m2.getCreationDate())).findFirst()
+            .min((m1, m2) -> m1.getCreationDate().compareTo(m2.getCreationDate()))
             .orElse(null);
 
         if (replacement != null) {

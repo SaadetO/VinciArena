@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.StreamSupport;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -50,25 +49,28 @@ public class DemoApplication {
 
     SpringApplication.run(DemoApplication.class, args);
   }
-  private void createEmptyMatchLineup(Match match, Team team, MatchLineupRepository matchLineupRepo) {
+
+  private void createEmptyMatchLineup(Match match, Team team,
+      MatchLineupRepository matchLineupRepo) {
     // Assuming 3 slots per match per team
-      MatchLineup lineup = new MatchLineup();
-      lineup.setMatch(match);
-      lineup.setTeam(team);
-      lineup.setMembers(new HashSet<>()); // Empty slot
-      matchLineupRepo.save(lineup);
+    MatchLineup lineup = new MatchLineup();
+    lineup.setMatch(match);
+    lineup.setTeam(team);
+    lineup.setMembers(new HashSet<>()); // Empty slot
+    matchLineupRepo.save(lineup);
   }
 
   // default values for test
   @Bean
   CommandLineRunner seed(MemberRepository memberRepo, TeamRepository teamRepo,
       SpecialtyRepository specRepo, ProfileImageRepository imageRepo,
-      TournamentRepository tournamentRepo, MatchRepository matchRepo, MatchLineupRepository matchLineupRepo) {
+      TournamentRepository tournamentRepo, MatchRepository matchRepo,
+      MatchLineupRepository matchLineupRepo) {
     return args -> {
       // Create Specialities
       String[] specialities = {"architecte", "exécuteur", "tacticien", "gardien", "catalyseur",
           "perturbateur", "guérisseur"};
-      Map<String, Team> teamMap = new HashMap<>();
+
       Map<String, Specialty> specMap = new HashMap<>();
       for (String specialty : specialities) {
         Specialty spec = new Specialty();
@@ -95,6 +97,7 @@ public class DemoApplication {
 
       }
 
+      Map<String, Team> teamMap = new HashMap<>();
       MemberMockData[] memberDataList = {
           new MemberMockData("lea@mail.com", "Lynx", "tacticien", "2025-11-12", true, true,
               "TEAM_ALPHA"),
@@ -112,7 +115,6 @@ public class DemoApplication {
               "TEAM_IOTA"),
           new MemberMockData("zoe@mail.com", "Vector", "catalyseur", "2026-02-04", false, false,
               "TEAM_IOTA")};
-
 
       String pw = "Password1!";
       String encodedPw = new BCryptPasswordEncoder().encode(pw);
@@ -178,11 +180,9 @@ public class DemoApplication {
               "Tournoi hivernal réunissant des équipes semi-professionnelles", "2026-01-10",
               "2026-01-20", "2026-01-05T20:00:00", 12, 12, "TEAM_ALPHA", TournamentStatus.DONE),
 
-
           new TournamentMockData("Spring Battle Series 2026",
               "Série printanière avec élimination directe", "2026-04-04", "2026-04-11",
               "2026-04-01T20:00:00", 8, 8, null, TournamentStatus.IN_PROGRESS),
-
 
           new TournamentMockData("Vinci Easter Cup 2026",
               "Tournoi de Pâques ouvert à toutes les teams actives", "2026-04-15", "2026-04-25",
@@ -220,16 +220,14 @@ public class DemoApplication {
         tournamentRepo.save(t);
       }
 
-
       // create mock matches
       Tournament springBattle = StreamSupport.stream(tournamentRepo.findAll().spliterator(), false)
-          .filter(t -> t.getName().equals("Spring Battle Series 2026"))
+          .filter(t -> "Spring Battle Series 2026".equals(t.getName()))
           .findFirst()
           .orElse(null);
       Team alpha = teamRepo.findByName("TEAM_ALPHA");
       Team omega = teamRepo.findByName("TEAM_OMEGA");
-      Team iota = teamRepo.findByName("TEAM_IOTA");
-      Team ghost1 = teamRepo.findByName("TEAM_GHOST_1");
+
       // MATCH 1: Alpha vs Omega
       Match match1 = new Match();
       match1.setTournament(springBattle);
@@ -240,6 +238,8 @@ public class DemoApplication {
       match1.setStatus(MatchStatus.PLANNED);
       match1 = matchRepo.save(match1);
 
+      Team iota = teamRepo.findByName("TEAM_IOTA");
+      Team ghost1 = teamRepo.findByName("TEAM_GHOST_1");
       // MATCH 2: Iota vs Ghost 1
       Match match2 = new Match();
       match2.setTournament(springBattle);
@@ -249,7 +249,7 @@ public class DemoApplication {
       match2.setDateHour(LocalDateTime.now().plusDays(2).withHour(16).withMinute(30));
       match2.setStatus(MatchStatus.PLANNED);
       match2 = matchRepo.save(match2);
-      createEmptyMatchLineup(match1, alpha, matchLineupRepo );
+      createEmptyMatchLineup(match1, alpha, matchLineupRepo);
       createEmptyMatchLineup(match1, omega, matchLineupRepo);
 
       // Match 2 slots

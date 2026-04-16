@@ -19,5 +19,8 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
    */
   List<Match> findByTournamentIdTournament(Long idTournament);
 
+  /**
+   * Retrieves a match entity using its unique identifier.
+   */
   Match getMatchByIdMatch(Long matchId);
 }

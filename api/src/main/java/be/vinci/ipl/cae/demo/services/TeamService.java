@@ -19,7 +19,6 @@ import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.RequestStatus;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.repositories.JoinRequestRepository;
-import be.vinci.ipl.cae.demo.repositories.MatchRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.TeamRepository;
 import be.vinci.ipl.cae.demo.specifications.TeamSpecifications;
@@ -404,7 +403,6 @@ public class TeamService {
       team.setManager2(replacement);
     }
   }
-
 
   /**
    * Assigns a manager spot to a designated member.

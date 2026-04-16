@@ -7,10 +7,6 @@ import be.vinci.ipl.cae.demo.models.dtos.TeamDetailsDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.services.TeamService;
-import java.time.LocalDateTime;
-import java.util.Set;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.format.annotation.DateTimeFormat.ISO;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -115,6 +111,4 @@ public class TeamController {
       @AuthenticationPrincipal Member currentMember) {
     return teamService.resignManager(id, currentMember, replacementId);
   }
-
-
 }

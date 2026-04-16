@@ -20,7 +20,7 @@ import java.util.Set;
 import org.springframework.stereotype.Service;
 
 /**
- * MatchLineup Service.
+ * Service handling the management and validation of match lineups.
  */
 @Service
 public class MatchLineupService {
@@ -47,11 +47,10 @@ public class MatchLineupService {
 
   /**
    * Updates the match lineup for the team of the authenticated member.
-   *
-   * <p>This method validates that the current member is a manager of a team
+   *This method validates that the current member is a manager of a team
    * involved in the match, ensures all provided players belong to that team,
    * and verifies their availability for the match's date and time. If
-   * validation passes, the existing lineup is replaced.</p>
+   * validation passes, the existing lineup is replaced.
    *
    * @param newLineup     DTO containing the list of member IDs for the lineup.
    * @param matchId       The unique identifier of the match to update.

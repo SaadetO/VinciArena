@@ -14,9 +14,11 @@ public class MemberSummaryDto {
   private Long id;
   private String tag;
   private String avatar;
+
   /**
    * Converts a Member entity to a MemberSummaryDto.
    * * @param member the entity to convert
+   *
    * @return the mapped DTO
    */
   public static MemberSummaryDto fromEntity(Member member) {

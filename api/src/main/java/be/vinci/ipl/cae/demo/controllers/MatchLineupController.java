@@ -15,12 +15,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Match Lineup controller.
+ */
 @RestController
 @RequestMapping("/lineups")
 public class MatchLineupController {
 
   private final MatchLineupService matchLineupService;
 
+  /**
+   * Match lineup controller constructor.
+   *
+   * @param matchLineupService match lineup service
+   */
   public MatchLineupController(MatchLineupService matchLineupService) {
     this.matchLineupService = matchLineupService;
   }
