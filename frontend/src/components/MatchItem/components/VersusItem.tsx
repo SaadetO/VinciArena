@@ -1,17 +1,24 @@
 import { Box, Grid2, Stack, Typography, TypographyProps } from '@mui/material';
 import { MatchSummaryDto } from '../../../types';
 import { Link } from 'react-router-dom';
+import { useUser } from '../../../hooks/useUser';
 
 interface VersusItemProps {
   match: MatchSummaryDto;
 }
 
 export const VersusItem = ({ match }: VersusItemProps) => {
-  const showScore =
-    match.team1 &&
-    match.team1?.score !== 0 &&
-    match.team2 &&
-    match.team2?.score !== 0;
+  const { authenticatedUser } = useUser();
+  const displayScores = match.team1?.score !== 0 && match.team2?.score !== 0;
+
+  const isConfirmed =
+    match.team1?.hasConfirmedResults && match.team2?.hasConfirmedResults;
+
+  const isManager =
+    authenticatedUser?.managedTeamId === match.team1?.idTeam ||
+    authenticatedUser?.managedTeamId === match.team2?.idTeam;
+
+  const revealScores = isConfirmed || isManager;
   return (
     <Grid2 size={6} spacing="2.375rem" container position="relative">
       <Grid2
@@ -22,12 +29,12 @@ export const VersusItem = ({ match }: VersusItemProps) => {
         gap="1.25rem"
       >
         <TeamItem matchTeam={match.team1} />
-        {showScore && (
+        {displayScores && (
           <Typography
             variant="h4"
-            color={match.isConfirmed ? 'primary' : 'secondary'}
+            color={revealScores ? 'primary' : 'secondary'}
           >
-            {match.isConfirmed ? match.team1?.score : '-'}
+            {revealScores ? match.team1?.score : '-'}
           </Typography>
         )}
       </Grid2>
@@ -46,12 +53,12 @@ export const VersusItem = ({ match }: VersusItemProps) => {
         />
       </Stack>
       <Grid2 size={6} display="flex" alignItems="center" gap="1.25rem">
-        {showScore && (
+        {displayScores && (
           <Typography
             variant="h4"
-            color={match.isConfirmed ? 'primary' : 'secondary'}
+            color={revealScores ? 'primary' : 'secondary'}
           >
-            {match.isConfirmed ? match.team2?.score : '-'}
+            {revealScores ? match.team2?.score : '-'}
           </Typography>
         )}
         <TeamItem matchTeam={match.team2} />

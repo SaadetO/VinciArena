@@ -9,5 +9,5 @@ public record MatchTeamDto(
     Integer score,
     boolean isWinner,
     boolean hasForfeited,
-    boolean hasConfirmedResults
+    Boolean hasConfirmedResults
 ) {}

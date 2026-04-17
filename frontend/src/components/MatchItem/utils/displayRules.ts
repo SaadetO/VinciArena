@@ -10,7 +10,7 @@ interface UseMenuSectionDisplayProps {
   authenticatedUser: MaybeAuthenticatedUser;
 }
 
-export const useMenuSectionDisplay = ({
+export const getMenuSectionDisplay = ({
   match,
   authenticatedUser,
 }: UseMenuSectionDisplayProps) => {
@@ -30,17 +30,26 @@ export const useMenuSectionDisplay = ({
 
   const isManagerOfParticipant = managedTeam != undefined;
 
-  const managedTeamScoresHaveBeenConfirmedOrContested =
-    managedTeam?.hasConfirmedResults != null;
-
-  const managedTeamScoresHaveBeenConfirmed =
-    managedTeam?.hasConfirmedResults === true;
-
-  const opponentTeamScoresHaveBeenConfirmed =
+  const bothTeamsScoresHaveBeenConfirmed =
+    managedTeam?.hasConfirmedResults === true &&
     opponentTeam?.hasConfirmedResults === true;
 
-  const bothTeamsScoresHaveBeenConfirmed =
-    managedTeamScoresHaveBeenConfirmed && opponentTeamScoresHaveBeenConfirmed;
+  if (bothTeamsScoresHaveBeenConfirmed)
+    return {
+      showTeamSection: false,
+      showForfeit: false,
+      showEditComposition: false,
+      showScoresSection: false,
+      showAdminEncode: false,
+      showAdminModify: false,
+      showAdminSection: false,
+      needsDividerAfterTeam: false,
+      needsDividerAfterScores: false,
+      displayMenu: false,
+    };
+
+  const managedTeamScoresHaveBeenConfirmedOrContested =
+    managedTeam?.hasConfirmedResults != null;
 
   const isPlanned = match.status === 'PLANNED';
   const isPlayed = match.status === 'PLAYED';
