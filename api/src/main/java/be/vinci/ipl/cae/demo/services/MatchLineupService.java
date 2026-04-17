@@ -35,8 +35,7 @@ public class MatchLineupService {
    * match lineupservice constructor.
    */
   public MatchLineupService(MatchRepository matchRepository,
-      MatchLineupRepository matchLineupRepository,
-      MemberRepository memberRepository,
+      MatchLineupRepository matchLineupRepository, MemberRepository memberRepository,
       MemberService memberService, TeamService teamService) {
     this.matchRepository = matchRepository;
     this.matchLineupRepository = matchLineupRepository;
@@ -46,14 +45,13 @@ public class MatchLineupService {
   }
 
   /**
-   * Updates the match lineup for the team of the authenticated member.
-   *This method validates that the current member is a manager of a team
-   * involved in the match, ensures all provided players belong to that team,
-   * and verifies their availability for the match's date and time. If
+   * Updates the match lineup for the team of the authenticated member. This method validates that
+   * the current member is a manager of a team involved in the match, ensures all provided players
+   * belong to that team, and verifies their availability for the match's date and time. If
    * validation passes, the existing lineup is replaced.
    *
-   * @param newLineup     DTO containing the list of member IDs for the lineup.
-   * @param matchId       The unique identifier of the match to update.
+   * @param newLineup DTO containing the list of member IDs for the lineup.
+   * @param matchId The unique identifier of the match to update.
    * @param currentMember The currently authenticated member performing the update.
    * @return A MatchLineupDto representing the newly updated state of the lineup.
    **/

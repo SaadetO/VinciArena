@@ -9,10 +9,18 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(HttpStatus.BAD_REQUEST) // Or CONFLICT (409) if it represents a business rule clash
 public class MemberNotInTeamException extends RuntimeException {
 
+  /**
+   * Constructs a new MemberNotInTeamException with the default message.
+   */
   public MemberNotInTeamException() {
     super("The selected member does not belong to the required team.");
   }
 
+  /**
+   * Constructs a new MemberNotInTeamException with the specified message.
+   *
+   * @param message the detail message
+   */
   public MemberNotInTeamException(String message) {
     super(message);
   }

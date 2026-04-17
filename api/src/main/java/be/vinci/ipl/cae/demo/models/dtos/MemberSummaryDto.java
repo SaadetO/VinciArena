@@ -16,16 +16,12 @@ public class MemberSummaryDto {
   private String avatar;
 
   /**
-   * Converts a Member entity to a MemberSummaryDto.
-   * * @param member the entity to convert
+   * Converts a Member entity to a MemberSummaryDto. * @param member the entity to convert
    *
    * @return the mapped DTO
    */
   public static MemberSummaryDto fromEntity(Member member) {
-    return MemberSummaryDto.builder()
-        .id(member.getIdMember())
-        .tag(member.getTag())
-        .avatar(member.getProfileImage().getPath())
-        .build();
+    return MemberSummaryDto.builder().id(member.getIdMember()).tag(member.getTag())
+        .avatar(member.getProfileImage().getPath()).build();
   }
 }

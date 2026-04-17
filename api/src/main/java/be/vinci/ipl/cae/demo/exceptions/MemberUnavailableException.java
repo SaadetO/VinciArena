@@ -9,10 +9,18 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(HttpStatus.CONFLICT)
 public class MemberUnavailableException extends RuntimeException {
 
+  /**
+   * Constructs a new MemberUnavailableException with the default message.
+   */
   public MemberUnavailableException() {
     super("The selected member is not available at this time.");
   }
 
+  /**
+   * Constructs a new MemberUnavailableException with the specified message.
+   *
+   * @param message the detail message
+   */
   public MemberUnavailableException(String message) {
     super(message);
   }

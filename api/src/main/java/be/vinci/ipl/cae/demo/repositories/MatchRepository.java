@@ -29,4 +29,12 @@ public interface MatchRepository
    * @return a list of matches
    */
   List<Match> findByTournament(Tournament tournament);
+
+  /**
+   * Find a match by its id.
+   *
+   * @param idMatch the id of the match
+   * @return the match
+   */
+  Match getMatchByIdMatch(Long idMatch);
 }
