@@ -198,7 +198,8 @@ interface MatchTeamDto {
   name: string;
   score: number | null;
   isWinner: boolean;
-  hasForfeited: boolean;
+  hasForfeited: boolean | null;
+  hasConfirmedResults: boolean | null;
 }
 
 interface MatchSummaryDto {
@@ -207,7 +208,6 @@ interface MatchSummaryDto {
   turn: number;
   status: 'PLANNED' | 'PLAYED' | 'FORFEIT';
   teams: Team[];
-  isConfirmed: boolean;
   team1: MatchTeamDto;
   team2: MatchTeamDto;
   tournament: MatchSummaryDtoTournament;

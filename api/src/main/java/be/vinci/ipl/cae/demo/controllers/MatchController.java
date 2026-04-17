@@ -7,7 +7,6 @@ import be.vinci.ipl.cae.demo.services.MatchService;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -55,24 +53,26 @@ public class MatchController {
    * Confirms the result of a match.
    *
    * @param id the id of the match
-   * @param email the authenticated user's email
+   * @param currentMember the authenticated user
    */
-  @ResponseStatus(HttpStatus.NO_CONTENT)
   @PatchMapping("/{id}/confirm")
-  public void confirmMatchResult(@PathVariable Long id, @AuthenticationPrincipal String email) {
-    matchService.confirmResult(id, email);
+  @PreAuthorize("isAuthenticated()")
+  public void confirmMatchResult(@PathVariable Long id,
+      @AuthenticationPrincipal Member currentMember) {
+    matchService.confirmResult(id, currentMember);
   }
 
   /**
    * Contests the result of a match.
    *
    * @param id the id of the match
-   * @param email the authenticated user's email
+   * @param currentMember the authenticated user
    */
   @PatchMapping("/{id}/contest")
-  @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void contestMatchResult(@PathVariable Long id, @AuthenticationPrincipal String email) {
-    matchService.contestResult(id, email);
+  @PreAuthorize("isAuthenticated()")
+  public void contestMatchResult(@PathVariable Long id,
+      @AuthenticationPrincipal Member currentMember) {
+    matchService.contestResult(id, currentMember);
   }
 
   /**

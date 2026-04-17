@@ -2,28 +2,24 @@ package be.vinci.ipl.cae.demo.services;
 
 import be.vinci.ipl.cae.demo.exceptions.AlreadyConfirmedException;
 import be.vinci.ipl.cae.demo.exceptions.ForbiddenException;
+import be.vinci.ipl.cae.demo.exceptions.LineupNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.MatchNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.MemberHasNoTeamException;
-import be.vinci.ipl.cae.demo.exceptions.ResultNotFoundException;
-import be.vinci.ipl.cae.demo.exceptions.UserNotInMatchException;
+import be.vinci.ipl.cae.demo.exceptions.MemberNotManagerOfTeamException;
 import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryTournamentDto;
 import be.vinci.ipl.cae.demo.models.dtos.MatchTeamDto;
 import be.vinci.ipl.cae.demo.models.entities.Match;
 import be.vinci.ipl.cae.demo.models.entities.MatchLineup;
-import be.vinci.ipl.cae.demo.models.entities.MatchResultConfirmation;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.models.entities.Tournament;
 import be.vinci.ipl.cae.demo.repositories.MatchLineupRepository;
 import be.vinci.ipl.cae.demo.repositories.MatchRepository;
-import be.vinci.ipl.cae.demo.repositories.MatchResultConfirmationRepository;
-import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.specifications.MatchSpecifications;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Sort;
@@ -37,31 +33,23 @@ import org.springframework.stereotype.Service;
 public class MatchService {
 
   private final MatchRepository matchRepository;
-  private final MemberRepository memberRepository;
   private final MemberService memberService;
   private final MatchLineupRepository matchLineupRepository;
-  private final MatchResultConfirmationRepository matchResultConfirmationRepository;
   private final TeamService teamService;
 
   /**
    * Constructs a new MatchService with the specified repositories and services.
    *
    * @param matchRepository the match repository
-   * @param memberRepository the member repository
    * @param matchLineupRepository the match lineup repository
    * @param memberService the member service
-   * @param matchResultConfirmationRepository the match result confirmation repository
    * @param teamService the team service
    */
-  public MatchService(MatchRepository matchRepository, MemberRepository memberRepository,
-      MatchLineupRepository matchLineupRepository, MemberService memberService,
-      MatchResultConfirmationRepository matchResultConfirmationRepository,
-      TeamService teamService) {
+  public MatchService(MatchRepository matchRepository, MatchLineupRepository matchLineupRepository,
+      MemberService memberService, TeamService teamService) {
     this.matchRepository = matchRepository;
-    this.memberRepository = memberRepository;
     this.memberService = memberService;
     this.matchLineupRepository = matchLineupRepository;
-    this.matchResultConfirmationRepository = matchResultConfirmationRepository;
     this.teamService = teamService;
   }
 
@@ -70,7 +58,6 @@ public class MatchService {
    *
    */
   public Set<Member> getAvailableMembersForMatch(Long matchId, Member currentMember) {
-
     if (!teamService.isManager(currentMember.getTeam(), currentMember)) {
       throw new ForbiddenException("Not a manager");
     }
@@ -126,48 +113,25 @@ public class MatchService {
   }
 
   /**
-   * Retrieves a member by email.
-   *
-   * @param email the email of the member
-   * @return the member
-   */
-  private Member getMember(String email) {
-    return memberRepository.findByEmail(email);
-  }
-
-  /**
-   * Retrieves the confirmation of a match result.
-   *
-   * @param matchId the id of the match
-   * @return the confirmation entity
-   * @throws ResultNotFoundException if not found
-   */
-  private MatchResultConfirmation getConfirmation(Long matchId) {
-    return matchResultConfirmationRepository.findById(matchId)
-        .orElseThrow(() -> new ResultNotFoundException("Result not found"));
-  }
-
-  /**
-   * Checks if a user is allowed to confirm the result of a match.
+   * Validates if a user is allowed to confirm the result of a match.
    *
    * @param match the match
    * @param member the member
    * @throws MemberHasNoTeamException if the user has no team
-   * @throws UserNotInMatchException if the user is not part of the match
+   * @throws MemberNotManagerOfTeamException if the user is not part of the match
    */
   private void validateUserCanConfirm(Match match, Member member) {
     if (member.getTeam() == null) {
-      throw new MemberHasNoTeamException("User has no team");
+      throw new MemberHasNoTeamException("Member has no team");
     }
 
-    Long teamId = member.getTeam().getIdTeam();
+    boolean isManagerTeam1 =
+        match.getTeam1() != null && teamService.isManager(match.getTeam1(), member);
+    boolean isManagerTeam2 =
+        match.getTeam2() != null && teamService.isManager(match.getTeam2(), member);
 
-    boolean isTeam1 = match.getTeam1() != null && match.getTeam1().getIdTeam().equals(teamId);
-
-    boolean isTeam2 = match.getTeam2() != null && match.getTeam2().getIdTeam().equals(teamId);
-
-    if (!isTeam1 && !isTeam2) {
-      throw new UserNotInMatchException("User not part of this match");
+    if (!isManagerTeam1 && !isManagerTeam2) {
+      throw new MemberNotManagerOfTeamException("Member not part of this match");
     }
   }
 
@@ -179,59 +143,54 @@ public class MatchService {
    * @param confirmation the confirmation entity
    * @param status true for confirm, false for contest
    */
-  private void updateConfirmationStatus(Match match, Member member,
-      MatchResultConfirmation confirmation, boolean status) {
-    Long teamId = member.getTeam().getIdTeam();
+  private void updateConfirmationStatus(Match match, Team team, boolean status) {
+    MatchLineup lineup = matchLineupRepository.findByMatchAndTeam(match, team).orElse(null);
 
-    boolean isTeam1 = match.getTeam1() != null && match.getTeam1().getIdTeam().equals(teamId);
-
-    if (isTeam1) {
-
-      if (confirmation.getConfirmationTeam1() != null) {
-        throw new AlreadyConfirmedException("Already confirmed or contested");
-      }
-
-      confirmation.setConfirmationTeam1(status);
-    } else {
-
-      if (confirmation.getConfirmationTeam2() != null) {
-        throw new AlreadyConfirmedException("Already confirmed or contested");
-      }
-
-      confirmation.setConfirmationTeam2(status);
+    if (lineup == null) {
+      throw new LineupNotFoundException("Lineup not found for match and team");
     }
+
+    if (lineup.getHasConfirmedResults() != null) {
+      throw new AlreadyConfirmedException("Lineup already confirmed with a different status");
+    }
+
+    lineup.setHasConfirmedResults(status);
+    matchLineupRepository.save(lineup);
   }
 
-  private void handleMatchResult(Long matchId, String email, boolean status) {
+  /**
+   * Handles the result of a match for the authenticated user.
+   *
+   * @param matchId the id of the match
+   * @param member the authenticated user
+   * @param status true for confirm, false for contest
+   */
+  private void handleMatchResult(Long matchId, Member member, boolean status) {
     Match match = getMatch(matchId);
-    Member member = getMember(email);
-    MatchResultConfirmation confirmation = getConfirmation(matchId);
 
     validateUserCanConfirm(match, member);
 
-    updateConfirmationStatus(match, member, confirmation, status);
-
-    matchResultConfirmationRepository.save(confirmation);
+    updateConfirmationStatus(match, member.getTeam(), status);
   }
 
   /**
    * Confirms the result of a match for the authenticated user.
    *
    * @param matchId the id of the match
-   * @param email the email of the authenticated user
+   * @param member the authenticated user
    */
-  public void confirmResult(Long matchId, String email) {
-    handleMatchResult(matchId, email, true);
+  public void confirmResult(Long matchId, Member member) {
+    handleMatchResult(matchId, member, true);
   }
 
   /**
    * Contests the result of a match for the authenticated user.
    *
    * @param matchId the id of the match
-   * @param email the email of the authenticated user
+   * @param member the authenticated user
    */
-  public void contestResult(Long matchId, String email) {
-    handleMatchResult(matchId, email, false);
+  public void contestResult(Long matchId, Member member) {
+    handleMatchResult(matchId, member, false);
   }
 
   /**
@@ -247,14 +206,8 @@ public class MatchService {
     MatchTeamDto team1Dto = createMatchTeamDto(match.getTeam1(), lineups);
     MatchTeamDto team2Dto = createMatchTeamDto(match.getTeam2(), lineups);
 
-    Optional<MatchResultConfirmation> confirmation =
-        matchResultConfirmationRepository.findById(match.getIdMatch());
-    boolean isConfirmed =
-        confirmation.isPresent() && Boolean.TRUE.equals(confirmation.get().getConfirmationTeam1())
-            && Boolean.TRUE.equals(confirmation.get().getConfirmationTeam2());
-
     return new MatchSummaryDto(match.getIdMatch(), match.getDateHour(), match.getTurn(),
-        match.getStatus(), isConfirmed, team1Dto, team2Dto, new MatchSummaryTournamentDto(
+        match.getStatus(), team1Dto, team2Dto, new MatchSummaryTournamentDto(
             tournament.getIdTournament(), tournament.getName(), tournament.getStatus()));
   }
 
@@ -274,10 +227,10 @@ public class MatchService {
         .filter(l -> l.getTeam().getIdTeam().equals(team.getIdTeam())).findFirst().orElse(null);
 
     if (lineup == null) {
-      return new MatchTeamDto(team.getIdTeam(), team.getName(), null, false, false);
+      return new MatchTeamDto(team.getIdTeam(), team.getName(), null, false, false, false);
     }
 
     return new MatchTeamDto(team.getIdTeam(), team.getName(), lineup.getScore(), lineup.isWinner(),
-        lineup.isHasForfeited());
+        lineup.isHasForfeited(), lineup.getHasConfirmedResults());
   }
 }

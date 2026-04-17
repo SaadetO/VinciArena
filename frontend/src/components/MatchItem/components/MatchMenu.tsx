@@ -114,21 +114,21 @@ export const MatchMenu = ({ match }: MatchMenuProps) => {
             </Typography>
             <MenuItem
               onClick={() => {
-                handleContestScore();
-                handleClose();
-              }}
-            >
-              <CircleXmark style={{ color: theme.palette.text.secondary }} />
-              <Typography variant="h5">Contester</Typography>
-            </MenuItem>
-            <MenuItem
-              onClick={() => {
                 handleConfirmScore();
                 handleClose();
               }}
             >
               <CircleCheck style={{ color: theme.palette.text.secondary }} />
               <Typography variant="h5">Confirmer</Typography>
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                handleContestScore();
+                handleClose();
+              }}
+            >
+              <CircleXmark style={{ color: theme.palette.text.secondary }} />
+              <Typography variant="h5">Contester</Typography>
             </MenuItem>
           </>
         )}

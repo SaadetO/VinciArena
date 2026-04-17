@@ -8,5 +8,6 @@ public record MatchTeamDto(
     String name,
     Integer score,
     boolean isWinner,
-    boolean hasForfeited
+    boolean hasForfeited,
+    Boolean hasConfirmedResults
 ) {}
