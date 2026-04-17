@@ -21,7 +21,6 @@ import be.vinci.ipl.cae.demo.models.entities.Tournament;
 import be.vinci.ipl.cae.demo.models.entities.TournamentStatus;
 import be.vinci.ipl.cae.demo.repositories.MatchLineupRepository;
 import be.vinci.ipl.cae.demo.repositories.MatchRepository;
-import be.vinci.ipl.cae.demo.repositories.MatchResultConfirmationRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.TournamentRepository;
 import java.time.LocalDate;
@@ -42,13 +41,11 @@ class TournamentServiceTest {
   @Mock
   private MemberRepository memberRepository;
 
+  @Mock
   private MatchLineupRepository matchLineupRepository;
 
   @Mock
   private MatchRepository matchRepository;
-
-  @Mock
-  private MatchResultConfirmationRepository confirmationRepository;
 
   @Mock
   private TeamService teamService;

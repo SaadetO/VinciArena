@@ -5,19 +5,19 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
 
 import be.vinci.ipl.cae.demo.exceptions.AlreadyConfirmedException;
 import be.vinci.ipl.cae.demo.exceptions.MatchNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.MemberHasNoTeamException;
-import be.vinci.ipl.cae.demo.exceptions.ResultNotFoundException;
-import be.vinci.ipl.cae.demo.exceptions.UserNotInMatchException;
+import be.vinci.ipl.cae.demo.exceptions.LineupNotFoundException;
+import be.vinci.ipl.cae.demo.exceptions.MemberNotManagerOfTeamException;
 import be.vinci.ipl.cae.demo.models.entities.Match;
-import be.vinci.ipl.cae.demo.models.entities.MatchResultConfirmation;
+import be.vinci.ipl.cae.demo.models.entities.MatchLineup;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Team;
+import be.vinci.ipl.cae.demo.repositories.MatchLineupRepository;
 import be.vinci.ipl.cae.demo.repositories.MatchRepository;
-import be.vinci.ipl.cae.demo.repositories.MatchResultConfirmationRepository;
-import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,17 +33,20 @@ public class MatchServiceTest {
   private MatchRepository matchRepository;
 
   @Mock
-  private MemberRepository memberRepository;
+  private MatchLineupRepository matchLineupRepository;
 
   @Mock
-  private MatchResultConfirmationRepository confirmationRepository;
+  private MemberService memberService;
+
+  @Mock
+  private TeamService teamService;
 
   @InjectMocks
   private MatchService matchService;
 
   private Match match;
   private Member member;
-  private MatchResultConfirmation confirmation;
+  private MatchLineup lineup;
 
   @BeforeEach
   void setUp() {
@@ -60,10 +63,8 @@ public class MatchServiceTest {
     match.setTeam2(team2);
 
     member = new Member();
-    member.setEmail("test@mail.com");
 
-    confirmation = new MatchResultConfirmation();
-    confirmation.setId(1L);
+    lineup = new MatchLineup();
   }
 
   @Test
@@ -72,15 +73,16 @@ public class MatchServiceTest {
     member.setTeam(match.getTeam1());
 
     when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
-    when(memberRepository.findByEmail("test@mail.com")).thenReturn(member);
-    when(confirmationRepository.findById(1L)).thenReturn(Optional.of(confirmation));
+    when(matchLineupRepository.findByMatchAndTeam(match, match.getTeam1()))
+        .thenReturn(Optional.of(lineup));
+    when(teamService.isManager(any(), any())).thenReturn(true);
 
     // Act
-    matchService.confirmResult(1L, "test@mail.com");
+    matchService.confirmResult(1L, member);
 
     // Assert
-    assertTrue(confirmation.getConfirmationTeam1());
-    verify(confirmationRepository).save(confirmation);
+    assertTrue(lineup.getHasConfirmedResults());
+    verify(matchLineupRepository).save(lineup);
   }
 
   @Test
@@ -89,14 +91,16 @@ public class MatchServiceTest {
     member.setTeam(match.getTeam2());
 
     when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
-    when(memberRepository.findByEmail("test@mail.com")).thenReturn(member);
-    when(confirmationRepository.findById(1L)).thenReturn(Optional.of(confirmation));
+    when(matchLineupRepository.findByMatchAndTeam(match, match.getTeam2()))
+        .thenReturn(Optional.of(lineup));
+    when(teamService.isManager(any(), any())).thenReturn(true);
 
     // Act
-    matchService.confirmResult(1L, "test@mail.com");
+    matchService.confirmResult(1L, member);
 
     // Assert
-    assertTrue(confirmation.getConfirmationTeam2());
+    assertTrue(lineup.getHasConfirmedResults());
+    verify(matchLineupRepository).save(lineup);
   }
 
   @Test
@@ -104,17 +108,18 @@ public class MatchServiceTest {
     when(matchRepository.findById(1L)).thenReturn(Optional.empty());
 
     assertThrows(MatchNotFoundException.class,
-        () -> matchService.confirmResult(1L, "test@mail.com"));
+        () -> matchService.confirmResult(1L, member));
   }
 
   @Test
   void confirmResult_result_not_found() {
+    member.setTeam(match.getTeam1());
     when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
-    when(memberRepository.findByEmail("test@mail.com")).thenReturn(member);
-    when(confirmationRepository.findById(1L)).thenReturn(Optional.empty());
+    when(matchLineupRepository.findByMatchAndTeam(match, match.getTeam1()))
+        .thenReturn(Optional.empty());
+    when(teamService.isManager(any(), any())).thenReturn(true);
 
-    assertThrows(ResultNotFoundException.class,
-        () -> matchService.confirmResult(1L, "test@mail.com"));
+    assertThrows(LineupNotFoundException.class, () -> matchService.confirmResult(1L, member));
   }
 
   @Test
@@ -122,11 +127,8 @@ public class MatchServiceTest {
     member.setTeam(null);
 
     when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
-    when(memberRepository.findByEmail("test@mail.com")).thenReturn(member);
-    when(confirmationRepository.findById(1L)).thenReturn(Optional.of(confirmation));
 
-    assertThrows(MemberHasNoTeamException.class,
-        () -> matchService.confirmResult(1L, "test@mail.com"));
+    assertThrows(MemberHasNoTeamException.class, () -> matchService.confirmResult(1L, member));
   }
 
   @Test
@@ -136,37 +138,35 @@ public class MatchServiceTest {
     member.setTeam(otherTeam);
 
     when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
-    when(memberRepository.findByEmail("test@mail.com")).thenReturn(member);
-    when(confirmationRepository.findById(1L)).thenReturn(Optional.of(confirmation));
 
-    assertThrows(UserNotInMatchException.class,
-        () -> matchService.confirmResult(1L, "test@mail.com"));
+    assertThrows(MemberNotManagerOfTeamException.class,
+        () -> matchService.confirmResult(1L, member));
   }
 
   @Test
   void confirmResult_already_confirmed_team1() {
     member.setTeam(match.getTeam1());
-    confirmation.setConfirmationTeam1(true);
+    lineup.setHasConfirmedResults(true);
 
     when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
-    when(memberRepository.findByEmail("test@mail.com")).thenReturn(member);
-    when(confirmationRepository.findById(1L)).thenReturn(Optional.of(confirmation));
+    when(matchLineupRepository.findByMatchAndTeam(match, match.getTeam1()))
+        .thenReturn(Optional.of(lineup));
+    when(teamService.isManager(any(), any())).thenReturn(true);
 
-    assertThrows(AlreadyConfirmedException.class,
-        () -> matchService.confirmResult(1L, "test@mail.com"));
+    assertThrows(AlreadyConfirmedException.class, () -> matchService.confirmResult(1L, member));
   }
 
   @Test
   void confirmResult_already_confirmed_team2() {
     member.setTeam(match.getTeam2());
-    confirmation.setConfirmationTeam2(true);
+    lineup.setHasConfirmedResults(true);
 
     when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
-    when(memberRepository.findByEmail("test@mail.com")).thenReturn(member);
-    when(confirmationRepository.findById(1L)).thenReturn(Optional.of(confirmation));
+    when(matchLineupRepository.findByMatchAndTeam(match, match.getTeam2()))
+        .thenReturn(Optional.of(lineup));
+    when(teamService.isManager(any(), any())).thenReturn(true);
 
-    assertThrows(AlreadyConfirmedException.class,
-        () -> matchService.confirmResult(1L, "test@mail.com"));
+    assertThrows(AlreadyConfirmedException.class, () -> matchService.confirmResult(1L, member));
   }
 
   @Test
@@ -175,15 +175,16 @@ public class MatchServiceTest {
     member.setTeam(match.getTeam1());
 
     when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
-    when(memberRepository.findByEmail("test@mail.com")).thenReturn(member);
-    when(confirmationRepository.findById(1L)).thenReturn(Optional.of(confirmation));
+    when(matchLineupRepository.findByMatchAndTeam(match, match.getTeam1()))
+        .thenReturn(Optional.of(lineup));
+    when(teamService.isManager(any(), any())).thenReturn(true);
 
     // Act
-    matchService.contestResult(1L, "test@mail.com");
+    matchService.contestResult(1L, member);
 
     // Assert
-    assertFalse(confirmation.getConfirmationTeam1());
-    verify(confirmationRepository).save(confirmation);
+    assertFalse(lineup.getHasConfirmedResults());
+    verify(matchLineupRepository).save(lineup);
   }
 
   @Test
@@ -192,14 +193,16 @@ public class MatchServiceTest {
     member.setTeam(match.getTeam2());
 
     when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
-    when(memberRepository.findByEmail("test@mail.com")).thenReturn(member);
-    when(confirmationRepository.findById(1L)).thenReturn(Optional.of(confirmation));
+    when(matchLineupRepository.findByMatchAndTeam(match, match.getTeam2()))
+        .thenReturn(Optional.of(lineup));
+    when(teamService.isManager(any(), any())).thenReturn(true);
 
     // Act
-    matchService.contestResult(1L, "test@mail.com");
+    matchService.contestResult(1L, member);
 
     // Assert
-    assertFalse(confirmation.getConfirmationTeam2());
+    assertFalse(lineup.getHasConfirmedResults());
+    verify(matchLineupRepository).save(lineup);
   }
 
   @Test
@@ -207,17 +210,18 @@ public class MatchServiceTest {
     when(matchRepository.findById(1L)).thenReturn(Optional.empty());
 
     assertThrows(MatchNotFoundException.class,
-        () -> matchService.contestResult(1L, "test@mail.com"));
+        () -> matchService.contestResult(1L, member));
   }
 
   @Test
   void contestResult_result_not_found() {
+    member.setTeam(match.getTeam1());
     when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
-    when(memberRepository.findByEmail("test@mail.com")).thenReturn(member);
-    when(confirmationRepository.findById(1L)).thenReturn(Optional.empty());
+    when(matchLineupRepository.findByMatchAndTeam(match, match.getTeam1()))
+        .thenReturn(Optional.empty());
+    when(teamService.isManager(any(), any())).thenReturn(true);
 
-    assertThrows(ResultNotFoundException.class,
-        () -> matchService.contestResult(1L, "test@mail.com"));
+    assertThrows(LineupNotFoundException.class, () -> matchService.contestResult(1L, member));
   }
 
   @Test
@@ -225,11 +229,8 @@ public class MatchServiceTest {
     member.setTeam(null);
 
     when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
-    when(memberRepository.findByEmail("test@mail.com")).thenReturn(member);
-    when(confirmationRepository.findById(1L)).thenReturn(Optional.of(confirmation));
 
-    assertThrows(MemberHasNoTeamException.class,
-        () -> matchService.contestResult(1L, "test@mail.com"));
+    assertThrows(MemberHasNoTeamException.class, () -> matchService.contestResult(1L, member));
   }
 
   @Test
@@ -239,38 +240,34 @@ public class MatchServiceTest {
     member.setTeam(otherTeam);
 
     when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
-    when(memberRepository.findByEmail("test@mail.com")).thenReturn(member);
-    when(confirmationRepository.findById(1L)).thenReturn(Optional.of(confirmation));
 
-    assertThrows(UserNotInMatchException.class,
-        () -> matchService.contestResult(1L, "test@mail.com"));
+    assertThrows(MemberNotManagerOfTeamException.class,
+        () -> matchService.contestResult(1L, member));
   }
 
   @Test
   void contestResult_already_confirmed_team1() {
     member.setTeam(match.getTeam1());
-    confirmation.setConfirmationTeam1(true);
+    lineup.setHasConfirmedResults(true);
 
     when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
-    when(memberRepository.findByEmail("test@mail.com")).thenReturn(member);
-    when(confirmationRepository.findById(1L)).thenReturn(Optional.of(confirmation));
+    when(matchLineupRepository.findByMatchAndTeam(match, match.getTeam1()))
+        .thenReturn(Optional.of(lineup));
+    when(teamService.isManager(any(), any())).thenReturn(true);
 
-    assertThrows(AlreadyConfirmedException.class,
-        () -> matchService.contestResult(1L, "test@mail.com"));
+    assertThrows(AlreadyConfirmedException.class, () -> matchService.contestResult(1L, member));
   }
 
   @Test
   void contestResult_already_confirmed_team2() {
     member.setTeam(match.getTeam2());
-    confirmation.setConfirmationTeam2(true);
+    lineup.setHasConfirmedResults(true);
 
     when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
-    when(memberRepository.findByEmail("test@mail.com")).thenReturn(member);
-    when(confirmationRepository.findById(1L)).thenReturn(Optional.of(confirmation));
+    when(matchLineupRepository.findByMatchAndTeam(match, match.getTeam2()))
+        .thenReturn(Optional.of(lineup));
+    when(teamService.isManager(any(), any())).thenReturn(true);
 
-    assertThrows(AlreadyConfirmedException.class,
-        () -> matchService.contestResult(1L, "test@mail.com"));
+    assertThrows(AlreadyConfirmedException.class, () -> matchService.contestResult(1L, member));
   }
-
-
 }

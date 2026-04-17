@@ -47,6 +47,8 @@ public class MatchLineup {
 
   private boolean isWinner;
 
+  private Boolean hasConfirmedResults;
+
   @ManyToMany
   @JoinTable(name = "match_members",
       joinColumns = {@JoinColumn(name = "id_match", referencedColumnName = "id_match"),

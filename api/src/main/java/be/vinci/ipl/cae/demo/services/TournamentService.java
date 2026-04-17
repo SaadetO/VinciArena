@@ -601,6 +601,7 @@ public class TournamentService {
     lineup.setScore(0);
     lineup.setWinner(false);
     lineup.setHasForfeited(false);
+    lineup.setHasConfirmedResults(null);
 
     return lineup;
   }

@@ -51,7 +51,7 @@ export const VersusItem = ({ match }: VersusItemProps) => {
             variant="h4"
             color={match.isConfirmed ? 'primary' : 'secondary'}
           >
-            {match.isConfirmed ? match.team1?.score : '-'}
+            {match.isConfirmed ? match.team2?.score : '-'}
           </Typography>
         )}
         <TeamItem matchTeam={match.team2} />

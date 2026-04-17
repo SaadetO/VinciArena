@@ -1,7 +1,9 @@
 import { useSnackbar } from '../../../hooks/useSnackbar';
+import { useUser } from '../../../hooks/useUser';
 
 export const useMatchMenuAction = () => {
   const { showSnackbar } = useSnackbar();
+  const { authenticatedUser } = useUser();
 
   const handleForfeit = () => {};
 
@@ -12,7 +14,7 @@ export const useMatchMenuAction = () => {
       const response = await fetch(`/api/matches/${matchId}/contest`, {
         method: 'PATCH',
         headers: {
-          Authorization: localStorage.getItem('token') ?? '',
+          Authorization: authenticatedUser?.token ?? '',
         },
       });
 
@@ -39,7 +41,7 @@ export const useMatchMenuAction = () => {
       const response = await fetch(`/api/matches/${matchId}/confirm`, {
         method: 'PATCH',
         headers: {
-          Authorization: localStorage.getItem('token') ?? '',
+          Authorization: authenticatedUser?.token ?? '',
         },
       });
 
