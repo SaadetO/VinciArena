@@ -1,18 +1,13 @@
 import { Stack, Typography } from '@mui/material';
-import { MatchSummaryDto, TournamentStatus } from '../types';
+import { MatchSummaryDto } from '../types';
 import { MatchItem } from './MatchItem';
 
 interface MatchDayGroupProps {
   day: string;
   matches: MatchSummaryDto[];
-  tournamentStatus: TournamentStatus;
 }
 
-export const MatchDayGroup = ({
-  day,
-  matches,
-  tournamentStatus,
-}: MatchDayGroupProps) => {
+export const MatchDayGroup = ({ day, matches }: MatchDayGroupProps) => {
   return (
     <Stack
       padding="1.5rem 1rem 1rem"
@@ -24,11 +19,7 @@ export const MatchDayGroup = ({
         {day}
       </Typography>
       {matches.map((match) => (
-        <MatchItem
-          key={match.idMatch}
-          match={match}
-          tournamentStatus={tournamentStatus}
-        />
+        <MatchItem key={match.idMatch} match={match} />
       ))}
     </Stack>
   );

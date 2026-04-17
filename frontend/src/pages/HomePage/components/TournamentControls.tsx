@@ -13,20 +13,12 @@ const timeframeOptions: TabOption<'past' | 'current' | 'future'>[] = [
 interface TournamentControlsProps {
   filters: TournamentFilters;
   setFilters: (filters: TournamentFilters) => void;
-  showFilterButton?: boolean;
-  disabledFilter?: boolean;
-  disabledFilterTooltip?: string;
-  onlyStatusFilter?: boolean;
   isAdmin?: boolean;
 }
 
 export const TournamentControls = ({
   filters,
   setFilters,
-  showFilterButton = true,
-  disabledFilter = false,
-  disabledFilterTooltip,
-  onlyStatusFilter = false,
   isAdmin = false,
 }: TournamentControlsProps) => {
   return (
@@ -65,16 +57,11 @@ export const TournamentControls = ({
               setFilters({ ...filters, searchQuery })
             }
           />
-          {showFilterButton && (
-            <TournamentFilterButton
-              filters={filters}
-              setFilters={setFilters}
-              disabled={disabledFilter}
-              disabledTooltip={disabledFilterTooltip}
-              onlyStatusFilter={onlyStatusFilter}
-              isAdmin={isAdmin}
-            />
-          )}
+          <TournamentFilterButton
+            filters={filters}
+            setFilters={setFilters}
+            isAdmin={isAdmin}
+          />
         </Stack>
       </Stack>
     </Stack>

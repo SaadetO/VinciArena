@@ -18,8 +18,12 @@ import be.vinci.ipl.cae.demo.repositories.MatchLineupRepository;
 import be.vinci.ipl.cae.demo.repositories.MatchRepository;
 import be.vinci.ipl.cae.demo.repositories.MatchResultConfirmationRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
+import be.vinci.ipl.cae.demo.specifications.MatchSpecifications;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 /**
@@ -39,7 +43,7 @@ public class MatchService {
    * @param matchRepository the match repository
    * @param memberRepository the member repository
    * @param matchLineupRepository the match lineup repository
-   * @param matchResultConfirmation the match result confirmation repository
+   * @param matchResultConfirmationRepository the match result confirmation repository
    */
   public MatchService(MatchRepository matchRepository, MemberRepository memberRepository,
       MatchLineupRepository matchLineupRepository,
@@ -48,6 +52,28 @@ public class MatchService {
     this.memberRepository = memberRepository;
     this.matchLineupRepository = matchLineupRepository;
     this.matchResultConfirmationRepository = matchResultConfirmationRepository;
+  }
+
+  /**
+   * Retrieves matches for a team and member, filtered by search query.
+   *
+   * @param teamId the id of the team
+   * @param memberId the id of the member
+   * @param searchQuery the search query
+   * @return the matches
+   */
+  public List<MatchSummaryDto> getMatches(Long teamId, Long memberId, String searchQuery) {
+    Specification<Match> spec = Specification.where(null);
+
+    Sort sort = Sort.by(Sort.Direction.DESC, "dateHour");
+
+    spec =
+        spec.and(MatchSpecifications.hasMember(memberId)).and(MatchSpecifications.hasTeam(teamId))
+            .and(MatchSpecifications.searchByTeamName(searchQuery));
+
+    return matchRepository.findAll(spec, sort).stream()
+        .map(match -> mapMatchToSummaryDto(match, match.getTournament()))
+        .collect(Collectors.toList());
   }
 
   /**
@@ -118,7 +144,6 @@ public class MatchService {
    */
   private void updateConfirmationStatus(Match match, Member member,
       MatchResultConfirmation confirmation, boolean status) {
-
     Long teamId = member.getTeam().getIdTeam();
 
     boolean isTeam1 = match.getTeam1() != null && match.getTeam1().getIdTeam().equals(teamId);
@@ -129,7 +154,6 @@ public class MatchService {
       }
 
       confirmation.setConfirmationTeam1(status);
-
     } else {
       if (confirmation.getConfirmationTeam2() != null) {
         throw new AlreadyConfirmedException("Already confirmed or contested");
@@ -140,7 +164,6 @@ public class MatchService {
   }
 
   private void handleMatchResult(Long matchId, String email, boolean status) {
-
     Match match = getMatch(matchId);
     Member member = getMember(email);
     MatchResultConfirmation confirmation = getConfirmation(matchId);
@@ -172,7 +195,6 @@ public class MatchService {
     handleMatchResult(matchId, email, false);
   }
 
-
   /**
    * Maps a match to a summary dto.
    *
@@ -181,7 +203,6 @@ public class MatchService {
    * @return the summary dto
    */
   public MatchSummaryDto mapMatchToSummaryDto(Match match, Tournament tournament) {
-
     List<MatchLineup> lineups = matchLineupRepository.findByIdIdMatch(match.getIdMatch());
 
     MatchTeamDto team1Dto = createMatchTeamDto(match.getTeam1(), lineups);
@@ -194,8 +215,8 @@ public class MatchService {
             && Boolean.TRUE.equals(confirmation.get().getConfirmationTeam2());
 
     return new MatchSummaryDto(match.getIdMatch(), match.getDateHour(), match.getTurn(),
-        match.getStatus(), isConfirmed, team1Dto, team2Dto,
-        new MatchSummaryTournamentDto(tournament.getIdTournament(), tournament.getName()));
+        match.getStatus(), isConfirmed, team1Dto, team2Dto, new MatchSummaryTournamentDto(
+            tournament.getIdTournament(), tournament.getName(), tournament.getStatus()));
   }
 
   /**

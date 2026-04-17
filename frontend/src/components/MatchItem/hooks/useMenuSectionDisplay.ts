@@ -1,19 +1,13 @@
 import dayjs from 'dayjs';
-import {
-  MatchSummaryDto,
-  MaybeAuthenticatedUser,
-  TournamentStatus,
-} from '../../../types';
+import { MatchSummaryDto, MaybeAuthenticatedUser } from '../../../types';
 
 interface UseMenuSectionDisplayProps {
   match: MatchSummaryDto;
-  tournamentStatus: TournamentStatus;
   authenticatedUser: MaybeAuthenticatedUser;
 }
 
 export const useMenuSectionDisplay = ({
   match,
-  tournamentStatus,
   authenticatedUser,
 }: UseMenuSectionDisplayProps) => {
   const isAdmin = authenticatedUser?.admin ?? false;
@@ -54,9 +48,9 @@ export const useMenuSectionDisplay = ({
   const hasAnySection =
     showTeamSection || showScoresSection || showAdminSection;
 
-  const isTournamentPublic = tournamentStatus === 'PLANNED';
+  const isTournamentPublic = match.tournament.status === 'PLANNED';
 
-  const isTournamentDone = tournamentStatus === 'DONE';
+  const isTournamentDone = match.tournament.status === 'DONE';
 
   const displayMenu = hasAnySection && isTournamentPublic && !isTournamentDone;
 

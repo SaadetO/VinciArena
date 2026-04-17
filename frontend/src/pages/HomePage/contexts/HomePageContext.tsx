@@ -1,4 +1,11 @@
-import { createContext, ReactNode, useEffect, useMemo, useState } from 'react';
+import {
+  createContext,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { HomePageContextType, TournamentDto } from '../../../types';
 import { useUser } from '../../../hooks/useUser';
 import {
@@ -17,6 +24,7 @@ const defaultHomePageContext: HomePageContextType = {
     statuses: [],
     dates: { minDate: undefined, maxDate: undefined },
   },
+  fetchWithFilters: () => {},
   setFilters: () => {},
   authenticatedUser: null,
   isGettingTournaments: false,
@@ -55,12 +63,11 @@ const HomePageContextProvider = ({ children }: { children: ReactNode }) => {
     return () => clearTimeout(timer);
   }, [filters.searchQuery]);
 
-  useEffect(() => {
+  const fetchWithFilters = useCallback(() => {
     const backendStatuses =
       filters.statuses.length > 0
         ? filters.statuses
         : getStatusesForTimeframe(filters.timeFrame, authenticatedUser?.admin);
-
     getAll({
       statuses: backendStatuses,
       members: filters.members.length > 0 ? filters.members : undefined,
@@ -75,7 +82,8 @@ const HomePageContextProvider = ({ children }: { children: ReactNode }) => {
     filters.members,
     filters.teams,
     filters.statuses,
-    filters.dates,
+    filters.dates?.minDate,
+    filters.dates?.maxDate,
     debouncedSearch,
     authenticatedUser?.admin,
   ]);
@@ -88,6 +96,7 @@ const HomePageContextProvider = ({ children }: { children: ReactNode }) => {
   const HomePageContextValue: HomePageContextType = useMemo(
     () => ({
       filters,
+      fetchWithFilters,
       setFilters,
       authenticatedUser: authenticatedUser ?? null,
       isGettingTournaments,
@@ -96,6 +105,7 @@ const HomePageContextProvider = ({ children }: { children: ReactNode }) => {
     }),
     [
       filters,
+      fetchWithFilters,
       setFilters,
       authenticatedUser,
       isGettingTournaments,

@@ -24,12 +24,14 @@ public final class CommonSpecifications {
    * @return the specification
    */
   public static <T> Specification<T> searchByAttribute(String attribute, String keyword) {
-    return (root, query, cb) -> {
-      if (keyword == null || keyword.isBlank()) {
-        return null;
-      }
+    if (keyword == null || keyword.isBlank()) {
+      return null;
+    }
 
-      return cb.like(cb.lower(root.get(attribute)), "%" + keyword.toLowerCase(Locale.ROOT) + "%");
+    String pattern = "%" + keyword.toLowerCase(Locale.ROOT) + "%";
+
+    return (root, query, cb) -> {
+      return cb.like(cb.lower(root.get(attribute)), pattern);
     };
   }
 }

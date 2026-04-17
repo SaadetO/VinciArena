@@ -161,8 +161,6 @@ export const TournamentPage = () => {
                       key={yearGroup.year}
                       year={yearGroup.year}
                       daysData={yearGroup.daysData}
-                      showYearLabel={groupedMatches.length > 1}
-                      tournamentStatus={tournament!.status}
                     />
                   ))}
               </Stack>

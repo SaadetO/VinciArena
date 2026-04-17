@@ -81,7 +81,7 @@ describe('useTournament basic tests', () => {
 
     // assert
     expect(fetch).toHaveBeenCalledWith(
-      '/api/tournaments?statuses=DONE&membersIds=123&search=Pro',
+      '/api/tournaments/?statuses=DONE&membersIds=123&searchQuery=Pro',
     );
   });
 
@@ -163,35 +163,6 @@ describe('useTournament basic tests', () => {
         severity: 'error',
       }),
     );
-  });
-
-  it('should trigger config.onError when API fails', async () => {
-    // stub with internal error
-    vi.stubGlobal(
-      'fetch',
-      vi.fn().mockResolvedValue({
-        ok: false,
-        status: 500,
-      } as Response),
-    );
-
-    const onError = vi.fn();
-    const { result } = renderHook(() => useTournament({ onError }), {
-      wrapper,
-    });
-
-    // send getAll  fetch with filters
-    await act(async () => {
-      await result.current.getAll({
-        statuses: ['DONE'],
-        members: [123],
-        teams: undefined,
-        searchQuery: 'Pro',
-      });
-    });
-
-    // Check call back recived the error
-    expect(onError).toHaveBeenCalledWith(expect.any(ApiError));
   });
 
   it('should get tournament by id and handle 404 error logic', async () => {

@@ -216,6 +216,7 @@ interface MatchSummaryDto {
 interface MatchSummaryDtoTournament {
   id: number;
   name: string;
+  status: TournamentStatus;
 }
 
 interface TournamentDetailsInfoDto {
@@ -264,11 +265,17 @@ interface MemberFilters {
 
 interface HomePageContextType {
   filters: TournamentFilters;
+  fetchWithFilters: () => void;
   setFilters: (filters: TournamentFilters) => void;
   authenticatedUser: AuthenticatedUser | null;
   isGettingTournaments: boolean;
   tournaments: TournamentDto[];
   groupedTournaments: YearGroup[];
+}
+
+interface TournamentMatchFilters {
+  data: 'tournaments' | 'matches';
+  searchQuery: string;
 }
 
 export type {
@@ -301,4 +308,5 @@ export type {
   TournamentFormData,
   MemberFilters,
   HomePageContextType,
+  TournamentMatchFilters,
 };
