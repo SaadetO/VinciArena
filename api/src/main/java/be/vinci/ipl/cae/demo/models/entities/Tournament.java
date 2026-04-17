@@ -137,8 +137,4 @@ public class Tournament {
     return true;
   }
 
-  public List<Team> getTeams() {
-    return teams;
-  }
-
 }
