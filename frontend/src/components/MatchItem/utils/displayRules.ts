@@ -56,6 +56,8 @@ export const getMenuSectionDisplay = ({
   const matchDatePassed = dayjs(match.dateHour).isBefore(dayjs());
 
   const bothTeamsKnown = match.team1 != null && match.team2 != null;
+  const bothScoresKnown =
+    match.team1?.score != null && match.team2?.score != null;
   const showForfeit = isManagerOfParticipant && isPlanned && bothTeamsKnown;
 
   const showEditComposition =
@@ -63,14 +65,16 @@ export const getMenuSectionDisplay = ({
   const showTeamSection = showForfeit || showEditComposition;
 
   const showScoresSection =
+    bothScoresKnown &&
     isManagerOfParticipant &&
     isPlayed &&
     !managedTeamScoresHaveBeenConfirmedOrContested;
 
-  const showAdminEncode = isAdmin && isPlanned && matchDatePassed;
+  const showAdminEncode =
+    !bothScoresKnown && isAdmin && isPlanned && matchDatePassed;
 
   const showAdminModify =
-    isAdmin && isPlayed && !bothTeamsScoresHaveBeenConfirmed;
+    bothScoresKnown && isAdmin && isPlayed && !bothTeamsScoresHaveBeenConfirmed;
   const showAdminSection = showAdminEncode || showAdminModify;
 
   const visibleSections = [
@@ -84,11 +88,11 @@ export const getMenuSectionDisplay = ({
   const hasAnySection =
     showTeamSection || showScoresSection || showAdminSection;
 
-  const isTournamentPublic = match.tournament.status === 'PLANNED';
+  const isTournamentActive =
+    match.tournament.status === 'PLANNED' ||
+    match.tournament.status === 'IN_PROGRESS';
 
-  const isTournamentDone = match.tournament.status === 'DONE';
-
-  const displayMenu = hasAnySection && isTournamentPublic && !isTournamentDone;
+  const displayMenu = hasAnySection && isTournamentActive;
 
   return {
     showTeamSection,

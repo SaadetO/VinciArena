@@ -2,7 +2,7 @@ import { useTheme } from '@mui/material';
 import { useMenuDisclosure } from '../../../hooks/useMenuDisclosure';
 import { useUser } from '../../../hooks/useUser';
 import { MatchSummaryDto } from '../../../types';
-import { useMenuSectionDisplay } from './useMenuSectionDisplay';
+import { getMenuSectionDisplay } from '../utils/displayRules';
 import { useMatchMenuAction } from './useMatchMenuAction';
 
 interface MatchMenuProps {
@@ -24,7 +24,7 @@ export const useMatchMenu = ({ match }: MatchMenuProps) => {
     needsDividerAfterTeam,
     needsDividerAfterScores,
     displayMenu,
-  } = useMenuSectionDisplay({ match, authenticatedUser });
+  } = getMenuSectionDisplay({ match, authenticatedUser });
   const {
     handleForfeit,
     handleEditComposition,

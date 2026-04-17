@@ -43,7 +43,7 @@ public class MatchLineup {
   @Column(nullable = false)
   private boolean hasForfeited = false;
 
-  private int score;
+  private Integer score;
 
   private boolean isWinner;
 
