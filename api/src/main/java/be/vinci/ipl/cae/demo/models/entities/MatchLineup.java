@@ -1,5 +1,6 @@
 package be.vinci.ipl.cae.demo.models.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
@@ -31,6 +32,7 @@ public class MatchLineup {
   @ManyToOne
   @MapsId("idMatch")
   @JoinColumn(name = "id_match")
+  @JsonIgnore
   private Match match;
 
   @ManyToOne
@@ -46,9 +48,9 @@ public class MatchLineup {
   private boolean isWinner;
 
   @ManyToMany
-  @JoinTable(name = "match_members", joinColumns = {
-      @JoinColumn(name = "id_match", referencedColumnName = "id_match"),
-      @JoinColumn(name = "id_team", referencedColumnName = "id_team")},
+  @JoinTable(name = "match_members",
+      joinColumns = {@JoinColumn(name = "id_match", referencedColumnName = "id_match"),
+          @JoinColumn(name = "id_team", referencedColumnName = "id_team")},
       inverseJoinColumns = @JoinColumn(name = "id_membre"))
   private Set<Member> members = new HashSet<>();
 

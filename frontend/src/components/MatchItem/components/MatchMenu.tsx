@@ -8,15 +8,14 @@ import {
   PencilToSquare,
   Persons,
 } from '@gravity-ui/icons';
-import { MatchSummaryDto, TournamentStatus } from '../../../types';
+import { MatchSummaryDto } from '../../../types';
 import { useMatchMenu } from '../hooks/useMatchMenu';
 
 interface MatchMenuProps {
   match: MatchSummaryDto;
-  tournamentStatus: TournamentStatus;
 }
 
-export const MatchMenu = ({ match, tournamentStatus }: MatchMenuProps) => {
+export const MatchMenu = ({ match }: MatchMenuProps) => {
   const {
     theme,
     anchorEl,
@@ -38,7 +37,7 @@ export const MatchMenu = ({ match, tournamentStatus }: MatchMenuProps) => {
     handleConfirmScore,
     handleEncodeScore,
     handleEditScore,
-  } = useMatchMenu({ match, tournamentStatus });
+  } = useMatchMenu({ match });
 
   if (!displayMenu) return null;
 

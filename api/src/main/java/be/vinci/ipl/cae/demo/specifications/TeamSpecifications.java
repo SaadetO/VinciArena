@@ -22,11 +22,11 @@ public final class TeamSpecifications {
    * @return the specification
    */
   public static Specification<Team> isActive(boolean isActive) {
-    return (root, query, cb) -> {
-      if (!isActive) {
-        return null;
-      }
+    if (!isActive) {
+      return null;
+    }
 
+    return (root, query, cb) -> {
       return cb.equal(root.get("isActive"), isActive);
     };
   }

@@ -32,6 +32,7 @@ import be.vinci.ipl.cae.demo.utils.BracketGenerator;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import org.springframework.data.domain.Sort;
@@ -111,26 +112,15 @@ public class TournamentService {
    * @return the matches of the tournament
    */
   private List<MatchSummaryDto> getMatchesSummaryDto(Tournament tournament, Member currentMember) {
-
-    boolean isAdmin = currentMember != null && currentMember.isAdmin();
+    Boolean isAdmin = currentMember != null && currentMember.isAdmin();
 
     if (tournament.getStatus() == TournamentStatus.REGISTRATION_CLOSED && !isAdmin) {
-      return new ArrayList<>();
+      return Collections.emptyList();
     }
 
-    List<Match> matchesEntities =
-        matchRepository.findByTournamentIdTournament(tournament.getIdTournament());
-    List<MatchSummaryDto> matches = new ArrayList<>();
-
-    for (Match match : matchesEntities) {
-      if (isByeMatch(match)) {
-        continue;
-      }
-
-      matches.add(matchService.mapMatchToSummaryDto(match, tournament));
-    }
-
-    return matches;
+    List<Match> matchesEntities = matchRepository.findByTournament(tournament);
+    return matchesEntities.stream().filter(match -> !isByeMatch(match))
+        .map(match -> matchService.mapMatchToSummaryDto(match, tournament)).toList();
   }
 
   /**
@@ -173,8 +163,8 @@ public class TournamentService {
   }
 
   /**
-   * Periodically updates tournament statuses.
-   * Runs every 60 seconds to synchronize database state with the current time.
+   * Periodically updates tournament statuses. Runs every 60 seconds to synchronize database state
+   * with the current time.
    */
   @Scheduled(initialDelay = 5000, fixedDelay = 60000)
   @Transactional
@@ -224,23 +214,23 @@ public class TournamentService {
       case REGISTRATION_OPEN -> {
         if (!t.getRegistrationDeadline().isAfter(now)) {
           yield (t.getRegistrationsNumber() < 2)
-              ? TournamentStatus.CANCELLED
-              : TournamentStatus.REGISTRATION_CLOSED;
+            ? TournamentStatus.CANCELLED
+            : TournamentStatus.REGISTRATION_CLOSED;
         }
         yield status;
       }
       // cancel tournament if it's not planned and the startDate arrives
       case REGISTRATION_CLOSED -> (!t.getStartDate().isAfter(today))
-          ? TournamentStatus.CANCELLED
-          : status;
+        ? TournamentStatus.CANCELLED
+        : status;
       // start tournament if its planned and startDate arrives
       case PLANNED -> (!t.getStartDate().isAfter(today))
-          ? TournamentStatus.IN_PROGRESS
-          : status;
+        ? TournamentStatus.IN_PROGRESS
+        : status;
       // finish tournament if endDate arrives
       case IN_PROGRESS -> (!t.getEndDate().isAfter(today))
-          ? TournamentStatus.DONE
-          : status;
+        ? TournamentStatus.DONE
+        : status;
       default -> status;
     };
   }
@@ -266,9 +256,9 @@ public class TournamentService {
         .and(TournamentSpecifications.hasMembersInMatches(membersIds));
 
     Sort sort = Sort.by(Sort.Direction.DESC, "startDate");
-    List<Tournament> filteredTournaments = tournamentRepository.findAll(spec, sort);
+    List<Tournament> tournaments = tournamentRepository.findAll(spec, sort);
 
-    return filteredTournaments.stream().map(this::mapToSummaryDto).toList();
+    return tournaments.stream().map(this::mapToSummaryDto).toList();
   }
 
   /**

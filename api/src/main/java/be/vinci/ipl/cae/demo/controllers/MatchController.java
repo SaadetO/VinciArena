@@ -1,8 +1,10 @@
 package be.vinci.ipl.cae.demo.controllers;
 
+import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.MemberSummaryDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.services.MatchService;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
@@ -12,11 +14,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Match Controller.
+ * Controller handling match-related endpoints.
  */
 @RestController
 @RequestMapping("/matches")
@@ -25,37 +28,33 @@ public class MatchController {
   private final MatchService matchService;
 
   /**
-   * Match controller constructor. initializes match service
+   * Constructor for MatchController.
    *
-   * @param matchService matchservice
+   * @param matchService the injected MatchService
    */
   public MatchController(MatchService matchService) {
     this.matchService = matchService;
   }
 
   /**
-   * Fetches available members for a match.(manager use only.
+   * Retrieves matches for a team and member, filtered by search query.
    *
-   * @param matchId       match id
-   * @param currentMember the manager sending the request
-   * @return set of members
+   * @param teamId the id of the team
+   * @param memberId the id of the member
+   * @param searchQuery the search query
+   * @return the matches
    */
-  @GetMapping("/{matchId}/available-members")
-  @PreAuthorize("isAuthenticated()") // Or your specific manager check
-  public Set<MemberSummaryDto> getAvailableMembers(
-      @PathVariable Long matchId,
-      @AuthenticationPrincipal Member currentMember) {
-
-    return matchService.getAvailableMembersForMatch(matchId, currentMember).stream()
-        .map(MemberSummaryDto::fromEntity)
-        .collect(Collectors.toSet());
+  @GetMapping({"", "/"})
+  public List<MatchSummaryDto> getMatches(@RequestParam(required = false) Long teamId,
+      @RequestParam(required = false) Long memberId,
+      @RequestParam(required = false) String searchQuery) {
+    return matchService.getMatches(teamId, memberId, searchQuery);
   }
-
 
   /**
    * Confirms the result of a match.
    *
-   * @param id    the id of the match
+   * @param id the id of the match
    * @param email the authenticated user's email
    */
   @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -67,7 +66,7 @@ public class MatchController {
   /**
    * Contests the result of a match.
    *
-   * @param id    the id of the match
+   * @param id the id of the match
    * @param email the authenticated user's email
    */
   @PatchMapping("/{id}/contest")
@@ -75,4 +74,21 @@ public class MatchController {
   public void contestMatchResult(@PathVariable Long id, @AuthenticationPrincipal String email) {
     matchService.contestResult(id, email);
   }
+
+  /**
+   * Fetches available members for a match.(manager use only.
+   *
+   * @param matchId match id
+   * @param currentMember the manager sending the request
+   * @return set of members
+   */
+  @GetMapping("/{matchId}/available-members")
+  @PreAuthorize("isAuthenticated()") // Or your specific manager check
+  public Set<MemberSummaryDto> getAvailableMembers(@PathVariable Long matchId,
+      @AuthenticationPrincipal Member currentMember) {
+
+    return matchService.getAvailableMembersForMatch(matchId, currentMember).stream()
+        .map(MemberSummaryDto::fromEntity).collect(Collectors.toSet());
+  }
+
 }

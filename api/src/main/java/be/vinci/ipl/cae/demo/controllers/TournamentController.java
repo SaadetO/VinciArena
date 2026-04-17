@@ -54,7 +54,7 @@ public class TournamentController {
    * @param statuses a list of statuses to filter by (OR filter)
    * @param teamsIds a list of team IDs to filter tournaments by (OR filter).
    * @param membersIds a list of member IDs whose teams filter the tournaments (OR filter).
-   * @param search a search query to match
+   * @param searchQuery a search query to match
    * @return the list of tournaments.
    */
   @GetMapping({"", "/"})
@@ -62,10 +62,10 @@ public class TournamentController {
       @RequestParam(required = false) List<TournamentStatus> statuses,
       @RequestParam(required = false) List<Long> teamsIds,
       @RequestParam(required = false) List<Long> membersIds,
-      @RequestParam(required = false) String search,
+      @RequestParam(required = false) String searchQuery,
       @RequestParam(required = false) LocalDate minDate,
       @RequestParam(required = false) LocalDate maxDate) {
-    return tournamentService.getTournaments(statuses, teamsIds, membersIds, search, minDate,
+    return tournamentService.getTournaments(statuses, teamsIds, membersIds, searchQuery, minDate,
         maxDate);
   }
 

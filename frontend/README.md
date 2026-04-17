@@ -23,17 +23,17 @@ A modern, dark-themed tournament management application built with **React**, **
 
 ## Tech Stack
 
-| Category           | Technology                                                    |
-| ------------------ | ------------------------------------------------------------- |
-| **Framework**      | [React 18](https://react.dev/)                                |
-| **Language**       | [TypeScript 5](https://www.typescriptlang.org/)               |
-| **Build Tool**     | [Vite 5](https://vitejs.dev/)                                 |
-| **UI Library**     | [MUI (Material UI) 6](https://mui.com/)                       |
-| **Icons**          | [Gravity UI Icons](https://gravity-ui.com/icons)              |
-| **Date Handling**  | [Day.js](https://day.js.org/) + MUI X Date Pickers            |
-| **Routing**        | [React Router 6](https://reactrouter.com/)                    |
-| **Testing**        | [Vitest](https://vitest.dev/) + React Testing Library + jsdom |
-| **Linting**        | ESLint (Google config) + Prettier                             |
+| Category          | Technology                                                    |
+| ----------------- | ------------------------------------------------------------- |
+| **Framework**     | [React 18](https://react.dev/)                                |
+| **Language**      | [TypeScript 5](https://www.typescriptlang.org/)               |
+| **Build Tool**    | [Vite 5](https://vitejs.dev/)                                 |
+| **UI Library**    | [MUI (Material UI) 6](https://mui.com/)                       |
+| **Icons**         | [Gravity UI Icons](https://gravity-ui.com/icons)              |
+| **Date Handling** | [Day.js](https://day.js.org/) + MUI X Date Pickers            |
+| **Routing**       | [React Router 6](https://reactrouter.com/)                    |
+| **Testing**       | [Vitest](https://vitest.dev/) + React Testing Library + jsdom |
+| **Linting**       | ESLint (Google config) + Prettier                             |
 
 ---
 
@@ -65,16 +65,16 @@ The app will be available at **`http://localhost:5173`** by default.
 
 ## Available Scripts
 
-| Command              | Description                                               |
-| -------------------- | --------------------------------------------------------- |
-| `npm run dev`        | Start the Vite dev server with HMR                        |
-| `npm run build`      | Type-check with `tsc` and build for production            |
-| `npm run preview`    | Preview the production build locally                      |
-| `npm run test`       | Run unit tests with Vitest (watch mode)                   |
-| `npm run coverage`   | Run tests and generate a coverage report                  |
-| `npm run lint`       | Run ESLint across the codebase                            |
-| `npm run format`     | Format all files with Prettier                            |
-| `npm run check`      | Run Prettier, ESLint, and Vitest sequentially             |
+| Command            | Description                                    |
+| ------------------ | ---------------------------------------------- |
+| `npm run dev`      | Start the Vite dev server with HMR             |
+| `npm run build`    | Type-check with `tsc` and build for production |
+| `npm run preview`  | Preview the production build locally           |
+| `npm run test`     | Run unit tests with Vitest (watch mode)        |
+| `npm run coverage` | Run tests and generate a coverage report       |
+| `npm run lint`     | Run ESLint across the codebase                 |
+| `npm run format`   | Format all files with Prettier                 |
+| `npm run check`    | Run Prettier, ESLint, and Vitest sequentially  |
 
 ---
 
@@ -151,7 +151,7 @@ openModal({
 });
 ```
 
-A companion `ModalControllerContext` allows modal *content* components to control the modal's loading state, disabled state, and error messages from within.
+A companion `ModalControllerContext` allows modal _content_ components to control the modal's loading state, disabled state, and error messages from within.
 
 ### Snackbar Notifications
 
@@ -174,11 +174,18 @@ All data mutations and queries go through the `useApi` hook, which provides:
 
 ```tsx
 const { loading, execute } = useApi(
-  (data) => fetch('/api/tournaments', { method: 'POST', body: JSON.stringify(data) }),
+  (data) =>
+    fetch('/api/tournaments', { method: 'POST', body: JSON.stringify(data) }),
   {
-    onOptimism: (data) => { /* instant UI update */ },
-    onSuccess: (result) => { /* confirm with server data */ },
-    onRollback: () => { /* revert on failure */ },
+    onOptimism: (data) => {
+      /* instant UI update */
+    },
+    onSuccess: (result) => {
+      /* confirm with server data */
+    },
+    onRollback: () => {
+      /* revert on failure */
+    },
     onError: (err) => showSnackbar({ message: err.message, severity: 'error' }),
   },
 );
@@ -196,24 +203,24 @@ LocalizationProvider → ThemeProvider → SnackbarProvider → ModalContextProv
 
 ## Custom Hooks
 
-| Hook                   | Purpose                                              |
-| ---------------------- | ---------------------------------------------------- |
-| `useApi`               | Generic async operation wrapper with optimistic UI   |
-| `useModal`             | Open/close the global confirmation modal             |
-| `useModalController`   | Control modal state (loading, disabled, error) from content |
-| `useSnackbar`          | Show toast notifications                             |
-| `useUser`              | Access authenticated user context                    |
-| `useTournaments`       | Tournament CRUD, filtering, and grouping             |
-| `useTournamentModal`   | Tournament-specific modal state                      |
-| `useTeams`             | Team CRUD and search                                 |
-| `useMembers`           | Member management (promote, ban, etc.)               |
-| `useJoinRequests`      | Team join request handling                           |
-| `useNotifications`     | Notification fetching and read state                 |
-| `useUnavailabilities`  | User availability/unavailability management          |
-| `useSpecialties`       | Fetch user specialties                               |
-| `useProfilePictures`   | Fetch available profile pictures                     |
-| `useMenuDisclosure`    | Anchor-based menu open/close state                   |
-| `useScrollIndicator`   | Track scroll position for fade indicators            |
+| Hook                  | Purpose                                                     |
+| --------------------- | ----------------------------------------------------------- |
+| `useApi`              | Generic async operation wrapper with optimistic UI          |
+| `useModal`            | Open/close the global confirmation modal                    |
+| `useModalController`  | Control modal state (loading, disabled, error) from content |
+| `useSnackbar`         | Show toast notifications                                    |
+| `useUser`             | Access authenticated user context                           |
+| `useTournaments`      | Tournament CRUD, filtering, and grouping                    |
+| `useTournamentModal`  | Tournament-specific modal state                             |
+| `useTeams`            | Team CRUD and search                                        |
+| `useMembers`          | Member management (promote, ban, etc.)                      |
+| `useJoinRequests`     | Team join request handling                                  |
+| `useNotifications`    | Notification fetching and read state                        |
+| `useUnavailabilities` | User availability/unavailability management                 |
+| `useSpecialties`      | Fetch user specialties                                      |
+| `useProfilePictures`  | Fetch available profile pictures                            |
+| `useMenuDisclosure`   | Anchor-based menu open/close state                          |
+| `useScrollIndicator`  | Track scroll position for fade indicators                   |
 
 ---
 
@@ -243,6 +250,7 @@ npm run coverage
 ```
 
 Test files live in `src/tests/` and cover:
+
 - Custom hooks (`useApi`, `useTeams`, `useTournaments`, `useMembers`, etc.)
 - Context providers (`ModalContext`, `SnackbarContext`, `UserContext`, `NotificationContext`)
 - Component behavior (`CreateTeamModalContent`)
@@ -251,12 +259,12 @@ Test files live in `src/tests/` and cover:
 
 ## Code Quality
 
-| Tool          | Config File     | Purpose                                      |
-| ------------- | --------------- | -------------------------------------------- |
-| **ESLint**    | `.eslintrc.cjs` | Linting with Google + TypeScript + React rules |
-| **Prettier**  | `.prettierrc`   | Code formatting (single quotes, trailing commas, 80 char width) |
-| **TypeScript**| `tsconfig.json` | Strict type checking                         |
-| **vite-plugin-checker** | `vite.config.ts` | Real-time TypeScript checking during dev |
+| Tool                    | Config File      | Purpose                                                         |
+| ----------------------- | ---------------- | --------------------------------------------------------------- |
+| **ESLint**              | `.eslintrc.cjs`  | Linting with Google + TypeScript + React rules                  |
+| **Prettier**            | `.prettierrc`    | Code formatting (single quotes, trailing commas, 80 char width) |
+| **TypeScript**          | `tsconfig.json`  | Strict type checking                                            |
+| **vite-plugin-checker** | `vite.config.ts` | Real-time TypeScript checking during dev                        |
 
 ---
 

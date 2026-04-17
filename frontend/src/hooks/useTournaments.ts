@@ -1,9 +1,9 @@
 import { useSnackbar } from './useSnackbar';
 import { useApi } from './useApi';
-import { Dispatch, SetStateAction, useContext } from 'react';
-import { UserContext } from '../contexts/UserContext';
+import { Dispatch, SetStateAction } from 'react';
 import { ApiError, TournamentDetailsInfoDto, TournamentDto } from '../types';
 import { useNavigate } from 'react-router-dom';
+import { useUser } from './useUser';
 
 interface UseTournamentOptions {
   setTournaments?: (tournaments: TournamentDto[]) => void;
@@ -20,10 +20,10 @@ interface UseTournamentOptions {
 }
 
 export const useTournament = (config: UseTournamentOptions) => {
-  const { setTournaments, setTournament, setError, onError, onSuccess } =
+  const { setTournaments, setTournament, setError, onSuccess, onError } =
     config;
   const { showSnackbar } = useSnackbar();
-  const { authenticatedUser } = useContext(UserContext);
+  const { authenticatedUser } = useUser();
   const navigate = useNavigate();
 
   const { execute: getAll, loading: isGettingTournaments } = useApi(
@@ -48,12 +48,17 @@ export const useTournament = (config: UseTournamentOptions) => {
       if (members && members.length > 0)
         params.append('membersIds', members.join(','));
       if (teams && teams.length > 0) params.append('teamsIds', teams.join(','));
-      if (searchQuery) params.append('search', searchQuery);
+      if (searchQuery) params.append('searchQuery', searchQuery);
       if (minDate) params.append('minDate', minDate);
       if (maxDate) params.append('maxDate', maxDate);
 
+      console.log(
+        'fetching tournaments',
+        `/api/tournaments/${params.size > 0 ? '?' : ''}${params.toString()}`,
+      );
+
       const response = await fetch(
-        `/api/tournaments${params.size > 0 ? '?' : ''}${params.toString()}`,
+        `/api/tournaments/${params.size > 0 ? '?' : ''}${params.toString()}`,
       );
       if (!response.ok) {
         throw new ApiError(
@@ -66,10 +71,8 @@ export const useTournament = (config: UseTournamentOptions) => {
     {
       onSuccess: (data) => {
         setTournaments?.(data);
-        config.onSuccess?.(data);
       },
       onError: (err) => {
-        config.onError?.(err);
         showSnackbar({
           message:
             err instanceof ApiError
@@ -135,10 +138,10 @@ export const useTournament = (config: UseTournamentOptions) => {
     {
       onSuccess: (data) => {
         setTournament?.(data);
-        onSuccess?.(data);
         if (data.idTournament) {
           navigate(`/tournaments/${data.idTournament}`);
         }
+        onSuccess?.(data);
       },
       onError: (err) => {
         onError?.(err);

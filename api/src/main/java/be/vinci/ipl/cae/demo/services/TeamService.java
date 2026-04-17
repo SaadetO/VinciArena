@@ -45,10 +45,10 @@ public class TeamService {
   /**
    * Constructor.
    *
-   * @param teamRepository        the team repository
-   * @param memberRepository      the member repository
+   * @param teamRepository the team repository
+   * @param memberRepository the member repository
    * @param joinRequestRepository the join-request repository
-   * @param memberService         the member service
+   * @param memberService the member service
    */
   public TeamService(TeamRepository teamRepository, MemberRepository memberRepository,
       JoinRequestRepository joinRequestRepository, MemberService memberService) {
@@ -135,8 +135,8 @@ public class TeamService {
    * @return true is member is a manager1; false otherwise
    */
   public boolean isManager1(Team team, Member member) {
-    return team.getManager1() != null && team.getManager1().getIdMember()
-        .equals(member.getIdMember());
+    return team.getManager1() != null
+        && team.getManager1().getIdMember().equals(member.getIdMember());
   }
 
   /**
@@ -147,8 +147,8 @@ public class TeamService {
    * @return true is member is a manager2; false otherwise
    */
   public boolean isManager2(Team team, Member member) {
-    return team.getManager2() != null && team.getManager2().getIdMember()
-        .equals(member.getIdMember());
+    return team.getManager2() != null
+        && team.getManager2().getIdMember().equals(member.getIdMember());
   }
 
   /**
@@ -242,8 +242,7 @@ public class TeamService {
   @Transactional
   public void quitTeam(Member currentMember) {
     if (currentMember.getTeam() == null) {
-      throw new UserNotInTeamException(
-          "L'utilisateur ne fait pas partie de la Team.");
+      throw new UserNotInTeamException("L'utilisateur ne fait pas partie de la Team.");
     }
 
     Team team = getExistingTeam(currentMember.getTeam().getIdTeam());
@@ -382,7 +381,8 @@ public class TeamService {
       return new ArrayList<>();
     }
     return joinRequestRepository.findAllByRequestedTeamAndStatus(team, RequestStatus.PENDING)
-        .stream().map(jr -> JoinRequestDto.builder().idJoinRequest(jr.getIdJoinRequest())
+        .stream()
+        .map(jr -> JoinRequestDto.builder().idJoinRequest(jr.getIdJoinRequest())
             .idTeam(jr.getRequestedTeam().getIdTeam()).teamName(jr.getRequestedTeam().getName())
             .status(jr.getStatus()).expirationDate(jr.getExpirationDate())
             .requester(memberService.getUserSummary(jr.getMember())).build())
@@ -392,9 +392,9 @@ public class TeamService {
   /**
    * Replaces or removes a manager spot.
    *
-   * @param team           the team
+   * @param team the team
    * @param currentManager the manager being replaced or removed
-   * @param replacement    the new manager (or null to simply remove)
+   * @param replacement the new manager (or null to simply remove)
    */
   private void replaceOrRemoveManager(Team team, Member currentManager, Member replacement) {
     if (isManager1(team, currentManager)) {
