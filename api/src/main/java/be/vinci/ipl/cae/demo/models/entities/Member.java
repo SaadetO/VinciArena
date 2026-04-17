@@ -11,6 +11,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -56,4 +57,32 @@ public class Member {
 
   private boolean isDeleted;
 
+  @Override
+  public boolean equals(Object o) {
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Member member = (Member) o;
+    return Objects.equals(idMember, member.idMember);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(idMember);
+  }
+
+  /**
+   * Checks if this member is free given a list of their unavailabilities.
+   */
+  public boolean isFreeAt(LocalDateTime dateTime, Iterable<Unavailability> unavailabilities) {
+    for (Unavailability unavailability : unavailabilities) {
+      boolean startsBeforeOrAt = !dateTime.isBefore(unavailability.getStartDate());
+      boolean endsAfterOrAt = !dateTime.isAfter(unavailability.getEndDate());
+
+      if (startsBeforeOrAt && endsAfterOrAt) {
+        return false;
+      }
+    }
+    return true;
+  }
 }

@@ -41,7 +41,7 @@ public class TeamController {
   /**
    * Create a new team. The authenticated member becomes the team's manager.
    *
-   * @param newTeam the team creation request body.
+   * @param newTeam       the team creation request body.
    * @param currentMember the authenticated member.
    * @return the created team.
    */
@@ -71,7 +71,7 @@ public class TeamController {
   /**
    * Get team details.
    *
-   * @param id the team ID
+   * @param id            the team ID
    * @param currentMember the current member
    * @return the team details
    */
@@ -84,8 +84,8 @@ public class TeamController {
   /**
    * Designate a member as a manager of a team.
    *
-   * @param id the team ID
-   * @param idMember the member ID to designate
+   * @param id            the team ID
+   * @param idMember      the member ID to designate
    * @param currentMember the authenticated member
    * @return the updated team
    */
@@ -99,7 +99,7 @@ public class TeamController {
   /**
    * Allow a manager to resign from their role, optionally designating a replacement.
    *
-   * @param id the team ID
+   * @param id            the team ID
    * @param replacementId the ID of the replacement member (optional)
    * @param currentMember the authenticated member
    * @return the updated team

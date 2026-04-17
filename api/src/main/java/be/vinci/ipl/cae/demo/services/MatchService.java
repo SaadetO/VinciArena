@@ -1,6 +1,7 @@
 package be.vinci.ipl.cae.demo.services;
 
 import be.vinci.ipl.cae.demo.exceptions.AlreadyConfirmedException;
+import be.vinci.ipl.cae.demo.exceptions.ForbiddenException;
 import be.vinci.ipl.cae.demo.exceptions.MatchNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.MemberHasNoTeamException;
 import be.vinci.ipl.cae.demo.exceptions.ResultNotFoundException;
@@ -19,8 +20,11 @@ import be.vinci.ipl.cae.demo.repositories.MatchRepository;
 import be.vinci.ipl.cae.demo.repositories.MatchResultConfirmationRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.specifications.MatchSpecifications;
+import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -34,24 +38,62 @@ public class MatchService {
 
   private final MatchRepository matchRepository;
   private final MemberRepository memberRepository;
+  private final MemberService memberService;
   private final MatchLineupRepository matchLineupRepository;
   private final MatchResultConfirmationRepository matchResultConfirmationRepository;
+  private final TeamService teamService;
 
   /**
    * Constructor.
    *
+<<<<<<< api/src/main/java/be/vinci/ipl/cae/demo/services/MatchService.java
    * @param matchRepository the match repository
    * @param memberRepository the member repository
    * @param matchLineupRepository the match lineup repository
+=======
+   * @param matchRepository                   the match repository
+   * @param memberRepository                  the member repository
+   * @param matchLineupRepository             the match lineup repository
+>>>>>>> api/src/main/java/be/vinci/ipl/cae/demo/services/MatchService.java
    * @param matchResultConfirmationRepository the match result confirmation repository
    */
   public MatchService(MatchRepository matchRepository, MemberRepository memberRepository,
       MatchLineupRepository matchLineupRepository,
-      MatchResultConfirmationRepository matchResultConfirmationRepository) {
+      MemberService memberService,
+      MatchResultConfirmationRepository matchResultConfirmationRepository,
+      TeamService teamService) {
     this.matchRepository = matchRepository;
     this.memberRepository = memberRepository;
+    this.memberService = memberService;
     this.matchLineupRepository = matchLineupRepository;
     this.matchResultConfirmationRepository = matchResultConfirmationRepository;
+    this.teamService = teamService;
+  }
+
+  /**
+   * Returns the set of team members available at a specific time. Only accessible by managers.
+   *
+   */
+  public Set<Member> getAvailableMembersForMatch(Long matchId, Member currentMember) {
+
+    if (!teamService.isManager(currentMember.getTeam(), currentMember)) {
+      throw new ForbiddenException("Not a manager");
+    }
+
+    // Extract the date from the match directly
+    Match match = getMatch(matchId);
+
+    LocalDateTime dateTime = match.getDateHour();
+
+    // The rest of your logic remains the same
+    Team team = currentMember.getTeam();
+    Set<Member> availableMembers = new HashSet<>();
+    for (Member member : team.getMembers()) {
+      if (memberService.isMemberFreeAt(member, dateTime)) {
+        availableMembers.add(member);
+      }
+    }
+    return availableMembers;
   }
 
   /**
@@ -85,7 +127,8 @@ public class MatchService {
    */
   private Match getMatch(Long matchId) {
     return matchRepository.findById(matchId)
-        .orElseThrow(() -> new MatchNotFoundException("Match not found"));
+        .orElseThrow(() ->
+            new MatchNotFoundException("Match not found"));
   }
 
   /**
@@ -113,10 +156,10 @@ public class MatchService {
   /**
    * Checks if a user is allowed to confirm the result of a match.
    *
-   * @param match the match
+   * @param match  the match
    * @param member the member
    * @throws MemberHasNoTeamException if the user has no team
-   * @throws UserNotInMatchException if the user is not part of the match
+   * @throws UserNotInMatchException  if the user is not part of the match
    */
   private void validateUserCanConfirm(Match match, Member member) {
     if (member.getTeam() == null) {
@@ -137,10 +180,10 @@ public class MatchService {
   /**
    * Updates the confirmation status (confirm or contest) for the correct team.
    *
-   * @param match the match
-   * @param member the member
+   * @param match        the match
+   * @param member       the member
    * @param confirmation the confirmation entity
-   * @param status true for confirm, false for contest
+   * @param status       true for confirm, false for contest
    */
   private void updateConfirmationStatus(Match match, Member member,
       MatchResultConfirmation confirmation, boolean status) {
@@ -149,12 +192,14 @@ public class MatchService {
     boolean isTeam1 = match.getTeam1() != null && match.getTeam1().getIdTeam().equals(teamId);
 
     if (isTeam1) {
+
       if (confirmation.getConfirmationTeam1() != null) {
         throw new AlreadyConfirmedException("Already confirmed or contested");
       }
 
       confirmation.setConfirmationTeam1(status);
     } else {
+
       if (confirmation.getConfirmationTeam2() != null) {
         throw new AlreadyConfirmedException("Already confirmed or contested");
       }
@@ -179,7 +224,7 @@ public class MatchService {
    * Confirms the result of a match for the authenticated user.
    *
    * @param matchId the id of the match
-   * @param email the email of the authenticated user
+   * @param email   the email of the authenticated user
    */
   public void confirmResult(Long matchId, String email) {
     handleMatchResult(matchId, email, true);
@@ -189,7 +234,7 @@ public class MatchService {
    * Contests the result of a match for the authenticated user.
    *
    * @param matchId the id of the match
-   * @param email the email of the authenticated user
+   * @param email   the email of the authenticated user
    */
   public void contestResult(Long matchId, String email) {
     handleMatchResult(matchId, email, false);
@@ -198,7 +243,7 @@ public class MatchService {
   /**
    * Maps a match to a summary dto.
    *
-   * @param match the match
+   * @param match      the match
    * @param tournament the tournament
    * @return the summary dto
    */
@@ -222,7 +267,7 @@ public class MatchService {
   /**
    * Create a match team dto.
    *
-   * @param team the team
+   * @param team    the team
    * @param lineups the lineups
    * @return the match team dto
    */
