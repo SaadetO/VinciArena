@@ -1,20 +1,12 @@
 import { useEffect, useState } from 'react';
-import {
-  Checkbox,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
-  CircularProgress,
-  Stack,
-} from '@mui/material';
+import { List, CircularProgress, Stack, Typography, Box } from '@mui/material';
 import { MemberSummaryDto } from '../../../types';
 import { useMatches } from '../../../hooks/useMatches';
+import { PlayerItem } from './components/PlayerItem';
 
 interface LineupModalProps {
   matchId: number;
   teamId: number;
-  // This callback allows the modal's "Confirm" button to get the final list
   onSelectionChange: (ids: number[]) => void;
 }
 
@@ -29,10 +21,12 @@ export const LineupModal = ({
 
   const { getLineup, getAvailableMembers } = useMatches();
 
+  // 1. Calculate this on the fly so it's always accurate
+  const remainingPlaces = Math.max(0, 4 - selectedIds.length);
+
   useEffect(() => {
     const loadData = async () => {
       try {
-        // Use the logic from your hook instead of raw fetch
         const [members, lineup] = await Promise.all([
           getAvailableMembers({ matchId }),
           getLineup({ matchId, teamId }),
@@ -45,22 +39,23 @@ export const LineupModal = ({
           onSelectionChange(initialIds);
         }
       } catch (err) {
-        // The hook's onError handles the controller state,
-        // but we catch here to stop the loading spinner
+        console.error(err);
       } finally {
         setLoading(false);
       }
     };
     loadData();
-  }, [matchId, teamId]);
+  }, [getAvailableMembers, getLineup, matchId, onSelectionChange, teamId]);
 
   const handleToggle = (id: number) => {
-    const newSelection = selectedIds.includes(id)
-      ? selectedIds.filter((i) => i !== id)
-      : [...selectedIds, id];
+    const isAlreadySelected = selectedIds.includes(id);
+
+    const newSelection = isAlreadySelected
+      ? selectedIds.filter((selectedId: number) => selectedId !== id) // Remove
+      : [...selectedIds, id]; // Add
 
     setSelectedIds(newSelection);
-    onSelectionChange(newSelection); // Keep the parent (Modal) in sync
+    onSelectionChange(newSelection);
   };
 
   if (loading)
@@ -71,20 +66,37 @@ export const LineupModal = ({
     );
 
   return (
-    <List>
-      {allMembers.map((member) => (
-        <ListItem key={member.id} disablePadding>
-          <ListItemButton onClick={() => handleToggle(member.id)} dense>
-            <Checkbox
-              edge="start"
-              checked={selectedIds.includes(member.id)}
-              tabIndex={-1}
-              disableRipple
-            />
-            <ListItemText primary={member.tag} />
-          </ListItemButton>
-        </ListItem>
-      ))}
-    </List>
+    <Box>
+      <Box
+        sx={{
+          position: 'sticky',
+          top: '-8px',
+          bgcolor: 'background.paper',
+          zIndex: 10,
+          pb: 2,
+        }}
+      >
+        <Typography
+          variant="body2"
+          textAlign="center"
+          color={remainingPlaces > 0 ? 'secondary' : 'success.main'}
+        >
+          {remainingPlaces > 0
+            ? `Il vous reste ${remainingPlaces} place${remainingPlaces > 1 ? 's' : ''} à définir`
+            : `Votre équipe est prête !`}
+        </Typography>
+      </Box>
+
+      <List sx={{ pt: 1 }}>
+        {allMembers.map((member: MemberSummaryDto) => (
+          <PlayerItem
+            key={member.id}
+            player={member}
+            isSelected={selectedIds.includes(member.id)}
+            onToggle={() => handleToggle(member.id)}
+          />
+        ))}
+      </List>
+    </Box>
   );
 };

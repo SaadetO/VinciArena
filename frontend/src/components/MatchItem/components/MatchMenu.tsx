@@ -53,7 +53,7 @@ export const MatchMenu = ({ match }: MatchMenuProps) => {
     handleClose(); //  close match menu first
     openModal({
       title: 'Modifier la composition',
-      subtitle: `Les membres disponibles:}`,
+      subtitle: '',
       children: (
         <LineupModal
           matchId={match.idMatch}
@@ -71,6 +71,7 @@ export const MatchMenu = ({ match }: MatchMenuProps) => {
           closeModal,
         });
       },
+      onCancel: (close) => close(),
     });
   };
   return (
