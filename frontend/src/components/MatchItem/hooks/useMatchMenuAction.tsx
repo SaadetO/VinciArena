@@ -1,12 +1,7 @@
 import { useSnackbar } from '../../../hooks/useSnackbar';
-
 export const useMatchMenuAction = () => {
   const { showSnackbar } = useSnackbar();
-
   const handleForfeit = () => {};
-
-  const handleEditComposition = () => {};
-
   const handleContestScore = async (matchId: number) => {
     try {
       const response = await fetch(`/api/matches/${matchId}/contest`, {
@@ -67,7 +62,6 @@ export const useMatchMenuAction = () => {
 
   return {
     handleForfeit,
-    handleEditComposition,
     handleContestScore,
     handleConfirmScore,
     handleEncodeScore,

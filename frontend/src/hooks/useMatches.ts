@@ -3,6 +3,7 @@ import { ApiError, MatchLineupDto, MatchSummaryDto } from '../types';
 import { useApi } from './useApi';
 import { useSnackbar } from './useSnackbar';
 import { useModalController } from './useModalController';
+import { getAuthenticatedUser } from '../utils/session';
 
 interface UseMatchesOptions {
   setMatches?: Dispatch<SetStateAction<MatchSummaryDto[]>>;
@@ -70,16 +71,19 @@ export const useMatches = (config?: UseMatchesOptions) => {
     }) => {
       setLoading(true);
 
-      const response = await fetch(`/api/matches/${matchId}/lineup`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch(`/api/lineups/match/${matchId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: getAuthenticatedUser()?.token ?? '',
+        },
         body: JSON.stringify({ playerIds }),
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new ApiError(
-          errorData.message || "Échec de la mise à jour de l'alignement",
+          errorData.message || 'Échec de la mise à jour de la composition',
           response.status,
         );
       }
@@ -125,6 +129,12 @@ export const useMatches = (config?: UseMatchesOptions) => {
       async ({ matchId }: { matchId: number }) => {
         const response = await fetch(
           `/api/matches/${matchId}/available-members`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: getAuthenticatedUser()?.token ?? '',
+            },
+          },
         );
         if (!response.ok) {
           throw new ApiError(
@@ -144,6 +154,34 @@ export const useMatches = (config?: UseMatchesOptions) => {
         },
       },
     );
+  const { execute: getLineup, loading: isGettingLineup } = useApi(
+    async ({ matchId, teamId }: { matchId: number; teamId: number }) => {
+      const response = await fetch(
+        `/api/lineups/matches/${matchId}/teams/${teamId}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: getAuthenticatedUser()?.token ?? '',
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new ApiError(
+          'Impossible de récupérer la composition actuelle',
+          response.status,
+        );
+      }
+      return response.json();
+    },
+    {
+      onError: (err) => {
+        setError(
+          err instanceof ApiError ? err.message : 'Erreur de composition',
+        );
+      },
+    },
+  );
 
   return {
     getAll,
@@ -152,5 +190,7 @@ export const useMatches = (config?: UseMatchesOptions) => {
     isUpdatingLineup,
     getAvailableMembers,
     isGettingAvailableMembers,
+    getLineup,
+    isGettingLineup,
   };
 };

@@ -69,7 +69,7 @@ Content-Type: application/json
 ### Case 1: Manager gets available members for a match
 # SENDER: Lea (Manager of Team Alpha)
 # EXPECTED: 200 OK + List of free members from Team Alpha
-GET {{baseUrl}}/matches/1/available-members
+GET {{baseUrl}}/matches/5/available-members
 Authorization: {{auth_token}}
 
 
@@ -84,5 +84,10 @@ Authorization: {{auth_token}}
 ### Case 3: Unauthorized (No Token)
 # EXPECTED: 401 Unauthorized
 GET {{baseUrl}}/matches/1/available-members
+
+###
+#
+GET {{baseUrl}}/lineups/matches/1/teams/1
+Authorization: {{auth_token}}
 
 

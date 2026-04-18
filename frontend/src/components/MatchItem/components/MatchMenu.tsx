@@ -10,12 +10,21 @@ import {
 } from '@gravity-ui/icons';
 import { MatchSummaryDto } from '../../../types';
 import { useMatchMenu } from '../hooks/useMatchMenu';
+import { LineupModal } from '../modals/LineupModal';
+import { useModal } from '../../../hooks/useModal';
+import { useMatches } from '../../../hooks/useMatches';
+import { useContext, useRef } from 'react';
+import { UserContext } from '../../../contexts/UserContext';
 
 interface MatchMenuProps {
   match: MatchSummaryDto;
 }
 
 export const MatchMenu = ({ match }: MatchMenuProps) => {
+  const { openModal } = useModal();
+  const { updateLineup } = useMatches();
+  const { authenticatedUser } = useContext(UserContext);
+  const selectedIdsRef = useRef<number[]>([]);
   const {
     theme,
     anchorEl,
@@ -32,7 +41,6 @@ export const MatchMenu = ({ match }: MatchMenuProps) => {
     needsDividerAfterScores,
     displayMenu,
     handleForfeit,
-    handleEditComposition,
     handleContestScore,
     handleConfirmScore,
     handleEncodeScore,
@@ -41,6 +49,30 @@ export const MatchMenu = ({ match }: MatchMenuProps) => {
 
   if (!displayMenu) return null;
 
+  const onEditComposition = () => {
+    handleClose(); //  close match menu first
+    openModal({
+      title: 'Modifier la composition',
+      subtitle: `Les membres disponibles:}`,
+      children: (
+        <LineupModal
+          matchId={match.idMatch}
+          // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+          teamId={authenticatedUser?.managedTeamId!}
+          onSelectionChange={(ids) => {
+            selectedIdsRef.current = ids;
+          }}
+        />
+      ),
+      onConfirm: (closeModal: () => void) => {
+        updateLineup({
+          matchId: match.idMatch,
+          playerIds: selectedIdsRef.current,
+          closeModal,
+        });
+      },
+    });
+  };
   return (
     <>
       <IconButton size="small" onClick={handleClick}>
@@ -88,7 +120,7 @@ export const MatchMenu = ({ match }: MatchMenuProps) => {
             {showEditComposition && (
               <MenuItem
                 onClick={() => {
-                  handleEditComposition();
+                  onEditComposition();
                   handleClose();
                 }}
               >

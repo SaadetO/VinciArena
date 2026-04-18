@@ -37,4 +37,6 @@ public interface TeamRepository extends CrudRepository<Team, Long>, JpaSpecifica
    * @return the found {@link Team} entity, or null if no team exists with that name
    */
   Team findByName(String name);
+
+  Team findTeamByIdTeam(Long teamId);
 }

@@ -79,4 +79,11 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", ex.getMessage()));
   }
 
+  @ExceptionHandler(PrivateLineupException.class) // The "Trigger"
+  public ResponseEntity<String> handlePrivateLineup(PrivateLineupException ex) {
+    return ResponseEntity
+        .status(HttpStatus.FORBIDDEN) // The "Code" (403)
+        .body(ex.getMessage());       // The "Message"
+  }
+
 }

@@ -67,4 +67,12 @@ public class Match {
   @OneToMany(mappedBy = "match")
   private List<MatchLineup> lineups = new ArrayList<>();
 
+  /**
+   * tell match date has passed.
+   *
+   * @return boolean
+   */
+  public boolean wasPlayed() {
+    return dateHour != null && dateHour.isBefore(LocalDateTime.now());
+  }
 }
