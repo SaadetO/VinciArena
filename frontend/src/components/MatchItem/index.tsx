@@ -7,9 +7,10 @@ import { MatchMenu } from './components/MatchMenu';
 
 interface MatchItemProps {
   match: MatchSummaryDto;
+  refetch: () => void;
 }
 
-export const MatchItem = ({ match }: MatchItemProps) => {
+export const MatchItem = ({ match, refetch }: MatchItemProps) => {
   return (
     <Stack
       bgcolor="background.s2"
@@ -37,7 +38,7 @@ export const MatchItem = ({ match }: MatchItemProps) => {
           alignItems="center"
           justifyContent="flex-end"
         >
-          <MatchMenu match={match} />
+          <MatchMenu match={match} refetch={refetch} />
         </Grid2>
       </Grid2>
       <Stack

@@ -278,6 +278,13 @@ interface TournamentMatchFilters {
   searchQuery: string;
 }
 
+interface ConfirmOrContestMatchParams {
+  id: number;
+  isTeam1: boolean;
+  isConfirming: boolean;
+  previousMatch: MatchSummaryDto;
+}
+
 export type {
   MainContext,
   User,
@@ -309,4 +316,5 @@ export type {
   MemberFilters,
   HomePageContextType,
   TournamentMatchFilters,
+  ConfirmOrContestMatchParams,
 };

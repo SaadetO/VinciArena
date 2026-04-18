@@ -1,66 +1,19 @@
-import { useSnackbar } from '../../../hooks/useSnackbar';
-import { useUser } from '../../../hooks/useUser';
+import { useMatches } from '../../../hooks/useMatches';
+import { ConfirmOrContestMatchParams } from '../../../types';
 
-export const useMatchMenuAction = () => {
-  const { showSnackbar } = useSnackbar();
-  const { authenticatedUser } = useUser();
+export const useMatchMenuAction = ({ refetch }: { refetch: () => void }) => {
+  const { confirmOrContestMatch } = useMatches({ refetch });
 
   const handleForfeit = () => {};
 
   const handleEditComposition = () => {};
 
-  const handleConfirmScore = async (matchId: number) => {
-    try {
-      const response = await fetch(`/api/matches/${matchId}/confirm`, {
-        method: 'PATCH',
-        headers: {
-          Authorization: authenticatedUser?.token ?? '',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error();
-      }
-
-      showSnackbar({
-        message: 'Résultat confirmé !',
-        severity: 'success',
-      });
-
-      window.location.reload();
-    } catch (error) {
-      showSnackbar({
-        message: 'Erreur lors de la confirmation',
-        severity: 'error',
-      });
-    }
+  const handleConfirmScore = async (params: ConfirmOrContestMatchParams) => {
+    await confirmOrContestMatch(params);
   };
 
-  const handleContestScore = async (matchId: number) => {
-    try {
-      const response = await fetch(`/api/matches/${matchId}/contest`, {
-        method: 'PATCH',
-        headers: {
-          Authorization: authenticatedUser?.token ?? '',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error();
-      }
-
-      showSnackbar({
-        message: 'Résultat contesté !',
-        severity: 'success',
-      });
-
-      window.location.reload();
-    } catch (error) {
-      showSnackbar({
-        message: 'Erreur lors de la contestation',
-        severity: 'error',
-      });
-    }
+  const handleContestScore = async (params: ConfirmOrContestMatchParams) => {
+    await confirmOrContestMatch(params);
   };
 
   const handleEncodeScore = () => {};

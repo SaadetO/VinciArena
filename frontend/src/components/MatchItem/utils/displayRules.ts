@@ -53,28 +53,28 @@ export const getMenuSectionDisplay = ({
 
   const isPlanned = match.status === 'PLANNED';
   const isPlayed = match.status === 'PLAYED';
+  const isForfeit = match.status === 'FORFEIT';
   const matchDatePassed = dayjs(match.dateHour).isBefore(dayjs());
 
   const bothTeamsKnown = match.team1 != null && match.team2 != null;
-  const bothScoresKnown =
-    match.team1?.score != null && match.team2?.score != null;
-  const showForfeit = isManagerOfParticipant && isPlanned && bothTeamsKnown;
+  // const bothScoresKnown =
+  //   match.team1?.score != null && match.team2?.score != null;
+  const showForfeit =
+    isPlanned && !isForfeit && isManagerOfParticipant && bothTeamsKnown;
 
   const showEditComposition =
     isManagerOfParticipant && isPlanned && !matchDatePassed;
   const showTeamSection = showForfeit || showEditComposition;
 
   const showScoresSection =
-    bothScoresKnown &&
     isManagerOfParticipant &&
     isPlayed &&
     !managedTeamScoresHaveBeenConfirmedOrContested;
 
-  const showAdminEncode =
-    !bothScoresKnown && isAdmin && isPlanned && matchDatePassed;
+  const showAdminEncode = isAdmin && isPlanned && matchDatePassed;
 
   const showAdminModify =
-    bothScoresKnown && isAdmin && isPlayed && !bothTeamsScoresHaveBeenConfirmed;
+    isAdmin && isPlayed && !bothTeamsScoresHaveBeenConfirmed;
   const showAdminSection = showAdminEncode || showAdminModify;
 
   const visibleSections = [

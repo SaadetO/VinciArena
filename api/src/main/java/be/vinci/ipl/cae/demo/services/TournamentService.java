@@ -598,7 +598,6 @@ public class TournamentService {
     MatchLineup lineup = new MatchLineup();
     lineup.setMatch(match);
     lineup.setTeam(team);
-    lineup.setScore(0);
     lineup.setWinner(false);
     lineup.setHasForfeited(false);
     lineup.setHasConfirmedResults(null);

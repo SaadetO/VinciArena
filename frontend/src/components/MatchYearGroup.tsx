@@ -6,12 +6,14 @@ interface MatchYearGroupProps {
   year: string;
   daysData: DayGroup[];
   yearTop?: string;
+  refetch: () => void;
 }
 
 export const MatchYearGroup = ({
   year,
   daysData,
   yearTop = '0.5rem',
+  refetch,
 }: MatchYearGroupProps) => {
   return (
     <Stack spacing="1rem">
@@ -35,6 +37,7 @@ export const MatchYearGroup = ({
           key={dayData.dateKey}
           day={dayData.day}
           matches={dayData.matches}
+          refetch={refetch}
         />
       ))}
     </Stack>

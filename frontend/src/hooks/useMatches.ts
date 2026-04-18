@@ -1,16 +1,22 @@
 import { Dispatch, SetStateAction } from 'react';
-import { ApiError, MatchSummaryDto } from '../types';
+import {
+  ApiError,
+  ConfirmOrContestMatchParams,
+  MatchSummaryDto,
+} from '../types';
 import { useApi } from './useApi';
 import { useSnackbar } from './useSnackbar';
+import { useUser } from './useUser';
 
 interface UseMatchesOptions {
   setMatches?: Dispatch<SetStateAction<MatchSummaryDto[]>>;
+  refetch?: () => void;
 }
 
 export const useMatches = (config?: UseMatchesOptions) => {
-  const { setMatches } = config ?? {};
-
+  const { setMatches, refetch } = config ?? {};
   const { showSnackbar } = useSnackbar();
+  const { authenticatedUser } = useUser();
 
   const { execute: getAll, loading: isGettingMatches } = useApi(
     async ({
@@ -27,10 +33,6 @@ export const useMatches = (config?: UseMatchesOptions) => {
       if (teamId) params.append('teamId', teamId.toString());
       if (searchQuery) params.append('searchQuery', searchQuery);
 
-      console.log(
-        'fetching matches',
-        `/api/matches/${params.size > 0 ? '?' : ''}${params.toString()}`,
-      );
       const response = await fetch(
         `/api/matches/${params.size > 0 ? '?' : ''}${params.toString()}`,
       );
@@ -58,5 +60,60 @@ export const useMatches = (config?: UseMatchesOptions) => {
     },
   );
 
-  return { getAll, isGettingMatches };
+  const {
+    execute: confirmOrContestMatch,
+    loading: isConfirmingOrContestingMatch,
+  } = useApi(
+    async ({
+      id,
+      isTeam1,
+      isConfirming,
+      previousMatch,
+    }: ConfirmOrContestMatchParams) => {
+      void previousMatch, isTeam1, isConfirming;
+      if (isNaN(id) || id <= 0) return;
+
+      const query = isConfirming
+        ? `/api/matches/${id}/confirm`
+        : `/api/matches/${id}/contest`;
+      const response = await fetch(query, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: authenticatedUser?.token ?? '',
+        },
+      });
+      if (!response.ok) {
+        throw new ApiError(
+          'Échec de la mise à jour du match !',
+          response.status,
+        );
+      }
+    },
+    {
+      onSuccess: (_, { isConfirming }) => {
+        refetch?.();
+        showSnackbar({
+          message: `Scores ${isConfirming ? 'confirmés' : 'contestés'} avec succès !`,
+          severity: 'success',
+        });
+      },
+      onError: (err) => {
+        showSnackbar({
+          message:
+            err instanceof ApiError
+              ? err.message
+              : 'Une erreur est survenue lors de la mise à jour du match !',
+          severity: 'error',
+        });
+      },
+    },
+  );
+
+  return {
+    getAll,
+    isGettingMatches,
+    confirmOrContestMatch,
+    isConfirmingOrContestingMatch,
+  };
 };

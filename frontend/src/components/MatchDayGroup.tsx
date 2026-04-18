@@ -5,9 +5,14 @@ import { MatchItem } from './MatchItem';
 interface MatchDayGroupProps {
   day: string;
   matches: MatchSummaryDto[];
+  refetch: () => void;
 }
 
-export const MatchDayGroup = ({ day, matches }: MatchDayGroupProps) => {
+export const MatchDayGroup = ({
+  day,
+  matches,
+  refetch,
+}: MatchDayGroupProps) => {
   return (
     <Stack
       padding="1.5rem 1rem 1rem"
@@ -19,7 +24,7 @@ export const MatchDayGroup = ({ day, matches }: MatchDayGroupProps) => {
         {day}
       </Typography>
       {matches.map((match) => (
-        <MatchItem key={match.idMatch} match={match} />
+        <MatchItem key={match.idMatch} match={match} refetch={refetch} />
       ))}
     </Stack>
   );

@@ -9,7 +9,8 @@ interface VersusItemProps {
 
 export const VersusItem = ({ match }: VersusItemProps) => {
   const { authenticatedUser } = useUser();
-  const displayScores = match.team1?.score !== 0 && match.team2?.score !== 0;
+  const displayScores =
+    match.team1?.score !== null && match.team2?.score !== null;
 
   const isConfirmed =
     match.team1?.hasConfirmedResults && match.team2?.hasConfirmedResults;

@@ -161,6 +161,7 @@ export const TournamentPage = () => {
                       key={yearGroup.year}
                       year={yearGroup.year}
                       daysData={yearGroup.daysData}
+                      refetch={() => getById(idNbr)}
                     />
                   ))}
               </Stack>

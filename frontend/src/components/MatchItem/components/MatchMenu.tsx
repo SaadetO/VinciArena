@@ -13,9 +13,10 @@ import { useMatchMenu } from '../hooks/useMatchMenu';
 
 interface MatchMenuProps {
   match: MatchSummaryDto;
+  refetch: () => void;
 }
 
-export const MatchMenu = ({ match }: MatchMenuProps) => {
+export const MatchMenu = ({ match, refetch }: MatchMenuProps) => {
   const {
     theme,
     anchorEl,
@@ -37,7 +38,8 @@ export const MatchMenu = ({ match }: MatchMenuProps) => {
     handleConfirmScore,
     handleEncodeScore,
     handleEditScore,
-  } = useMatchMenu({ match });
+    authenticatedUser,
+  } = useMatchMenu({ match, refetch });
 
   if (!displayMenu) return null;
 
@@ -114,7 +116,13 @@ export const MatchMenu = ({ match }: MatchMenuProps) => {
             </Typography>
             <MenuItem
               onClick={() => {
-                handleConfirmScore();
+                handleConfirmScore({
+                  id: match.idMatch,
+                  isTeam1:
+                    authenticatedUser?.managedTeamId === match.team1.idTeam,
+                  isConfirming: true,
+                  previousMatch: match,
+                });
                 handleClose();
               }}
             >
@@ -123,7 +131,13 @@ export const MatchMenu = ({ match }: MatchMenuProps) => {
             </MenuItem>
             <MenuItem
               onClick={() => {
-                handleContestScore();
+                handleContestScore({
+                  id: match.idMatch,
+                  isTeam1:
+                    authenticatedUser?.managedTeamId === match.team1.idTeam,
+                  isConfirming: false,
+                  previousMatch: match,
+                });
                 handleClose();
               }}
             >

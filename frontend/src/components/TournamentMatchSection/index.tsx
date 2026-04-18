@@ -124,6 +124,7 @@ export const TournamentMatchSection = ({
                 year={yearGroup.year}
                 daysData={yearGroup.daysData}
                 yearTop="8rem"
+                refetch={() => fetchWithFilters()}
               />
             ))
           ))}

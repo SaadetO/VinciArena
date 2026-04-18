@@ -7,9 +7,10 @@ import { useMatchMenuAction } from './useMatchMenuAction';
 
 interface MatchMenuProps {
   match: MatchSummaryDto;
+  refetch: () => void;
 }
 
-export const useMatchMenu = ({ match }: MatchMenuProps) => {
+export const useMatchMenu = ({ match, refetch }: MatchMenuProps) => {
   const theme = useTheme();
   const { anchorEl, handleClick, handleClose } = useMenuDisclosure();
   const { authenticatedUser } = useUser();
@@ -32,7 +33,7 @@ export const useMatchMenu = ({ match }: MatchMenuProps) => {
     handleConfirmScore,
     handleEncodeScore,
     handleEditScore,
-  } = useMatchMenuAction();
+  } = useMatchMenuAction({ refetch });
 
   return {
     theme,
@@ -51,9 +52,10 @@ export const useMatchMenu = ({ match }: MatchMenuProps) => {
     displayMenu,
     handleForfeit,
     handleEditComposition,
-    handleContestScore: () => handleContestScore(match.idMatch),
-    handleConfirmScore: () => handleConfirmScore(match.idMatch),
+    handleContestScore,
+    handleConfirmScore,
     handleEncodeScore,
     handleEditScore,
+    authenticatedUser,
   };
 };
