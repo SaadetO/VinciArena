@@ -9,8 +9,7 @@ interface VersusItemProps {
 
 export const VersusItem = ({ match }: VersusItemProps) => {
   const { authenticatedUser } = useUser();
-  const displayScores =
-    match.team1?.score !== null && match.team2?.score !== null;
+  const isPlayed = match.status === 'PLAYED';
 
   const isConfirmed =
     match.team1?.hasConfirmedResults && match.team2?.hasConfirmedResults;
@@ -30,7 +29,7 @@ export const VersusItem = ({ match }: VersusItemProps) => {
         gap="1.25rem"
       >
         <TeamItem matchTeam={match.team1} />
-        {displayScores && (
+        {isPlayed && (
           <Typography
             variant="h4"
             color={revealScores ? 'primary' : 'secondary'}
@@ -54,7 +53,7 @@ export const VersusItem = ({ match }: VersusItemProps) => {
         />
       </Stack>
       <Grid2 size={6} display="flex" alignItems="center" gap="1.25rem">
-        {displayScores && (
+        {isPlayed && (
           <Typography
             variant="h4"
             color={revealScores ? 'primary' : 'secondary'}

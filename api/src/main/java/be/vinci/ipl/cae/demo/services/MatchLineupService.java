@@ -101,4 +101,22 @@ public class MatchLineupService {
 
   }
 
+  /**
+   * Create a default lineup for a match and team.
+   *
+   * @param match the match
+   * @param team the team
+   * @return the default lineup
+   */
+  public MatchLineup createDefaultLineup(Match match, Team team) {
+    MatchLineup lineup = new MatchLineup();
+    lineup.setMatch(match);
+    lineup.setTeam(team);
+    lineup.setWinner(false);
+    lineup.setHasForfeited(false);
+    lineup.setHasConfirmedResults(null);
+
+    return lineup;
+  }
+
 }

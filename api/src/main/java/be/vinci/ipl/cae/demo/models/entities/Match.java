@@ -1,5 +1,7 @@
 package be.vinci.ipl.cae.demo.models.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -64,7 +66,8 @@ public class Match {
   @JoinColumn(name = "id_next_match")
   private Match nextMatch;
 
-  @OneToMany(mappedBy = "match")
+  @OneToMany(mappedBy = "match", cascade = CascadeType.ALL, orphanRemoval = true)
+  @JsonIgnore
   private List<MatchLineup> lineups = new ArrayList<>();
 
 }

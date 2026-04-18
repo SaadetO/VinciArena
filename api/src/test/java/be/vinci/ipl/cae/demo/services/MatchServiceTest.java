@@ -3,21 +3,22 @@ package be.vinci.ipl.cae.demo.services;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 import be.vinci.ipl.cae.demo.exceptions.AlreadyConfirmedException;
+import be.vinci.ipl.cae.demo.exceptions.MatchLineupNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.MatchNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.MemberHasNoTeamException;
-import be.vinci.ipl.cae.demo.exceptions.LineupNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.MemberNotManagerOfTeamException;
 import be.vinci.ipl.cae.demo.models.entities.Match;
 import be.vinci.ipl.cae.demo.models.entities.MatchLineup;
+import be.vinci.ipl.cae.demo.models.entities.MatchStatus;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.repositories.MatchLineupRepository;
 import be.vinci.ipl.cae.demo.repositories.MatchRepository;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,17 +42,22 @@ public class MatchServiceTest {
   @Mock
   private TeamService teamService;
 
+  @Mock
+  private MatchLineupService matchLineupService;
+
   @InjectMocks
   private MatchService matchService;
 
   private Match match;
   private Member member;
-  private MatchLineup lineup;
+  private MatchLineup team1Lineup;
+  private MatchLineup team2Lineup;
 
   @BeforeEach
   void setUp() {
     match = new Match();
     match.setIdMatch(1L);
+    match.setStatus(MatchStatus.PLAYED);
 
     Team team1 = new Team();
     team1.setIdTeam(10L);
@@ -64,7 +70,15 @@ public class MatchServiceTest {
 
     member = new Member();
 
-    lineup = new MatchLineup();
+    team1Lineup = new MatchLineup();
+    team1Lineup.setTeam(team1);
+    team1Lineup.setScore(3);
+
+    team2Lineup = new MatchLineup();
+    team2Lineup.setTeam(team2);
+    team2Lineup.setScore(1);
+
+    match.getLineups().addAll(List.of(team1Lineup, team2Lineup));
   }
 
   @Test
@@ -74,15 +88,14 @@ public class MatchServiceTest {
 
     when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
     when(matchLineupRepository.findByMatchAndTeam(match, match.getTeam1()))
-        .thenReturn(Optional.of(lineup));
+        .thenReturn(Optional.of(team1Lineup));
     when(teamService.isManager(any(), any())).thenReturn(true);
 
     // Act
     matchService.confirmResult(1L, member);
 
     // Assert
-    assertTrue(lineup.getHasConfirmedResults());
-    verify(matchLineupRepository).save(lineup);
+    assertTrue(team1Lineup.getHasConfirmedResults());
   }
 
   @Test
@@ -92,15 +105,14 @@ public class MatchServiceTest {
 
     when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
     when(matchLineupRepository.findByMatchAndTeam(match, match.getTeam2()))
-        .thenReturn(Optional.of(lineup));
+        .thenReturn(Optional.of(team2Lineup));
     when(teamService.isManager(any(), any())).thenReturn(true);
 
     // Act
     matchService.confirmResult(1L, member);
 
     // Assert
-    assertTrue(lineup.getHasConfirmedResults());
-    verify(matchLineupRepository).save(lineup);
+    assertTrue(team2Lineup.getHasConfirmedResults());
   }
 
   @Test
@@ -119,7 +131,7 @@ public class MatchServiceTest {
         .thenReturn(Optional.empty());
     when(teamService.isManager(any(), any())).thenReturn(true);
 
-    assertThrows(LineupNotFoundException.class, () -> matchService.confirmResult(1L, member));
+    assertThrows(MatchLineupNotFoundException.class, () -> matchService.confirmResult(1L, member));
   }
 
   @Test
@@ -146,11 +158,11 @@ public class MatchServiceTest {
   @Test
   void confirmResult_already_confirmed_team1() {
     member.setTeam(match.getTeam1());
-    lineup.setHasConfirmedResults(true);
+    team1Lineup.setHasConfirmedResults(true);
 
     when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
     when(matchLineupRepository.findByMatchAndTeam(match, match.getTeam1()))
-        .thenReturn(Optional.of(lineup));
+        .thenReturn(Optional.of(team1Lineup));
     when(teamService.isManager(any(), any())).thenReturn(true);
 
     assertThrows(AlreadyConfirmedException.class, () -> matchService.confirmResult(1L, member));
@@ -159,11 +171,11 @@ public class MatchServiceTest {
   @Test
   void confirmResult_already_confirmed_team2() {
     member.setTeam(match.getTeam2());
-    lineup.setHasConfirmedResults(true);
+    team2Lineup.setHasConfirmedResults(true);
 
     when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
     when(matchLineupRepository.findByMatchAndTeam(match, match.getTeam2()))
-        .thenReturn(Optional.of(lineup));
+        .thenReturn(Optional.of(team2Lineup));
     when(teamService.isManager(any(), any())).thenReturn(true);
 
     assertThrows(AlreadyConfirmedException.class, () -> matchService.confirmResult(1L, member));
@@ -176,15 +188,14 @@ public class MatchServiceTest {
 
     when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
     when(matchLineupRepository.findByMatchAndTeam(match, match.getTeam1()))
-        .thenReturn(Optional.of(lineup));
+        .thenReturn(Optional.of(team1Lineup));
     when(teamService.isManager(any(), any())).thenReturn(true);
 
     // Act
     matchService.contestResult(1L, member);
 
     // Assert
-    assertFalse(lineup.getHasConfirmedResults());
-    verify(matchLineupRepository).save(lineup);
+    assertFalse(team1Lineup.getHasConfirmedResults());
   }
 
   @Test
@@ -194,15 +205,14 @@ public class MatchServiceTest {
 
     when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
     when(matchLineupRepository.findByMatchAndTeam(match, match.getTeam2()))
-        .thenReturn(Optional.of(lineup));
+        .thenReturn(Optional.of(team2Lineup));
     when(teamService.isManager(any(), any())).thenReturn(true);
 
     // Act
     matchService.contestResult(1L, member);
 
     // Assert
-    assertFalse(lineup.getHasConfirmedResults());
-    verify(matchLineupRepository).save(lineup);
+    assertFalse(team2Lineup.getHasConfirmedResults());
   }
 
   @Test
@@ -221,7 +231,7 @@ public class MatchServiceTest {
         .thenReturn(Optional.empty());
     when(teamService.isManager(any(), any())).thenReturn(true);
 
-    assertThrows(LineupNotFoundException.class, () -> matchService.contestResult(1L, member));
+    assertThrows(MatchLineupNotFoundException.class, () -> matchService.contestResult(1L, member));
   }
 
   @Test
@@ -248,11 +258,11 @@ public class MatchServiceTest {
   @Test
   void contestResult_already_confirmed_team1() {
     member.setTeam(match.getTeam1());
-    lineup.setHasConfirmedResults(true);
+    team1Lineup.setHasConfirmedResults(true);
 
     when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
     when(matchLineupRepository.findByMatchAndTeam(match, match.getTeam1()))
-        .thenReturn(Optional.of(lineup));
+        .thenReturn(Optional.of(team1Lineup));
     when(teamService.isManager(any(), any())).thenReturn(true);
 
     assertThrows(AlreadyConfirmedException.class, () -> matchService.contestResult(1L, member));
@@ -261,11 +271,11 @@ public class MatchServiceTest {
   @Test
   void contestResult_already_confirmed_team2() {
     member.setTeam(match.getTeam2());
-    lineup.setHasConfirmedResults(true);
+    team2Lineup.setHasConfirmedResults(true);
 
     when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
     when(matchLineupRepository.findByMatchAndTeam(match, match.getTeam2()))
-        .thenReturn(Optional.of(lineup));
+        .thenReturn(Optional.of(team2Lineup));
     when(teamService.isManager(any(), any())).thenReturn(true);
 
     assertThrows(AlreadyConfirmedException.class, () -> matchService.contestResult(1L, member));
