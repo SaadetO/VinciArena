@@ -136,7 +136,9 @@ public class DataSeeder implements CommandLineRunner {
         new MemberMockData("axel@mail.com", "Ghost", "architecte", "2026-03-12", false, false,
             "TEAM_SIGMA"),
         new MemberMockData("nina@mail.com", "Zenith", "exécuteur", "2026-03-13", false, false,
-            "TEAM_SIGMA")
+            "TEAM_SIGMA"),
+        new MemberMockData("leo@mail.com", "Venti", "catalyseur", "2026-06-04", false, false,
+            "TEAM_ALPHA")
     };
 
     String encodedPw = passwordEncoder.encode("Password1!");
@@ -225,7 +227,7 @@ public class DataSeeder implements CommandLineRunner {
       t.setWinner(teamMap.get(data.winnerTeamName()));
 
       List<Team> registered = new ArrayList<>();
-      for (int i = 0; i < data.teamCount() && i < poolOfTeams.size(); i++) {
+      for (int i = 0; i < data.teamCount() && i < poolOfTeams.size()-1; i++) {
         registered.add(poolOfTeams.get(i));
       }
       if (data.winnerTeamName() != null && teamMap.containsKey(data.winnerTeamName())) {
