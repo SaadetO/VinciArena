@@ -1,7 +1,8 @@
 import { Dispatch, SetStateAction } from 'react';
-import { ApiError, MatchSummaryDto } from '../types';
+import { ApiError, MatchLineupDto, MatchSummaryDto } from '../types';
 import { useApi } from './useApi';
 import { useSnackbar } from './useSnackbar';
+import { useModalController } from './useModalController';
 
 interface UseMatchesOptions {
   setMatches?: Dispatch<SetStateAction<MatchSummaryDto[]>>;
@@ -9,7 +10,7 @@ interface UseMatchesOptions {
 
 export const useMatches = (config?: UseMatchesOptions) => {
   const { setMatches } = config ?? {};
-
+  const { setError, setLoading } = useModalController();
   const { showSnackbar } = useSnackbar();
 
   const { execute: getAll, loading: isGettingMatches } = useApi(
@@ -58,5 +59,67 @@ export const useMatches = (config?: UseMatchesOptions) => {
     },
   );
 
-  return { getAll, isGettingMatches };
+  const { execute: updateLineup, loading: isUpdatingLineup } = useApi(
+    async ({
+      matchId,
+      playerIds,
+    }: {
+      matchId: number;
+      playerIds: number[];
+      closeModal?: () => void;
+    }) => {
+      setLoading(true);
+
+      const response = await fetch(`/api/matches/${matchId}/lineup`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ playerIds }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new ApiError(
+          errorData.message || "Échec de la mise à jour de l'alignement",
+          response.status,
+        );
+      }
+      return response.json();
+    },
+    {
+      onSuccess: (updatedLineup: MatchLineupDto, { closeModal }) => {
+        setLoading(false);
+        // update matches
+        setMatches?.((prev) =>
+          prev.map((match) => {
+            if (match.idMatch !== updatedLineup.matchId) return match;
+            const isTeam1 = match.team1.idTeam === updatedLineup.teamId;
+            return {
+              ...match,
+              team1: isTeam1
+                ? { ...match.team1, lineup: updatedLineup }
+                : match.team1,
+              team2: !isTeam1
+                ? { ...match.team2, lineup: updatedLineup }
+                : match.team2,
+            };
+          }),
+        );
+
+        showSnackbar({
+          message: "Composition de l'équipe mise à jour.",
+          severity: 'success',
+        });
+        closeModal?.();
+      },
+      onError: (err) => {
+        // 4. Stop the loading state on error
+        setLoading(false);
+        setError(
+          err instanceof ApiError ? err.message : 'Une erreur est survenue',
+        );
+      },
+    },
+  );
+
+  return { getAll, isGettingMatches, updateLineup, isUpdatingLineup };
 };
