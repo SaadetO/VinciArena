@@ -112,7 +112,6 @@ export const useMatches = (config?: UseMatchesOptions) => {
         closeModal?.();
       },
       onError: (err) => {
-        // 4. Stop the loading state on error
         setLoading(false);
         setError(
           err instanceof ApiError ? err.message : 'Une erreur est survenue',
@@ -121,5 +120,37 @@ export const useMatches = (config?: UseMatchesOptions) => {
     },
   );
 
-  return { getAll, isGettingMatches, updateLineup, isUpdatingLineup };
+  const { execute: getAvailableMembers, loading: isGettingAvailableMembers } =
+    useApi(
+      async ({ matchId }: { matchId: number }) => {
+        const response = await fetch(
+          `/api/matches/${matchId}/available-members`,
+        );
+        if (!response.ok) {
+          throw new ApiError(
+            'Impossible de récupérer les membres disponibles',
+            response.status,
+          );
+        }
+        return response.json();
+      },
+      {
+        onError: (err) => {
+          showSnackbar({
+            message:
+              err instanceof ApiError ? err.message : 'Une erreur est survenue',
+            severity: 'error',
+          });
+        },
+      },
+    );
+
+  return {
+    getAll,
+    isGettingMatches,
+    updateLineup,
+    isUpdatingLineup,
+    getAvailableMembers,
+    isGettingAvailableMembers,
+  };
 };
