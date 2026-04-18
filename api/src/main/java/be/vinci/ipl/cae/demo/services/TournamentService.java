@@ -1,6 +1,5 @@
 package be.vinci.ipl.cae.demo.services;
 
-import be.vinci.ipl.cae.demo.exceptions.AlreadyPlayedMatchInTournamentMatchGenerationAttemptException;
 import be.vinci.ipl.cae.demo.exceptions.DuplicateRegistrationException;
 import be.vinci.ipl.cae.demo.exceptions.ImpossibleTournamentException;
 import be.vinci.ipl.cae.demo.exceptions.InactiveTeamException;
@@ -54,6 +53,7 @@ public class TournamentService {
   private final NotificationService notificationService;
   private final TeamService teamService;
   private final MatchService matchService;
+  private final MatchLineupService matchLineupService;
 
   /**
    * Constructor.
@@ -61,7 +61,8 @@ public class TournamentService {
   public TournamentService(TournamentRepository tournamentRepository,
       MemberRepository memberRepository, MatchLineupRepository matchLineupRepository,
       MatchRepository matchRepository, TeamService teamService,
-      NotificationService notificationService, MatchService matchService) {
+      NotificationService notificationService, MatchService matchService,
+      MatchLineupService matchLineupService) {
     this.tournamentRepository = tournamentRepository;
     this.memberRepository = memberRepository;
     this.matchLineupRepository = matchLineupRepository;
@@ -69,6 +70,7 @@ public class TournamentService {
     this.notificationService = notificationService;
     this.teamService = teamService;
     this.matchService = matchService;
+    this.matchLineupService = matchLineupService;
   }
 
   /**
@@ -478,19 +480,15 @@ public class TournamentService {
    * @param tournament the tournament to clear matches for
    */
   private void clearExistingMatches(Tournament tournament) {
-    List<Match> existingMatches =
-        matchRepository.findByTournamentIdTournament(tournament.getIdTournament());
+    List<Match> existingMatches = matchRepository.findByTournament(tournament);
 
     if (existingMatches.isEmpty()) {
       return;
     }
 
-    boolean hasPlayedMatches =
-        existingMatches.stream().anyMatch(m -> m.getStatus() == MatchStatus.PLAYED);
-
-    if (hasPlayedMatches) {
-      throw new AlreadyPlayedMatchInTournamentMatchGenerationAttemptException(
-          "Cannot regenerate bracket: some matches have already been played!");
+    if (tournament.getStatus() != TournamentStatus.REGISTRATION_CLOSED) {
+      throw new TournamentStatusException(
+          "Cannot clear matches: tournament is not in registration closed status");
     }
 
     matchLineupRepository.deleteByMatchIn(existingMatches);
@@ -577,31 +575,13 @@ public class TournamentService {
 
     for (Match match : savedMatches) {
       if (match.getTeam1() != null) {
-        defaultLineups.add(createDefaultLineup(match, match.getTeam1()));
+        defaultLineups.add(matchLineupService.createDefaultLineup(match, match.getTeam1()));
       }
       if (match.getTeam2() != null) {
-        defaultLineups.add(createDefaultLineup(match, match.getTeam2()));
+        defaultLineups.add(matchLineupService.createDefaultLineup(match, match.getTeam2()));
       }
     }
 
     matchLineupRepository.saveAll(defaultLineups);
-  }
-
-  /**
-   * Create a default lineup for a match and team.
-   *
-   * @param match the match
-   * @param team the team
-   * @return the default lineup
-   */
-  private MatchLineup createDefaultLineup(Match match, Team team) {
-    MatchLineup lineup = new MatchLineup();
-    lineup.setMatch(match);
-    lineup.setTeam(team);
-    lineup.setWinner(false);
-    lineup.setHasForfeited(false);
-    lineup.setHasConfirmedResults(null);
-
-    return lineup;
   }
 }

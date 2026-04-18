@@ -2,15 +2,21 @@ package be.vinci.ipl.cae.demo.services;
 
 import be.vinci.ipl.cae.demo.exceptions.AlreadyConfirmedException;
 import be.vinci.ipl.cae.demo.exceptions.ForbiddenException;
-import be.vinci.ipl.cae.demo.exceptions.LineupNotFoundException;
+import be.vinci.ipl.cae.demo.exceptions.MatchLineupNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.MatchNotFoundException;
+import be.vinci.ipl.cae.demo.exceptions.MatchNotPlayedException;
+import be.vinci.ipl.cae.demo.exceptions.MatchScoreNotSetException;
 import be.vinci.ipl.cae.demo.exceptions.MemberHasNoTeamException;
 import be.vinci.ipl.cae.demo.exceptions.MemberNotManagerOfTeamException;
+import be.vinci.ipl.cae.demo.exceptions.NoSlotAvailableForWinnerException;
+import be.vinci.ipl.cae.demo.exceptions.TeamNotFoundException;
+import be.vinci.ipl.cae.demo.exceptions.UnallowedTieException;
 import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryTournamentDto;
 import be.vinci.ipl.cae.demo.models.dtos.MatchTeamDto;
 import be.vinci.ipl.cae.demo.models.entities.Match;
 import be.vinci.ipl.cae.demo.models.entities.MatchLineup;
+import be.vinci.ipl.cae.demo.models.entities.MatchStatus;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.models.entities.Tournament;
@@ -25,6 +31,7 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Match service.
@@ -36,6 +43,7 @@ public class MatchService {
   private final MemberService memberService;
   private final MatchLineupRepository matchLineupRepository;
   private final TeamService teamService;
+  private final MatchLineupService matchLineupService;
 
   /**
    * Constructs a new MatchService with the specified repositories and services.
@@ -44,13 +52,15 @@ public class MatchService {
    * @param matchLineupRepository the match lineup repository
    * @param memberService the member service
    * @param teamService the team service
+   * @param matchLineupService the match lineup service
    */
   public MatchService(MatchRepository matchRepository, MatchLineupRepository matchLineupRepository,
-      MemberService memberService, TeamService teamService) {
+      MemberService memberService, TeamService teamService, MatchLineupService matchLineupService) {
     this.matchRepository = matchRepository;
     this.memberService = memberService;
     this.matchLineupRepository = matchLineupRepository;
     this.teamService = teamService;
+    this.matchLineupService = matchLineupService;
   }
 
   /**
@@ -131,7 +141,12 @@ public class MatchService {
         match.getTeam2() != null && teamService.isManager(match.getTeam2(), member);
 
     if (!isManagerTeam1 && !isManagerTeam2) {
-      throw new MemberNotManagerOfTeamException("Member not part of this match");
+      throw new MemberNotManagerOfTeamException(
+          "Member not part of this match or manager of neither team");
+    }
+
+    if (getLineups(match).stream().anyMatch(lineup -> lineup.getScore() == null)) {
+      throw new MatchScoreNotSetException("Score not set for one or more teams.");
     }
   }
 
@@ -147,7 +162,7 @@ public class MatchService {
     MatchLineup lineup = matchLineupRepository.findByMatchAndTeam(match, team).orElse(null);
 
     if (lineup == null) {
-      throw new LineupNotFoundException("Lineup not found for match and team");
+      throw new MatchLineupNotFoundException("Lineup not found for match and team");
     }
 
     if (lineup.getHasConfirmedResults() != null) {
@@ -155,7 +170,6 @@ public class MatchService {
     }
 
     lineup.setHasConfirmedResults(status);
-    matchLineupRepository.save(lineup);
   }
 
   /**
@@ -165,12 +179,14 @@ public class MatchService {
    * @param member the authenticated user
    * @param status true for confirm, false for contest
    */
-  private void handleMatchResult(Long matchId, Member member, boolean status) {
+  private Match handleMatchResult(Long matchId, Member member, boolean status) {
     Match match = getMatch(matchId);
 
     validateUserCanConfirm(match, member);
 
     updateConfirmationStatus(match, member.getTeam(), status);
+
+    return match;
   }
 
   /**
@@ -179,8 +195,28 @@ public class MatchService {
    * @param matchId the id of the match
    * @param member the authenticated user
    */
+  @Transactional
   public void confirmResult(Long matchId, Member member) {
-    handleMatchResult(matchId, member, true);
+    Match match = handleMatchResult(matchId, member, true);
+
+    if (bothTeamsConfirmed(match)) {
+      updateWinner(match);
+      advanceWinnerToNextRound(match);
+    }
+  }
+
+  /**
+   * Checks if both teams in a match have confirmed the results.
+   *
+   * @param match the match to check
+   * @return true if both teams have confirmed with true
+   */
+  private boolean bothTeamsConfirmed(Match match) {
+    List<MatchLineup> lineups = getLineups(match);
+    if (lineups == null || lineups.size() < 2) {
+      return false;
+    }
+    return lineups.stream().allMatch(l -> Boolean.TRUE.equals(l.getHasConfirmedResults()));
   }
 
   /**
@@ -189,8 +225,79 @@ public class MatchService {
    * @param matchId the id of the match
    * @param member the authenticated user
    */
+  @Transactional
   public void contestResult(Long matchId, Member member) {
     handleMatchResult(matchId, member, false);
+  }
+
+  /**
+   * Updates the winner of a match based on the scores of the two teams.
+   *
+   * @param match the match to update the winner for
+   */
+  private void updateWinner(Match match) {
+    if (match == null) {
+      throw new MatchNotFoundException("Match not found.");
+    }
+
+    if (match.getStatus() != MatchStatus.PLAYED) {
+      throw new MatchNotPlayedException("Match is not played, can't update winner.");
+    }
+
+    if (match.getTeam1() == null || match.getTeam2() == null) {
+      throw new TeamNotFoundException("Couldn't find one or more team in the match.");
+    }
+
+    List<MatchLineup> lineups = getLineups(match);
+
+    MatchLineup team1Lineup = lineups.stream().filter(l -> l.getTeam().equals(match.getTeam1()))
+        .findFirst().orElseThrow(MatchLineupNotFoundException::new);
+    MatchLineup team2Lineup = lineups.stream().filter(l -> l.getTeam().equals(match.getTeam2()))
+        .findFirst().orElseThrow(MatchLineupNotFoundException::new);
+
+    updateMatchWinner(team1Lineup, team2Lineup);
+  }
+
+  /**
+   * Retrieves the lineups of a match.
+   *
+   * @param match the match to retrieve lineups for
+   * @return the list of match lineups
+   * @throws MatchLineupNotFoundException if the match does not have both lineups
+   */
+  private List<MatchLineup> getLineups(Match match) {
+    List<MatchLineup> lineups = match.getLineups();
+
+    if (lineups == null || lineups.size() < 2) {
+      throw new MatchLineupNotFoundException("Match does not have both lineups.");
+    }
+
+    return lineups;
+  }
+
+  /**
+   * Updates the winner of a match based on the scores of the two teams.
+   *
+   * @param team1Lineup the lineup of the first team
+   * @param team2Lineup the lineup of the second team
+   */
+  private void updateMatchWinner(MatchLineup team1Lineup, MatchLineup team2Lineup) {
+    Integer team1Score = team1Lineup.getScore();
+    Integer team2Score = team2Lineup.getScore();
+
+    if (team1Score == null || team2Score == null) {
+      return;
+    }
+
+    if (team1Score > team2Score) {
+      team1Lineup.setWinner(true);
+      team2Lineup.setWinner(false);
+    } else if (team2Score > team1Score) {
+      team1Lineup.setWinner(false);
+      team2Lineup.setWinner(true);
+    } else {
+      throw new UnallowedTieException("Match ends in a tie, this is not allowed.");
+    }
   }
 
   /**
@@ -232,5 +339,51 @@ public class MatchService {
 
     return new MatchTeamDto(team.getIdTeam(), team.getName(), lineup.getScore(), lineup.isWinner(),
         lineup.isHasForfeited(), lineup.getHasConfirmedResults());
+  }
+
+  /**
+   * Advances the winner to the next round by updating the next match's teams.
+   *
+   * @param match the match to advance
+   */
+  private void advanceWinnerToNextRound(Match match) {
+    if (match == null) {
+      throw new MatchNotFoundException("Match not found.");
+    }
+    Match nextMatch = match.getNextMatch();
+    List<MatchLineup> lineups = match.getLineups();
+
+    if (nextMatch == null) {
+      return;
+    }
+
+    if (lineups == null || lineups.isEmpty()) {
+      throw new MatchLineupNotFoundException("No lineups found for the match.");
+    }
+
+    MatchLineup winnerLineup =
+        lineups.stream().filter(MatchLineup::isWinner).findFirst().orElse(null);
+
+    if (winnerLineup == null) {
+      return;
+    }
+
+    Team winnerTeam = winnerLineup.getTeam();
+
+    if (winnerTeam == null) {
+      throw new TeamNotFoundException("No team found for the winner lineup.");
+    }
+
+    if (nextMatch.getTeam1() == null) {
+      nextMatch.setTeam1(winnerTeam);
+    } else if (nextMatch.getTeam2() == null) {
+      nextMatch.setTeam2(winnerTeam);
+    } else {
+      throw new NoSlotAvailableForWinnerException(
+          "No slot available for the winner in the next match.");
+    }
+
+    MatchLineup newLineup = matchLineupService.createDefaultLineup(nextMatch, winnerTeam);
+    nextMatch.getLineups().add(newLineup);
   }
 }
