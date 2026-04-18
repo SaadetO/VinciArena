@@ -145,7 +145,7 @@ public class MatchService {
           "Member not part of this match or manager of neither team");
     }
 
-    if (match.getLineups().stream().anyMatch(lineup -> lineup.getScore() == null)) {
+    if (getLineups(match).stream().anyMatch(lineup -> lineup.getScore() == null)) {
       throw new MatchScoreNotSetException("Score not set for one or more teams.");
     }
   }
@@ -212,7 +212,7 @@ public class MatchService {
    * @return true if both teams have confirmed with true
    */
   private boolean bothTeamsConfirmed(Match match) {
-    List<MatchLineup> lineups = match.getLineups();
+    List<MatchLineup> lineups = getLineups(match);
     if (lineups == null || lineups.size() < 2) {
       return false;
     }
