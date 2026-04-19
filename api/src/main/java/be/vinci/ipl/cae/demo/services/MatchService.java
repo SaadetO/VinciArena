@@ -314,8 +314,10 @@ public class MatchService {
     MatchTeamDto team2Dto = createMatchTeamDto(match.getTeam2(), lineups);
 
     return new MatchSummaryDto(match.getIdMatch(), match.getDateHour(), match.getTurn(),
-        match.getStatus(), team1Dto, team2Dto, new MatchSummaryTournamentDto(
-            tournament.getIdTournament(), tournament.getName(), tournament.getStatus()));
+        match.getStatus(), team1Dto, team2Dto,
+        new MatchSummaryTournamentDto(tournament.getIdTournament(), tournament.getName(),
+            tournament.getStatus()),
+        match.getNextMatch() == null);
   }
 
   /**

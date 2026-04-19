@@ -19,6 +19,8 @@ export const VersusItem = ({ match }: VersusItemProps) => {
     authenticatedUser?.managedTeamId === match.team2?.idTeam;
 
   const revealScores = isConfirmed || isManager;
+
+  const isFinal = match.isFinal;
   return (
     <Grid2 size={6} spacing="2.375rem" container position="relative">
       <Grid2
@@ -28,7 +30,7 @@ export const VersusItem = ({ match }: VersusItemProps) => {
         justifyContent="flex-end"
         gap="1.25rem"
       >
-        <TeamItem matchTeam={match.team1} />
+        <TeamItem matchTeam={match.team1} isFinal={isFinal} />
         {isPlayed && (
           <Typography
             variant="h4"
@@ -61,7 +63,7 @@ export const VersusItem = ({ match }: VersusItemProps) => {
             {revealScores ? match.team2?.score : '-'}
           </Typography>
         )}
-        <TeamItem matchTeam={match.team2} />
+        <TeamItem matchTeam={match.team2} isFinal={isFinal} />
       </Grid2>
     </Grid2>
   );
@@ -69,12 +71,28 @@ export const VersusItem = ({ match }: VersusItemProps) => {
 
 const TeamItem = ({
   matchTeam,
+  isFinal,
 }: {
   matchTeam: MatchSummaryDto['team1'] | MatchSummaryDto['team2'];
+  isFinal: boolean;
 }) => {
+  const isWinner = matchTeam.isWinner && isFinal;
   const props: TypographyProps = {
     variant: 'h4',
-    sx: { opacity: matchTeam?.name ? 1 : 0.5, textDecoration: 'none' },
+    borderRadius: '100rem',
+    padding: isWinner ? '0.125rem 0.75rem' : '',
+    sx: {
+      opacity: matchTeam?.name ? 1 : 0.5,
+      textDecoration: 'none',
+      color: (theme) =>
+        isWinner
+          ? `${theme.palette.primary.main} !important`
+          : `${theme.palette.text.primary} !important`,
+      background: (theme) =>
+        isWinner
+          ? `color-mix(in srgb, ${theme.palette.primary.main} 10%, ${theme.palette.background.s3})`
+          : `none`,
+    },
     textOverflow: 'ellipsis',
     noWrap: true,
   };

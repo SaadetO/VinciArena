@@ -181,7 +181,7 @@ export const MatchMenu = ({ match, refetch }: MatchMenuProps) => {
                 <PencilToSquare
                   style={{ color: theme.palette.text.secondary }}
                 />
-                <Typography variant="h5">Modifier les Scores</Typography>
+                <Typography variant="h5">Corriger les Scores</Typography>
               </MenuItem>
             )}
           </>

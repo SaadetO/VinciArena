@@ -211,6 +211,7 @@ interface MatchSummaryDto {
   team1: MatchTeamDto;
   team2: MatchTeamDto;
   tournament: MatchSummaryDtoTournament;
+  isFinal: boolean;
 }
 
 interface MatchSummaryDtoTournament {

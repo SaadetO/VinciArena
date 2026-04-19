@@ -13,5 +13,6 @@ public record MatchSummaryDto(
     MatchStatus status,
     MatchTeamDto team1,
     MatchTeamDto team2,
-    MatchSummaryTournamentDto tournament
+    MatchSummaryTournamentDto tournament,
+    boolean isFinal
 ) {}
