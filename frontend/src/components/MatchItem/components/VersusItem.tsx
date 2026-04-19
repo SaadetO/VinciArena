@@ -76,7 +76,7 @@ const TeamItem = ({
   matchTeam: MatchSummaryDto['team1'] | MatchSummaryDto['team2'];
   isFinal: boolean;
 }) => {
-  const isWinner = matchTeam.isWinner && isFinal;
+  const isWinner = matchTeam?.isWinner && isFinal;
   const props: TypographyProps = {
     variant: 'h4',
     borderRadius: '100rem',
@@ -96,11 +96,11 @@ const TeamItem = ({
     textOverflow: 'ellipsis',
     noWrap: true,
   };
-  if (!matchTeam?.idTeam || !matchTeam.name)
+  if (!matchTeam?.idTeam || !matchTeam?.name)
     return <Typography {...props}>TBD</Typography>;
   return (
     <Typography component={Link} to={`/teams/${matchTeam?.idTeam}`} {...props}>
-      {matchTeam.name}
+      {matchTeam?.name}
     </Typography>
   );
 };

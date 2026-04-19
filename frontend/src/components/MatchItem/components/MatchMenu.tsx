@@ -119,7 +119,7 @@ export const MatchMenu = ({ match, refetch }: MatchMenuProps) => {
                 handleConfirmScore({
                   id: match.idMatch,
                   isTeam1:
-                    authenticatedUser?.managedTeamId === match.team1.idTeam,
+                    authenticatedUser?.managedTeamId === match?.team1?.idTeam,
                   isConfirming: true,
                   previousMatch: match,
                 });
@@ -134,7 +134,7 @@ export const MatchMenu = ({ match, refetch }: MatchMenuProps) => {
                 handleContestScore({
                   id: match.idMatch,
                   isTeam1:
-                    authenticatedUser?.managedTeamId === match.team1.idTeam,
+                    authenticatedUser?.managedTeamId === match?.team1?.idTeam,
                   isConfirming: false,
                   previousMatch: match,
                 });

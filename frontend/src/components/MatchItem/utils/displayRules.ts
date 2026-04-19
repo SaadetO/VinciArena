@@ -56,7 +56,7 @@ export const getMenuSectionDisplay = ({
   const isForfeit = match.status === 'FORFEIT';
   const matchDatePassed = dayjs(match.dateHour).isBefore(dayjs());
 
-  const bothTeamsKnown = match.team1 != null && match.team2 != null;
+  const bothTeamsKnown = match?.team1 != null && match?.team2 != null;
 
   const showForfeit =
     isPlanned && !isForfeit && isManagerOfParticipant && bothTeamsKnown;
@@ -134,10 +134,10 @@ export const getOverlayDisplay = ({
   const isPlayed = match.status === 'PLAYED';
 
   const team =
-    match.team1.idTeam === authenticatedUser?.managedTeamId
-      ? match.team1
-      : match.team2.idTeam === authenticatedUser?.managedTeamId
-        ? match.team2
+    match?.team1?.idTeam === authenticatedUser?.managedTeamId
+      ? match?.team1
+      : match?.team2?.idTeam === authenticatedUser?.managedTeamId
+        ? match?.team2
         : null;
 
   const matchDatePassed = dayjs(match.dateHour).isBefore(dayjs());
@@ -152,8 +152,8 @@ export const getOverlayDisplay = ({
   const canEditScores =
     isAdmin &&
     isPlayed &&
-    (match.team1.hasConfirmedResults === false ||
-      match.team2.hasConfirmedResults === false);
+    (match?.team1.hasConfirmedResults === false ||
+      match?.team2.hasConfirmedResults === false);
 
   const displayOverlay =
     canConfirmScores || canEditComposition || canEncodeScores || canEditScores;

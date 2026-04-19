@@ -187,6 +187,11 @@ public class TournamentService {
       if (currentStatus != newStatus) {
         t.setStatus(newStatus);
         updatedTournaments.add(t);
+
+        if (newStatus == TournamentStatus.CANCELLED 
+            && currentStatus == TournamentStatus.IN_PROGRESS) {
+          clearExistingMatches(t);
+        }
       }
     }
 
@@ -230,9 +235,16 @@ public class TournamentService {
         ? TournamentStatus.IN_PROGRESS
         : status;
       // finish tournament if endDate arrives
-      case IN_PROGRESS -> (!t.getEndDate().isAfter(today))
-        ? TournamentStatus.DONE
-        : status;
+      case IN_PROGRESS -> {
+        if (!t.getEndDate().isAfter(today)) {
+          if (t.getWinner() != null) {
+            yield TournamentStatus.DONE;
+          } else {
+            yield TournamentStatus.CANCELLED;
+          }
+        }
+        yield status;
+      }
       default -> status;
     };
   }
@@ -486,9 +498,10 @@ public class TournamentService {
       return;
     }
 
-    if (tournament.getStatus() != TournamentStatus.REGISTRATION_CLOSED) {
+    if (tournament.getStatus() != TournamentStatus.REGISTRATION_CLOSED 
+        && tournament.getStatus() != TournamentStatus.CANCELLED) {
       throw new TournamentStatusException(
-          "Cannot clear matches: tournament is not in registration closed status");
+          "Cannot clear matches: tournament is not in a clearance valid status");
     }
 
     matchLineupRepository.deleteByMatchIn(existingMatches);
