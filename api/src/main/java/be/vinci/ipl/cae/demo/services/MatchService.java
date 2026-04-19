@@ -2,6 +2,7 @@ package be.vinci.ipl.cae.demo.services;
 
 import be.vinci.ipl.cae.demo.exceptions.AlreadyConfirmedException;
 import be.vinci.ipl.cae.demo.exceptions.ForbiddenException;
+import be.vinci.ipl.cae.demo.exceptions.InvalidMatchStatusException;
 import be.vinci.ipl.cae.demo.exceptions.MatchLineupNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.MatchNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.MatchNotPlayedException;
@@ -11,6 +12,7 @@ import be.vinci.ipl.cae.demo.exceptions.MemberNotManagerOfTeamException;
 import be.vinci.ipl.cae.demo.exceptions.NoSlotAvailableForWinnerException;
 import be.vinci.ipl.cae.demo.exceptions.TeamNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.UnallowedTieException;
+import be.vinci.ipl.cae.demo.models.dtos.EncodeMatchResultDto;
 import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryTournamentDto;
 import be.vinci.ipl.cae.demo.models.dtos.MatchTeamDto;
@@ -388,4 +390,32 @@ public class MatchService {
     MatchLineup newLineup = matchLineupService.createDefaultLineup(nextMatch, winnerTeam);
     nextMatch.getLineups().add(newLineup);
   }
+
+ 
+
+  /**
+   * Validates that a match is in PLANNED status.
+   *
+   * @param match the match to validate
+   * @throws InvalidMatchStatusException if the match is not in PLANNED status
+   */
+  private void validateMatchCanBeEncoded(Match match) {
+    if (match.getStatus() != MatchStatus.PLANNED) {
+      throw new InvalidMatchStatusException(
+          "Le match doit être en statut PLANIFIÉ pour encoder les résultats.");
+    }
+  }
+
+  /**
+   * Validates that the scores are not equal (ties are not allowed).
+   *
+   * @param dto the DTO containing the scores
+   * @throws UnallowedTieException if the scores are equal
+   */
+  private void validateNoTie(EncodeMatchResultDto dto) {
+    if (dto.scoreTeam1().equals(dto.scoreTeam2())) {
+      throw new UnallowedTieException("Les scores ne peuvent pas être égaux.");
+    }
+  }
+
 }
