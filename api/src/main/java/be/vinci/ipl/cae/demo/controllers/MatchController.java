@@ -110,7 +110,8 @@ public class MatchController {
    */
   @PatchMapping("/{id}/result")
   @PreAuthorize("hasRole('ADMIN')")
-  public MatchSummaryDto encodeMatchResult(@PathVariable Long id,
+  public MatchSummaryDto encodeMatchResult(
+      @PathVariable Long id,
       @Valid @RequestBody EncodeMatchResultDto dto) {
     return matchService.encodeResult(id, dto);
   }

@@ -421,8 +421,8 @@ public class MatchService {
   }
 
   /**
-   * Encodes the result of a match (admin only). Sets the scores for both teams,
-   * validates that the match is in PLANNED status, and transitions it to PLAYED.
+   * Encodes the result of a match (admin only). Sets the scores for both teams, validates that the
+   * match is in PLANNED status, and transitions it to PLAYED.
    *
    * @param matchId the id of the match
    * @param dto the DTO containing the scores for both teams
@@ -447,7 +447,7 @@ public class MatchService {
     return mapMatchToSummaryDto(match, match.getTournament());
   }
 
-  
+
   /**
    * Applies the scores from the DTO to the corresponding team lineups.
    *
@@ -457,17 +457,19 @@ public class MatchService {
    * @throws MatchLineupNotFoundException if a lineup is not found for a team
    */
   private void applyScores(Match match, List<MatchLineup> lineups, EncodeMatchResultDto dto) {
-    MatchLineup team1Lineup = lineups.stream()
+    MatchLineup team1Lineup = lineups
+        .stream()
         .filter(l -> l.getTeam().equals(match.getTeam1()))
         .findFirst()
-        .orElseThrow(() -> new MatchLineupNotFoundException(
-            "Composition introuvable pour l'équipe 1."));
+        .orElseThrow(
+            () -> new MatchLineupNotFoundException("Composition introuvable pour l'équipe 1."));
 
-    MatchLineup team2Lineup = lineups.stream()
+    MatchLineup team2Lineup = lineups
+        .stream()
         .filter(l -> l.getTeam().equals(match.getTeam2()))
         .findFirst()
-        .orElseThrow(() -> new MatchLineupNotFoundException(
-            "Composition introuvable pour l'équipe 2."));
+        .orElseThrow(
+            () -> new MatchLineupNotFoundException("Composition introuvable pour l'équipe 2."));
 
     team1Lineup.setScore(dto.scoreTeam1());
     team2Lineup.setScore(dto.scoreTeam2());

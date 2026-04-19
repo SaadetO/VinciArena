@@ -328,7 +328,8 @@ public class MatchServiceTest {
     match.setStatus(MatchStatus.PLAYED); // Already played
     when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
 
-    assertThrows(InvalidMatchStatusException.class,
+    assertThrows(
+        InvalidMatchStatusException.class,
         () -> matchService.encodeResult(1L, new EncodeMatchResultDto(2, 1)));
   }
 
@@ -337,7 +338,8 @@ public class MatchServiceTest {
     match.setStatus(MatchStatus.PLANNED);
     when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
 
-    assertThrows(UnallowedTieException.class,
+    assertThrows(
+        UnallowedTieException.class,
         () -> matchService.encodeResult(1L, new EncodeMatchResultDto(1, 1)));
   }
 
@@ -347,7 +349,8 @@ public class MatchServiceTest {
     match.getLineups().clear(); // Trigger exception
     when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
 
-    assertThrows(MatchLineupNotFoundException.class,
+    assertThrows(
+        MatchLineupNotFoundException.class,
         () -> matchService.encodeResult(1L, new EncodeMatchResultDto(2, 1)));
   }
 }
