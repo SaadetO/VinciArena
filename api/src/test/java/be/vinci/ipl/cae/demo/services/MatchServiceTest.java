@@ -85,6 +85,12 @@ public class MatchServiceTest {
     team2Lineup.setTeam(team2);
     team2Lineup.setScore(1);
 
+    Tournament tournament = new Tournament();
+    tournament.setIdTournament(100L);
+    tournament.setName("Tournament");
+    tournament.setStatus(TournamentStatus.IN_PREPARATION);
+    match.setTournament(tournament);
+
     match.getLineups().addAll(List.of(team1Lineup, team2Lineup));
   }
 
@@ -292,11 +298,6 @@ public class MatchServiceTest {
   void encodeResult_success() {
     // Arrange
     match.setStatus(MatchStatus.PLANNED);
-    Tournament tournament = new Tournament();
-    tournament.setIdTournament(100L);
-    tournament.setName("Tournament");
-    tournament.setStatus(TournamentStatus.IN_PREPARATION);
-    match.setTournament(tournament);
 
     EncodeMatchResultDto dto = new EncodeMatchResultDto(2, 1);
 
@@ -341,9 +342,8 @@ public class MatchServiceTest {
   @Test
   void encodeResult_lineup_not_found() {
     match.setStatus(MatchStatus.PLANNED);
+    match.getLineups().clear(); // Trigger exception
     when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
-    // Lineups missing in the list returned by matchLineupRepository
-    when(matchLineupRepository.findByIdIdMatch(1L)).thenReturn(List.of(team1Lineup)); // Only one lineup
 
     assertThrows(MatchLineupNotFoundException.class,
         () -> matchService.encodeResult(1L, new EncodeMatchResultDto(2, 1)));
