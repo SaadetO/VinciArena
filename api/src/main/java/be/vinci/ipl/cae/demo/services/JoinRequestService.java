@@ -37,8 +37,11 @@ public class JoinRequestService {
    * @param notificationService the notification service
    * @param memberRepository the member repository
    */
-  public JoinRequestService(JoinRequestRepository joinRequestRepository, TeamService teamService,
-      NotificationService notificationService, MemberRepository memberRepository) {
+  public JoinRequestService(
+      JoinRequestRepository joinRequestRepository,
+      TeamService teamService,
+      NotificationService notificationService,
+      MemberRepository memberRepository) {
     this.joinRequestRepository = joinRequestRepository;
     this.teamService = teamService;
     this.notificationService = notificationService;
@@ -66,9 +69,12 @@ public class JoinRequestService {
 
     joinRequest = joinRequestRepository.save(joinRequest);
 
-    notificationService.notifyTeamManagers(requestedTeam,
-        requester.getTag() + " souhaite rejoindre " + requestedTeam.getName(),
-        NotificationType.TEAM, teamId);
+    notificationService
+        .notifyTeamManagers(
+            requestedTeam,
+            requester.getTag() + " souhaite rejoindre " + requestedTeam.getName(),
+            NotificationType.TEAM,
+            teamId);
 
     return mapToDto(joinRequest, requestedTeam);
   }
@@ -86,8 +92,11 @@ public class JoinRequestService {
    * @throws NotManagerException if the member is not a manager
    */
   @Transactional
-  public JoinRequestDto updateJoinRequestStatus(Long requestId, RequestStatus newStatus,
-      String rejectionReason, Member manager) {
+  public JoinRequestDto updateJoinRequestStatus(
+      Long requestId,
+      RequestStatus newStatus,
+      String rejectionReason,
+      Member manager) {
 
     JoinRequest joinRequest = getPendingJoinRequest(requestId);
     validateJoinRequestUpdate(newStatus, rejectionReason);
@@ -117,8 +126,8 @@ public class JoinRequestService {
     if (requester.getTeam() != null) {
       throw new UserAlreadyInTeamException("Vous appartenez déjà à une équipe");
     }
-    if (joinRequestRepository.existsByMemberAndRequestedTeamAndStatus(requester, requestedTeam,
-        RequestStatus.PENDING)) {
+    if (joinRequestRepository
+        .existsByMemberAndRequestedTeamAndStatus(requester, requestedTeam, RequestStatus.PENDING)) {
       throw new JoinRequestAlreadyExistsException(
           "Vous avez déjà une demande en attente pour cette équipe");
     }
@@ -133,7 +142,8 @@ public class JoinRequestService {
    * @throws InvalidJoinRequestException if the request is not pending
    */
   private JoinRequest getPendingJoinRequest(Long requestId) {
-    JoinRequest joinRequest = joinRequestRepository.findById(requestId)
+    JoinRequest joinRequest = joinRequestRepository
+        .findById(requestId)
         .orElseThrow(() -> new JoinRequestNotFoundException("Demande d'adhésion non trouvée"));
 
     if (joinRequest.getStatus() != RequestStatus.PENDING) {
@@ -180,7 +190,9 @@ public class JoinRequestService {
    * @param newStatus the new status
    * @param rejectionReason the rejection reason (if rejected)
    */
-  private void updateAndSaveRequest(JoinRequest joinRequest, RequestStatus newStatus,
+  private void updateAndSaveRequest(
+      JoinRequest joinRequest,
+      RequestStatus newStatus,
       String rejectionReason) {
     if (newStatus == RequestStatus.REJECTED) {
       joinRequest.setRejectionReason(rejectionReason);
@@ -197,12 +209,18 @@ public class JoinRequestService {
    * @param newStatus the decision status
    * @param rejectionReason the rejection reason (if any)
    */
-  private void notifyRequester(Member requester, Team team, RequestStatus newStatus,
+  private void notifyRequester(
+      Member requester,
+      Team team,
+      RequestStatus newStatus,
       String rejectionReason) {
     String decision = determineDecisionMessage(newStatus, rejectionReason);
-    notificationService.notifyMember(requester.getIdMember(),
-        "Votre demande pour rejoindre " + team.getName() + " a été " + decision,
-        NotificationType.TEAM, null);
+    notificationService
+        .notifyMember(
+            requester.getIdMember(),
+            "Votre demande pour rejoindre " + team.getName() + " a été " + decision,
+            NotificationType.TEAM,
+            null);
   }
 
   /**
@@ -226,9 +244,14 @@ public class JoinRequestService {
    * @return the built JoinRequestDto
    */
   private JoinRequestDto mapToDto(JoinRequest joinRequest, Team team) {
-    return JoinRequestDto.builder().idJoinRequest(joinRequest.getIdJoinRequest())
-        .idTeam(team.getIdTeam()).teamName(team.getName()).status(joinRequest.getStatus())
+    return JoinRequestDto
+        .builder()
+        .idJoinRequest(joinRequest.getIdJoinRequest())
+        .idTeam(team.getIdTeam())
+        .teamName(team.getName())
+        .status(joinRequest.getStatus())
         .expirationDate(joinRequest.getExpirationDate())
-        .rejectionReason(joinRequest.getRejectionReason()).build();
+        .rejectionReason(joinRequest.getRejectionReason())
+        .build();
   }
 }

@@ -25,7 +25,9 @@ public interface JoinRequestRepository extends CrudRepository<JoinRequest, Long>
    * @param status the join request status
    * @return true if the member already has a pending join request; false otherwise
    */
-  boolean existsByMemberAndRequestedTeamAndStatus(Member member, Team requestedTeam,
+  boolean existsByMemberAndRequestedTeamAndStatus(
+      Member member,
+      Team requestedTeam,
       RequestStatus status);
 
   /**

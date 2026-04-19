@@ -21,7 +21,11 @@ public class MemberSummaryDto {
    * @return the mapped DTO
    */
   public static MemberSummaryDto fromEntity(Member member) {
-    return MemberSummaryDto.builder().id(member.getIdMember()).tag(member.getTag())
-        .avatar(member.getProfileImage().getPath()).build();
+    return MemberSummaryDto
+        .builder()
+        .id(member.getIdMember())
+        .tag(member.getTag())
+        .avatar(member.getProfileImage().getPath())
+        .build();
   }
 }

@@ -54,8 +54,12 @@ public class MatchService {
    * @param teamService the team service
    * @param matchLineupService the match lineup service
    */
-  public MatchService(MatchRepository matchRepository, MatchLineupRepository matchLineupRepository,
-      MemberService memberService, TeamService teamService, MatchLineupService matchLineupService) {
+  public MatchService(
+      MatchRepository matchRepository,
+      MatchLineupRepository matchLineupRepository,
+      MemberService memberService,
+      TeamService teamService,
+      MatchLineupService matchLineupService) {
     this.matchRepository = matchRepository;
     this.memberService = memberService;
     this.matchLineupRepository = matchLineupRepository;
@@ -99,13 +103,16 @@ public class MatchService {
   public List<MatchSummaryDto> getMatches(Long teamId, Long memberId, String searchQuery) {
     Specification<Match> spec = Specification.where(null);
 
+    spec = spec
+        .and(MatchSpecifications.hasMember(memberId))
+        .and(MatchSpecifications.hasTeam(teamId))
+        .and(MatchSpecifications.searchByTeamName(searchQuery));
+
     Sort sort = Sort.by(Sort.Direction.DESC, "dateHour");
 
-    spec =
-        spec.and(MatchSpecifications.hasMember(memberId)).and(MatchSpecifications.hasTeam(teamId))
-            .and(MatchSpecifications.searchByTeamName(searchQuery));
-
-    return matchRepository.findAll(spec, sort).stream()
+    return matchRepository
+        .findAll(spec, sort)
+        .stream()
         .map(match -> mapMatchToSummaryDto(match, match.getTournament()))
         .collect(Collectors.toList());
   }
@@ -118,7 +125,8 @@ public class MatchService {
    * @throws MatchNotFoundException if the match is not found
    */
   private Match getMatch(Long matchId) {
-    return matchRepository.findById(matchId)
+    return matchRepository
+        .findById(matchId)
         .orElseThrow(() -> new MatchNotFoundException("Match not found"));
   }
 
@@ -250,10 +258,16 @@ public class MatchService {
 
     List<MatchLineup> lineups = getLineups(match);
 
-    MatchLineup team1Lineup = lineups.stream().filter(l -> l.getTeam().equals(match.getTeam1()))
-        .findFirst().orElseThrow(MatchLineupNotFoundException::new);
-    MatchLineup team2Lineup = lineups.stream().filter(l -> l.getTeam().equals(match.getTeam2()))
-        .findFirst().orElseThrow(MatchLineupNotFoundException::new);
+    MatchLineup team1Lineup = lineups
+        .stream()
+        .filter(l -> l.getTeam().equals(match.getTeam1()))
+        .findFirst()
+        .orElseThrow(MatchLineupNotFoundException::new);
+    MatchLineup team2Lineup = lineups
+        .stream()
+        .filter(l -> l.getTeam().equals(match.getTeam2()))
+        .findFirst()
+        .orElseThrow(MatchLineupNotFoundException::new);
 
     updateMatchWinner(team1Lineup, team2Lineup);
   }
@@ -313,9 +327,16 @@ public class MatchService {
     MatchTeamDto team1Dto = createMatchTeamDto(match.getTeam1(), lineups);
     MatchTeamDto team2Dto = createMatchTeamDto(match.getTeam2(), lineups);
 
-    return new MatchSummaryDto(match.getIdMatch(), match.getDateHour(), match.getTurn(),
-        match.getStatus(), team1Dto, team2Dto,
-        new MatchSummaryTournamentDto(tournament.getIdTournament(), tournament.getName(),
+    return new MatchSummaryDto(
+        match.getIdMatch(),
+        match.getDateHour(),
+        match.getTurn(),
+        match.getStatus(),
+        team1Dto,
+        team2Dto,
+        new MatchSummaryTournamentDto(
+            tournament.getIdTournament(),
+            tournament.getName(),
             tournament.getStatus()),
         match.getNextMatch() == null);
   }
@@ -332,15 +353,23 @@ public class MatchService {
       return null;
     }
 
-    MatchLineup lineup = lineups.stream()
-        .filter(l -> l.getTeam().getIdTeam().equals(team.getIdTeam())).findFirst().orElse(null);
+    MatchLineup lineup = lineups
+        .stream()
+        .filter(l -> l.getTeam().getIdTeam().equals(team.getIdTeam()))
+        .findFirst()
+        .orElse(null);
 
     if (lineup == null) {
       return new MatchTeamDto(team.getIdTeam(), team.getName(), null, false, false, false);
     }
 
-    return new MatchTeamDto(team.getIdTeam(), team.getName(), lineup.getScore(), lineup.isWinner(),
-        lineup.isHasForfeited(), lineup.getHasConfirmedResults());
+    return new MatchTeamDto(
+        team.getIdTeam(),
+        team.getName(),
+        lineup.getScore(),
+        lineup.isWinner(),
+        lineup.isHasForfeited(),
+        lineup.getHasConfirmedResults());
   }
 
   /**

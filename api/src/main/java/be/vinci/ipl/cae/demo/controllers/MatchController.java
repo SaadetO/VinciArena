@@ -43,7 +43,8 @@ public class MatchController {
    * @return the matches
    */
   @GetMapping({"", "/"})
-  public List<MatchSummaryDto> getMatches(@RequestParam(required = false) Long teamId,
+  public List<MatchSummaryDto> getMatches(
+      @RequestParam(required = false) Long teamId,
       @RequestParam(required = false) Long memberId,
       @RequestParam(required = false) String searchQuery) {
     return matchService.getMatches(teamId, memberId, searchQuery);
@@ -57,7 +58,8 @@ public class MatchController {
    */
   @PatchMapping("/{id}/confirm")
   @PreAuthorize("isAuthenticated()")
-  public void confirmMatchResult(@PathVariable Long id,
+  public void confirmMatchResult(
+      @PathVariable Long id,
       @AuthenticationPrincipal Member currentMember) {
     matchService.confirmResult(id, currentMember);
   }
@@ -70,7 +72,8 @@ public class MatchController {
    */
   @PatchMapping("/{id}/contest")
   @PreAuthorize("isAuthenticated()")
-  public void contestMatchResult(@PathVariable Long id,
+  public void contestMatchResult(
+      @PathVariable Long id,
       @AuthenticationPrincipal Member currentMember) {
     matchService.contestResult(id, currentMember);
   }
@@ -84,11 +87,15 @@ public class MatchController {
    */
   @GetMapping("/{matchId}/available-members")
   @PreAuthorize("isAuthenticated()") // Or your specific manager check
-  public Set<MemberSummaryDto> getAvailableMembers(@PathVariable Long matchId,
+  public Set<MemberSummaryDto> getAvailableMembers(
+      @PathVariable Long matchId,
       @AuthenticationPrincipal Member currentMember) {
 
-    return matchService.getAvailableMembersForMatch(matchId, currentMember).stream()
-        .map(MemberSummaryDto::fromEntity).collect(Collectors.toSet());
+    return matchService
+        .getAvailableMembersForMatch(matchId, currentMember)
+        .stream()
+        .map(MemberSummaryDto::fromEntity)
+        .collect(Collectors.toSet());
   }
 
 }

@@ -151,7 +151,8 @@ public class MatchServiceTest {
 
     when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
 
-    assertThrows(MemberNotManagerOfTeamException.class,
+    assertThrows(
+        MemberNotManagerOfTeamException.class,
         () -> matchService.confirmResult(1L, member));
   }
 
@@ -251,7 +252,8 @@ public class MatchServiceTest {
 
     when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
 
-    assertThrows(MemberNotManagerOfTeamException.class,
+    assertThrows(
+        MemberNotManagerOfTeamException.class,
         () -> matchService.contestResult(1L, member));
   }
 

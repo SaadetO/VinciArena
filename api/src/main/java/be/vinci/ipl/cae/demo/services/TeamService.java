@@ -50,8 +50,11 @@ public class TeamService {
    * @param joinRequestRepository the join-request repository
    * @param memberService the member service
    */
-  public TeamService(TeamRepository teamRepository, MemberRepository memberRepository,
-      JoinRequestRepository joinRequestRepository, MemberService memberService) {
+  public TeamService(
+      TeamRepository teamRepository,
+      MemberRepository memberRepository,
+      JoinRequestRepository joinRequestRepository,
+      MemberService memberService) {
     this.teamRepository = teamRepository;
     this.memberRepository = memberRepository;
     this.joinRequestRepository = joinRequestRepository;
@@ -75,8 +78,14 @@ public class TeamService {
       joinRequests = null;
     }
 
-    return TeamDetailsDto.builder().idTeam(team.getIdTeam()).name(team.getName())
-        .isActive(team.getIsActive()).managers(managers).members(members).joinRequests(joinRequests)
+    return TeamDetailsDto
+        .builder()
+        .idTeam(team.getIdTeam())
+        .name(team.getName())
+        .isActive(team.getIsActive())
+        .managers(managers)
+        .members(members)
+        .joinRequests(joinRequests)
         .build();
   }
 
@@ -179,7 +188,8 @@ public class TeamService {
    * @return a list of teams matching the criteria
    */
   public List<FullTeamDto> getAllTeams(boolean isActive, String searchQuery) {
-    Specification<Team> spec = Specification.where(TeamSpecifications.isActive(isActive))
+    Specification<Team> spec = Specification
+        .where(TeamSpecifications.isActive(isActive))
         .and(TeamSpecifications.searchByName(searchQuery));
 
     Sort sort = Sort.by("name").ascending();
@@ -200,11 +210,15 @@ public class TeamService {
     List<MemberSummaryDto> safeMembers = team.getMembers() == null ? Collections.emptyList()
         : team.getMembers().stream().map(memberService::mapMemberToSummary).toList();
 
-    return FullTeamDto.builder().idTeam(team.getIdTeam()).name(team.getName())
+    return FullTeamDto
+        .builder()
+        .idTeam(team.getIdTeam())
+        .name(team.getName())
         .isActive(team.getIsActive())
         .managerId1(team.getManager1() != null ? team.getManager1().getIdMember() : null)
         .managerId2(team.getManager2() != null ? team.getManager2().getIdMember() : null)
-        .members(safeMembers).build();
+        .members(safeMembers)
+        .build();
   }
 
   /**
@@ -299,7 +313,8 @@ public class TeamService {
    * @throws TeamNotFoundException if the team does not exist
    */
   public Team getExistingTeam(Long teamId) {
-    return teamRepository.findById(teamId)
+    return teamRepository
+        .findById(teamId)
         .orElseThrow(() -> new TeamNotFoundException("La team n'existe pas ou n'est plus active."));
   }
 
@@ -324,7 +339,8 @@ public class TeamService {
    * @throws MemberNotFoundException if the member does not exist
    */
   private Member getExistingMember(Long memberId) {
-    return memberRepository.findById(memberId)
+    return memberRepository
+        .findById(memberId)
         .orElseThrow(() -> new MemberNotFoundException("L'utilisateur n'existe pas."));
   }
 
@@ -365,8 +381,12 @@ public class TeamService {
    * @return list of member summaries
    */
   private List<UserSummaryDto> getMembersSummary(Team team) {
-    return team.getMembers().stream().filter(member -> !member.isDeleted())
-        .map(memberService::getUserSummary).collect(Collectors.toList());
+    return team
+        .getMembers()
+        .stream()
+        .filter(member -> !member.isDeleted())
+        .map(memberService::getUserSummary)
+        .collect(Collectors.toList());
   }
 
   /**
@@ -380,12 +400,19 @@ public class TeamService {
     if (currentMember == null || !isManager(team, currentMember)) {
       return new ArrayList<>();
     }
-    return joinRequestRepository.findAllByRequestedTeamAndStatus(team, RequestStatus.PENDING)
+    return joinRequestRepository
+        .findAllByRequestedTeamAndStatus(team, RequestStatus.PENDING)
         .stream()
-        .map(jr -> JoinRequestDto.builder().idJoinRequest(jr.getIdJoinRequest())
-            .idTeam(jr.getRequestedTeam().getIdTeam()).teamName(jr.getRequestedTeam().getName())
-            .status(jr.getStatus()).expirationDate(jr.getExpirationDate())
-            .requester(memberService.getUserSummary(jr.getMember())).build())
+        .map(
+            jr -> JoinRequestDto
+                .builder()
+                .idJoinRequest(jr.getIdJoinRequest())
+                .idTeam(jr.getRequestedTeam().getIdTeam())
+                .teamName(jr.getRequestedTeam().getName())
+                .status(jr.getStatus())
+                .expirationDate(jr.getExpirationDate())
+                .requester(memberService.getUserSummary(jr.getMember()))
+                .build())
         .collect(Collectors.toList());
   }
 

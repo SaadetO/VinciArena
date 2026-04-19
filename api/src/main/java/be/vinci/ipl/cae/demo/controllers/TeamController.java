@@ -48,7 +48,8 @@ public class TeamController {
   @PostMapping("/")
   @ResponseStatus(HttpStatus.CREATED)
   @PreAuthorize("isAuthenticated()")
-  public Team createTeam(@RequestBody NewTeam newTeam,
+  public Team createTeam(
+      @RequestBody NewTeam newTeam,
       @AuthenticationPrincipal Member currentMember) {
     if (newTeam == null || newTeam.getName() == null || newTeam.getName().isBlank()) {
       throw new InvalidTeamNameException("Le nom de l'équipe ne peut pas être vide.");
@@ -63,7 +64,8 @@ public class TeamController {
    * @return an iterable of all active teams.
    */
   @GetMapping({"", "/"})
-  public Iterable<FullTeamDto> getAllTeams(@RequestParam(required = false) boolean isActive,
+  public Iterable<FullTeamDto> getAllTeams(
+      @RequestParam(required = false) boolean isActive,
       @RequestParam(required = false) String searchQuery) {
     return teamService.getAllTeams(isActive, searchQuery);
   }
@@ -76,7 +78,8 @@ public class TeamController {
    * @return the team details
    */
   @GetMapping("/{id}/details")
-  public TeamDetailsDto getTeamDetails(@PathVariable Long id,
+  public TeamDetailsDto getTeamDetails(
+      @PathVariable Long id,
       @AuthenticationPrincipal Member currentMember) {
     return teamService.getTeamDetails(id, currentMember);
   }
@@ -91,7 +94,9 @@ public class TeamController {
    */
   @PutMapping("/{id}/manager/{idMember}")
   @PreAuthorize("isAuthenticated()")
-  public Team designateSecondManager(@PathVariable Long id, @PathVariable Long idMember,
+  public Team designateSecondManager(
+      @PathVariable Long id,
+      @PathVariable Long idMember,
       @AuthenticationPrincipal Member currentMember) {
     return teamService.designateSecondManager(id, idMember, currentMember);
   }
@@ -106,7 +111,8 @@ public class TeamController {
    */
   @PutMapping("/{id}/resign")
   @PreAuthorize("isAuthenticated()")
-  public Team resignManager(@PathVariable Long id,
+  public Team resignManager(
+      @PathVariable Long id,
       @RequestParam(required = false) Long replacementId,
       @AuthenticationPrincipal Member currentMember) {
     return teamService.resignManager(id, currentMember, replacementId);

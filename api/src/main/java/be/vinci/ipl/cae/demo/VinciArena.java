@@ -50,7 +50,9 @@ public class VinciArena {
     SpringApplication.run(VinciArena.class, args);
   }
 
-  private void createEmptyMatchLineup(Match match, Team team,
+  private void createEmptyMatchLineup(
+      Match match,
+      Team team,
       MatchLineupRepository matchLineupRepo) {
     // Assuming 3 slots per match per team
     MatchLineup lineup = new MatchLineup();

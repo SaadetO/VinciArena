@@ -59,7 +59,8 @@ public class UnavailabilityController {
    * @return the created unavailability
    */
   @PostMapping("/me")
-  public Unavailability createUnavailability(@AuthenticationPrincipal Member currentMember,
+  public Unavailability createUnavailability(
+      @AuthenticationPrincipal Member currentMember,
       @RequestBody NewUnavailabilityDto dto) {
 
     if (currentMember == null) {
@@ -71,7 +72,8 @@ public class UnavailabilityController {
     }
 
     if (!dto.getStartDate().isBefore(dto.getEndDate())) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST,
           "Start date must be before end date");
     }
 
@@ -89,7 +91,8 @@ public class UnavailabilityController {
    * @param currentMember the authenticated member
    */
   @DeleteMapping("/{id}")
-  public void deleteUnavailability(@PathVariable Long id,
+  public void deleteUnavailability(
+      @PathVariable Long id,
       @AuthenticationPrincipal Member currentMember) {
 
     if (currentMember == null) {
