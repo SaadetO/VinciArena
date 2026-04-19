@@ -1,9 +1,11 @@
 package be.vinci.ipl.cae.demo.controllers;
 
+import be.vinci.ipl.cae.demo.models.dtos.EncodeMatchResultDto;
 import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.MemberSummaryDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.services.MatchService;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -12,6 +14,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -96,6 +99,20 @@ public class MatchController {
         .stream()
         .map(MemberSummaryDto::fromEntity)
         .collect(Collectors.toSet());
+  }
+
+  /**
+   * Encodes the result of a match (admin only).
+   *
+   * @param id the id of the match
+   * @param dto the DTO containing the scores for both teams
+   * @return the updated match summary
+   */
+  @PatchMapping("/{id}/result")
+  @PreAuthorize("hasRole('ADMIN')")
+  public MatchSummaryDto encodeMatchResult(@PathVariable Long id,
+      @Valid @RequestBody EncodeMatchResultDto dto) {
+    return matchService.encodeResult(id, dto);
   }
 
 }
