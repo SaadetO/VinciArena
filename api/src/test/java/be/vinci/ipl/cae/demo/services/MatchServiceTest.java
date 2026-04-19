@@ -7,10 +7,17 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import be.vinci.ipl.cae.demo.exceptions.AlreadyConfirmedException;
+import be.vinci.ipl.cae.demo.exceptions.InvalidMatchStatusException;
 import be.vinci.ipl.cae.demo.exceptions.MatchLineupNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.MatchNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.MemberHasNoTeamException;
 import be.vinci.ipl.cae.demo.exceptions.MemberNotManagerOfTeamException;
+import be.vinci.ipl.cae.demo.exceptions.UnallowedTieException;
+import be.vinci.ipl.cae.demo.models.dtos.EncodeMatchResultDto;
+import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryDto;
+import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryTournamentDto;
+import be.vinci.ipl.cae.demo.models.entities.Tournament;
+import be.vinci.ipl.cae.demo.models.entities.TournamentStatus;
 import be.vinci.ipl.cae.demo.models.entities.Match;
 import be.vinci.ipl.cae.demo.models.entities.MatchLineup;
 import be.vinci.ipl.cae.demo.models.entities.MatchStatus;
@@ -279,5 +286,66 @@ public class MatchServiceTest {
     when(teamService.isManager(any(), any())).thenReturn(true);
 
     assertThrows(AlreadyConfirmedException.class, () -> matchService.contestResult(1L, member));
+  }
+
+  @Test
+  void encodeResult_success() {
+    // Arrange
+    match.setStatus(MatchStatus.PLANNED);
+    Tournament tournament = new Tournament();
+    tournament.setIdTournament(100L);
+    tournament.setName("Tournament");
+    tournament.setStatus(TournamentStatus.IN_PREPARATION);
+    match.setTournament(tournament);
+
+    EncodeMatchResultDto dto = new EncodeMatchResultDto(2, 1);
+
+    when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
+    when(matchLineupRepository.findByIdIdMatch(1L)).thenReturn(List.of(team1Lineup, team2Lineup));
+
+    // Act
+    MatchSummaryDto result = matchService.encodeResult(1L, dto);
+
+    // Assert
+    assertTrue(result.status() == MatchStatus.PLAYED);
+    assertTrue(team1Lineup.getScore() == 2);
+    assertTrue(team2Lineup.getScore() == 1);
+  }
+
+  @Test
+  void encodeResult_match_not_found() {
+    when(matchRepository.findById(1L)).thenReturn(Optional.empty());
+
+    assertThrows(MatchNotFoundException.class,
+        () -> matchService.encodeResult(1L, new EncodeMatchResultDto(2, 1)));
+  }
+
+  @Test
+  void encodeResult_invalid_status() {
+    match.setStatus(MatchStatus.PLAYED); // Already played
+    when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
+
+    assertThrows(InvalidMatchStatusException.class,
+        () -> matchService.encodeResult(1L, new EncodeMatchResultDto(2, 1)));
+  }
+
+  @Test
+  void encodeResult_unallowed_tie() {
+    match.setStatus(MatchStatus.PLANNED);
+    when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
+
+    assertThrows(UnallowedTieException.class,
+        () -> matchService.encodeResult(1L, new EncodeMatchResultDto(1, 1)));
+  }
+
+  @Test
+  void encodeResult_lineup_not_found() {
+    match.setStatus(MatchStatus.PLANNED);
+    when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
+    // Lineups missing in the list returned by matchLineupRepository
+    when(matchLineupRepository.findByIdIdMatch(1L)).thenReturn(List.of(team1Lineup)); // Only one lineup
+
+    assertThrows(MatchLineupNotFoundException.class,
+        () -> matchService.encodeResult(1L, new EncodeMatchResultDto(2, 1)));
   }
 }
