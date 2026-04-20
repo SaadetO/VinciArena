@@ -34,8 +34,7 @@ export const MatchMenu = ({ match, refetch }: MatchMenuProps) => {
     displayMenu,
     handleForfeit,
     handleEditComposition,
-    handleContestScore,
-    handleConfirmScore,
+    handleConfirmOrContestScore,
     handleEncodeScore,
     handleEditScore,
     authenticatedUser,
@@ -116,7 +115,7 @@ export const MatchMenu = ({ match, refetch }: MatchMenuProps) => {
             </Typography>
             <MenuItem
               onClick={() => {
-                handleConfirmScore({
+                handleConfirmOrContestScore({
                   id: match.idMatch,
                   isTeam1:
                     authenticatedUser?.managedTeamId === match?.team1?.idTeam,
@@ -131,7 +130,7 @@ export const MatchMenu = ({ match, refetch }: MatchMenuProps) => {
             </MenuItem>
             <MenuItem
               onClick={() => {
-                handleContestScore({
+                handleConfirmOrContestScore({
                   id: match.idMatch,
                   isTeam1:
                     authenticatedUser?.managedTeamId === match?.team1?.idTeam,

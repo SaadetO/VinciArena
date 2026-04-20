@@ -1,4 +1,3 @@
-import dayjs from 'dayjs';
 import {
   MatchSummaryDto,
   MatchTeamDto,
@@ -17,22 +16,20 @@ export const getMenuSectionDisplay = ({
   const isAdmin = authenticatedUser?.admin ?? false;
   const managedTeamId = authenticatedUser?.managedTeamId;
 
-  let managedTeam: MatchTeamDto | undefined;
-  let opponentTeam: MatchTeamDto | undefined;
+  const team1 = match.team1;
+  const team2 = match.team2;
 
-  if (match.team1?.idTeam === managedTeamId) {
-    managedTeam = match.team1;
-    opponentTeam = match.team2;
-  } else if (match.team2?.idTeam === managedTeamId) {
-    managedTeam = match.team2;
-    opponentTeam = match.team1;
-  }
+  const managedTeam: MatchTeamDto | null =
+    team1?.idTeam === managedTeamId
+      ? team1
+      : team2?.idTeam === managedTeamId
+        ? team2
+        : null;
 
-  const isManagerOfParticipant = managedTeam != undefined;
+  const isManagerOfParticipant = !!managedTeam;
 
   const bothTeamsScoresHaveBeenConfirmed =
-    managedTeam?.hasConfirmedResults === true &&
-    opponentTeam?.hasConfirmedResults === true;
+    team1?.hasConfirmedResults === true && team2?.hasConfirmedResults === true;
 
   if (bothTeamsScoresHaveBeenConfirmed)
     return {
@@ -56,31 +53,26 @@ export const getMenuSectionDisplay = ({
   const isPlayed = match.status === 'PLAYED';
   const isForfeit = match.status === 'FORFEIT';
 
-  const bothTeamsKnown = match?.team1 != null && match?.team2 != null;
+  const bothTeamsKnown = team1 && team2;
 
   const showForfeit =
     isPlanned && !isForfeit && isManagerOfParticipant && bothTeamsKnown;
 
-  const showEditComposition =
-    isManagerOfParticipant && isPlanned && !isInProgress;
+  const showEditComposition = isManagerOfParticipant && isInProgress;
   const showTeamSection = showForfeit || showEditComposition;
 
   const hasContestedScore =
-    managedTeam?.hasConfirmedResults === false ||
-    opponentTeam?.hasConfirmedResults === false;
+    team1?.hasConfirmedResults === false ||
+    team2?.hasConfirmedResults === false;
 
   const showScoresSection =
     isManagerOfParticipant &&
     isPlayed &&
     !managedTeamScoresHaveBeenConfirmedOrContested;
 
-  const showAdminEncode = isAdmin && isPlanned && isInProgress;
+  const showAdminEncode = isAdmin && isInProgress;
 
-  const showAdminModify =
-    isAdmin &&
-    isPlayed &&
-    !bothTeamsScoresHaveBeenConfirmed &&
-    hasContestedScore;
+  const showAdminModify = isAdmin && isPlayed && hasContestedScore;
   const showAdminSection = showAdminEncode || showAdminModify;
 
   const visibleSections = [
@@ -133,6 +125,8 @@ export const getOverlayDisplay = ({
 
   const isPlayed = match.status === 'PLAYED';
 
+  const isInProgress = match.status === 'IN_PROGRESS';
+
   const team =
     match?.team1?.idTeam === authenticatedUser?.managedTeamId
       ? match?.team1
@@ -140,14 +134,12 @@ export const getOverlayDisplay = ({
         ? match?.team2
         : null;
 
-  const matchDatePassed = dayjs(match.dateHour).isBefore(dayjs());
-
   const canConfirmScores = team?.hasConfirmedResults === null && isPlayed;
 
   // TODO: check if the user already has registered members in the match for canEditComposition
-  const canEditComposition = team && isPlanned && !matchDatePassed;
+  const canEditComposition = team && isPlanned;
 
-  const canEncodeScores = isAdmin && isPlanned && matchDatePassed;
+  const canEncodeScores = isAdmin && isInProgress;
 
   const canEditScores =
     isAdmin &&
