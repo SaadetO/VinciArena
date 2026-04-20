@@ -58,7 +58,7 @@ export const getMenuSectionDisplay = ({
   const showForfeit =
     isPlanned && !isForfeit && isManagerOfParticipant && bothTeamsKnown;
 
-  const showEditComposition = isManagerOfParticipant && isInProgress;
+  const showEditComposition = isManagerOfParticipant && isPlanned;
   const showTeamSection = showForfeit || showEditComposition;
 
   const hasContestedScore =
@@ -128,10 +128,10 @@ export const getOverlayDisplay = ({
   const isInProgress = match.status === 'IN_PROGRESS';
 
   const team =
-    match?.team1?.idTeam === authenticatedUser?.managedTeamId
-      ? match?.team1
-      : match?.team2?.idTeam === authenticatedUser?.managedTeamId
-        ? match?.team2
+    match.team1?.idTeam === authenticatedUser?.managedTeamId
+      ? match.team1
+      : match.team2?.idTeam === authenticatedUser?.managedTeamId
+        ? match.team2
         : null;
 
   const canConfirmScores = team?.hasConfirmedResults === null && isPlayed;
