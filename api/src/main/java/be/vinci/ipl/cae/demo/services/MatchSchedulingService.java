@@ -1,0 +1,86 @@
+package be.vinci.ipl.cae.demo.services;
+
+import be.vinci.ipl.cae.demo.models.entities.Match;
+import be.vinci.ipl.cae.demo.models.entities.MatchStatus;
+import be.vinci.ipl.cae.demo.models.entities.Team;
+import be.vinci.ipl.cae.demo.repositories.MatchRepository;
+import java.time.LocalDateTime;
+import java.util.List;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+/**
+ * Match scheduling service.
+ */
+@Service
+public class MatchSchedulingService {
+
+  private final MatchRepository matchRepository;
+  private final MatchService matchService;
+
+  /**
+   * Constructor.
+   */
+  public MatchSchedulingService(MatchRepository matchRepository, MatchService matchService) {
+    this.matchRepository = matchRepository;
+    this.matchService = matchService;
+  }
+
+  /**
+   * Periodically updates match statuses. Runs every 5 seconds to synchronize database state with
+   * the current time.
+   */
+  @Scheduled(initialDelay = 5000, fixedDelay = 5000)
+  @Transactional
+  public void enforceMatchStartRules() {
+    System.out.println("Updating matches...");
+    LocalDateTime now = LocalDateTime.now();
+    List<Match> startingMatches =
+        matchRepository.findByStatusAndDateHourLessThanEqual(MatchStatus.PLANNED, now);
+
+    for (Match match : startingMatches) {
+
+      Team t1 = match.getTeam1();
+      Team t2 = match.getTeam2();
+
+      if (t1 == null && t2 == null) {
+        match.setStatus(MatchStatus.PLAYED);
+        continue;
+      }
+
+      if (t1 != null && t2 == null) {
+        matchService.executeWalkover(match, t1, null);
+        continue;
+      }
+      if (t1 == null && t2 != null) {
+        matchService.executeWalkover(match, t2, null);
+        continue;
+      }
+
+      boolean team1Valid = hasFullRoster(t1);
+      boolean team2Valid = hasFullRoster(t2);
+
+      if (!team1Valid && !team2Valid) {
+        matchService.executeDoubleForfeit(match);
+      } else if (!team1Valid) {
+        matchService.executeWalkover(match, t2, t1);
+      } else if (!team2Valid) {
+        matchService.executeWalkover(match, t1, t2);
+      } else {
+        match.setStatus(MatchStatus.IN_PROGRESS);
+      }
+    }
+  }
+
+  /**
+   * Checks if the team has all 4 members.
+   *
+   * @param team the team
+   * @return true if it has all 4 members, false otherwise
+   */
+  private boolean hasFullRoster(Team team) {
+    return team.getMembers() != null && team.getMembers().size() >= 4;
+  }
+
+}
