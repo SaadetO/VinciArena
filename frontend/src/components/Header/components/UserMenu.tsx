@@ -60,7 +60,6 @@ export const UserMenu = () => {
           onClick={() => {
             clearUser();
             handleClose();
-            navigate('/');
           }}
           data-testid="user-menu-logout"
         >
