@@ -29,8 +29,7 @@ export const useMatchMenu = ({ match, refetch }: MatchMenuProps) => {
   const {
     handleForfeit,
     handleEditComposition,
-    handleContestScore,
-    handleConfirmScore,
+    handleConfirmOrContestScore,
     handleEncodeScore,
     handleEditScore,
   } = useMatchMenuAction({ refetch });
@@ -52,8 +51,7 @@ export const useMatchMenu = ({ match, refetch }: MatchMenuProps) => {
     displayMenu,
     handleForfeit,
     handleEditComposition,
-    handleContestScore,
-    handleConfirmScore,
+    handleConfirmOrContestScore,
     handleEncodeScore,
     handleEditScore,
     authenticatedUser,
