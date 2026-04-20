@@ -206,7 +206,7 @@ interface MatchSummaryDto {
   idMatch: number;
   dateHour: string;
   turn: number;
-  status: 'PLANNED' | 'PLAYED' | 'FORFEIT';
+  status: 'PLANNED' | 'PLAYED' | 'IN_PROGRESS' | 'FORFEIT';
   teams: Team[];
   team1: MatchTeamDto;
   team2: MatchTeamDto;

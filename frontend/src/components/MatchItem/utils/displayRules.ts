@@ -52,9 +52,9 @@ export const getMenuSectionDisplay = ({
     managedTeam?.hasConfirmedResults != null;
 
   const isPlanned = match.status === 'PLANNED';
+  const isInProgress = match.status === 'IN_PROGRESS';
   const isPlayed = match.status === 'PLAYED';
   const isForfeit = match.status === 'FORFEIT';
-  const matchDatePassed = dayjs(match.dateHour).isBefore(dayjs());
 
   const bothTeamsKnown = match?.team1 != null && match?.team2 != null;
 
@@ -62,7 +62,7 @@ export const getMenuSectionDisplay = ({
     isPlanned && !isForfeit && isManagerOfParticipant && bothTeamsKnown;
 
   const showEditComposition =
-    isManagerOfParticipant && isPlanned && !matchDatePassed;
+    isManagerOfParticipant && isPlanned && !isInProgress;
   const showTeamSection = showForfeit || showEditComposition;
 
   const hasContestedScore =
@@ -74,7 +74,7 @@ export const getMenuSectionDisplay = ({
     isPlayed &&
     !managedTeamScoresHaveBeenConfirmedOrContested;
 
-  const showAdminEncode = isAdmin && isPlanned && matchDatePassed;
+  const showAdminEncode = isAdmin && isPlanned && isInProgress;
 
   const showAdminModify =
     isAdmin &&

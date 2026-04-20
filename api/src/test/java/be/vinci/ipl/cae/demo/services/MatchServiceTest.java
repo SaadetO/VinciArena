@@ -15,7 +15,6 @@ import be.vinci.ipl.cae.demo.exceptions.MemberNotManagerOfTeamException;
 import be.vinci.ipl.cae.demo.exceptions.UnallowedTieException;
 import be.vinci.ipl.cae.demo.models.dtos.EncodeMatchResultDto;
 import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryDto;
-import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryTournamentDto;
 import be.vinci.ipl.cae.demo.models.entities.Tournament;
 import be.vinci.ipl.cae.demo.models.entities.TournamentStatus;
 import be.vinci.ipl.cae.demo.models.entities.Match;

@@ -1,15 +1,35 @@
-import { Box, Grid2, Stack, Typography, TypographyProps } from '@mui/material';
+import {
+  Box,
+  BoxProps,
+  Grid2,
+  Stack,
+  Typography,
+  TypographyProps,
+} from '@mui/material';
 import { MatchSummaryDto } from '../../../types';
 import { Link } from 'react-router-dom';
 import { useUser } from '../../../hooks/useUser';
+import { Flag } from '@gravity-ui/icons';
 
 interface VersusItemProps {
   match: MatchSummaryDto;
 }
 
+const boxProps: BoxProps = {
+  display: 'contents',
+  sx: {
+    color: (theme) => theme.palette.text.secondary,
+  },
+};
+
 export const VersusItem = ({ match }: VersusItemProps) => {
   const { authenticatedUser } = useUser();
+
+  const isAdmin = authenticatedUser?.admin;
   const isPlayed = match.status === 'PLAYED';
+  const isForfeit = match.status === 'FORFEIT';
+
+  const showScoresSection = isPlayed || isForfeit;
 
   const isConfirmed =
     match.team1?.hasConfirmedResults && match.team2?.hasConfirmedResults;
@@ -18,7 +38,7 @@ export const VersusItem = ({ match }: VersusItemProps) => {
     authenticatedUser?.managedTeamId === match.team1?.idTeam ||
     authenticatedUser?.managedTeamId === match.team2?.idTeam;
 
-  const revealScores = isConfirmed || isManager;
+  const revealScores = isConfirmed || isManager || isAdmin;
 
   const isFinal = match.isFinal;
   return (
@@ -30,13 +50,31 @@ export const VersusItem = ({ match }: VersusItemProps) => {
         justifyContent="flex-end"
         gap="1.25rem"
       >
-        <TeamItem matchTeam={match.team1} isFinal={isFinal} />
-        {isPlayed && (
+        <TeamItem
+          matchTeam={match.team1}
+          isFinal={isFinal}
+          isForfeit={isForfeit}
+        />
+        {showScoresSection && (
           <Typography
             variant="h4"
-            color={revealScores ? 'primary' : 'secondary'}
+            display="flex"
+            alignItems="center"
+            color={
+              revealScores && !match.team1?.hasForfeited
+                ? 'primary'
+                : 'secondary'
+            }
           >
-            {revealScores ? match.team1?.score : '-'}
+            {match.team1?.hasForfeited || !match.team1 ? (
+              <Box {...boxProps}>
+                <Flag />
+              </Box>
+            ) : revealScores ? (
+              match.team1?.score
+            ) : (
+              '-'
+            )}
           </Typography>
         )}
       </Grid2>
@@ -55,15 +93,33 @@ export const VersusItem = ({ match }: VersusItemProps) => {
         />
       </Stack>
       <Grid2 size={6} display="flex" alignItems="center" gap="1.25rem">
-        {isPlayed && (
+        {showScoresSection && (
           <Typography
             variant="h4"
-            color={revealScores ? 'primary' : 'secondary'}
+            display="flex"
+            alignItems="center"
+            color={
+              revealScores && !match.team2?.hasForfeited
+                ? 'primary'
+                : 'secondary'
+            }
           >
-            {revealScores ? match.team2?.score : '-'}
+            {match.team2?.hasForfeited || match?.team2 === null ? (
+              <Box {...boxProps}>
+                <Flag />
+              </Box>
+            ) : revealScores ? (
+              match.team2?.score
+            ) : (
+              '-'
+            )}
           </Typography>
         )}
-        <TeamItem matchTeam={match.team2} isFinal={isFinal} />
+        <TeamItem
+          matchTeam={match.team2}
+          isFinal={isFinal}
+          isForfeit={isForfeit}
+        />
       </Grid2>
     </Grid2>
   );
@@ -72,9 +128,11 @@ export const VersusItem = ({ match }: VersusItemProps) => {
 const TeamItem = ({
   matchTeam,
   isFinal,
+  isForfeit,
 }: {
   matchTeam: MatchSummaryDto['team1'] | MatchSummaryDto['team2'];
   isFinal: boolean;
+  isForfeit: boolean;
 }) => {
   const isWinner = matchTeam?.isWinner && isFinal;
   const props: TypographyProps = {
@@ -97,7 +155,11 @@ const TeamItem = ({
     noWrap: true,
   };
   if (!matchTeam?.idTeam || !matchTeam?.name)
-    return <Typography {...props}>TBD</Typography>;
+    return (
+      <Typography {...props}>
+        {isForfeit ? "Pas d'adversaire" : 'TBD'}
+      </Typography>
+    );
   return (
     <Typography component={Link} to={`/teams/${matchTeam?.idTeam}`} {...props}>
       {matchTeam?.name}

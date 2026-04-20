@@ -284,7 +284,7 @@ public class MatchService {
   private List<MatchLineup> getLineups(Match match) {
     List<MatchLineup> lineups = match.getLineups();
 
-    if (lineups == null || lineups.size() < 2) {
+    if (lineups == null || lineups.isEmpty()) {
       throw new MatchLineupNotFoundException("Match does not have both lineups.");
     }
 
@@ -314,6 +314,40 @@ public class MatchService {
     } else {
       throw new UnallowedTieException("Match ends in a tie, this is not allowed.");
     }
+  }
+
+  /**
+   * Executes a walkover (win by default). Called by the Scheduler.
+   */
+  @Transactional
+  public void executeWalkover(Match match, Team winningTeam, Team forfeitingTeam) {
+    if (match == null || winningTeam == null) {
+      return;
+    }
+
+    List<MatchLineup> lineups = match.getLineups();
+
+    MatchLineup winnerLineup =
+        lineups.stream().filter(l -> l.getTeam().equals(winningTeam)).findFirst().orElse(null);
+
+    if (winnerLineup != null) {
+      winnerLineup.setWinner(true);
+      winnerLineup.setScore(5);
+      winnerLineup.setHasConfirmedResults(true);
+    }
+    if (forfeitingTeam != null) {
+      MatchLineup forfeitLineup =
+          lineups.stream().filter(l -> l.getTeam().equals(forfeitingTeam)).findFirst().orElse(null);
+
+      if (forfeitLineup != null) {
+        winnerLineup.setHasForfeited(true);
+        winnerLineup.setHasConfirmedResults(true);
+      }
+    }
+
+    match.setStatus(MatchStatus.FORFEIT);
+
+    advanceWinnerToNextRound(match);
   }
 
   /**
@@ -379,7 +413,7 @@ public class MatchService {
    *
    * @param match the match to advance
    */
-  private void advanceWinnerToNextRound(Match match) {
+  public void advanceWinnerToNextRound(Match match) {
     if (match == null) {
       throw new MatchNotFoundException("Match not found.");
     }
@@ -387,10 +421,14 @@ public class MatchService {
     List<MatchLineup> lineups = match.getLineups();
 
     if (nextMatch == null) {
+      System.out
+          .println("❌ ABORTING ADVANCE: nextMatch is null for Match ID " + match.getIdMatch());
       return;
     }
 
     if (lineups == null || lineups.isEmpty()) {
+      System.out
+          .println("❌ ABORTING ADVANCE: No lineups exist in DB for Match ID " + match.getIdMatch());
       throw new MatchLineupNotFoundException("No lineups found for the match.");
     }
 
@@ -398,6 +436,10 @@ public class MatchService {
         lineups.stream().filter(MatchLineup::isWinner).findFirst().orElse(null);
 
     if (winnerLineup == null) {
+      System.out
+          .println(
+              "❌ ABORTING ADVANCE: Nobody is marked as the winner in Match ID "
+                  + match.getIdMatch());
       return;
     }
 
@@ -446,7 +488,6 @@ public class MatchService {
 
     return mapMatchToSummaryDto(match, match.getTournament());
   }
-
 
   /**
    * Applies the scores from the DTO to the corresponding team lineups.
@@ -500,4 +541,19 @@ public class MatchService {
     }
   }
 
+  /**
+   * Executes a double forfeit when neither team has enough players.
+   */
+  public void executeDoubleForfeit(Match match) {
+    if (match == null || match.getLineups() == null) {
+      return;
+    }
+
+    for (MatchLineup lineup : match.getLineups()) {
+      lineup.setHasForfeited(true);
+      lineup.setHasConfirmedResults(true);
+    }
+
+    match.setStatus(MatchStatus.FORFEIT);
+  }
 }

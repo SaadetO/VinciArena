@@ -10,6 +10,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -25,7 +26,8 @@ import lombok.Setter;
  * Match entity.
  */
 @Entity
-@Table(name = "matches")
+@Table(name = "matches",
+    indexes = {@Index(name = "idx_match_status_date", columnList = "status, date_hour")})
 @Getter
 @Setter
 @NoArgsConstructor
