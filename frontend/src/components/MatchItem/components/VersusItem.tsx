@@ -137,7 +137,7 @@ const TeamItem = ({
   const isWinner = matchTeam?.isWinner && isFinal;
   const props: TypographyProps = {
     variant: 'h4',
-    borderRadius: '100rem',
+    borderRadius: isWinner ? '100rem' : '0.25rem',
     padding: isWinner ? '0.125rem 0.75rem' : '',
     sx: {
       opacity: matchTeam?.name ? 1 : 0.5,
