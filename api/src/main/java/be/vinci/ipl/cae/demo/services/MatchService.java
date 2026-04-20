@@ -317,7 +317,7 @@ public class MatchService {
   }
 
   /**
-   * Executes a walkover (win by default). Called by the Scheduler.
+   * Executes a walkover (win by default).
    */
   @Transactional
   public void executeWalkover(Match match, Team winningTeam, Team forfeitingTeam) {
