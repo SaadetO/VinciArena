@@ -13,9 +13,10 @@ import { useMatchMenu } from '../hooks/useMatchMenu';
 
 interface MatchMenuProps {
   match: MatchSummaryDto;
+  refetch: () => void;
 }
 
-export const MatchMenu = ({ match }: MatchMenuProps) => {
+export const MatchMenu = ({ match, refetch }: MatchMenuProps) => {
   const {
     theme,
     anchorEl,
@@ -30,16 +31,16 @@ export const MatchMenu = ({ match }: MatchMenuProps) => {
     showAdminSection,
     needsDividerAfterTeam,
     needsDividerAfterScores,
-    hasAnySection,
+    displayMenu,
     handleForfeit,
     handleEditComposition,
-    handleContestScore,
-    handleConfirmScore,
+    handleConfirmOrContestScore,
     handleEncodeScore,
     handleEditScore,
-  } = useMatchMenu({ match });
+    authenticatedUser,
+  } = useMatchMenu({ match, refetch });
 
-  if (!hasAnySection) return null;
+  if (!displayMenu) return null;
 
   return (
     <>
@@ -114,21 +115,33 @@ export const MatchMenu = ({ match }: MatchMenuProps) => {
             </Typography>
             <MenuItem
               onClick={() => {
-                handleContestScore();
-                handleClose();
-              }}
-            >
-              <CircleXmark style={{ color: theme.palette.text.secondary }} />
-              <Typography variant="h5">Contester</Typography>
-            </MenuItem>
-            <MenuItem
-              onClick={() => {
-                handleConfirmScore();
+                handleConfirmOrContestScore({
+                  id: match.idMatch,
+                  isTeam1:
+                    authenticatedUser?.managedTeamId === match?.team1?.idTeam,
+                  isConfirming: true,
+                  previousMatch: match,
+                });
                 handleClose();
               }}
             >
               <CircleCheck style={{ color: theme.palette.text.secondary }} />
               <Typography variant="h5">Confirmer</Typography>
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                handleConfirmOrContestScore({
+                  id: match.idMatch,
+                  isTeam1:
+                    authenticatedUser?.managedTeamId === match?.team1?.idTeam,
+                  isConfirming: false,
+                  previousMatch: match,
+                });
+                handleClose();
+              }}
+            >
+              <CircleXmark style={{ color: theme.palette.text.secondary }} />
+              <Typography variant="h5">Contester</Typography>
             </MenuItem>
           </>
         )}
@@ -167,7 +180,7 @@ export const MatchMenu = ({ match }: MatchMenuProps) => {
                 <PencilToSquare
                   style={{ color: theme.palette.text.secondary }}
                 />
-                <Typography variant="h5">Modifier les Scores</Typography>
+                <Typography variant="h5">Corriger les Scores</Typography>
               </MenuItem>
             )}
           </>

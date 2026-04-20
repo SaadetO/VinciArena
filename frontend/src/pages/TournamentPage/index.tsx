@@ -16,6 +16,7 @@ import { publishTournamentModal } from './modals/publishTournamentModal';
 import { generateMatchesModal } from './modals/generateMatchesModal';
 import { groupMatchesByYearAndDay } from '../../utils/matchUtils';
 import { MatchYearGroup } from '../../components/MatchYearGroup';
+import { publishTournamentMatchModal } from './modals/publishTournamentMatch';
 
 export const TournamentPage = () => {
   const { id } = useParams();
@@ -34,6 +35,7 @@ export const TournamentPage = () => {
   const {
     getById,
     publish,
+    publishMatches,
     register,
     generateMatches,
     isGettingTournamentById,
@@ -53,6 +55,17 @@ export const TournamentPage = () => {
           publish(idNbr);
         }),
       );
+    } else if (
+      (status === 'REGISTRATION_CLOSED' && tournament?.matches?.length) ??
+      0 > 0
+    ) {
+      openModal(
+        publishTournamentMatchModal(async (close) => {
+          setLoading(true);
+          close();
+          publishMatches(idNbr);
+        }),
+      );
     } else if (status === 'REGISTRATION_CLOSED') {
       openModal(
         generateMatchesModal(async (close) => {
@@ -60,6 +73,21 @@ export const TournamentPage = () => {
           await generateMatches(idNbr);
           close();
         }),
+      );
+    }
+  };
+
+  const handleAdminAction2 = async (status: string) => {
+    if (!idNbr) return;
+    if (status === 'IN_PREPARATION') {
+      openEditModal(tournament!, setTournament);
+    } else if (status === 'REGISTRATION_CLOSED') {
+      openModal(
+        generateMatchesModal(async (close) => {
+          setLoading(true);
+          await generateMatches(idNbr);
+          close();
+        }, true),
       );
     }
   };
@@ -82,10 +110,16 @@ export const TournamentPage = () => {
   }, [tournament, isGettingTournamentById]);
 
   useEffect(() => {
-    if (idNbr) {
+    if (authenticatedUser === undefined) return;
+
+    getById(idNbr);
+
+    const intervalId = setInterval(() => {
       getById(idNbr);
-    }
-  }, [idNbr, getById]);
+    }, 15000);
+
+    return () => clearInterval(intervalId);
+  }, [authenticatedUser, idNbr, getById]);
 
   useEffect(() => {
     if (authenticatedUser === undefined) return;
@@ -97,10 +131,6 @@ export const TournamentPage = () => {
       });
     }
   }, [tournament?.status, authenticatedUser, setError]);
-
-  useEffect(() => {
-    console.log(tournament);
-  }, [tournament]);
 
   const groupedMatches = groupMatchesByYearAndDay(tournament?.matches ?? []);
 
@@ -121,20 +151,23 @@ export const TournamentPage = () => {
               <Stack spacing="1.5rem">
                 {authenticatedUser?.admin && tournament?.status && (
                   <AdminActionCard
+                    hasMatches={tournament.matches.length > 0}
                     status={tournament.status}
                     onAction={() => handleAdminAction(tournament.status)}
-                    onAction2={() => openEditModal(tournament!, setTournament)}
+                    onAction2={() => handleAdminAction2(tournament.status)}
                   />
                 )}
                 {(!authenticatedUser?.admin ||
                   (tournament?.status !== 'IN_PREPARATION' &&
-                    tournament?.status !== 'REGISTRATION_CLOSED')) &&
+                    tournament?.status !== 'REGISTRATION_CLOSED') ||
+                  (authenticatedUser?.admin &&
+                    tournament?.status === 'REGISTRATION_CLOSED')) &&
                   groupedMatches.map((yearGroup) => (
                     <MatchYearGroup
                       key={yearGroup.year}
                       year={yearGroup.year}
                       daysData={yearGroup.daysData}
-                      showYearLabel={groupedMatches.length > 1}
+                      refetch={() => getById(idNbr)}
                     />
                   ))}
               </Stack>

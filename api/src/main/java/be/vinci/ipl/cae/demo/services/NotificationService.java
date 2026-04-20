@@ -29,7 +29,8 @@ public class NotificationService {
    * @param memberRepository the repository for member data
    * @param notificationRepository the repository for notification data
    */
-  public NotificationService(MemberRepository memberRepository,
+  public NotificationService(
+      MemberRepository memberRepository,
       NotificationRepository notificationRepository) {
     this.memberRepository = memberRepository;
     this.notificationRepository = notificationRepository;
@@ -44,7 +45,8 @@ public class NotificationService {
    */
   public void notifyMember(Long idMember, String content, NotificationType type, Long idReference) {
 
-    Member member = memberRepository.findById(idMember)
+    Member member = memberRepository
+        .findById(idMember)
         .orElseThrow(() -> new IllegalArgumentException("Member not found"));
     saveNotification(member, content, type, idReference);
   }
@@ -82,7 +84,10 @@ public class NotificationService {
    * @param team the team whose managers will be notified
    * @param content the text message of the notification
    */
-  public void notifyTeamManagers(Team team, String content, NotificationType type,
+  public void notifyTeamManagers(
+      Team team,
+      String content,
+      NotificationType type,
       Long idReference) {
     Member manager1 = team.getManager1();
     Member manager2 = team.getManager2();
@@ -101,7 +106,10 @@ public class NotificationService {
    * @param content the message content
    * @throws IllegalArgumentException if content is null or blank
    */
-  private void saveNotification(Member member, String content, NotificationType type,
+  private void saveNotification(
+      Member member,
+      String content,
+      NotificationType type,
       Long idReference) {
     if (content == null || content.isBlank()) {
       throw new IllegalArgumentException("content must contain text");
@@ -131,8 +139,15 @@ public class NotificationService {
     }
     List<NotificationDto> dtos = new ArrayList<>();
     for (Notification entity : entities) {
-      dtos.add(new NotificationDto(entity.getIdNotification(), entity.getContent(), entity.isRead(),
-          entity.getDateTime(), entity.getType(), entity.getIdReference()));
+      dtos
+          .add(
+              new NotificationDto(
+                  entity.getIdNotification(),
+                  entity.getContent(),
+                  entity.isRead(),
+                  entity.getDateTime(),
+                  entity.getType(),
+                  entity.getIdReference()));
     }
     return dtos;
   }
@@ -144,8 +159,10 @@ public class NotificationService {
    * @throws EntityNotFoundException if the notification does not exist
    */
   public void markNotificationAsRead(long idNotification) {
-    Notification notification = notificationRepository.findById(idNotification).orElseThrow(
-        () -> new EntityNotFoundException("Notification not found with id: " + idNotification));
+    Notification notification = notificationRepository
+        .findById(idNotification)
+        .orElseThrow(
+            () -> new EntityNotFoundException("Notification not found with id: " + idNotification));
     notification.setRead(true);
     notificationRepository.save(notification);
   }

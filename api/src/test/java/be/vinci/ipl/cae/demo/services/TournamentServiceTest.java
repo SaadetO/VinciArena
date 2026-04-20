@@ -21,11 +21,10 @@ import be.vinci.ipl.cae.demo.models.entities.Tournament;
 import be.vinci.ipl.cae.demo.models.entities.TournamentStatus;
 import be.vinci.ipl.cae.demo.repositories.MatchLineupRepository;
 import be.vinci.ipl.cae.demo.repositories.MatchRepository;
-import be.vinci.ipl.cae.demo.repositories.MatchResultConfirmationRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
-import be.vinci.ipl.cae.demo.repositories.TeamRepository;
 import be.vinci.ipl.cae.demo.repositories.TournamentRepository;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,16 +41,11 @@ class TournamentServiceTest {
   @Mock
   private MemberRepository memberRepository;
 
+  @Mock
   private MatchLineupRepository matchLineupRepository;
 
   @Mock
   private MatchRepository matchRepository;
-
-  @Mock
-  private MatchResultConfirmationRepository confirmationRepository;
-
-  @Mock
-  private TeamRepository teamRepository;
 
   @Mock
   private TeamService teamService;
@@ -59,6 +53,13 @@ class TournamentServiceTest {
   @Mock
   private NotificationService notificationService;
 
+  @Mock
+  private MatchService matchService;
+
+  @Mock
+  private MatchLineupService matchLineupService;
+
+  @Mock
   private TournamentService tournamentService;
 
   private Member memberAdmin;
@@ -73,16 +74,26 @@ class TournamentServiceTest {
 
   @BeforeEach
   void setUp() {
-    tournamentService =
-        new TournamentService(tournamentRepository, memberRepository, matchLineupRepository,
-            matchRepository, confirmationRepository, teamRepository, teamService,
-            notificationService);
+    tournamentService = new TournamentService(
+        tournamentRepository,
+        memberRepository,
+        matchLineupRepository,
+        matchRepository,
+        teamService,
+        notificationService,
+        matchService,
+        matchLineupService);
 
     memberAdmin = new Member();
     memberAdmin.setAdmin(true);
 
-    newTournament = new NewTournament("un1", "ud1", LocalDate.of(2028, 1, 1),
-        LocalDate.of(2028, 1, 31), 4, LocalDate.of(2027, 12, 1).atStartOfDay());
+    newTournament = new NewTournament(
+        "un1",
+        "ud1",
+        LocalDate.of(2028, 1, 1),
+        LocalDate.of(2028, 1, 31),
+        4,
+        LocalDate.of(2027, 12, 1).atStartOfDay());
 
     manager = new Member();
     manager.setIdMember(1L);
@@ -100,7 +111,7 @@ class TournamentServiceTest {
     m3.setIdMember(3L);
     Member m4 = new Member();
     m4.setIdMember(4L);
-    team.setMembers(java.util.List.of(manager, m2, m3, m4));
+    team.setMembers(List.of(manager, m2, m3, m4));
 
     tournament = new Tournament();
     tournament.setIdTournament(100L);
@@ -181,12 +192,15 @@ class TournamentServiceTest {
     Tournament result = tournamentService.updateTournament(1L, newTournament, memberAdmin);
 
     // Assert
-    assertAll(() -> assertNotNull(result), () -> assertEquals("un1", result.getName()),
+    assertAll(
+        () -> assertNotNull(result),
+        () -> assertEquals("un1", result.getName()),
         () -> assertEquals("ud1", result.getDescription()),
         () -> assertEquals(LocalDate.of(2028, 1, 1), result.getStartDate()),
         () -> assertEquals(LocalDate.of(2028, 1, 31), result.getEndDate()),
         () -> assertEquals(4, result.getCapacity()),
-        () -> assertEquals(LocalDate.of(2027, 12, 1).atStartOfDay(),
+        () -> assertEquals(
+            LocalDate.of(2027, 12, 1).atStartOfDay(),
             result.getRegistrationDeadline()));
     verify(tournamentRepository, times(1)).save(tournament);
   }
@@ -197,7 +211,7 @@ class TournamentServiceTest {
     when(memberRepository.findById(1L)).thenReturn(Optional.of(manager));
     when(tournamentRepository.findById(100L)).thenReturn(Optional.of(tournament));
     when(teamService.isManager(team, manager)).thenReturn(true);
-    when(matchRepository.findByTournamentIdTournament(100L)).thenReturn(java.util.List.of());
+    when(matchRepository.findByTournament(tournament)).thenReturn(List.of());
 
     // Act
     TournamentDetailsDto result = tournamentService.registerTeam(100L, manager);
@@ -246,7 +260,7 @@ class TournamentServiceTest {
   void registerTeamNotEnoughMembers() {
     // Arrange
     when(memberRepository.findById(1L)).thenReturn(Optional.of(manager));
-    team.setMembers(java.util.List.of(manager, new Member())); // only 2 members
+    team.setMembers(List.of(manager, new Member())); // only 2 members
     when(teamService.isManager(team, manager)).thenReturn(true);
 
     // Act & Assert

@@ -1,9 +1,11 @@
 package be.vinci.ipl.cae.demo.repositories;
 
+import be.vinci.ipl.cae.demo.models.entities.Match;
 import be.vinci.ipl.cae.demo.models.entities.MatchLineup;
 import be.vinci.ipl.cae.demo.models.entities.MatchLineupId;
-import java.util.Collection;
+import be.vinci.ipl.cae.demo.models.entities.Team;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -21,10 +23,14 @@ public interface MatchLineupRepository extends JpaRepository<MatchLineup, MatchL
   List<MatchLineup> findByIdIdMatch(Long idMatch);
 
   /**
-   * Get a match by the id of the members.
-   *
-   * @param membersIdMembers the ids of the members
-   * @return an iterable of MatchLineups
+   * Retrieves the lineup for a specific match and team.
    */
-  Iterable<MatchLineup> findByMembersIdMemberIn(Collection<Long> membersIdMembers);
+  Optional<MatchLineup> findByMatchAndTeam(Match match, Team team);
+
+  /**
+   * Delete matchLineup linked to a list of matches.
+   *
+   * @param matches the matches the matchLineups are linked to
+   */
+  void deleteByMatchIn(List<Match> matches);
 }

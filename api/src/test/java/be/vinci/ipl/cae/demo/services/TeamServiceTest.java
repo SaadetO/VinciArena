@@ -1,5 +1,7 @@
 package be.vinci.ipl.cae.demo.services;
 
+import be.vinci.ipl.cae.demo.exceptions.*;
+
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -30,7 +32,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Sort;
-import org.springframework.web.server.ResponseStatusException;
 
 @ExtendWith(MockitoExtension.class)
 class TeamServiceTest {
@@ -91,7 +92,7 @@ class TeamServiceTest {
     when(teamRepository.existsByName("Taken Name")).thenReturn(true);
 
     // Act + Assert
-    assertThrows(ResponseStatusException.class, () ->
+    assertThrows(TeamNameAlreadyTakenException.class, () ->
       teamService.createTeam("Taken Name", creator)
     );
     verify(teamRepository, never()).save(any(Team.class));
@@ -108,7 +109,9 @@ class TeamServiceTest {
     when(teamRepository.existsByName("New Team")).thenReturn(false);
 
     // Act + Assert
-    assertThrows(ResponseStatusException.class, () -> teamService.createTeam("New Team", creator));
+    assertThrows(
+        UserAlreadyInTeamException.class,
+        () -> teamService.createTeam("New Team", creator));
     verify(memberRepository, never()).save(any(Member.class));
     verify(teamRepository, never()).save(any(Team.class));
   }
@@ -142,7 +145,7 @@ class TeamServiceTest {
     when(teamRepository.findById(1L)).thenReturn(Optional.empty());
 
     // Act + Assert
-    assertThrows(ResponseStatusException.class, () ->
+    assertThrows(TeamNotFoundException.class, () ->
       teamService.designateSecondManager(1L, 2L, creator)
     );
   }
@@ -156,7 +159,8 @@ class TeamServiceTest {
     when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
 
     // Act + Assert
-    assertThrows(ResponseStatusException.class,
+    assertThrows(
+        NotManagerException.class,
         () -> teamService.designateSecondManager(1L, 2L, creator));
   }
 
@@ -173,7 +177,8 @@ class TeamServiceTest {
     when(memberRepository.findById(2L)).thenReturn(Optional.empty());
 
     // Act + Assert
-    assertThrows(ResponseStatusException.class,
+    assertThrows(
+        MemberNotFoundException.class,
         () -> teamService.designateSecondManager(1L, 2L, creator));
   }
 
@@ -194,7 +199,8 @@ class TeamServiceTest {
     when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
 
     // Act + Assert
-    assertThrows(ResponseStatusException.class,
+    assertThrows(
+        UserNotInTeamException.class,
         () -> teamService.designateSecondManager(1L, 2L, creator));
   }
 
@@ -219,7 +225,8 @@ class TeamServiceTest {
     when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
 
     // Arrange + Act
-    assertThrows(ResponseStatusException.class,
+    assertThrows(
+        UserNotInTeamException.class,
         () -> teamService.designateSecondManager(1L, 2L, creator));
   }
 
@@ -290,7 +297,8 @@ class TeamServiceTest {
     Team result = teamService.designateSecondManager(1L, 2L, creator);
 
     // Assert
-    assertAll(() -> assertEquals(designatedMember, team.getManager1()),
+    assertAll(
+        () -> assertEquals(designatedMember, team.getManager1()),
         () -> assertEquals(team, result));
   }
 
@@ -316,7 +324,8 @@ class TeamServiceTest {
     Team result = teamService.designateSecondManager(1L, 2L, creator);
 
     // Assert
-    assertAll(() -> assertEquals(designatedMember, team.getManager2()),
+    assertAll(
+        () -> assertEquals(designatedMember, team.getManager2()),
         () -> assertEquals(team, result));
   }
 
@@ -342,14 +351,15 @@ class TeamServiceTest {
     when(memberRepository.findById(3L)).thenReturn(Optional.of(designatedMember));
 
     // Act + Assert
-    assertThrows(ResponseStatusException.class,
+    assertThrows(
+        NoManagerSpotsLeftException.class,
         () -> teamService.designateSecondManager(1L, 3L, creator));
   }
 
   @Test
   void getTeamDetails_NotFound() {
     when(teamRepository.findById(1L)).thenReturn(Optional.empty());
-    assertThrows(ResponseStatusException.class, () ->
+    assertThrows(TeamNotFoundException.class, () ->
       teamService.getTeamDetails(1L, null)
     );
   }
@@ -586,7 +596,7 @@ class TeamServiceTest {
     // Act
 
     // Assert
-    assertThrows(ResponseStatusException.class, () -> teamService.quitTeam(creator));
+    assertThrows(UserNotInTeamException.class, () -> teamService.quitTeam(creator));
   }
 
   @Test
@@ -656,7 +666,9 @@ class TeamServiceTest {
     teamService.quitTeam(creator);
 
     // Assert
-    assertAll(() -> assertNull(team.getManager1()), () -> assertNull(creator.getTeam()),
+    assertAll(
+        () -> assertNull(team.getManager1()),
+        () -> assertNull(creator.getTeam()),
         () -> assertFalse(team.getIsActive()));
   }
 
@@ -687,7 +699,7 @@ class TeamServiceTest {
 
     // Assert
     // assertNull(result);
-    assertThrows(ResponseStatusException.class, () -> teamService.quitTeam(creator));
+    assertThrows(LastManagerCannotQuitException.class, () -> teamService.quitTeam(creator));
   }
 
   @Test
@@ -715,7 +727,9 @@ class TeamServiceTest {
     teamService.quitTeam(creator);
 
     // Assert
-    assertAll(() -> assertNull(creator.getTeam()), () -> assertEquals(team.getManager1(), manager2),
+    assertAll(
+        () -> assertNull(creator.getTeam()),
+        () -> assertEquals(team.getManager1(), manager2),
         () -> assertNull(team.getManager2()));
   }
 
@@ -726,7 +740,8 @@ class TeamServiceTest {
     when(teamRepository.findById(unexistingTeamId)).thenReturn(Optional.empty());
 
     // Assert
-    assertThrows(ResponseStatusException.class,
+    assertThrows(
+        TeamNotFoundException.class,
         () -> teamService.resignManager(unexistingTeamId, creator, null));
   }
 
@@ -748,7 +763,7 @@ class TeamServiceTest {
     when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
 
     // Assert
-    assertThrows(ResponseStatusException.class, () -> teamService.resignManager(1L, creator, null));
+    assertThrows(NotManagerException.class, () -> teamService.resignManager(1L, creator, null));
   }
 
   @Test
@@ -762,7 +777,7 @@ class TeamServiceTest {
     when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
 
     // Assert
-    assertThrows(ResponseStatusException.class, () -> teamService.resignManager(1L, creator, 404L));
+    assertThrows(MemberNotFoundException.class, () -> teamService.resignManager(1L, creator, 404L));
   }
 
   @Test
@@ -780,7 +795,7 @@ class TeamServiceTest {
     when(memberRepository.findById(2L)).thenReturn(Optional.of(lonely));
 
     // Assert
-    assertThrows(ResponseStatusException.class, () -> teamService.resignManager(1L, creator, 2L));
+    assertThrows(UserNotInTeamException.class, () -> teamService.resignManager(1L, creator, 2L));
   }
 
   @Test
@@ -803,7 +818,7 @@ class TeamServiceTest {
     when(memberRepository.findById(2L)).thenReturn(Optional.of(memberOfAnotherTeam));
 
     // Assert
-    assertThrows(ResponseStatusException.class, () -> teamService.resignManager(1L, creator, 2L));
+    assertThrows(UserNotInTeamException.class, () -> teamService.resignManager(1L, creator, 2L));
   }
 
   @Test
@@ -825,7 +840,9 @@ class TeamServiceTest {
     when(memberRepository.findById(2L)).thenReturn(Optional.of(manager2));
 
     // Assert
-    assertThrows(ResponseStatusException.class, () -> teamService.resignManager(1L, creator, 2L));
+    assertThrows(
+        MemberAlreadyManagerException.class,
+        () -> teamService.resignManager(1L, creator, 2L));
   }
 
   @Test
@@ -944,7 +961,9 @@ class TeamServiceTest {
     when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
 
     // Act + Assert
-    assertThrows(ResponseStatusException.class, () -> teamService.resignManager(1L, creator, null));
+    assertThrows(
+        ReplacementRequiredException.class,
+        () -> teamService.resignManager(1L, creator, null));
   }
 
   @Test
@@ -986,6 +1005,6 @@ class TeamServiceTest {
     when(memberRepository.findById(2L)).thenReturn(Optional.of(replacement));
 
     // Act + Assert
-    assertThrows(ResponseStatusException.class, () -> teamService.resignManager(1L, creator, 2L));
+    assertThrows(UserNotInTeamException.class, () -> teamService.resignManager(1L, creator, 2L));
   }
 }

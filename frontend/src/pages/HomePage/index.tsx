@@ -3,16 +3,22 @@ import { TournamentYearGroup } from '../../components/TournamentYearGroup';
 import { TournamentControls } from './components/TournamentControls';
 import { TournamentListSkeleton } from '../../components/TournamentListSkeleton';
 import { useHomePage } from './hooks/useHomePage';
+import { useEffect } from 'react';
 
 export const HomePage = () => {
   const {
     filters,
+    fetchWithFilters,
     setFilters,
     authenticatedUser,
     isGettingTournaments,
     tournaments,
     groupedTournaments,
   } = useHomePage();
+
+  useEffect(() => {
+    fetchWithFilters();
+  }, [fetchWithFilters]);
   return (
     <Container component={Stack} spacing="2rem" maxWidth="md">
       <TournamentControls

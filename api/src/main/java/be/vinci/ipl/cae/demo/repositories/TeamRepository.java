@@ -31,9 +31,10 @@ public interface TeamRepository extends CrudRepository<Team, Long>, JpaSpecifica
   boolean existsByName(String name);
 
   /**
-   * Returns an iterable of all active teams.
+   * Retrieves a team entity based on its unique name.
    *
-   * @return an iterable of all active teams
+   * @param name the name of the team to search for
+   * @return the found {@link Team} entity, or null if no team exists with that name
    */
-  Iterable<Team> findByIsActiveTrue();
+  Team findByName(String name);
 }

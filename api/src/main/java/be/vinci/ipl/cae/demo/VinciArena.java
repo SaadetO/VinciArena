@@ -1,11 +1,16 @@
 package be.vinci.ipl.cae.demo;
 
+import be.vinci.ipl.cae.demo.models.entities.Match;
+import be.vinci.ipl.cae.demo.models.entities.MatchLineup;
+import be.vinci.ipl.cae.demo.models.entities.MatchStatus;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.ProfileImage;
 import be.vinci.ipl.cae.demo.models.entities.Specialty;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.models.entities.Tournament;
 import be.vinci.ipl.cae.demo.models.entities.TournamentStatus;
+import be.vinci.ipl.cae.demo.repositories.MatchLineupRepository;
+import be.vinci.ipl.cae.demo.repositories.MatchRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.ProfileImageRepository;
 import be.vinci.ipl.cae.demo.repositories.SpecialtyRepository;
@@ -15,8 +20,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.StreamSupport;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -31,7 +38,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @SuppressWarnings("PMD.UseUtilityClass")
 @SpringBootApplication
 @EnableScheduling
-public class DemoApplication {
+public class VinciArena {
 
   /**
    * Main method of the application.
@@ -40,18 +47,32 @@ public class DemoApplication {
    */
   public static void main(String[] args) {
 
-    SpringApplication.run(DemoApplication.class, args);
+    SpringApplication.run(VinciArena.class, args);
+  }
+
+  private void createEmptyMatchLineup(
+      Match match,
+      Team team,
+      MatchLineupRepository matchLineupRepo) {
+    // Assuming 3 slots per match per team
+    MatchLineup lineup = new MatchLineup();
+    lineup.setMatch(match);
+    lineup.setTeam(team);
+    lineup.setMembers(new HashSet<>()); // Empty slot
+    matchLineupRepo.save(lineup);
   }
 
   // default values for test
   @Bean
   CommandLineRunner seed(MemberRepository memberRepo, TeamRepository teamRepo,
       SpecialtyRepository specRepo, ProfileImageRepository imageRepo,
-      TournamentRepository tournamentRepo) {
+      TournamentRepository tournamentRepo, MatchRepository matchRepo,
+      MatchLineupRepository matchLineupRepo) {
     return args -> {
       // Create Specialities
       String[] specialities = {"architecte", "exécuteur", "tacticien", "gardien", "catalyseur",
           "perturbateur", "guérisseur"};
+
       Map<String, Specialty> specMap = new HashMap<>();
       for (String specialty : specialities) {
         Specialty spec = new Specialty();
@@ -78,6 +99,7 @@ public class DemoApplication {
 
       }
 
+      Map<String, Team> teamMap = new HashMap<>();
       MemberMockData[] memberDataList = {
           new MemberMockData("lea@mail.com", "Lynx", "tacticien", "2025-11-12", true, true,
               "TEAM_ALPHA"),
@@ -96,7 +118,6 @@ public class DemoApplication {
           new MemberMockData("zoe@mail.com", "Vector", "catalyseur", "2026-02-04", false, false,
               "TEAM_IOTA")};
 
-      Map<String, Team> teamMap = new HashMap<>();
       String pw = "Password1!";
       String encodedPw = new BCryptPasswordEncoder().encode(pw);
 
@@ -161,11 +182,9 @@ public class DemoApplication {
               "Tournoi hivernal réunissant des équipes semi-professionnelles", "2026-01-10",
               "2026-01-20", "2026-01-05T20:00:00", 12, 12, "TEAM_ALPHA", TournamentStatus.DONE),
 
-
           new TournamentMockData("Spring Battle Series 2026",
               "Série printanière avec élimination directe", "2026-04-04", "2026-04-11",
               "2026-04-01T20:00:00", 8, 8, null, TournamentStatus.IN_PROGRESS),
-
 
           new TournamentMockData("Vinci Easter Cup 2026",
               "Tournoi de Pâques ouvert à toutes les teams actives", "2026-04-15", "2026-04-25",
@@ -202,6 +221,43 @@ public class DemoApplication {
         t.setTeams(registered);
         tournamentRepo.save(t);
       }
+
+      // create mock matches
+      Tournament springBattle = StreamSupport.stream(tournamentRepo.findAll().spliterator(), false)
+          .filter(t -> "Spring Battle Series 2026".equals(t.getName()))
+          .findFirst()
+          .orElse(null);
+      Team alpha = teamRepo.findByName("TEAM_ALPHA");
+      Team omega = teamRepo.findByName("TEAM_OMEGA");
+
+      // MATCH 1: Alpha vs Omega
+      Match match1 = new Match();
+      match1.setTournament(springBattle);
+      match1.setTeam1(alpha);
+      match1.setTeam2(omega);
+      match1.setTurn(1);
+      match1.setDateHour(LocalDateTime.now().plusDays(2).withHour(14).withMinute(0));
+      match1.setStatus(MatchStatus.PLANNED);
+      match1 = matchRepo.save(match1);
+
+      Team iota = teamRepo.findByName("TEAM_IOTA");
+      Team ghost1 = teamRepo.findByName("TEAM_GHOST_1");
+      // MATCH 2: Iota vs Ghost 1
+      Match match2 = new Match();
+      match2.setTournament(springBattle);
+      match2.setTeam1(iota);
+      match2.setTeam2(ghost1);
+      match2.setTurn(1);
+      match2.setDateHour(LocalDateTime.now().plusDays(2).withHour(16).withMinute(30));
+      match2.setStatus(MatchStatus.PLANNED);
+      match2 = matchRepo.save(match2);
+      createEmptyMatchLineup(match1, alpha, matchLineupRepo);
+      createEmptyMatchLineup(match1, omega, matchLineupRepo);
+
+      // Match 2 slots
+      createEmptyMatchLineup(match2, iota, matchLineupRepo);
+      createEmptyMatchLineup(match2, ghost1, matchLineupRepo);
+
 
     };
   }

@@ -1,5 +1,6 @@
 package be.vinci.ipl.cae.demo.models.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
@@ -31,6 +32,7 @@ public class MatchLineup {
   @ManyToOne
   @MapsId("idMatch")
   @JoinColumn(name = "id_match")
+  @JsonIgnore
   private Match match;
 
   @ManyToOne
@@ -41,9 +43,11 @@ public class MatchLineup {
   @Column(nullable = false)
   private boolean hasForfeited = false;
 
-  private int score;
+  private Integer score;
 
   private boolean isWinner;
+
+  private Boolean hasConfirmedResults;
 
   @ManyToMany
   @JoinTable(name = "match_members",
@@ -53,16 +57,12 @@ public class MatchLineup {
   private Set<Member> members = new HashSet<>();
 
   /**
-   * Adds member to lineup.
+   * Replaces current lineup list with the given one.
    *
-   * @param member member being added to the lineup
-   * @return true if member added , false if not
+   * @param updatedMembers new lineup
    */
-  public boolean addMember(Member member) {
-    if (this.members.size() < 4) {
-      members.add(member);
-      return true;
-    }
-    return false;
+  public void replaceLineup(Set<Member> updatedMembers) {
+    this.members = updatedMembers;
   }
+
 }

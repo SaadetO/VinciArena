@@ -31,11 +31,11 @@ public final class TournamentSpecifications {
    * @return the specification
    */
   public static Specification<Tournament> hasStatuses(List<TournamentStatus> statuses) {
-    return (root, query, cb) -> {
-      if (statuses == null || statuses.isEmpty()) {
-        return null;
-      }
+    if (statuses == null || statuses.isEmpty()) {
+      return null;
+    }
 
+    return (root, query, cb) -> {
       return root.get("status").in(statuses);
     };
   }
@@ -57,11 +57,11 @@ public final class TournamentSpecifications {
    * @return the specification
    */
   public static Specification<Tournament> hasTeams(List<Long> teamIds) {
-    return (root, query, cb) -> {
-      if (teamIds == null || teamIds.isEmpty()) {
-        return null;
-      }
+    if (teamIds == null || teamIds.isEmpty()) {
+      return null;
+    }
 
+    return (root, query, cb) -> {
       query.distinct(true);
 
       Join<Tournament, Team> teamJoin = root.join("teams");
@@ -76,11 +76,11 @@ public final class TournamentSpecifications {
    * @return the specification
    */
   public static Specification<Tournament> hasMembersInMatches(List<Long> memberIds) {
-    return (root, query, cb) -> {
-      if (memberIds == null || memberIds.isEmpty()) {
-        return null;
-      }
+    if (memberIds == null || memberIds.isEmpty()) {
+      return null;
+    }
 
+    return (root, query, cb) -> {
       query.distinct(true);
 
       Subquery<Long> subquery = query.subquery(Long.class);
@@ -88,7 +88,8 @@ public final class TournamentSpecifications {
 
       Join<MatchLineup, Member> memberJoin = lineupRoot.join("members");
 
-      subquery.select(lineupRoot.get("match").get("tournament").get("idTournament"))
+      subquery
+          .select(lineupRoot.get("match").get("tournament").get("idTournament"))
           .where(memberJoin.get("idMember").in(memberIds));
 
       return root.get("idTournament").in(subquery);
@@ -103,11 +104,11 @@ public final class TournamentSpecifications {
    * @return the specification
    */
   public static Specification<Tournament> isBetweenDates(LocalDate minDate, LocalDate maxDate) {
-    return (root, query, cb) -> {
-      if (minDate == null && maxDate == null) {
-        return null;
-      }
+    if (minDate == null && maxDate == null) {
+      return null;
+    }
 
+    return (root, query, cb) -> {
       if (minDate != null && maxDate != null) {
         return cb.between(root.get("startDate"), minDate, maxDate);
       }

@@ -63,7 +63,9 @@ public final class BracketGenerator {
    * @param bracketSize The size of the bracket
    * @return The starting slots array
    */
-  private static Team[] assignTeamsToStartingSlots(List<Team> teams, List<Integer> seeds,
+  private static Team[] assignTeamsToStartingSlots(
+      List<Team> teams,
+      List<Integer> seeds,
       int bracketSize) {
     Collections.shuffle(teams);
     Team[] startingSlots = new Team[bracketSize];
@@ -109,7 +111,9 @@ public final class BracketGenerator {
    * @param matches The matches array
    * @param bracketSize The size of the bracket
    */
-  private static void populateRoundOneAndResolveByes(Team[] startingSlots, Match[] matches,
+  private static void populateRoundOneAndResolveByes(
+      Team[] startingSlots,
+      Match[] matches,
       int bracketSize) {
     int roundOneStartIndex = bracketSize / 2;
 
@@ -138,7 +142,11 @@ public final class BracketGenerator {
    * @param matches The matches array
    * @param currentIndex The current index in the matches array
    */
-  private static void advanceTeamToNextRound(Match currentMatch, Team t1, Team t2, Match[] matches,
+  private static void advanceTeamToNextRound(
+      Match currentMatch,
+      Team t1,
+      Team t2,
+      Match[] matches,
       int currentIndex) {
     Team winner = (t1 != null) ? t1 : t2;
     currentMatch.setStatus(MatchStatus.PLAYED);

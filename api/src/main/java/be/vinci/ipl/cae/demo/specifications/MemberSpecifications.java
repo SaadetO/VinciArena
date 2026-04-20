@@ -2,7 +2,6 @@ package be.vinci.ipl.cae.demo.specifications;
 
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.services.MemberService.MemberQueryStatus;
-import java.util.Locale;
 import org.springframework.data.jpa.domain.Specification;
 
 /**
@@ -24,18 +23,22 @@ public final class MemberSpecifications {
    * @return the specification
    */
   public static Specification<Member> hasState(MemberQueryStatus state) {
-    return (root, query, criteriaBuilder) -> {
-      if (state == null) {
-        return null;
-      }
+    if (state == null) {
+      return null;
+    }
 
+    return (root, query, criteriaBuilder) -> {
       switch (state) {
         case MemberQueryStatus.ADMIN:
-          return criteriaBuilder.and(criteriaBuilder.isTrue(root.get("isAdmin")),
-              criteriaBuilder.isFalse(root.get("isDeleted")));
+          return criteriaBuilder
+              .and(
+                  criteriaBuilder.isTrue(root.get("isAdmin")),
+                  criteriaBuilder.isFalse(root.get("isDeleted")));
         case MemberQueryStatus.MEMBER:
-          return criteriaBuilder.and(criteriaBuilder.isFalse(root.get("isAdmin")),
-              criteriaBuilder.isFalse(root.get("isDeleted")));
+          return criteriaBuilder
+              .and(
+                  criteriaBuilder.isFalse(root.get("isAdmin")),
+                  criteriaBuilder.isFalse(root.get("isDeleted")));
         case MemberQueryStatus.BANNED:
           return criteriaBuilder.and(criteriaBuilder.isTrue(root.get("isDeleted")));
         default:
@@ -51,16 +54,6 @@ public final class MemberSpecifications {
    * @return the specification
    */
   public static Specification<Member> search(String keyword) {
-    return (root, query, criteriaBuilder) -> {
-      if (keyword == null || keyword.isEmpty()) {
-        return null;
-      }
-
-      String pattern = "%" + keyword.trim().toLowerCase(Locale.ROOT) + "%";
-
-      return criteriaBuilder.or(
-          criteriaBuilder.like(criteriaBuilder.lower(root.get("tag")), pattern),
-          criteriaBuilder.like(criteriaBuilder.lower(root.get("email")), pattern));
-    };
+    return CommonSpecifications.searchByAttribute("tag", keyword);
   }
 }

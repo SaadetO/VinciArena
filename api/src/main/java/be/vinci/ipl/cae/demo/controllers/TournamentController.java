@@ -42,7 +42,8 @@ public class TournamentController {
    *
    * @param tournamentService the unavailability service
    */
-  public TournamentController(TournamentService tournamentService,
+  public TournamentController(
+      TournamentService tournamentService,
       TournamentRepository tournamentrepo) {
     this.tournamentService = tournamentService;
     this.tournamentRepo = tournamentrepo;
@@ -54,7 +55,7 @@ public class TournamentController {
    * @param statuses a list of statuses to filter by (OR filter)
    * @param teamsIds a list of team IDs to filter tournaments by (OR filter).
    * @param membersIds a list of member IDs whose teams filter the tournaments (OR filter).
-   * @param search a search query to match
+   * @param searchQuery a search query to match
    * @return the list of tournaments.
    */
   @GetMapping({"", "/"})
@@ -62,11 +63,11 @@ public class TournamentController {
       @RequestParam(required = false) List<TournamentStatus> statuses,
       @RequestParam(required = false) List<Long> teamsIds,
       @RequestParam(required = false) List<Long> membersIds,
-      @RequestParam(required = false) String search,
+      @RequestParam(required = false) String searchQuery,
       @RequestParam(required = false) LocalDate minDate,
       @RequestParam(required = false) LocalDate maxDate) {
-    return tournamentService.getTournaments(statuses, teamsIds, membersIds, search, minDate,
-        maxDate);
+    return tournamentService
+        .getTournaments(statuses, teamsIds, membersIds, searchQuery, minDate, maxDate);
   }
 
   /**
@@ -76,8 +77,10 @@ public class TournamentController {
    * @return a tournament details DTO.
    */
   @GetMapping("/{id}")
-  public TournamentDetailsDto getTournament(@PathVariable Long id) {
-    TournamentDetailsDto details = tournamentService.getTournamentDetails(id);
+  public TournamentDetailsDto getTournament(
+      @PathVariable Long id,
+      @AuthenticationPrincipal Member currentMember) {
+    TournamentDetailsDto details = tournamentService.getTournamentDetails(id, currentMember);
     if (details == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Tournament not found");
     }
@@ -99,7 +102,8 @@ public class TournamentController {
   @PostMapping("/")
   @ResponseStatus(HttpStatus.CREATED)
   @PreAuthorize("hasRole('ADMIN')") // Security handled here
-  public TournamentDetailsDto createTournament(@Valid @RequestBody NewTournament newTournament,
+  public TournamentDetailsDto createTournament(
+      @Valid @RequestBody NewTournament newTournament,
       @AuthenticationPrincipal Member currentMember) {
     validateNewTournament(newTournament, currentMember, null); // Removed currentMember check here
 
@@ -109,7 +113,7 @@ public class TournamentController {
       throw new ResponseStatusException(HttpStatus.CONFLICT, "Tournament already exists");
     }
 
-    return tournamentService.getTournamentDetails(createdTournament.getIdTournament());
+    return tournamentService.getTournamentDetails(createdTournament.getIdTournament(), null);
   }
 
   /**
@@ -123,7 +127,8 @@ public class TournamentController {
    */
   @PutMapping("/{id}")
   @PreAuthorize("hasRole('ADMIN')")
-  public TournamentDetailsDto updateTournament(@PathVariable Long id,
+  public TournamentDetailsDto updateTournament(
+      @PathVariable Long id,
       @Valid @RequestBody NewTournament newTournament,
       @AuthenticationPrincipal Member currentMember) {
     validateNewTournament(newTournament, currentMember, id);
@@ -135,7 +140,7 @@ public class TournamentController {
       throw new ResponseStatusException(HttpStatus.CONFLICT, "Tournament cannot be updated");
     }
 
-    return tournamentService.getTournamentDetails(updatedTournament.getIdTournament());
+    return tournamentService.getTournamentDetails(updatedTournament.getIdTournament(), null);
   }
 
   /**
@@ -148,19 +153,32 @@ public class TournamentController {
    */
   @PatchMapping("/{id}/publish")
   @PreAuthorize("hasRole('ADMIN')")
-  public TournamentDetailsDto publishTournament(@PathVariable Long id,
+  public TournamentDetailsDto publishTournament(
+      @PathVariable Long id,
       @AuthenticationPrincipal Member currentMember) {
-    if (!currentMember.isAdmin()) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-    }
 
     Tournament publishedTournament = tournamentService.publishTournament(id, currentMember);
 
-    if (publishedTournament == null) {
-      throw new ResponseStatusException(HttpStatus.CONFLICT, "Tournament cannot be published");
-    }
+    return tournamentService.getTournamentDetails(publishedTournament.getIdTournament(), null);
+  }
 
-    return tournamentService.getTournamentDetails(publishedTournament.getIdTournament());
+  /**
+   * Patch a tournament in the system. The patch is only possible if the tournament's status is
+   * IN_PREPARATION and the member is an admin.
+   *
+   * @param id the tournament id.
+   * @param currentMember the current member.
+   * @return the patched tournament
+   */
+  @PatchMapping("/{id}/publish-matches")
+  @PreAuthorize("hasRole('ADMIN')")
+  public TournamentDetailsDto publishTournamentMatches(
+      @PathVariable Long id,
+      @AuthenticationPrincipal Member currentMember) {
+
+    Tournament publishedTournament = tournamentService.publishTournamentMatches(id, currentMember);
+
+    return tournamentService.getTournamentDetails(publishedTournament.getIdTournament(), null);
   }
 
   private void validateNewTournament(NewTournament dto, Member currentMember, Long id) {
@@ -193,14 +211,17 @@ public class TournamentController {
     checkDateRange(dto.registrationDeadline(), dto.startDate(), dto.endDate());
   }
 
-  private void checkDateRange(LocalDateTime registrationDeadline, LocalDate startDate,
+  private void checkDateRange(
+      LocalDateTime registrationDeadline,
+      LocalDate startDate,
       LocalDate endDate) {
     LocalDate today = LocalDate.now();
     if (registrationDeadline.isBefore(today.atStartOfDay())) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Deadline cannot be in the past");
     }
     if (endDate.isBefore(startDate)) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST,
           "End date must be after start date");
     }
   }
@@ -218,7 +239,8 @@ public class TournamentController {
   @PostMapping("/{id}/register")
   @ResponseStatus(HttpStatus.OK)
   @PreAuthorize("isAuthenticated()")
-  public TournamentDetailsDto registerTeamToTournament(@PathVariable Long id,
+  public TournamentDetailsDto registerTeamToTournament(
+      @PathVariable Long id,
       @AuthenticationPrincipal Member currentMember) {
     return tournamentService.registerTeam(id, currentMember);
   }
@@ -230,9 +252,11 @@ public class TournamentController {
    */
   @PostMapping("/{id}/matches")
   @PreAuthorize("hasRole('ADMIN')")
-  public TournamentDetailsDto generateMatch(@PathVariable Long id) {
+  public TournamentDetailsDto generateMatch(
+      @PathVariable Long id,
+      @AuthenticationPrincipal Member currentMember) {
     System.out.println("Generating matches for tournament " + id);
     tournamentService.generateMatches(id);
-    return tournamentService.getTournamentDetails(id);
+    return tournamentService.getTournamentDetails(id, currentMember);
   }
 }
