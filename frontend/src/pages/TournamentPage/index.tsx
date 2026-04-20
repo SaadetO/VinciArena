@@ -110,10 +110,16 @@ export const TournamentPage = () => {
   }, [tournament, isGettingTournamentById]);
 
   useEffect(() => {
-    if (idNbr) {
+    if (authenticatedUser === undefined) return;
+
+    getById(idNbr);
+
+    const intervalId = setInterval(() => {
       getById(idNbr);
-    }
-  }, [idNbr, getById]);
+    }, 15000);
+
+    return () => clearInterval(intervalId);
+  }, [authenticatedUser, idNbr, getById]);
 
   useEffect(() => {
     if (authenticatedUser === undefined) return;
