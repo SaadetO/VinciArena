@@ -210,6 +210,7 @@ public class MatchService {
     Match match = handleMatchResult(matchId, member, true);
 
     if (bothTeamsConfirmed(match)) {
+      match.setStatus(MatchStatus.PLAYED);
       updateWinner(match);
       advanceWinnerToNextRound(match);
     }
@@ -245,7 +246,7 @@ public class MatchService {
    *
    * @param match the match to update the winner for
    */
-  private void updateWinner(Match match) {
+  public void updateWinner(Match match) {
     if (match == null) {
       throw new MatchNotFoundException("Match not found.");
     }
@@ -484,7 +485,8 @@ public class MatchService {
     List<MatchLineup> lineups = getLineups(match);
     applyScores(match, lineups, dto);
 
-    match.setStatus(MatchStatus.PLAYED);
+    match.setScoreEncodedAt(LocalDateTime.now());
+    match.setStatus(MatchStatus.AWAITING_VALIDATION);
 
     return mapMatchToSummaryDto(match, match.getTournament());
   }
