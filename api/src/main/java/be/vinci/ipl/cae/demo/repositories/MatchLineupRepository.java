@@ -4,6 +4,7 @@ import be.vinci.ipl.cae.demo.models.entities.Match;
 import be.vinci.ipl.cae.demo.models.entities.MatchLineup;
 import be.vinci.ipl.cae.demo.models.entities.MatchLineupId;
 import be.vinci.ipl.cae.demo.models.entities.Team;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface MatchLineupRepository extends JpaRepository<MatchLineup, MatchLineupId> {
+
   /**
    * Get match lineups for a specific match.
    *
@@ -33,4 +35,13 @@ public interface MatchLineupRepository extends JpaRepository<MatchLineup, MatchL
    * @param matches the matches the matchLineups are linked to
    */
   void deleteByMatchIn(List<Match> matches);
+
+  /**
+   * Get match lineups for a specific team where the match is in the future.
+   *
+   * @param team the team to filter by
+   * @param now  the current date/time to compare against
+   * @return a list of future match lineups for the team
+   */
+  List<MatchLineup> findByTeamAndMatchDateHourAfter(Team team, LocalDateTime now);
 }

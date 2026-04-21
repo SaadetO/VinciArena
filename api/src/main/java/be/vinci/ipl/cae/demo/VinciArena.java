@@ -103,6 +103,8 @@ public class VinciArena {
       MemberMockData[] memberDataList = {
           new MemberMockData("lea@mail.com", "Lynx", "tacticien", "2025-11-12", true, true,
               "TEAM_ALPHA"),
+          new MemberMockData("test@mail.com", "delete_me", "tacticien", "2025-11-12", false, false,
+              "TEAM_ALPHA"),
           new MemberMockData("tom@mail.com", "Rogue", "exécuteur", "2025-12-03", false, false,
               "TEAM_ALPHA"),
           new MemberMockData("ines@mail.com", "Pulse", "guérisseur", "2026-01-18", false, false,
@@ -187,8 +189,8 @@ public class VinciArena {
               "2026-04-01T20:00:00", 8, 8, null, TournamentStatus.IN_PROGRESS),
 
           new TournamentMockData("Vinci Easter Cup 2026",
-              "Tournoi de Pâques ouvert à toutes les teams actives", "2026-04-15", "2026-04-25",
-              "2026-04-08T20:00:00", 8, 7, null, TournamentStatus.REGISTRATION_OPEN),
+              "Tournoi de Pâques ouvert à toutes les teams actives", "2027-04-15", "2027-04-25",
+              "2027-04-08T20:00:00", 8, 7, null, TournamentStatus.REGISTRATION_OPEN),
           new TournamentMockData("Elite Championship 2026",
               "Compétition élite réservée aux meilleures teams", "2026-05-15", "2026-05-30",
               "2026-05-11T20:00:00", 16, 14, null, TournamentStatus.REGISTRATION_OPEN)};
@@ -204,13 +206,13 @@ public class VinciArena {
         t.setStatus(data.status());
         t.setWinner(teamMap.get(data.winnerTeamName));
 
-        // Remplissage des teams inscrites (List<Team>)
+        // filling registered teams
         List<Team> registered = new ArrayList<>();
         for (int i = 0; i < data.teamCount() && i < poolOfTeams.size(); i++) {
           registered.add(poolOfTeams.get(i));
         }
 
-        // On force la présence du gagnant dans les inscrits
+        // force the presence of winner
         if (data.winnerTeamName() != null) {
           Team winner = teamMap.get(data.winnerTeamName());
           if (winner != null) {
