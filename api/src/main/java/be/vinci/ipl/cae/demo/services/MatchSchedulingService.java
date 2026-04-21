@@ -58,8 +58,8 @@ public class MatchSchedulingService {
         continue;
       }
 
-      boolean team1Valid = hasFullRoster(t1);
-      boolean team2Valid = hasFullRoster(t2);
+      boolean team1Valid = hasEnoughPlayers(t1);
+      boolean team2Valid = hasEnoughPlayers(t2);
 
       if (!team1Valid && !team2Valid) {
         matchService.executeDoubleForfeit(match);
@@ -74,13 +74,13 @@ public class MatchSchedulingService {
   }
 
   /**
-   * Checks if the team has all 4 members.
+   * Checks if the team has all required members.
    *
    * @param team the team
-   * @return true if it has all 4 members, false otherwise
+   * @return true if it has all required members, false otherwise
    */
-  private boolean hasFullRoster(Team team) {
-    return team.getMembers() != null && team.getMembers().size() >= 4;
+  private boolean hasEnoughPlayers(Team team) {
+    return team.getMembers() != null && team.getMembers().size() >= 1;
   }
 
 }

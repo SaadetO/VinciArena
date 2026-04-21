@@ -57,6 +57,8 @@ public class Match {
 
   @Column(nullable = false)
   private LocalDateTime dateHour;
+  
+  private LocalDateTime scoreEncodedAt;
 
   // Enum mapped to String to save 'PLANIFIE' instead of 0
   @Enumerated(EnumType.STRING)
