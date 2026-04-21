@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
 import { List, CircularProgress, Stack, Typography, Box } from '@mui/material';
-import { MemberSummaryDto } from '../../../types';
-import { useMatches } from '../../../hooks/useMatches';
 import { PlayerItem } from './components/PlayerItem';
+import { MemberSummaryDto } from '../../../types';
+import { useLineup } from './LineupContext';
+import { LineupProvider } from './LineupProvider';
 
 interface LineupModalProps {
   matchId: number;
@@ -10,57 +10,14 @@ interface LineupModalProps {
   onSelectionChange: (ids: number[]) => void;
 }
 
-export const LineupModal = ({
-  matchId,
-  teamId,
-  onSelectionChange,
-}: LineupModalProps) => {
-  const [allMembers, setAllMembers] = useState<MemberSummaryDto[]>([]);
-  const [selectedIds, setSelectedIds] = useState<number[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const { getLineup, getAvailableMembers } = useMatches();
-
-  // calculate places left to define
-  const remainingPlaces = Math.max(0, 4 - selectedIds.length);
-
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const [members, lineup] = await Promise.all([
-          getAvailableMembers({ matchId }),
-          getLineup({ matchId, teamId }),
-        ]);
-
-        if (members) setAllMembers(members);
-        if (lineup) {
-          const initialIds = lineup.players.map((p: MemberSummaryDto) => p.id);
-          setSelectedIds(initialIds);
-          onSelectionChange(initialIds);
-        }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadData();
-  }, [getAvailableMembers, getLineup, matchId, onSelectionChange, teamId]);
-
-  const handleToggle = (id: number) => {
-    const isAlreadySelected = selectedIds.includes(id);
-
-    const newSelection = isAlreadySelected
-      ? selectedIds.filter((selectedId: number) => selectedId !== id) // Remove
-      : [...selectedIds, id]; // Add
-
-    setSelectedIds(newSelection);
-    onSelectionChange(newSelection);
-  };
+// component using the context
+const LineupModalContent = () => {
+  const { allMembers, loading, selectedIds, remainingPlaces, handleToggle } =
+    useLineup();
 
   if (loading)
     return (
-      <Stack alignItems="center" p={4}>
+      <Stack alignItems="center" p={4} minHeight="200px">
         <CircularProgress />
       </Stack>
     );
@@ -86,8 +43,7 @@ export const LineupModal = ({
             : `Votre équipe est prête !`}
         </Typography>
       </Box>
-
-      <List sx={{ pt: 1 }}>
+      <List sx={{ width: '100%', maxWidth: 500, mx: 'auto' }}>
         {allMembers.map((member: MemberSummaryDto) => (
           <PlayerItem
             key={member.id}
@@ -100,3 +56,10 @@ export const LineupModal = ({
     </Box>
   );
 };
+
+// wrap the modal in the provider
+export const LineupModal = (props: LineupModalProps) => (
+  <LineupProvider {...props}>
+    <LineupModalContent />
+  </LineupProvider>
+);
