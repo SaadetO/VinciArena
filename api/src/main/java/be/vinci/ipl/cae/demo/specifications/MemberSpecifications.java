@@ -30,11 +30,15 @@ public final class MemberSpecifications {
     return (root, query, criteriaBuilder) -> {
       switch (state) {
         case MemberQueryStatus.ADMIN:
-          return criteriaBuilder.and(criteriaBuilder.isTrue(root.get("isAdmin")),
-              criteriaBuilder.isFalse(root.get("isDeleted")));
+          return criteriaBuilder
+              .and(
+                  criteriaBuilder.isTrue(root.get("isAdmin")),
+                  criteriaBuilder.isFalse(root.get("isDeleted")));
         case MemberQueryStatus.MEMBER:
-          return criteriaBuilder.and(criteriaBuilder.isFalse(root.get("isAdmin")),
-              criteriaBuilder.isFalse(root.get("isDeleted")));
+          return criteriaBuilder
+              .and(
+                  criteriaBuilder.isFalse(root.get("isAdmin")),
+                  criteriaBuilder.isFalse(root.get("isDeleted")));
         case MemberQueryStatus.BANNED:
           return criteriaBuilder.and(criteriaBuilder.isTrue(root.get("isDeleted")));
         default:

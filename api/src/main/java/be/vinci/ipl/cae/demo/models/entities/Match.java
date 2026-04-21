@@ -1,5 +1,7 @@
 package be.vinci.ipl.cae.demo.models.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -8,6 +10,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -23,7 +26,8 @@ import lombok.Setter;
  * Match entity.
  */
 @Entity
-@Table(name = "matches")
+@Table(name = "matches",
+    indexes = {@Index(name = "idx_match_status_date", columnList = "status, date_hour")})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -54,6 +58,8 @@ public class Match {
   @Column(nullable = false)
   private LocalDateTime dateHour;
 
+  private LocalDateTime scoreEncodedAt;
+
   // Enum mapped to String to save 'PLANIFIE' instead of 0
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
@@ -64,7 +70,8 @@ public class Match {
   @JoinColumn(name = "id_next_match")
   private Match nextMatch;
 
-  @OneToMany(mappedBy = "match")
+  @OneToMany(mappedBy = "match", cascade = CascadeType.ALL, orphanRemoval = true)
+  @JsonIgnore
   private List<MatchLineup> lineups = new ArrayList<>();
 
   /**

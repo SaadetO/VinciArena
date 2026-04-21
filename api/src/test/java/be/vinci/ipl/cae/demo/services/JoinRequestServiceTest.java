@@ -105,7 +105,8 @@ class JoinRequestServiceTest {
 
     when(teamService.getExistingTeam(2L)).thenReturn(team);
 
-    UserAlreadyInTeamException exception = assertThrows(UserAlreadyInTeamException.class,
+    UserAlreadyInTeamException exception = assertThrows(
+        UserAlreadyInTeamException.class,
         () -> joinRequestService.createJoinRequest(2L, requester));
 
     assertEquals("Vous appartenez déjà à une équipe", exception.getMessage());
@@ -156,8 +157,12 @@ class JoinRequestServiceTest {
     verify(memberRepository).save(requester);
 
     // verify with type and reference
-    verify(notificationService).notifyMember(eq(requester.getIdMember()), anyString(),
-        eq(NotificationType.TEAM), eq(null));
+    verify(notificationService)
+        .notifyMember(
+            eq(requester.getIdMember()),
+            anyString(),
+            eq(NotificationType.TEAM),
+            eq(null));
 
     verify(joinRequestRepository).deleteAllByMemberAndStatus(requester, RequestStatus.PENDING);
   }
@@ -181,8 +186,8 @@ class JoinRequestServiceTest {
     when(joinRequestRepository.findById(100L)).thenReturn(Optional.of(jr));
 
     // Act
-    JoinRequestDto result = joinRequestService.updateJoinRequestStatus(100L, RequestStatus.REJECTED,
-        "Pas de place", manager);
+    JoinRequestDto result = joinRequestService
+        .updateJoinRequestStatus(100L, RequestStatus.REJECTED, "Pas de place", manager);
 
     // Assert
     assertNotNull(result);
@@ -190,8 +195,12 @@ class JoinRequestServiceTest {
     verify(joinRequestRepository).save(jr);
 
     // verify with type and reference
-    verify(notificationService).notifyMember(eq(requester.getIdMember()), anyString(),
-        eq(NotificationType.TEAM), eq(null));
+    verify(notificationService)
+        .notifyMember(
+            eq(requester.getIdMember()),
+            anyString(),
+            eq(NotificationType.TEAM),
+            eq(null));
 
     verify(memberRepository, never()).save(any(Member.class));
     verify(joinRequestRepository, never()).deleteAllByMemberAndStatus(any(), any());
@@ -215,11 +224,14 @@ class JoinRequestServiceTest {
 
     when(joinRequestRepository.findById(100L)).thenReturn(Optional.of(jr));
     doThrow(new NotManagerException("L'utilisateur n'a pas les droits de responsable."))
-        .when(teamService).requireManager(teamA, intruder);
+        .when(teamService)
+        .requireManager(teamA, intruder);
 
     // Act & Assert
-    assertThrows(NotManagerException.class, () -> joinRequestService.updateJoinRequestStatus(100L,
-        RequestStatus.ACCEPTED, null, intruder));
+    assertThrows(
+        NotManagerException.class,
+        () -> joinRequestService
+            .updateJoinRequestStatus(100L, RequestStatus.ACCEPTED, null, intruder));
   }
 
   @Test
@@ -239,7 +251,9 @@ class JoinRequestServiceTest {
     when(joinRequestRepository.findById(100L)).thenReturn(Optional.of(jr));
 
     // Act & Assert
-    assertThrows(InvalidJoinRequestException.class, () -> joinRequestService
-        .updateJoinRequestStatus(100L, RequestStatus.REJECTED, null, manager));
+    assertThrows(
+        InvalidJoinRequestException.class,
+        () -> joinRequestService
+            .updateJoinRequestStatus(100L, RequestStatus.REJECTED, null, manager));
   }
 }

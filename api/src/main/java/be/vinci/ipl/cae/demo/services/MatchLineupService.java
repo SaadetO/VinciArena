@@ -63,12 +63,14 @@ public class MatchLineupService {
    * belong to that team, and verifies their availability for the match's date and time. If
    * validation passes, the existing lineup is replaced.
    *
-   * @param newLineup     DTO containing the list of member IDs for the lineup.
-   * @param matchId       The unique identifier of the match to update.
+   * @param newLineup DTO containing the list of member IDs for the lineup.
+   * @param matchId The unique identifier of the match to update.
    * @param currentMember The currently authenticated member performing the update.
    * @return A MatchLineupDto representing the newly updated state of the lineup.
    **/
-  public MatchLineupDto updateLineup(NewMatchLineupDto newLineup, Long matchId,
+  public MatchLineupDto updateLineup(
+      NewMatchLineupDto newLineup,
+      Long matchId,
       Member currentMember) {
     Set<Member> membersSet = validateMatchLineup(newLineup, matchId, currentMember);
     Match match = matchRepository.getMatchByIdMatch(matchId);
@@ -153,6 +155,24 @@ public class MatchLineupService {
             team.getName(),
             Collections.emptySet()
         ));
+  }
+
+  /**
+   * Create a default lineup for a match and team.
+   *
+   * @param match the match
+   * @param team the team
+   * @return the default lineup
+   */
+  public MatchLineup createDefaultLineup(Match match, Team team) {
+    MatchLineup lineup = new MatchLineup();
+    lineup.setMatch(match);
+    lineup.setTeam(team);
+    lineup.setWinner(false);
+    lineup.setHasForfeited(false);
+    lineup.setHasConfirmedResults(null);
+
+    return lineup;
   }
 
 }

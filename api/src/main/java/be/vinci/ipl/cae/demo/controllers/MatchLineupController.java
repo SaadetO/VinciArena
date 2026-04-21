@@ -40,7 +40,8 @@ public class MatchLineupController {
   @ResponseStatus(HttpStatus.OK)
   @PatchMapping("/match/{id}")
   @PreAuthorize("isAuthenticated()")
-  public MatchLineupDto updateLineup(@PathVariable Long id,
+  public MatchLineupDto updateLineup(
+      @PathVariable Long id,
       @Valid @RequestBody NewMatchLineupDto newMatchLineupDto,
       @AuthenticationPrincipal Member currentMember) {
     return matchLineupService.updateLineup(newMatchLineupDto, id, currentMember);

@@ -88,7 +88,8 @@ public final class TournamentSpecifications {
 
       Join<MatchLineup, Member> memberJoin = lineupRoot.join("members");
 
-      subquery.select(lineupRoot.get("match").get("tournament").get("idTournament"))
+      subquery
+          .select(lineupRoot.get("match").get("tournament").get("idTournament"))
           .where(memberJoin.get("idMember").in(memberIds));
 
       return root.get("idTournament").in(subquery);

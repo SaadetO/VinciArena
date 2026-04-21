@@ -1,6 +1,5 @@
 package be.vinci.ipl.cae.demo.services;
 
-import be.vinci.ipl.cae.demo.exceptions.AlreadyPlayedMatchInTournamentMatchGenerationAttemptException;
 import be.vinci.ipl.cae.demo.exceptions.DuplicateRegistrationException;
 import be.vinci.ipl.cae.demo.exceptions.ImpossibleTournamentException;
 import be.vinci.ipl.cae.demo.exceptions.InactiveTeamException;
@@ -37,7 +36,6 @@ import java.util.Comparator;
 import java.util.List;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,14 +52,20 @@ public class TournamentService {
   private final NotificationService notificationService;
   private final TeamService teamService;
   private final MatchService matchService;
+  private final MatchLineupService matchLineupService;
 
   /**
    * Constructor.
    */
-  public TournamentService(TournamentRepository tournamentRepository,
-      MemberRepository memberRepository, MatchLineupRepository matchLineupRepository,
-      MatchRepository matchRepository, TeamService teamService,
-      NotificationService notificationService, MatchService matchService) {
+  public TournamentService(
+      TournamentRepository tournamentRepository,
+      MemberRepository memberRepository,
+      MatchLineupRepository matchLineupRepository,
+      MatchRepository matchRepository,
+      TeamService teamService,
+      NotificationService notificationService,
+      MatchService matchService,
+      MatchLineupService matchLineupService) {
     this.tournamentRepository = tournamentRepository;
     this.memberRepository = memberRepository;
     this.matchLineupRepository = matchLineupRepository;
@@ -69,6 +73,7 @@ public class TournamentService {
     this.notificationService = notificationService;
     this.teamService = teamService;
     this.matchService = matchService;
+    this.matchLineupService = matchLineupService;
   }
 
   /**
@@ -88,10 +93,18 @@ public class TournamentService {
 
     List<MatchSummaryDto> matches = getMatchesSummaryDto(tournament, member);
 
-    return new TournamentDetailsDto(tournament.getIdTournament(), tournament.getName(),
-        tournament.getDescription(), tournament.getStartDate(), tournament.getEndDate(),
-        tournament.getRegistrationDeadline(), tournament.getStatus(), tournament.getCapacity(),
-        tournament.getRegistrationsNumber(), teams, matches);
+    return new TournamentDetailsDto(
+        tournament.getIdTournament(),
+        tournament.getName(),
+        tournament.getDescription(),
+        tournament.getStartDate(),
+        tournament.getEndDate(),
+        tournament.getRegistrationDeadline(),
+        tournament.getStatus(),
+        tournament.getCapacity(),
+        tournament.getRegistrationsNumber(),
+        teams,
+        matches);
   }
 
   /**
@@ -101,7 +114,10 @@ public class TournamentService {
    * @return the teams of the tournament
    */
   private List<TeamSummaryDto> getTeams(Tournament tournament) {
-    return tournament.getTeams().stream().map(t -> new TeamSummaryDto(t.getIdTeam(), t.getName()))
+    return tournament
+        .getTeams()
+        .stream()
+        .map(t -> new TeamSummaryDto(t.getIdTeam(), t.getName()))
         .toList();
   }
 
@@ -119,8 +135,11 @@ public class TournamentService {
     }
 
     List<Match> matchesEntities = matchRepository.findByTournament(tournament);
-    return matchesEntities.stream().filter(match -> !isByeMatch(match))
-        .map(match -> matchService.mapMatchToSummaryDto(match, tournament)).toList();
+    return matchesEntities
+        .stream()
+        .filter(match -> !isByeMatch(match))
+        .map(match -> matchService.mapMatchToSummaryDto(match, tournament))
+        .toList();
   }
 
   /**
@@ -130,6 +149,10 @@ public class TournamentService {
    * @return true if the match is a bye match, false otherwise
    */
   private boolean isByeMatch(Match match) {
+    if (match.getStatus() == MatchStatus.FORFEIT) {
+      return false;
+    }
+
     boolean hasExactlyOneTeam = (match.getTeam1() == null) ^ (match.getTeam2() == null);
     boolean isBye = false;
 
@@ -163,79 +186,6 @@ public class TournamentService {
   }
 
   /**
-   * Periodically updates tournament statuses. Runs every 60 seconds to synchronize database state
-   * with the current time.
-   */
-  @Scheduled(initialDelay = 5000, fixedDelay = 60000)
-  @Transactional
-  public void updateAllTournamentStates() {
-    System.out.println("Tournaments: Updating database...");
-
-    List<TournamentStatus> activeStatuses =
-        List.of(TournamentStatus.PLANNED, TournamentStatus.IN_PROGRESS,
-            TournamentStatus.REGISTRATION_OPEN, TournamentStatus.REGISTRATION_CLOSED);
-
-    Iterable<Tournament> activeTournaments = tournamentRepository.findAllByStatusIn(activeStatuses);
-    List<Tournament> updatedTournaments = new ArrayList<>();
-
-    for (Tournament t : activeTournaments) {
-      TournamentStatus currentStatus = t.getStatus();
-      TournamentStatus newStatus = determineNewStatus(t);
-
-      if (currentStatus != newStatus) {
-        t.setStatus(newStatus);
-        updatedTournaments.add(t);
-      }
-    }
-
-    if (!updatedTournaments.isEmpty()) {
-      tournamentRepository.saveAll(updatedTournaments);
-      System.out.println("Updated " + updatedTournaments.size() + " tournament states.");
-    } else {
-      System.out.println("No update needed.");
-    }
-  }
-
-  /**
-   * Determines the next status for a tournament based on its current state and timeline.
-   *
-   * @param t The tournament to evaluate
-   *
-   * @return The calculated TournamentStatus
-   */
-  private TournamentStatus determineNewStatus(Tournament t) {
-    LocalDateTime now = LocalDateTime.now();
-    LocalDate today = now.toLocalDate();
-    TournamentStatus status = t.getStatus();
-
-    return switch (status) {
-      // registrationDeadline arrives -> if not enough registrations: CANCELLED
-      //                              else: REGISTRATION_CLOSED
-      case REGISTRATION_OPEN -> {
-        if (!t.getRegistrationDeadline().isAfter(now)) {
-          yield (t.getRegistrationsNumber() < 2)
-            ? TournamentStatus.CANCELLED
-            : TournamentStatus.REGISTRATION_CLOSED;
-        }
-        yield status;
-      }
-      // cancel tournament if it's not planned and the startDate arrives
-      case REGISTRATION_CLOSED -> (!t.getStartDate().isAfter(today))
-        ? TournamentStatus.CANCELLED
-        : status;
-      // start tournament if its planned and startDate arrives
-      case PLANNED -> (!t.getStartDate().isAfter(today))
-        ? TournamentStatus.IN_PROGRESS
-        : status;
-      // finish tournament if endDate arrives
-      case IN_PROGRESS -> (!t.getEndDate().isAfter(today))
-        ? TournamentStatus.DONE
-        : status;
-      default -> status;
-    };
-  }
-
-  /**
    * Get all tournaments optionally filtered by timeframe, teams or members.
    *
    * @param statuses a list of specific statuses to filter by
@@ -244,12 +194,17 @@ public class TournamentService {
    * @param search a search string to filter tournaments by name
    * @return the filtered and sorted list of tournaments.
    */
-  public Iterable<TournamentSummaryDto> getTournaments(List<TournamentStatus> statuses,
-      List<Long> teamsIds, List<Long> membersIds, String search, LocalDate minDate,
+  public Iterable<TournamentSummaryDto> getTournaments(
+      List<TournamentStatus> statuses,
+      List<Long> teamsIds,
+      List<Long> membersIds,
+      String search,
+      LocalDate minDate,
       LocalDate maxDate) {
     Specification<Tournament> spec = Specification.where(null);
 
-    spec = spec.and(TournamentSpecifications.hasStatuses(statuses))
+    spec = spec
+        .and(TournamentSpecifications.hasStatuses(statuses))
         .and(TournamentSpecifications.searchByName(search))
         .and(TournamentSpecifications.isBetweenDates(minDate, maxDate))
         .and(TournamentSpecifications.hasTeams(teamsIds))
@@ -268,9 +223,16 @@ public class TournamentService {
    * @return the tournament summary DTO
    */
   private TournamentSummaryDto mapToSummaryDto(Tournament t) {
-    return new TournamentSummaryDto(t.getIdTournament(), t.getName(), t.getDescription(),
-        t.getStartDate(), t.getEndDate(), t.getRegistrationDeadline(), t.getStatus(),
-        t.getCapacity(), t.getRegistrationsNumber());
+    return new TournamentSummaryDto(
+        t.getIdTournament(),
+        t.getName(),
+        t.getDescription(),
+        t.getStartDate(),
+        t.getEndDate(),
+        t.getRegistrationDeadline(),
+        t.getStatus(),
+        t.getCapacity(),
+        t.getRegistrationsNumber());
   }
 
   /**
@@ -281,7 +243,9 @@ public class TournamentService {
    * @param currentMember the current member
    * @return the updated tournament if it has been updated, null otherwise.
    */
-  public Tournament updateTournament(Long tournamentId, NewTournament newTournament,
+  public Tournament updateTournament(
+      Long tournamentId,
+      NewTournament newTournament,
       Member currentMember) {
     if (!currentMember.isAdmin()) {
       return null;
@@ -337,9 +301,11 @@ public class TournamentService {
     Tournament updatedTournament =
         updateTournamentStatus(tournament, TournamentStatus.REGISTRATION_OPEN, currentMember);
 
-    notificationService.notifyAllMembers(
-        "Nouveau Tournoi ! " + updatedTournament.getName() + " vient d'ouvrir ses portes.",
-        NotificationType.TOURNAMENT, tournamentId);
+    notificationService
+        .notifyAllMembers(
+            "Nouveau Tournoi ! " + updatedTournament.getName() + " vient d'ouvrir ses portes.",
+            NotificationType.TOURNAMENT,
+            tournamentId);
 
     return updatedTournament;
   }
@@ -358,9 +324,11 @@ public class TournamentService {
     Tournament updatedTournament =
         updateTournamentStatus(tournament, TournamentStatus.PLANNED, currentMember);
 
-    notificationService.notifyAllMembers(
-        "Les matchs de " + updatedTournament.getName() + " sont maintenant disponibles !",
-        NotificationType.TOURNAMENT, tournamentId);
+    notificationService
+        .notifyAllMembers(
+            "Les matchs de " + updatedTournament.getName() + " sont maintenant disponibles !",
+            NotificationType.TOURNAMENT,
+            tournamentId);
 
     return updatedTournament;
   }
@@ -373,7 +341,9 @@ public class TournamentService {
    * @param currentMember the current member
    * @return the tournament if it's status has been changed, null otherwise.
    */
-  public Tournament updateTournamentStatus(Tournament tournament, TournamentStatus status,
+  public Tournament updateTournamentStatus(
+      Tournament tournament,
+      TournamentStatus status,
       Member currentMember) {
     if (!currentMember.isAdmin()) {
       throw new NotAdminException("Only admins can update tournament status");
@@ -393,7 +363,8 @@ public class TournamentService {
    * @param status the status to check
    * @return the tournament if it exists and has the given status, null otherwise
    */
-  private Tournament doesTournamentExistInTheGivenStatus(Long tournamentId,
+  private Tournament doesTournamentExistInTheGivenStatus(
+      Long tournamentId,
       TournamentStatus status) {
     Tournament tournament = tournamentRepository.findById(tournamentId).orElse(null);
 
@@ -435,7 +406,8 @@ public class TournamentService {
       throw new InsufficientTeamMembersException("Team must have at least 4 members to register");
     }
 
-    Tournament tournament = tournamentRepository.findById(idTournament)
+    Tournament tournament = tournamentRepository
+        .findById(idTournament)
         .orElseThrow(() -> new TournamentNotFoundException("Tournament not found"));
 
     if (team.getTournaments().contains(tournament)) {
@@ -477,20 +449,17 @@ public class TournamentService {
    *
    * @param tournament the tournament to clear matches for
    */
-  private void clearExistingMatches(Tournament tournament) {
-    List<Match> existingMatches =
-        matchRepository.findByTournamentIdTournament(tournament.getIdTournament());
+  public void clearExistingMatches(Tournament tournament) {
+    List<Match> existingMatches = matchRepository.findByTournament(tournament);
 
     if (existingMatches.isEmpty()) {
       return;
     }
 
-    boolean hasPlayedMatches =
-        existingMatches.stream().anyMatch(m -> m.getStatus() == MatchStatus.PLAYED);
-
-    if (hasPlayedMatches) {
-      throw new AlreadyPlayedMatchInTournamentMatchGenerationAttemptException(
-          "Cannot regenerate bracket: some matches have already been played!");
+    if (tournament.getStatus() != TournamentStatus.REGISTRATION_CLOSED
+        && tournament.getStatus() != TournamentStatus.CANCELLED) {
+      throw new TournamentStatusException(
+          "Cannot clear matches: tournament is not in a clearance valid status");
     }
 
     matchLineupRepository.deleteByMatchIn(existingMatches);
@@ -511,7 +480,8 @@ public class TournamentService {
    * @return the tournament
    */
   private Tournament fetchAndValidateTournament(Long tournamentId) {
-    Tournament tournament = tournamentRepository.findById(tournamentId)
+    Tournament tournament = tournamentRepository
+        .findById(tournamentId)
         .orElseThrow(() -> new TournamentNotFoundException("Tournament not found"));
 
     if (tournament.getStatus() != TournamentStatus.REGISTRATION_CLOSED) {
@@ -541,8 +511,12 @@ public class TournamentService {
     for (Match match : matches) {
       if (match.getTurn() > currentRound) {
         currentRound = match.getTurn();
-        currentTimeCursor = currentTimeCursor.plusDays(daysBetweenRounds).withHour(startTimeHour)
-            .withMinute(0).withSecond(0).withNano(0);
+        currentTimeCursor = currentTimeCursor
+            .plusDays(daysBetweenRounds)
+            .withHour(startTimeHour)
+            .withMinute(0)
+            .withSecond(0)
+            .withNano(0);
       }
 
       if (isByeMatch(match)) {
@@ -577,31 +551,13 @@ public class TournamentService {
 
     for (Match match : savedMatches) {
       if (match.getTeam1() != null) {
-        defaultLineups.add(createDefaultLineup(match, match.getTeam1()));
+        defaultLineups.add(matchLineupService.createDefaultLineup(match, match.getTeam1()));
       }
       if (match.getTeam2() != null) {
-        defaultLineups.add(createDefaultLineup(match, match.getTeam2()));
+        defaultLineups.add(matchLineupService.createDefaultLineup(match, match.getTeam2()));
       }
     }
 
     matchLineupRepository.saveAll(defaultLineups);
-  }
-
-  /**
-   * Create a default lineup for a match and team.
-   *
-   * @param match the match
-   * @param team the team
-   * @return the default lineup
-   */
-  private MatchLineup createDefaultLineup(Match match, Team team) {
-    MatchLineup lineup = new MatchLineup();
-    lineup.setMatch(match);
-    lineup.setTeam(team);
-    lineup.setScore(0);
-    lineup.setWinner(false);
-    lineup.setHasForfeited(false);
-
-    return lineup;
   }
 }

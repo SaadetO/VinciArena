@@ -36,7 +36,9 @@ public final class MatchSpecifications {
       return null;
     }
 
-    return (root, query, cb) -> applyTeamCondition(root, cb,
+    return (root, query, cb) -> applyTeamCondition(
+        root,
+        cb,
         team -> cb.equal(team.get("idTeam"), teamId));
   }
 
@@ -74,7 +76,9 @@ public final class MatchSpecifications {
 
     String pattern = "%" + keyword.toLowerCase(Locale.ROOT) + "%";
 
-    return (root, query, cb) -> applyTeamCondition(root, cb,
+    return (root, query, cb) -> applyTeamCondition(
+        root,
+        cb,
         team -> cb.like(cb.lower(team.get("name")), pattern));
   }
 
@@ -86,7 +90,9 @@ public final class MatchSpecifications {
    * @param condition the team condition
    * @return the predicate
    */
-  private static Predicate applyTeamCondition(Root<Match> root, CriteriaBuilder cb,
+  private static Predicate applyTeamCondition(
+      Root<Match> root,
+      CriteriaBuilder cb,
       Function<Join<Match, Team>, Predicate> condition) {
     Join<Match, Team> team1 = root.join("team1", JoinType.LEFT);
     Join<Match, Team> team2 = root.join("team2", JoinType.LEFT);

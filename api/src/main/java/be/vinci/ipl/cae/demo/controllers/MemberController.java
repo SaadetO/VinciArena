@@ -62,7 +62,8 @@ public class MemberController {
    */
   @GetMapping("/full")
   @PreAuthorize("hasRole('ADMIN')")
-  public Iterable<Member> getAllMembers(@AuthenticationPrincipal Member currentMember,
+  public Iterable<Member> getAllMembers(
+      @AuthenticationPrincipal Member currentMember,
       @RequestParam(required = false) MemberQueryStatus status,
       @RequestParam(required = false) String searchQuery) {
     return memberService.getAllMembers(status, searchQuery);
@@ -95,7 +96,8 @@ public class MemberController {
    */
   @PatchMapping("/me/password")
   @PreAuthorize("isAuthenticated()")
-  public void updatePassword(@RequestBody PasswordUpdateDto passwordDto,
+  public void updatePassword(
+      @RequestBody PasswordUpdateDto passwordDto,
       @AuthenticationPrincipal Member currentMember) {
     if (passwordDto == null || passwordDto.getPassword() == null
         || passwordDto.getPassword().trim().isEmpty()) {
@@ -113,7 +115,8 @@ public class MemberController {
    */
   @PatchMapping("/me/avatar")
   @PreAuthorize("isAuthenticated()")
-  public void updateAvatar(@RequestBody ProfileImage profileImage,
+  public void updateAvatar(
+      @RequestBody ProfileImage profileImage,
       @AuthenticationPrincipal Member currentMember) {
     boolean updated = memberService.updateAvatar(currentMember, profileImage);
     if (!updated) {
@@ -126,7 +129,8 @@ public class MemberController {
    */
   @PatchMapping("/me/specialty")
   @PreAuthorize("isAuthenticated()")
-  public void updateSpecialty(@RequestBody Long specialtyId,
+  public void updateSpecialty(
+      @RequestBody Long specialtyId,
       @AuthenticationPrincipal Member currentMember) {
     boolean updated = memberService.updateSpecialty(currentMember, specialtyId);
     if (!updated) {
@@ -141,7 +145,8 @@ public class MemberController {
   @PreAuthorize("hasRole('ADMIN')")
   public void toggleAdmin(@PathVariable Long id, @AuthenticationPrincipal Member currentMember) {
     if (currentMember.getIdMember().equals(id)) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST,
           "You cannot change your own admin status");
     }
 

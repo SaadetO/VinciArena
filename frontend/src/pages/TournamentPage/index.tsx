@@ -17,6 +17,7 @@ import { generateMatchesModal } from './modals/generateMatchesModal';
 import { groupMatchesByYearAndDay } from '../../utils/matchUtils';
 import { MatchYearGroup } from '../../components/MatchYearGroup';
 import { publishTournamentMatchModal } from './modals/publishTournamentMatch';
+import { MatchListSkeleton } from '../../components/MatchListSkeleton';
 
 export const TournamentPage = () => {
   const { id } = useParams();
@@ -93,7 +94,7 @@ export const TournamentPage = () => {
   };
 
   const canCol1 = useMemo(() => {
-    if (isGettingTournamentById) return true;
+    if (isGettingTournamentById && !tournament) return true;
     if (!tournament || tournament.status === 'CANCELLED') return false;
 
     if (authenticatedUser?.admin) {
@@ -110,10 +111,16 @@ export const TournamentPage = () => {
   }, [tournament, isGettingTournamentById]);
 
   useEffect(() => {
-    if (idNbr) {
+    if (authenticatedUser === undefined) return;
+
+    getById(idNbr);
+
+    const intervalId = setInterval(() => {
       getById(idNbr);
-    }
-  }, [idNbr, getById]);
+    }, 15000);
+
+    return () => clearInterval(intervalId);
+  }, [authenticatedUser, idNbr, getById]);
 
   useEffect(() => {
     if (authenticatedUser === undefined) return;
@@ -124,7 +131,7 @@ export const TournamentPage = () => {
         subtitle: "Ce tournoi n'est pas encore ouvert au public.",
       });
     }
-  }, [tournament?.status, authenticatedUser, setError]);
+  }, [tournament?.status, authenticatedUser]);
 
   const groupedMatches = groupMatchesByYearAndDay(tournament?.matches ?? []);
 
@@ -156,13 +163,16 @@ export const TournamentPage = () => {
                     tournament?.status !== 'REGISTRATION_CLOSED') ||
                   (authenticatedUser?.admin &&
                     tournament?.status === 'REGISTRATION_CLOSED')) &&
-                  groupedMatches.map((yearGroup) => (
-                    <MatchYearGroup
-                      key={yearGroup.year}
-                      year={yearGroup.year}
-                      daysData={yearGroup.daysData}
-                    />
-                  ))}
+                  (tournament && tournament.matches.length > 0
+                    ? groupedMatches.map((yearGroup) => (
+                        <MatchYearGroup
+                          key={yearGroup.year}
+                          year={yearGroup.year}
+                          daysData={yearGroup.daysData}
+                          refetch={() => getById(idNbr)}
+                        />
+                      ))
+                    : isGettingTournamentById && <MatchListSkeleton />)}
               </Stack>
             </Grid2>
           )}

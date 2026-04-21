@@ -13,17 +13,16 @@ import { useMatchMenu } from '../hooks/useMatchMenu';
 import { LineupModal } from '../modals/LineupModal/LineupModal';
 import { useModal } from '../../../hooks/useModal';
 import { useMatches } from '../../../hooks/useMatches';
-import { useContext, useRef } from 'react';
-import { UserContext } from '../../../contexts/UserContext';
+import { useRef } from 'react';
 
 interface MatchMenuProps {
   match: MatchSummaryDto;
+  refetch: () => void;
 }
 
-export const MatchMenu = ({ match }: MatchMenuProps) => {
+export const MatchMenu = ({ match, refetch }: MatchMenuProps) => {
   const { openModal } = useModal();
   const { updateLineup } = useMatches();
-  const { authenticatedUser } = useContext(UserContext);
   const selectedIdsRef = useRef<number[]>([]);
   const {
     theme,
@@ -41,11 +40,11 @@ export const MatchMenu = ({ match }: MatchMenuProps) => {
     needsDividerAfterScores,
     displayMenu,
     handleForfeit,
-    handleContestScore,
-    handleConfirmScore,
+    handleConfirmOrContestScore,
     handleEncodeScore,
     handleEditScore,
-  } = useMatchMenu({ match });
+    authenticatedUser,
+  } = useMatchMenu({ match, refetch });
 
   if (!displayMenu) return null;
 
@@ -147,21 +146,33 @@ export const MatchMenu = ({ match }: MatchMenuProps) => {
             </Typography>
             <MenuItem
               onClick={() => {
-                handleContestScore();
-                handleClose();
-              }}
-            >
-              <CircleXmark style={{ color: theme.palette.text.secondary }} />
-              <Typography variant="h5">Contester</Typography>
-            </MenuItem>
-            <MenuItem
-              onClick={() => {
-                handleConfirmScore();
+                handleConfirmOrContestScore({
+                  id: match.idMatch,
+                  isTeam1:
+                    authenticatedUser?.managedTeamId === match?.team1?.idTeam,
+                  isConfirming: true,
+                  previousMatch: match,
+                });
                 handleClose();
               }}
             >
               <CircleCheck style={{ color: theme.palette.text.secondary }} />
               <Typography variant="h5">Confirmer</Typography>
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                handleConfirmOrContestScore({
+                  id: match.idMatch,
+                  isTeam1:
+                    authenticatedUser?.managedTeamId === match?.team1?.idTeam,
+                  isConfirming: false,
+                  previousMatch: match,
+                });
+                handleClose();
+              }}
+            >
+              <CircleXmark style={{ color: theme.palette.text.secondary }} />
+              <Typography variant="h5">Contester</Typography>
             </MenuItem>
           </>
         )}
@@ -200,7 +211,7 @@ export const MatchMenu = ({ match }: MatchMenuProps) => {
                 <PencilToSquare
                   style={{ color: theme.palette.text.secondary }}
                 />
-                <Typography variant="h5">Modifier les Scores</Typography>
+                <Typography variant="h5">Corriger les Scores</Typography>
               </MenuItem>
             )}
           </>

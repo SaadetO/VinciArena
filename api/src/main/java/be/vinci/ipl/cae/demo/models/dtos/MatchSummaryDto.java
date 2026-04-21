@@ -11,8 +11,8 @@ public record MatchSummaryDto(
     LocalDateTime dateHour,
     Integer turn,
     MatchStatus status,
-    boolean isConfirmed,
     MatchTeamDto team1,
     MatchTeamDto team2,
-    MatchSummaryTournamentDto tournament
+    MatchSummaryTournamentDto tournament,
+    boolean isFinal
 ) {}

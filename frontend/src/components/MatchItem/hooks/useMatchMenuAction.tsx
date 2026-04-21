@@ -1,59 +1,27 @@
-import { useSnackbar } from '../../../hooks/useSnackbar';
-export const useMatchMenuAction = () => {
-  const { showSnackbar } = useSnackbar();
+import { useMatches } from '../../../hooks/useMatches';
+import { useModal } from '../../../hooks/useModal';
+import { useModalController } from '../../../hooks/useModalController';
+import { ConfirmOrContestMatchParams } from '../../../types';
+import { scoresConfirmationModal } from '../modals/scoresConfirmationModal';
+export const useMatchMenuAction = ({ refetch }: { refetch: () => void }) => {
+  const { confirmOrContestMatch } = useMatches({ refetch });
+  const { openModal } = useModal();
+  const { setLoading } = useModalController();
+
   const handleForfeit = () => {};
-  const handleContestScore = async (matchId: number) => {
-    try {
-      const response = await fetch(`/api/matches/${matchId}/contest`, {
-        method: 'PATCH',
-        headers: {
-          Authorization: localStorage.getItem('token') ?? '',
+
+
+  const handleConfirmOrContestScore = (params: ConfirmOrContestMatchParams) => {
+    openModal(
+      scoresConfirmationModal({
+        isConfirm: params.isConfirming,
+        onConfirm: async (close) => {
+          setLoading(true);
+          await confirmOrContestMatch(params);
+          close();
         },
-      });
-
-      if (!response.ok) {
-        throw new Error();
-      }
-
-      showSnackbar({
-        message: 'Résultat contesté !',
-        severity: 'success',
-      });
-
-      window.location.reload();
-    } catch (error) {
-      showSnackbar({
-        message: 'Erreur lors de la contestation',
-        severity: 'error',
-      });
-    }
-  };
-
-  const handleConfirmScore = async (matchId: number) => {
-    try {
-      const response = await fetch(`/api/matches/${matchId}/confirm`, {
-        method: 'PATCH',
-        headers: {
-          Authorization: localStorage.getItem('token') ?? '',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error();
-      }
-
-      showSnackbar({
-        message: 'Résultat confirmé !',
-        severity: 'success',
-      });
-
-      window.location.reload();
-    } catch (error) {
-      showSnackbar({
-        message: 'Erreur lors de la confirmation',
-        severity: 'error',
-      });
-    }
+      }),
+    );
   };
 
   const handleEncodeScore = () => {};
@@ -62,8 +30,7 @@ export const useMatchMenuAction = () => {
 
   return {
     handleForfeit,
-    handleContestScore,
-    handleConfirmScore,
+    handleConfirmOrContestScore,
     handleEncodeScore,
     handleEditScore,
   };

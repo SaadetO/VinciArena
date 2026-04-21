@@ -200,6 +200,7 @@ interface MatchTeamDto {
   isWinner: boolean;
   hasForfeited: boolean;
   lineup?: MatchLineupDto;
+  hasConfirmedResults: boolean | null;
 }
 
 interface MatchLineupDto {
@@ -213,12 +214,12 @@ interface MatchSummaryDto {
   idMatch: number;
   dateHour: string;
   turn: number;
-  status: 'PLANNED' | 'PLAYED' | 'FORFEIT';
+  status: 'PLANNED' | 'PLAYED' | 'IN_PROGRESS' | 'FORFEIT';
   teams: Team[];
-  isConfirmed: boolean;
   team1: MatchTeamDto;
   team2: MatchTeamDto;
   tournament: MatchSummaryDtoTournament;
+  isFinal: boolean;
 }
 
 interface MatchSummaryDtoTournament {
@@ -286,6 +287,13 @@ interface TournamentMatchFilters {
   searchQuery: string;
 }
 
+interface ConfirmOrContestMatchParams {
+  id: number;
+  isTeam1: boolean;
+  isConfirming: boolean;
+  previousMatch: MatchSummaryDto;
+}
+
 export type {
   MainContext,
   User,
@@ -318,4 +326,5 @@ export type {
   HomePageContextType,
   TournamentMatchFilters,
   MatchLineupDto,
+  ConfirmOrContestMatchParams,
 };

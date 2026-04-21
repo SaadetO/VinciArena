@@ -42,7 +42,8 @@ public class TournamentController {
    *
    * @param tournamentService the unavailability service
    */
-  public TournamentController(TournamentService tournamentService,
+  public TournamentController(
+      TournamentService tournamentService,
       TournamentRepository tournamentrepo) {
     this.tournamentService = tournamentService;
     this.tournamentRepo = tournamentrepo;
@@ -65,8 +66,8 @@ public class TournamentController {
       @RequestParam(required = false) String searchQuery,
       @RequestParam(required = false) LocalDate minDate,
       @RequestParam(required = false) LocalDate maxDate) {
-    return tournamentService.getTournaments(statuses, teamsIds, membersIds, searchQuery, minDate,
-        maxDate);
+    return tournamentService
+        .getTournaments(statuses, teamsIds, membersIds, searchQuery, minDate, maxDate);
   }
 
   /**
@@ -76,7 +77,8 @@ public class TournamentController {
    * @return a tournament details DTO.
    */
   @GetMapping("/{id}")
-  public TournamentDetailsDto getTournament(@PathVariable Long id,
+  public TournamentDetailsDto getTournament(
+      @PathVariable Long id,
       @AuthenticationPrincipal Member currentMember) {
     TournamentDetailsDto details = tournamentService.getTournamentDetails(id, currentMember);
     if (details == null) {
@@ -100,7 +102,8 @@ public class TournamentController {
   @PostMapping("/")
   @ResponseStatus(HttpStatus.CREATED)
   @PreAuthorize("hasRole('ADMIN')") // Security handled here
-  public TournamentDetailsDto createTournament(@Valid @RequestBody NewTournament newTournament,
+  public TournamentDetailsDto createTournament(
+      @Valid @RequestBody NewTournament newTournament,
       @AuthenticationPrincipal Member currentMember) {
     validateNewTournament(newTournament, currentMember, null); // Removed currentMember check here
 
@@ -124,7 +127,8 @@ public class TournamentController {
    */
   @PutMapping("/{id}")
   @PreAuthorize("hasRole('ADMIN')")
-  public TournamentDetailsDto updateTournament(@PathVariable Long id,
+  public TournamentDetailsDto updateTournament(
+      @PathVariable Long id,
       @Valid @RequestBody NewTournament newTournament,
       @AuthenticationPrincipal Member currentMember) {
     validateNewTournament(newTournament, currentMember, id);
@@ -149,7 +153,8 @@ public class TournamentController {
    */
   @PatchMapping("/{id}/publish")
   @PreAuthorize("hasRole('ADMIN')")
-  public TournamentDetailsDto publishTournament(@PathVariable Long id,
+  public TournamentDetailsDto publishTournament(
+      @PathVariable Long id,
       @AuthenticationPrincipal Member currentMember) {
 
     Tournament publishedTournament = tournamentService.publishTournament(id, currentMember);
@@ -167,7 +172,8 @@ public class TournamentController {
    */
   @PatchMapping("/{id}/publish-matches")
   @PreAuthorize("hasRole('ADMIN')")
-  public TournamentDetailsDto publishTournamentMatches(@PathVariable Long id,
+  public TournamentDetailsDto publishTournamentMatches(
+      @PathVariable Long id,
       @AuthenticationPrincipal Member currentMember) {
 
     Tournament publishedTournament = tournamentService.publishTournamentMatches(id, currentMember);
@@ -205,14 +211,17 @@ public class TournamentController {
     checkDateRange(dto.registrationDeadline(), dto.startDate(), dto.endDate());
   }
 
-  private void checkDateRange(LocalDateTime registrationDeadline, LocalDate startDate,
+  private void checkDateRange(
+      LocalDateTime registrationDeadline,
+      LocalDate startDate,
       LocalDate endDate) {
     LocalDate today = LocalDate.now();
     if (registrationDeadline.isBefore(today.atStartOfDay())) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Deadline cannot be in the past");
     }
     if (endDate.isBefore(startDate)) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST,
           "End date must be after start date");
     }
   }
@@ -230,7 +239,8 @@ public class TournamentController {
   @PostMapping("/{id}/register")
   @ResponseStatus(HttpStatus.OK)
   @PreAuthorize("isAuthenticated()")
-  public TournamentDetailsDto registerTeamToTournament(@PathVariable Long id,
+  public TournamentDetailsDto registerTeamToTournament(
+      @PathVariable Long id,
       @AuthenticationPrincipal Member currentMember) {
     return tournamentService.registerTeam(id, currentMember);
   }
@@ -242,7 +252,8 @@ public class TournamentController {
    */
   @PostMapping("/{id}/matches")
   @PreAuthorize("hasRole('ADMIN')")
-  public TournamentDetailsDto generateMatch(@PathVariable Long id,
+  public TournamentDetailsDto generateMatch(
+      @PathVariable Long id,
       @AuthenticationPrincipal Member currentMember) {
     System.out.println("Generating matches for tournament " + id);
     tournamentService.generateMatches(id);

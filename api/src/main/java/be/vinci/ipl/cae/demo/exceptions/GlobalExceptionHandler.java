@@ -20,7 +20,8 @@ public class GlobalExceptionHandler {
    */
 
   @ExceptionHandler({TournamentNotFoundException.class, TeamNotFoundException.class,
-      MatchNotFoundException.class, JoinRequestNotFoundException.class})
+      MatchNotFoundException.class, JoinRequestNotFoundException.class,
+      MatchLineupNotFoundException.class, MemberNotFoundException.class})
   public ResponseEntity<Map<String, String>> handleNotFoundExceptions(RuntimeException ex) {
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", ex.getMessage()));
   }
@@ -34,7 +35,8 @@ public class GlobalExceptionHandler {
   @ExceptionHandler({EmailAlreadyTakenException.class, DuplicateRegistrationException.class,
       TeamNameAlreadyTakenException.class, NoManagerSpotsLeftException.class,
       LastManagerCannotQuitException.class, ReplacementRequiredException.class,
-      MemberAlreadyManagerException.class, JoinRequestAlreadyExistsException.class})
+      MemberAlreadyManagerException.class, JoinRequestAlreadyExistsException.class,
+      AlreadyConfirmedException.class, NoSlotAvailableForWinnerException.class})
   public ResponseEntity<Map<String, String>> handleConflictExceptions(RuntimeException ex) {
     return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", ex.getMessage()));
   }
@@ -50,7 +52,12 @@ public class GlobalExceptionHandler {
       InsufficientTeamMembersException.class, InactiveTeamException.class,
       ImpossibleTournamentException.class, InvalidTeamNameException.class,
       UserAlreadyInTeamException.class, UserNotInTeamException.class, TeamNotInMatchException.class,
-      MatchNotPlayedException.class, InvalidJoinRequestException.class})
+      MatchNotPlayedException.class, InvalidJoinRequestException.class, BadRequestException.class,
+      InvalidBanException.class, MatchScoreNotSetException.class, MemberNotInTeamException.class,
+      MemberUnavailableException.class, TournamentStatusException.class,
+      UnallowedTieException.class,
+      AlreadyPlayedMatchInTournamentMatchGenerationAttemptException.class,
+      InvalidMatchStatusException.class})
   public ResponseEntity<Map<String, String>> handleBadRequestExceptions(RuntimeException ex) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", ex.getMessage()));
   }
@@ -63,7 +70,7 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler({AccountBannedException.class, NotAdminException.class,
       CannotBanAdminException.class, ForbiddenException.class, NotManagerException.class,
-      MemberHasNoTeamException.class, UserNotInMatchException.class})
+      MemberHasNoTeamException.class, MemberNotManagerOfTeamException.class})
   public ResponseEntity<Map<String, String>> handleForbiddenExceptions(RuntimeException ex) {
     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", ex.getMessage()));
   }
@@ -74,7 +81,8 @@ public class GlobalExceptionHandler {
    * @param ex the exception
    * @return a 401 response with error message
    */
-  @ExceptionHandler({InvalidCredentialsException.class, NotAuthenticatedException.class})
+  @ExceptionHandler({InvalidCredentialsException.class, NotAuthenticatedException.class,
+      UnauthorizedException.class})
   public ResponseEntity<Map<String, String>> handleUnauthorizedExceptions(RuntimeException ex) {
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", ex.getMessage()));
   }

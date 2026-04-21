@@ -23,9 +23,9 @@ export interface TournamentFilters {
 }
 
 export const TIMEFRAME_STATUS_MAP: Record<string, string[]> = {
-  past: ['DONE'],
+  past: ['DONE', 'CANCELLED'],
   current: ['IN_PROGRESS'],
-  future: ['REGISTRATION_OPEN', 'REGISTRATION_CLOSED', 'PLANNED', 'CANCELLED'],
+  future: ['REGISTRATION_OPEN', 'REGISTRATION_CLOSED', 'PLANNED'],
 };
 
 /**

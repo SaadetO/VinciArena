@@ -21,7 +21,6 @@ import be.vinci.ipl.cae.demo.models.entities.Tournament;
 import be.vinci.ipl.cae.demo.models.entities.TournamentStatus;
 import be.vinci.ipl.cae.demo.repositories.MatchLineupRepository;
 import be.vinci.ipl.cae.demo.repositories.MatchRepository;
-import be.vinci.ipl.cae.demo.repositories.MatchResultConfirmationRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.TournamentRepository;
 import java.time.LocalDate;
@@ -42,13 +41,11 @@ class TournamentServiceTest {
   @Mock
   private MemberRepository memberRepository;
 
+  @Mock
   private MatchLineupRepository matchLineupRepository;
 
   @Mock
   private MatchRepository matchRepository;
-
-  @Mock
-  private MatchResultConfirmationRepository confirmationRepository;
 
   @Mock
   private TeamService teamService;
@@ -58,6 +55,9 @@ class TournamentServiceTest {
 
   @Mock
   private MatchService matchService;
+
+  @Mock
+  private MatchLineupService matchLineupService;
 
   @Mock
   private TournamentService tournamentService;
@@ -74,14 +74,26 @@ class TournamentServiceTest {
 
   @BeforeEach
   void setUp() {
-    tournamentService = new TournamentService(tournamentRepository, memberRepository,
-        matchLineupRepository, matchRepository, teamService, notificationService, matchService);
+    tournamentService = new TournamentService(
+        tournamentRepository,
+        memberRepository,
+        matchLineupRepository,
+        matchRepository,
+        teamService,
+        notificationService,
+        matchService,
+        matchLineupService);
 
     memberAdmin = new Member();
     memberAdmin.setAdmin(true);
 
-    newTournament = new NewTournament("un1", "ud1", LocalDate.of(2028, 1, 1),
-        LocalDate.of(2028, 1, 31), 4, LocalDate.of(2027, 12, 1).atStartOfDay());
+    newTournament = new NewTournament(
+        "un1",
+        "ud1",
+        LocalDate.of(2028, 1, 1),
+        LocalDate.of(2028, 1, 31),
+        4,
+        LocalDate.of(2027, 12, 1).atStartOfDay());
 
     manager = new Member();
     manager.setIdMember(1L);
@@ -180,12 +192,15 @@ class TournamentServiceTest {
     Tournament result = tournamentService.updateTournament(1L, newTournament, memberAdmin);
 
     // Assert
-    assertAll(() -> assertNotNull(result), () -> assertEquals("un1", result.getName()),
+    assertAll(
+        () -> assertNotNull(result),
+        () -> assertEquals("un1", result.getName()),
         () -> assertEquals("ud1", result.getDescription()),
         () -> assertEquals(LocalDate.of(2028, 1, 1), result.getStartDate()),
         () -> assertEquals(LocalDate.of(2028, 1, 31), result.getEndDate()),
         () -> assertEquals(4, result.getCapacity()),
-        () -> assertEquals(LocalDate.of(2027, 12, 1).atStartOfDay(),
+        () -> assertEquals(
+            LocalDate.of(2027, 12, 1).atStartOfDay(),
             result.getRegistrationDeadline()));
     verify(tournamentRepository, times(1)).save(tournament);
   }

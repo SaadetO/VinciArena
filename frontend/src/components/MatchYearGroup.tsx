@@ -5,14 +5,21 @@ import { DayGroup } from '../utils/matchUtils';
 interface MatchYearGroupProps {
   year: string;
   daysData: DayGroup[];
+  yearTop?: string;
+  refetch: () => void;
 }
 
-export const MatchYearGroup = ({ year, daysData }: MatchYearGroupProps) => {
+export const MatchYearGroup = ({
+  year,
+  daysData,
+  yearTop = '0.5rem',
+  refetch,
+}: MatchYearGroupProps) => {
   return (
     <Stack spacing="1rem">
       <Stack
         position="sticky"
-        top="0.5rem"
+        top={yearTop}
         zIndex={1}
         width="fit-content"
         borderRadius="0.75rem"
@@ -30,6 +37,7 @@ export const MatchYearGroup = ({ year, daysData }: MatchYearGroupProps) => {
           key={dayData.dateKey}
           day={dayData.day}
           matches={dayData.matches}
+          refetch={refetch}
         />
       ))}
     </Stack>

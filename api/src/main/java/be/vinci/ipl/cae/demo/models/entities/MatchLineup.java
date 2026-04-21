@@ -43,9 +43,11 @@ public class MatchLineup {
   @Column(nullable = false)
   private boolean hasForfeited = false;
 
-  private int score;
+  private Integer score;
 
   private boolean isWinner;
+
+  private Boolean hasConfirmedResults;
 
   @ManyToMany
   @JoinTable(name = "match_members",

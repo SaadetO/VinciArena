@@ -66,9 +66,13 @@ public class MemberService {
    * @param specialtyRepository the specialty repository
    * @param profileImageRepository the profile image repository
    */
-  public MemberService(BCryptPasswordEncoder passwordEncoder, MemberRepository memberRepository,
-      UnavailabilityRepository unavailabilityRepository, SpecialtyRepository specialtyRepository,
-      ProfileImageRepository profileImageRepository, TeamRepository teamRepository) {
+  public MemberService(
+      BCryptPasswordEncoder passwordEncoder,
+      MemberRepository memberRepository,
+      UnavailabilityRepository unavailabilityRepository,
+      SpecialtyRepository specialtyRepository,
+      ProfileImageRepository profileImageRepository,
+      TeamRepository teamRepository) {
     this.passwordEncoder = passwordEncoder;
     this.memberRepository = memberRepository;
     this.unavailabilityRepository = unavailabilityRepository;
@@ -92,7 +96,8 @@ public class MemberService {
     authenticatedUser.setToken(token);
     authenticatedUser.setAdmin(member.isAdmin());
 
-    teamRepository.findFirstByManager1OrManager2(member, member)
+    teamRepository
+        .findFirstByManager1OrManager2(member, member)
         .ifPresent(team -> authenticatedUser.setManagedTeamId(team.getIdTeam()));
 
     return authenticatedUser;
@@ -105,9 +110,13 @@ public class MemberService {
    * @return the JWT token
    */
   public AuthenticatedUser createJwtToken(String email) {
-    String token =
-        JWT.create().withIssuer("auth0").withClaim("username", email).withIssuedAt(new Date())
-            .withExpiresAt(new Date(System.currentTimeMillis() + lifetimeJwt)).sign(algorithm);
+    String token = JWT
+        .create()
+        .withIssuer("auth0")
+        .withClaim("username", email)
+        .withIssuedAt(new Date())
+        .withExpiresAt(new Date(System.currentTimeMillis() + lifetimeJwt))
+        .sign(algorithm);
 
     Member member = memberRepository.findByEmail(email);
     return toAuthenticatedUser(member, token);
@@ -196,8 +205,9 @@ public class MemberService {
     member.setAdmin(false);
     member.setDeleted(false);
     member.setSpecialty(specialtyRepository.getByIdSpecialty(newMember.getSpecialtyId()));
-    member.setProfileImage(
-        profileImageRepository.getProfileImageByIdImage(newMember.getProfileImageId()));
+    member
+        .setProfileImage(
+            profileImageRepository.getProfileImageByIdImage(newMember.getProfileImageId()));
     return memberRepository.save(member);
   }
 
@@ -281,10 +291,13 @@ public class MemberService {
         authenticatedEmail != null ? memberRepository.findByEmail(authenticatedEmail) : null;
     boolean isSelf = authMember != null && authMember.getIdMember().equals(requestedId);
 
-    ProfileDto.ProfileDtoBuilder builder = ProfileDto.builder().id(requestedMember.getIdMember())
+    ProfileDto.ProfileDtoBuilder builder = ProfileDto
+        .builder()
+        .id(requestedMember.getIdMember())
         .tag(requestedMember.getTag())
-        .specialty(requestedMember.getSpecialty() != null ? requestedMember.getSpecialty().getName()
-            : null)
+        .specialty(
+            requestedMember.getSpecialty() != null ? requestedMember.getSpecialty().getName()
+                : null)
         .avatar(
             requestedMember.getProfileImage() != null ? requestedMember.getProfileImage().getPath()
                 : null);
@@ -298,19 +311,33 @@ public class MemberService {
       boolean hasOtherManager =
           (isManager1 && team.getManager2() != null) || (isManager2 && team.getManager1() != null);
 
-      builder.team(ProfileDto.TeamDto.builder().id(team.getIdTeam()).name(team.getName())
-          .isManager(isManager1 || isManager2).membersCount(team.getMembers().size())
-          .hasOtherManager(hasOtherManager).build());
+      builder
+          .team(
+              ProfileDto.TeamDto
+                  .builder()
+                  .id(team.getIdTeam())
+                  .name(team.getName())
+                  .isManager(isManager1 || isManager2)
+                  .membersCount(team.getMembers().size())
+                  .hasOtherManager(hasOtherManager)
+                  .build());
     }
 
     if (isSelf) {
-      builder.email(requestedMember.getEmail()).creationDate(requestedMember.getCreationDate())
+      builder
+          .email(requestedMember.getEmail())
+          .creationDate(requestedMember.getCreationDate())
           .isAdmin(requestedMember.isAdmin());
 
       var unavailabilities = StreamSupport
           .stream(unavailabilityRepository.findByMember(requestedMember).spliterator(), false)
-          .map(u -> ProfileDto.UnavailabilityDto.builder().id(u.getIdUnavailability())
-              .startDate(u.getStartDate()).endDate(u.getEndDate()).build())
+          .map(
+              u -> ProfileDto.UnavailabilityDto
+                  .builder()
+                  .id(u.getIdUnavailability())
+                  .startDate(u.getStartDate())
+                  .endDate(u.getEndDate())
+                  .build())
           .collect(Collectors.toList());
       builder.unavailabilities(unavailabilities);
     }
@@ -328,7 +355,10 @@ public class MemberService {
     if (member == null) {
       return null;
     }
-    return UserSummaryDto.builder().id(member.getIdMember()).tag(member.getTag())
+    return UserSummaryDto
+        .builder()
+        .id(member.getIdMember())
+        .tag(member.getTag())
         .avatar(member.getProfileImage() != null ? member.getProfileImage().getPath() : null)
         .build();
   }
@@ -362,7 +392,8 @@ public class MemberService {
    * @return an iterable of all members
    */
   public List<Member> getAllMembers(MemberQueryStatus status, String searchQuery) {
-    Specification<Member> spec = Specification.where(MemberSpecifications.hasState(status))
+    Specification<Member> spec = Specification
+        .where(MemberSpecifications.hasState(status))
         .and(MemberSpecifications.search(searchQuery));
     Sort sort = Sort.by("tag").ascending();
     return memberRepository.findAll(spec, sort);
@@ -375,8 +406,12 @@ public class MemberService {
    * @return the MemberSummaryDto
    */
   public MemberSummaryDto mapMemberToSummary(Member m) {
-    return MemberSummaryDto.builder().id(m.getIdMember()).tag(m.getTag())
-        .avatar(m.getProfileImage() != null ? m.getProfileImage().getPath() : null).build();
+    return MemberSummaryDto
+        .builder()
+        .id(m.getIdMember())
+        .tag(m.getTag())
+        .avatar(m.getProfileImage() != null ? m.getProfileImage().getPath() : null)
+        .build();
   }
 
   /**
@@ -384,7 +419,8 @@ public class MemberService {
    *
    * @return List of MemberSummaryDto
    */
-  public List<MemberSummaryDto> getAllMemberSummaries(MemberQueryStatus status,
+  public List<MemberSummaryDto> getAllMemberSummaries(
+      MemberQueryStatus status,
       String searchQuery) {
     List<Member> members = getAllMembers(status, searchQuery);
 
@@ -428,7 +464,8 @@ public class MemberService {
    * @throws MemberNotFoundException if the member does not exist
    */
   private Member getTargetMember(Long id) {
-    return memberRepository.findById(id)
+    return memberRepository
+        .findById(id)
         .orElseThrow(() -> new MemberNotFoundException("Membre introuvable"));
   }
 
@@ -474,9 +511,13 @@ public class MemberService {
         team.setManager1(team.getManager2());
         team.setManager2(null);
       } else {
-        Member replacement = team.getMembers().stream()
-            .filter(m -> !m.getIdMember().equals(member.getIdMember())).filter(m -> !m.isDeleted())
-            .min((m1, m2) -> m1.getCreationDate().compareTo(m2.getCreationDate())).orElse(null);
+        Member replacement = team
+            .getMembers()
+            .stream()
+            .filter(m -> !m.getIdMember().equals(member.getIdMember()))
+            .filter(m -> !m.isDeleted())
+            .min((m1, m2) -> m1.getCreationDate().compareTo(m2.getCreationDate()))
+            .orElse(null);
 
         if (replacement != null) {
           team.setManager1(replacement);
@@ -541,7 +582,8 @@ public class MemberService {
    * @throws MemberNotFoundException if the member does not exist
    */
   public boolean isLastMember(Long memberId) {
-    Member member = memberRepository.findById(memberId)
+    Member member = memberRepository
+        .findById(memberId)
         .orElseThrow(() -> new MemberNotFoundException("Membre introuvable"));
 
     Team team = member.getTeam();

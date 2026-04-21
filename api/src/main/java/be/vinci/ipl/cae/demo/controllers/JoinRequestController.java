@@ -43,7 +43,8 @@ public class JoinRequestController {
   @PostMapping("/{teamId}/join-requests")
   @ResponseStatus(HttpStatus.CREATED)
   @PreAuthorize("isAuthenticated()")
-  public JoinRequestDto createJoinRequest(@PathVariable Long teamId,
+  public JoinRequestDto createJoinRequest(
+      @PathVariable Long teamId,
       @AuthenticationPrincipal Member currentMember) {
 
     return joinRequestService.createJoinRequest(teamId, currentMember);
@@ -60,10 +61,16 @@ public class JoinRequestController {
    */
   @PatchMapping("/join-requests/{requestId}")
   @PreAuthorize("isAuthenticated()")
-  public JoinRequestDto updateJoinRequestStatus(@PathVariable Long requestId,
-      @RequestBody UpdateJoinRequestDto request, @AuthenticationPrincipal Member currentMember) {
+  public JoinRequestDto updateJoinRequestStatus(
+      @PathVariable Long requestId,
+      @RequestBody UpdateJoinRequestDto request,
+      @AuthenticationPrincipal Member currentMember) {
 
-    return joinRequestService.updateJoinRequestStatus(requestId, request.getStatus(),
-        request.getRejectionReason(), currentMember);
+    return joinRequestService
+        .updateJoinRequestStatus(
+            requestId,
+            request.getStatus(),
+            request.getRejectionReason(),
+            currentMember);
   }
 }

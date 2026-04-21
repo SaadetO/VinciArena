@@ -2,14 +2,15 @@ import { useTheme } from '@mui/material';
 import { useMenuDisclosure } from '../../../hooks/useMenuDisclosure';
 import { useUser } from '../../../hooks/useUser';
 import { MatchSummaryDto } from '../../../types';
-import { useMenuSectionDisplay } from './useMenuSectionDisplay';
+import { getMenuSectionDisplay } from '../utils/displayRules';
 import { useMatchMenuAction } from './useMatchMenuAction';
 
 interface MatchMenuProps {
   match: MatchSummaryDto;
+  refetch: () => void;
 }
 
-export const useMatchMenu = ({ match }: MatchMenuProps) => {
+export const useMatchMenu = ({ match, refetch }: MatchMenuProps) => {
   const theme = useTheme();
   const { anchorEl, handleClick, handleClose } = useMenuDisclosure();
   const { authenticatedUser } = useUser();
@@ -24,14 +25,13 @@ export const useMatchMenu = ({ match }: MatchMenuProps) => {
     needsDividerAfterTeam,
     needsDividerAfterScores,
     displayMenu,
-  } = useMenuSectionDisplay({ match, authenticatedUser });
+  } = getMenuSectionDisplay({ match, authenticatedUser });
   const {
     handleForfeit,
-    handleContestScore,
-    handleConfirmScore,
+    handleConfirmOrContestScore,
     handleEncodeScore,
     handleEditScore,
-  } = useMatchMenuAction();
+  } = useMatchMenuAction({ refetch });
 
   return {
     theme,
@@ -49,9 +49,9 @@ export const useMatchMenu = ({ match }: MatchMenuProps) => {
     needsDividerAfterScores,
     displayMenu,
     handleForfeit,
-    handleContestScore: () => handleContestScore(match.idMatch),
-    handleConfirmScore: () => handleConfirmScore(match.idMatch),
+    handleConfirmOrContestScore,
     handleEncodeScore,
     handleEditScore,
+    authenticatedUser,
   };
 };
