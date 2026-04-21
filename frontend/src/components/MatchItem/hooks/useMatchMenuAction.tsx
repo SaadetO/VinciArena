@@ -10,7 +10,6 @@ export const useMatchMenuAction = ({ refetch }: { refetch: () => void }) => {
 
   const handleForfeit = () => {};
 
-
   const handleConfirmOrContestScore = (params: ConfirmOrContestMatchParams) => {
     openModal(
       scoresConfirmationModal({
