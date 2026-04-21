@@ -75,6 +75,9 @@ public class MatchSchedulingService {
     }
   }
 
+  /**
+   * Periodically updates match confirmation. Runs every 60 seconds.
+   */
   @Scheduled(initialDelay = 10000, fixedDelay = 60000)
   @Transactional
   public void autoValidateMatches() {
@@ -114,7 +117,7 @@ public class MatchSchedulingService {
    * @return true if it has all required members, false otherwise
    */
   private boolean hasEnoughPlayers(Team team) {
-    return team.getMembers() != null && team.getMembers().size() >= 1;
+    return team.getMembers() != null && team.getMembers().isEmpty();
   }
 
 }

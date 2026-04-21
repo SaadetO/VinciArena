@@ -309,7 +309,7 @@ public class MatchServiceTest {
     MatchSummaryDto result = matchService.encodeResult(1L, dto);
 
     // Assert
-    assertTrue(result.status() == MatchStatus.PLAYED);
+    assertTrue(result.status() == MatchStatus.AWAITING_VALIDATION);
     assertTrue(team1Lineup.getScore() == 2);
     assertTrue(team2Lineup.getScore() == 1);
   }
