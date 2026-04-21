@@ -21,7 +21,9 @@ import be.vinci.ipl.cae.demo.repositories.MatchResultConfirmationRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.specifications.MatchSpecifications;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -46,12 +48,12 @@ public class MatchService {
   /**
    * Constructs a new MatchService with the specified repositories and services.
    *
-   * @param matchRepository the match repository
-   * @param memberRepository the member repository
-   * @param matchLineupRepository the match lineup repository
-   * @param memberService the member service
+   * @param matchRepository                   the match repository
+   * @param memberRepository                  the member repository
+   * @param matchLineupRepository             the match lineup repository
+   * @param memberService                     the member service
    * @param matchResultConfirmationRepository the match result confirmation repository
-   * @param teamService the team service
+   * @param teamService                       the team service
    */
   public MatchService(MatchRepository matchRepository, MemberRepository memberRepository,
       MatchLineupRepository matchLineupRepository, MemberService memberService,
@@ -88,14 +90,16 @@ public class MatchService {
         availableMembers.add(member);
       }
     }
-    return availableMembers;
+    return availableMembers.stream()
+        .sorted(Comparator.comparing(Member::getTag))
+        .collect(Collectors.toCollection(LinkedHashSet::new));
   }
 
   /**
    * Retrieves matches for a team and member, filtered by search query.
    *
-   * @param teamId the id of the team
-   * @param memberId the id of the member
+   * @param teamId      the id of the team
+   * @param memberId    the id of the member
    * @param searchQuery the search query
    * @return the matches
    */
@@ -150,10 +154,10 @@ public class MatchService {
   /**
    * Checks if a user is allowed to confirm the result of a match.
    *
-   * @param match the match
+   * @param match  the match
    * @param member the member
    * @throws MemberHasNoTeamException if the user has no team
-   * @throws UserNotInMatchException if the user is not part of the match
+   * @throws UserNotInMatchException  if the user is not part of the match
    */
   private void validateUserCanConfirm(Match match, Member member) {
     if (member.getTeam() == null) {
@@ -174,10 +178,10 @@ public class MatchService {
   /**
    * Updates the confirmation status (confirm or contest) for the correct team.
    *
-   * @param match the match
-   * @param member the member
+   * @param match        the match
+   * @param member       the member
    * @param confirmation the confirmation entity
-   * @param status true for confirm, false for contest
+   * @param status       true for confirm, false for contest
    */
   private void updateConfirmationStatus(Match match, Member member,
       MatchResultConfirmation confirmation, boolean status) {
@@ -218,7 +222,7 @@ public class MatchService {
    * Confirms the result of a match for the authenticated user.
    *
    * @param matchId the id of the match
-   * @param email the email of the authenticated user
+   * @param email   the email of the authenticated user
    */
   public void confirmResult(Long matchId, String email) {
     handleMatchResult(matchId, email, true);
@@ -228,7 +232,7 @@ public class MatchService {
    * Contests the result of a match for the authenticated user.
    *
    * @param matchId the id of the match
-   * @param email the email of the authenticated user
+   * @param email   the email of the authenticated user
    */
   public void contestResult(Long matchId, String email) {
     handleMatchResult(matchId, email, false);
@@ -237,7 +241,7 @@ public class MatchService {
   /**
    * Maps a match to a summary dto.
    *
-   * @param match the match
+   * @param match      the match
    * @param tournament the tournament
    * @return the summary dto
    */
@@ -255,13 +259,13 @@ public class MatchService {
 
     return new MatchSummaryDto(match.getIdMatch(), match.getDateHour(), match.getTurn(),
         match.getStatus(), isConfirmed, team1Dto, team2Dto, new MatchSummaryTournamentDto(
-            tournament.getIdTournament(), tournament.getName(), tournament.getStatus()));
+        tournament.getIdTournament(), tournament.getName(), tournament.getStatus()));
   }
 
   /**
    * Create a match team dto.
    *
-   * @param team the team
+   * @param team    the team
    * @param lineups the lineups
    * @return the match team dto
    */

@@ -21,7 +21,7 @@ export const LineupModal = ({
 
   const { getLineup, getAvailableMembers } = useMatches();
 
-  // 1. Calculate this on the fly so it's always accurate
+  // calculate places left to define
   const remainingPlaces = Math.max(0, 4 - selectedIds.length);
 
   useEffect(() => {
