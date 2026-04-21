@@ -6,7 +6,7 @@ import {
   Skeleton,
   ListItemButton,
 } from '@mui/material';
-import { MemberSummaryDto } from '../../../../types';
+import { MemberSummaryDto } from '../../../../../types';
 
 interface PlayerItemProps {
   player: MemberSummaryDto | null;

@@ -1,6 +1,6 @@
 // LineupContext.ts
 import { createContext, useContext } from 'react';
-import { MemberSummaryDto } from '../../../types';
+import { MemberSummaryDto } from '../../../../types';
 
 export interface LineupContextType {
   allMembers: MemberSummaryDto[];

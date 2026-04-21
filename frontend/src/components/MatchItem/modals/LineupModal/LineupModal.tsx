@@ -1,6 +1,6 @@
 import { List, CircularProgress, Stack, Typography, Box } from '@mui/material';
 import { PlayerItem } from './components/PlayerItem';
-import { MemberSummaryDto } from '../../../types';
+import { MemberSummaryDto } from '../../../../types';
 import { useLineup } from './LineupContext';
 import { LineupProvider } from './LineupProvider';
 

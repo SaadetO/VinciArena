@@ -1,8 +1,8 @@
 // LineupProvider.tsx
 import { useState, useEffect, useCallback, useRef, ReactNode } from 'react';
 import { LineupContext } from './LineupContext';
-import { useMatches } from '../../../hooks/useMatches';
-import { MemberSummaryDto } from '../../../types';
+import { useMatches } from '../../../../hooks/useMatches';
+import { MemberSummaryDto } from '../../../../types';
 
 export const LineupProvider = ({
   children,
