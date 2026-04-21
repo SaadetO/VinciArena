@@ -580,6 +580,9 @@ public class MemberService {
   }
 
   public void handleActiveLineupsWhenMemberRemoval(Member member) {
+    if (member.getTeam() == null) {
+      return;
+    }
     List<MatchLineup> activeLineups = matchLineupRepository.findByTeamAndMatchDateHourAfter(
         member.getTeam(), LocalDateTime.now());
     for (MatchLineup lineup : activeLineups) {
