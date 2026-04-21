@@ -34,7 +34,7 @@ public class Match {
   private Long idMatch;
 
   // Foreign Key to the Tournament
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "id_tournament", nullable = false)
   private Tournament tournament;
 

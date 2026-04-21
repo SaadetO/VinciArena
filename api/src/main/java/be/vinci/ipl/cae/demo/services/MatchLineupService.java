@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -38,19 +39,22 @@ public class MatchLineupService {
   private final MemberService memberService;
   private final TeamService teamService;
   private final TeamRepository teamRepository;
+  private final NotificationService notificationService;
 
   /**
    * match lineupservice constructor.
    */
   public MatchLineupService(MatchRepository matchRepository,
       MatchLineupRepository matchLineupRepository, MemberRepository memberRepository,
-      MemberService memberService, TeamService teamService, TeamRepository teamRepository) {
+      MemberService memberService, TeamService teamService, TeamRepository teamRepository,
+      NotificationService notificationService) {
     this.matchRepository = matchRepository;
     this.matchLineupRepository = matchLineupRepository;
     this.memberRepository = memberRepository;
     this.memberService = memberService;
     this.teamService = teamService;
     this.teamRepository = teamRepository;
+    this.notificationService = notificationService;
   }
 
   /**
@@ -71,8 +75,11 @@ public class MatchLineupService {
     Team team = currentMember.getTeam();
     MatchLineup matchLineup = matchLineupRepository.findByMatchAndTeam(match, team)
         .orElseThrow(MatchLineupNotFoundException::new);
+    Set<Long> oldLineup = matchLineup.getMembers().stream().map(Member::getIdMember)
+        .collect(Collectors.toSet());
     matchLineup.replaceLineup(membersSet);
     matchLineupRepository.save(matchLineup);
+    notificationService.notifyLineup(oldLineup, newLineup.playerIds(), match.getTournament().getIdTournament(), match);
     return MatchLineupDto.fromEntity(matchLineup);
   }
 

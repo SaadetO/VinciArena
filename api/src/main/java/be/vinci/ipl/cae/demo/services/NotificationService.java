@@ -1,6 +1,7 @@
 package be.vinci.ipl.cae.demo.services;
 
 import be.vinci.ipl.cae.demo.models.dtos.NotificationDto;
+import be.vinci.ipl.cae.demo.models.entities.Match;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Notification;
 import be.vinci.ipl.cae.demo.models.entities.NotificationType;
@@ -11,6 +12,7 @@ import jakarta.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.springframework.stereotype.Service;
 
 /**
@@ -26,7 +28,7 @@ public class NotificationService {
   /**
    * Constructs a new NotificationService with required repositories.
    *
-   * @param memberRepository the repository for member data
+   * @param memberRepository       the repository for member data
    * @param notificationRepository the repository for notification data
    */
   public NotificationService(MemberRepository memberRepository,
@@ -39,7 +41,7 @@ public class NotificationService {
    * Creates and saves a notification for a specific member identified by their ID.
    *
    * @param idMember the unique identifier of the member
-   * @param content the text message of the notification
+   * @param content  the text message of the notification
    * @throws IllegalArgumentException if the member is not found or content is blank
    */
   public void notifyMember(Long idMember, String content, NotificationType type, Long idReference) {
@@ -65,7 +67,7 @@ public class NotificationService {
   /**
    * Sends a notification to every member currently belonging to a specific team.
    *
-   * @param team the team entity whose members will be notified
+   * @param team    the team entity whose members will be notified
    * @param content the text message of the notification
    */
   public void notifyTeam(Team team, String content, NotificationType type, Long idReference) {
@@ -79,7 +81,7 @@ public class NotificationService {
    * Sends a notification to the managers (responsables) of a team. Only attempts to notify managers
    * that are explicitly assigned (not null).
    *
-   * @param team the team whose managers will be notified
+   * @param team    the team whose managers will be notified
    * @param content the text message of the notification
    */
   public void notifyTeamManagers(Team team, String content, NotificationType type,
@@ -97,7 +99,7 @@ public class NotificationService {
   /**
    * Internal helper to persist a notification.
    *
-   * @param member the member entity to associate with the notification
+   * @param member  the member entity to associate with the notification
    * @param content the message content
    * @throws IllegalArgumentException if content is null or blank
    */
@@ -117,7 +119,7 @@ public class NotificationService {
   /**
    * Retrieves notifications for a specific member, optionally filtering for unread ones.
    *
-   * @param idMember the unique identifier of the member
+   * @param idMember   the unique identifier of the member
    * @param unreadOnly true to return only unread notifications, false for all
    * @return an iterable collection of notifications
    */
@@ -168,6 +170,32 @@ public class NotificationService {
    */
   public Optional<Notification> getById(Long idNotification) {
     return notificationRepository.getNotificationByIdNotification(idNotification);
+  }
+
+  /**
+   * Notifies members who were recently added or removed from a lineup.
+   *
+   */
+  public void notifyLineup(Set<Long> oldLineup, Set<Long> newLineup, Long tournamentId,
+      Match match) {
+    // notify all removed members
+    for (Long oldId : oldLineup) {
+      if (!newLineup.contains(oldId)) {
+        notifyMember(oldId,
+            "Changement de tactique ! Tu ne fais plus partie de l'équipe pour le match du "
+                + match.getDateHour() + ". Ce sera pour la prochaine !",
+            NotificationType.TOURNAMENT, tournamentId);
+      }
+    }
+    // notify all added Members
+    for (Long newId : newLineup) {
+      if (!oldLineup.contains(newId)) {
+        notifyMember(newId,
+            "Prépare-toi pour la bataille ! ⚔️ Tu es ajouté à l'équipe pour le match du "
+                + match.getDateHour(),
+            NotificationType.TOURNAMENT, tournamentId);
+      }
+    }
   }
 
 }
