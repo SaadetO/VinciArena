@@ -13,6 +13,7 @@ import be.vinci.ipl.cae.demo.exceptions.NoSlotAvailableForWinnerException;
 import be.vinci.ipl.cae.demo.exceptions.TeamNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.UnallowedTieException;
 import be.vinci.ipl.cae.demo.models.dtos.EncodeMatchResultDto;
+import be.vinci.ipl.cae.demo.models.dtos.MatchLineupDto;
 import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryTournamentDto;
 import be.vinci.ipl.cae.demo.models.dtos.MatchTeamDto;
@@ -400,16 +401,17 @@ public class MatchService {
         .orElse(null);
 
     if (lineup == null) {
-      return new MatchTeamDto(team.getIdTeam(), team.getName(), null, false, false, false);
+      return new MatchTeamDto(team.getIdTeam(), team.getName(), null, false, false, false,null);
     }
-
+    MatchLineupDto lineupDto = MatchLineupDto.fromEntity(lineup);
     return new MatchTeamDto(
         team.getIdTeam(),
         team.getName(),
         lineup.getScore(),
         lineup.isWinner(),
         lineup.isHasForfeited(),
-        lineup.getHasConfirmedResults());
+        lineup.getHasConfirmedResults(),
+        lineupDto);
   }
 
   /**

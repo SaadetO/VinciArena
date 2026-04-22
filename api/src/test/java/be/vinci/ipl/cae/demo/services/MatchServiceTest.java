@@ -299,6 +299,9 @@ public class MatchServiceTest {
   void encodeResult_success() {
     // Arrange
     match.setStatus(MatchStatus.PLANNED);
+    Match localMatch = new Match();
+    team1Lineup.setMatch(localMatch);
+    team2Lineup.setMatch(localMatch);
 
     EncodeMatchResultDto dto = new EncodeMatchResultDto(2, 1);
 

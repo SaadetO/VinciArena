@@ -99,6 +99,7 @@ public class MemberService {
     authenticatedUser.setTag(member.getTag());
     authenticatedUser.setToken(token);
     authenticatedUser.setAdmin(member.isAdmin());
+    authenticatedUser.setTeamId(member.getTeam().getIdTeam());
 
     teamRepository
         .findFirstByManager1OrManager2(member, member)
