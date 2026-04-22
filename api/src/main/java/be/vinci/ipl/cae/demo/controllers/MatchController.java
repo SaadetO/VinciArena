@@ -5,6 +5,7 @@ import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.MemberSummaryDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.services.MatchService;
+import java.util.LinkedHashSet;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Set;
@@ -94,11 +95,8 @@ public class MatchController {
       @PathVariable Long matchId,
       @AuthenticationPrincipal Member currentMember) {
 
-    return matchService
-        .getAvailableMembersForMatch(matchId, currentMember)
-        .stream()
-        .map(MemberSummaryDto::fromEntity)
-        .collect(Collectors.toSet());
+    return matchService.getAvailableMembersForMatch(matchId, currentMember).stream()
+        .map(MemberSummaryDto::fromEntity).collect(Collectors.toCollection(LinkedHashSet::new));
   }
 
   /**

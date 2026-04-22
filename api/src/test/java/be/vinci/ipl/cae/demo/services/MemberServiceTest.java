@@ -20,7 +20,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
 class MemberServiceTest {
@@ -28,8 +27,6 @@ class MemberServiceTest {
   @Mock
   private MemberRepository memberRepository;
 
-  @Mock
-  private BCryptPasswordEncoder passwordEncoder;
 
   @InjectMocks
   private MemberService memberService;
@@ -42,6 +39,9 @@ class MemberServiceTest {
 
   @Mock
   private be.vinci.ipl.cae.demo.repositories.TeamRepository teamRepository;
+
+  @Mock
+  private be.vinci.ipl.cae.demo.repositories.MatchLineupRepository matchLineupRepository;
 
   // ========================= BAN MEMBER =========================
 

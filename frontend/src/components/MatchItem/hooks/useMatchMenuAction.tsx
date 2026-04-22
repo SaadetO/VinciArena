@@ -3,15 +3,12 @@ import { useModal } from '../../../hooks/useModal';
 import { useModalController } from '../../../hooks/useModalController';
 import { ConfirmOrContestMatchParams } from '../../../types';
 import { scoresConfirmationModal } from '../modals/scoresConfirmationModal';
-
 export const useMatchMenuAction = ({ refetch }: { refetch: () => void }) => {
   const { confirmOrContestMatch } = useMatches({ refetch });
   const { openModal } = useModal();
   const { setLoading } = useModalController();
 
   const handleForfeit = () => {};
-
-  const handleEditComposition = () => {};
 
   const handleConfirmOrContestScore = (params: ConfirmOrContestMatchParams) => {
     openModal(
@@ -32,7 +29,6 @@ export const useMatchMenuAction = ({ refetch }: { refetch: () => void }) => {
 
   return {
     handleForfeit,
-    handleEditComposition,
     handleConfirmOrContestScore,
     handleEncodeScore,
     handleEditScore,

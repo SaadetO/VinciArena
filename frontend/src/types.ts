@@ -198,8 +198,16 @@ interface MatchTeamDto {
   name: string;
   score: number | null;
   isWinner: boolean;
-  hasForfeited: boolean | null;
+  hasForfeited: boolean;
+  lineup?: MatchLineupDto;
   hasConfirmedResults: boolean | null;
+}
+
+interface MatchLineupDto {
+  matchId: number;
+  teamId: number;
+  teamName: string;
+  players: MemberSummaryDto[];
 }
 
 interface MatchSummaryDto {
@@ -317,5 +325,6 @@ export type {
   MemberFilters,
   HomePageContextType,
   TournamentMatchFilters,
+  MatchLineupDto,
   ConfirmOrContestMatchParams,
 };

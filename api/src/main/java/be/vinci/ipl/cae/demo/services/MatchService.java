@@ -26,7 +26,9 @@ import be.vinci.ipl.cae.demo.repositories.MatchLineupRepository;
 import be.vinci.ipl.cae.demo.repositories.MatchRepository;
 import be.vinci.ipl.cae.demo.specifications.MatchSpecifications;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -91,7 +93,9 @@ public class MatchService {
         availableMembers.add(member);
       }
     }
-    return availableMembers;
+    return availableMembers.stream()
+        .sorted(Comparator.comparing(Member::getTag))
+        .collect(Collectors.toCollection(LinkedHashSet::new));
   }
 
   /**
@@ -164,8 +168,6 @@ public class MatchService {
    * Updates the confirmation status (confirm or contest) for the correct team.
    *
    * @param match the match
-   * @param member the member
-   * @param confirmation the confirmation entity
    * @param status true for confirm, false for contest
    */
   private void updateConfirmationStatus(Match match, Team team, boolean status) {
