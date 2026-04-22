@@ -31,8 +31,7 @@ public class NotificationService {
    * @param memberRepository       the repository for member data
    * @param notificationRepository the repository for notification data
    */
-  public NotificationService(
-      MemberRepository memberRepository,
+  public NotificationService(MemberRepository memberRepository,
       NotificationRepository notificationRepository) {
     this.memberRepository = memberRepository;
     this.notificationRepository = notificationRepository;
@@ -47,8 +46,7 @@ public class NotificationService {
    */
   public void notifyMember(Long idMember, String content, NotificationType type, Long idReference) {
 
-    Member member = memberRepository
-        .findById(idMember)
+    Member member = memberRepository.findById(idMember)
         .orElseThrow(() -> new IllegalArgumentException("Member not found"));
     saveNotification(member, content, type, idReference);
   }
@@ -86,10 +84,7 @@ public class NotificationService {
    * @param team    the team whose managers will be notified
    * @param content the text message of the notification
    */
-  public void notifyTeamManagers(
-      Team team,
-      String content,
-      NotificationType type,
+  public void notifyTeamManagers(Team team, String content, NotificationType type,
       Long idReference) {
     Member manager1 = team.getManager1();
     Member manager2 = team.getManager2();
@@ -108,10 +103,7 @@ public class NotificationService {
    * @param content the message content
    * @throws IllegalArgumentException if content is null or blank
    */
-  private void saveNotification(
-      Member member,
-      String content,
-      NotificationType type,
+  private void saveNotification(Member member, String content, NotificationType type,
       Long idReference) {
     if (content == null || content.isBlank()) {
       throw new IllegalArgumentException("content must contain text");
@@ -134,22 +126,15 @@ public class NotificationService {
   public Iterable<NotificationDto> getNotificationsByIdMember(long idMember, boolean unreadOnly) {
     Iterable<Notification> entities;
     if (unreadOnly) {
-      entities =
-          notificationRepository.findByMemberIdMemberAndIsReadFalseOrderByDateTimeDesc(idMember);
+      entities = notificationRepository.findByMemberIdMemberAndIsReadFalseOrderByDateTimeDesc(
+          idMember);
     } else {
       entities = notificationRepository.findByMemberIdMemberOrderByIsReadAscDateTimeDesc(idMember);
     }
     List<NotificationDto> dtos = new ArrayList<>();
     for (Notification entity : entities) {
-      dtos
-          .add(
-              new NotificationDto(
-                  entity.getIdNotification(),
-                  entity.getContent(),
-                  entity.isRead(),
-                  entity.getDateTime(),
-                  entity.getType(),
-                  entity.getIdReference()));
+      dtos.add(new NotificationDto(entity.getIdNotification(), entity.getContent(), entity.isRead(),
+          entity.getDateTime(), entity.getType(), entity.getIdReference()));
     }
     return dtos;
   }
@@ -161,10 +146,8 @@ public class NotificationService {
    * @throws EntityNotFoundException if the notification does not exist
    */
   public void markNotificationAsRead(long idNotification) {
-    Notification notification = notificationRepository
-        .findById(idNotification)
-        .orElseThrow(
-            () -> new EntityNotFoundException("Notification not found with id: " + idNotification));
+    Notification notification = notificationRepository.findById(idNotification).orElseThrow(
+        () -> new EntityNotFoundException("Notification not found with id: " + idNotification));
     notification.setRead(true);
     notificationRepository.save(notification);
   }
@@ -195,22 +178,29 @@ public class NotificationService {
    */
   public void notifyLineup(Set<Long> oldLineup, Set<Long> newLineup, Long tournamentId,
       Match match) {
+    // Format the date and time once for reuse
+    String date = match.getDateHour().toLocalDate().toString();
+    String time = String.format("%02dh%02d", match.getDateHour().getHour(),
+        match.getDateHour().getMinute());
+    String matchInfo = date + " à " + time;
+
     // notify all removed members
     for (Long oldId : oldLineup) {
       if (!newLineup.contains(oldId)) {
-        notifyMember(oldId,
-            "Changement de tactique ! Tu ne fais plus partie de l'équipe pour le match du "
-                + match.getDateHour() + ". Ce sera pour la prochaine !",
-            NotificationType.TOURNAMENT, tournamentId);
+        String message = String.format("Changement de tactique ! 📋\n"
+            + "Tu ne fais plus partie de la composition pour le match du %s. "
+            + "Ce sera pour la prochaine fois !", matchInfo);
+        notifyMember(oldId, message, NotificationType.TOURNAMENT, tournamentId);
       }
     }
+
     // notify all added Members
     for (Long newId : newLineup) {
       if (!oldLineup.contains(newId)) {
-        notifyMember(newId,
-            "Prépare-toi pour la bataille ! ⚔️ Tu es ajouté à l'équipe pour le match du "
-                + match.getDateHour(),
-            NotificationType.TOURNAMENT, tournamentId);
+        String message = String.format("Prépare-toi pour la bataille ! ⚔️\n"
+            + "Tu as été sélectionné dans l'équipe pour le match du %s. "
+            + "Donne tout sur le terrain !", matchInfo);
+        notifyMember(newId, message, NotificationType.TOURNAMENT, tournamentId);
       }
     }
   }
