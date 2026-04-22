@@ -70,7 +70,8 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler({AccountBannedException.class, NotAdminException.class,
       CannotBanAdminException.class, ForbiddenException.class, NotManagerException.class,
-      MemberHasNoTeamException.class, MemberNotManagerOfTeamException.class})
+      MemberHasNoTeamException.class, MemberNotManagerOfTeamException.class,
+      PrivateLineupException.class})
   public ResponseEntity<Map<String, String>> handleForbiddenExceptions(RuntimeException ex) {
     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", ex.getMessage()));
   }
@@ -85,13 +86,6 @@ public class GlobalExceptionHandler {
       UnauthorizedException.class})
   public ResponseEntity<Map<String, String>> handleUnauthorizedExceptions(RuntimeException ex) {
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", ex.getMessage()));
-  }
-
-  @ExceptionHandler(PrivateLineupException.class) // The "Trigger"
-  public ResponseEntity<String> handlePrivateLineup(PrivateLineupException ex) {
-    return ResponseEntity
-        .status(HttpStatus.FORBIDDEN) // The "Code" (403)
-        .body(ex.getMessage()); // The "Message"
   }
 
 }

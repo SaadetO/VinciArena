@@ -581,6 +581,11 @@ public class MemberService {
     performBan(member);
   }
 
+  /**
+   * Remove a member from a lineup.
+   *
+   * @param member the member we want to remove
+   */
   public void handleActiveLineupsWhenMemberRemoval(Member member) {
     if (member.getTeam() == null) {
       return;
