@@ -19,12 +19,12 @@ export const TeamLineupHover = ({
   const isMyTeam = authenticatedUser?.managedTeamId === team.idTeam;
   const canSee = isPast || isMyTeam;
 
-  // If they aren't allowed to see it, just return the name without a tooltip
+  // if not allowed to see no tooltip
   if (!canSee) {
     return <>{children}</>;
   }
 
-  // If they CAN see it, check if there are players to show
+  // if can see check if there are player to show
   const hasPlayers = team.lineup?.players && team.lineup.players.length > 0;
 
   const lineupContent = (
@@ -38,6 +38,7 @@ export const TeamLineupHover = ({
 
       {hasPlayers ? (
         team.lineup?.players?.map((player) => (
+          // list of players in lineup
           <Typography
             key={player.id}
             sx={{ fontSize: '0.75rem', lineHeight: 1.4 }}
@@ -46,6 +47,7 @@ export const TeamLineupHover = ({
           </Typography>
         ))
       ) : (
+        // no players to show
         <Typography variant="caption" color="text.secondary">
           Non définie
         </Typography>

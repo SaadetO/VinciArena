@@ -56,6 +56,9 @@ export const MatchMenu = ({ match, refetch }: MatchMenuProps) => {
       children: (
         <LineupModal
           matchId={match.idMatch}
+          /* ESLint: The menu only displays if showEditComposition is true, 
+           which guarantees authenticatedUser and managedTeamId are defined.
+          */
           // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
           teamId={authenticatedUser?.managedTeamId!}
           onSelectionChange={(ids) => {
@@ -69,6 +72,7 @@ export const MatchMenu = ({ match, refetch }: MatchMenuProps) => {
           playerIds: selectedIdsRef.current,
           closeModal,
         });
+        refetch();
       },
       onCancel: (close) => close(),
     });
