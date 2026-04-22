@@ -48,9 +48,13 @@ public class MatchLineupService {
    * @param memberService member service
    * @param teamService team service
    */
-  public MatchLineupService(MatchRepository matchRepository,
-      MatchLineupRepository matchLineupRepository, MemberRepository memberRepository,
-      MemberService memberService, TeamService teamService, TeamRepository teamRepository,
+  public MatchLineupService(
+      MatchRepository matchRepository,
+      MatchLineupRepository matchLineupRepository,
+      MemberRepository memberRepository,
+      MemberService memberService,
+      TeamService teamService,
+      TeamRepository teamRepository,
       NotificationService notificationService) {
     this.matchRepository = matchRepository;
     this.matchLineupRepository = matchLineupRepository;
@@ -79,17 +83,25 @@ public class MatchLineupService {
     Set<Member> membersSet = validateMatchLineup(newLineup, matchId, currentMember);
     Match match = matchRepository.getMatchByIdMatch(matchId);
     Team team = currentMember.getTeam();
-    MatchLineup matchLineup = matchLineupRepository.findByMatchAndTeam(match, team)
+    MatchLineup matchLineup = matchLineupRepository
+        .findByMatchAndTeam(match, team)
         .orElseThrow(MatchLineupNotFoundException::new);
-    Set<Long> oldLineup = matchLineup.getMembers().stream().map(Member::getIdMember)
-        .collect(Collectors.toSet());
+    Set<Long> oldLineup =
+        matchLineup.getMembers().stream().map(Member::getIdMember).collect(Collectors.toSet());
     matchLineup.replaceLineup(membersSet);
     matchLineupRepository.save(matchLineup);
-    notificationService.notifyLineup(oldLineup, newLineup.playerIds(), match.getTournament().getIdTournament(), match);
+    notificationService
+        .notifyLineup(
+            oldLineup,
+            newLineup.playerIds(),
+            match.getTournament().getIdTournament(),
+            match);
     return MatchLineupDto.fromEntity(matchLineup);
   }
 
-  private Set<Member> validateMatchLineup(NewMatchLineupDto newLineup, Long matchId,
+  private Set<Member> validateMatchLineup(
+      NewMatchLineupDto newLineup,
+      Long matchId,
       Member currentMember) {
     Match match = matchRepository.getMatchByIdMatch(matchId);
     if (match == null) {
@@ -124,10 +136,10 @@ public class MatchLineupService {
   }
 
   public MatchLineupDto getLineupForTeam(Long matchId, Long teamId, Member currentMember) {
-    Match match = matchRepository.findById(matchId)
-        .orElseThrow(MatchNotFoundException::new);
+    Match match = matchRepository.findById(matchId).orElseThrow(MatchNotFoundException::new);
 
-    Team team = teamRepository.findById(teamId)
+    Team team = teamRepository
+        .findById(teamId)
         .orElseThrow(() -> new TeamNotFoundException("Team not found"));
 
     boolean isUserInThisTeam = memberService.isMemberOfTeam(currentMember.getIdMember(), team);
@@ -147,18 +159,14 @@ public class MatchLineupService {
     }
 
     // FETCH the lineup as an Optional
-    Optional<MatchLineup> lineupOpt = matchLineupRepository.findByMatchAndTeam(match,
-        targetMatchTeam);
+    Optional<MatchLineup> lineupOpt =
+        matchLineupRepository.findByMatchAndTeam(match, targetMatchTeam);
 
     // return mapped entity to dto or empty dto set
     return lineupOpt
         .map(MatchLineupDto::fromEntity)
-        .orElseGet(() -> new MatchLineupDto(
-            matchId,
-            teamId,
-            team.getName(),
-            Collections.emptySet()
-        ));
+        .orElseGet(
+            () -> new MatchLineupDto(matchId, teamId, team.getName(), Collections.emptySet()));
   }
 
   /**

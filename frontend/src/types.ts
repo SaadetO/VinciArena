@@ -301,7 +301,7 @@ interface ConfirmOrContestMatchParams {
 }
 
 interface DeclareForfeitMatchParams {
-  matchID: number;
+  matchId: number;
   winningTeamId: number;
   forfeitingTeamId: number;
 }

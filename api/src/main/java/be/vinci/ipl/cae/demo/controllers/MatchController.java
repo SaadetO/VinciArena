@@ -101,8 +101,11 @@ public class MatchController {
       @PathVariable Long matchId,
       @AuthenticationPrincipal Member currentMember) {
 
-    return matchService.getAvailableMembersForMatch(matchId, currentMember).stream()
-        .map(MemberSummaryDto::fromEntity).collect(Collectors.toCollection(LinkedHashSet::new));
+    return matchService
+        .getAvailableMembersForMatch(matchId, currentMember)
+        .stream()
+        .map(MemberSummaryDto::fromEntity)
+        .collect(Collectors.toCollection(LinkedHashSet::new));
   }
 
   /**
@@ -124,15 +127,12 @@ public class MatchController {
    * Declare forfeit for a match (manager only).
    *
    * @param matchId the match id
-   * @param request the request body containing the id's of the match, the winning team and
-   *                the forfeiting team
+   * @param request the request body containing the id's of the match, the winning team and the
+   *        forfeiting team
    */
   @PatchMapping("/{matchId}/declare-forfeit")
   @PreAuthorize("isAuthenticated()")
-  public void declareForfeit(
-      @PathVariable Long matchId,
-      @RequestBody ForfeitRequest request
-  ) {
+  public void declareForfeit(@PathVariable Long matchId, @RequestBody ForfeitRequest request) {
     Match match = matchService.getMatchById(matchId);
     Team winningTeam = teamService.getExistingTeam(request.winningTeamId());
     Team forfeitingTeam = teamService.getExistingTeam(request.forfeitingTeamId());

@@ -94,7 +94,8 @@ public class MatchService {
         availableMembers.add(member);
       }
     }
-    return availableMembers.stream()
+    return availableMembers
+        .stream()
         .sorted(Comparator.comparing(Member::getTag))
         .collect(Collectors.toCollection(LinkedHashSet::new));
   }
@@ -140,6 +141,7 @@ public class MatchService {
 
     return match;
   }
+
   /**
    * Retrieves a match by its id.
    *
@@ -419,7 +421,7 @@ public class MatchService {
         .orElse(null);
 
     if (lineup == null) {
-      return new MatchTeamDto(team.getIdTeam(), team.getName(), null, false, false, false,null);
+      return new MatchTeamDto(team.getIdTeam(), team.getName(), null, false, false, false, null);
     }
     MatchLineupDto lineupDto = MatchLineupDto.fromEntity(lineup);
     return new MatchTeamDto(

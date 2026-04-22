@@ -117,9 +117,6 @@ export const MatchMenu = ({ match, refetch }: MatchMenuProps) => {
                   const forfeitingTeamId = authenticatedUser?.managedTeamId;
 
                   if (!forfeitingTeamId) {
-                    console.log(
-                      `No team found for authenticatedUser (user id: ${authenticatedUser?.id})`,
-                    );
                     return;
                   }
 
@@ -129,7 +126,7 @@ export const MatchMenu = ({ match, refetch }: MatchMenuProps) => {
                       : match.team1.idTeam;
 
                   handleForfeit({
-                    matchID: match.idMatch,
+                    matchId: match.idMatch,
                     winningTeamId: winningTeamId,
                     forfeitingTeamId: forfeitingTeamId,
                   });

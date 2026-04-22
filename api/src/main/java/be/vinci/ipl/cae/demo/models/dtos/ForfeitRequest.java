@@ -7,9 +7,8 @@ package be.vinci.ipl.cae.demo.models.dtos;
  * @param winningTeamId the winning team id
  * @param forfeitingTeamId the forfeiting team id
  */
-@SuppressWarnings("checkstyle:AbbreviationAsWordInName")
 public record ForfeitRequest(
-    Long matchID,
+    Long matchId,
     Long winningTeamId,
     Long forfeitingTeamId
 ) {}

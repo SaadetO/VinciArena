@@ -239,18 +239,18 @@ export const useMatches = (config?: UseMatchesOptions) => {
 
   const { execute: declareForfeit, loading: isDeclaringForfeit } = useApi(
     async ({
-      matchID,
+      matchId,
       winningTeamId,
       forfeitingTeamId,
     }: DeclareForfeitMatchParams) => {
-      const response = await fetch(`/api/matches/${matchID}/declare-forfeit`, {
+      const response = await fetch(`/api/matches/${matchId}/declare-forfeit`, {
         method: 'PATCH',
         headers: {
           Authorization: authenticatedUser?.token ?? '',
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          matchID: matchID,
+          matchID: matchId,
           winningTeamId: winningTeamId,
           forfeitingTeamId: forfeitingTeamId,
         }),
@@ -262,8 +262,6 @@ export const useMatches = (config?: UseMatchesOptions) => {
           response.status,
         );
       }
-
-      return;
     },
     {
       onSuccess: () => {

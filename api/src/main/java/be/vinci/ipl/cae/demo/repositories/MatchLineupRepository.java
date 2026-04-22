@@ -40,7 +40,7 @@ public interface MatchLineupRepository extends JpaRepository<MatchLineup, MatchL
    * Get match lineups for a specific team where the match is in the future.
    *
    * @param team the team to filter by
-   * @param now  the current date/time to compare against
+   * @param now the current date/time to compare against
    * @return a list of future match lineups for the team
    */
   List<MatchLineup> findByTeamAndMatchDateHourAfter(Team team, LocalDateTime now);
