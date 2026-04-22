@@ -560,22 +560,4 @@ public class TournamentService {
 
     matchLineupRepository.saveAll(defaultLineups);
   }
-
-  /**
-   * Create a default lineup for a match and team.
-   *
-   * @param match the match
-   * @param team the team
-   * @return the default lineup
-   */
-  private MatchLineup createDefaultLineup(Match match, Team team) {
-    MatchLineup lineup = new MatchLineup();
-    lineup.setMatch(match);
-    lineup.setTeam(team);
-    lineup.setScore(0);
-    lineup.setWinner(false);
-    lineup.setHasForfeited(false);
-
-    return lineup;
-  }
 }
