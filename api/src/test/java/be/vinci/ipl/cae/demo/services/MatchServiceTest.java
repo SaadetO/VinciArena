@@ -299,6 +299,9 @@ public class MatchServiceTest {
   void encodeResult_success() {
     // Arrange
     match.setStatus(MatchStatus.PLANNED);
+    Match localMatch = new Match();
+    team1Lineup.setMatch(localMatch);
+    team2Lineup.setMatch(localMatch);
 
     EncodeMatchResultDto dto = new EncodeMatchResultDto(2, 1);
 
@@ -309,7 +312,7 @@ public class MatchServiceTest {
     MatchSummaryDto result = matchService.encodeResult(1L, dto);
 
     // Assert
-    assertTrue(result.status() == MatchStatus.PLAYED);
+    assertTrue(result.status() == MatchStatus.AWAITING_VALIDATION);
     assertTrue(team1Lineup.getScore() == 2);
     assertTrue(team2Lineup.getScore() == 1);
   }

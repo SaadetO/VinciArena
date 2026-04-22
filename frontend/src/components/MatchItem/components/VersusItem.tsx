@@ -6,7 +6,7 @@ import {
   Typography,
   TypographyProps,
 } from '@mui/material';
-import { MatchSummaryDto } from '../../../types';
+import { MatchSummaryDto, MaybeAuthenticatedUser } from '../../../types';
 import { Link } from 'react-router-dom';
 import { useUser } from '../../../hooks/useUser';
 import { Flag } from '@gravity-ui/icons';
@@ -21,6 +21,8 @@ const boxProps: BoxProps = {
     color: (theme) => theme.palette.text.secondary,
   },
 };
+
+import { TeamLineupHover } from './TeamLineupHover'; // Adjust the path as necessary
 
 export const VersusItem = ({ match }: VersusItemProps) => {
   const { authenticatedUser } = useUser();
@@ -41,6 +43,7 @@ export const VersusItem = ({ match }: VersusItemProps) => {
   const revealScores = isConfirmed || isManager || isAdmin;
 
   const isFinal = match.isFinal;
+
   return (
     <Grid2 size={6} spacing="2.375rem" container position="relative">
       <Grid2
@@ -54,6 +57,8 @@ export const VersusItem = ({ match }: VersusItemProps) => {
           matchTeam={match.team1}
           isFinal={isFinal}
           isForfeit={isForfeit}
+          matchDate={match.dateHour}
+          authenticatedUser={authenticatedUser}
         />
         {showScoresSection && (
           <Typography
@@ -119,6 +124,8 @@ export const VersusItem = ({ match }: VersusItemProps) => {
           matchTeam={match.team2}
           isFinal={isFinal}
           isForfeit={isForfeit}
+          matchDate={match.dateHour}
+          authenticatedUser={authenticatedUser}
         />
       </Grid2>
     </Grid2>
@@ -129,10 +136,14 @@ const TeamItem = ({
   matchTeam,
   isFinal,
   isForfeit,
+  matchDate,
+  authenticatedUser,
 }: {
   matchTeam: MatchSummaryDto['team1'] | MatchSummaryDto['team2'];
   isFinal: boolean;
   isForfeit: boolean;
+  matchDate: string;
+  authenticatedUser: MaybeAuthenticatedUser;
 }) => {
   const isWinner = matchTeam?.isWinner && isFinal;
   const props: TypographyProps = {
@@ -154,15 +165,27 @@ const TeamItem = ({
     textOverflow: 'ellipsis',
     noWrap: true,
   };
+
   if (!matchTeam?.idTeam || !matchTeam?.name)
     return (
       <Typography {...props}>
         {isForfeit ? "Pas d'adversaire" : 'TBD'}
       </Typography>
     );
+
   return (
-    <Typography component={Link} to={`/teams/${matchTeam?.idTeam}`} {...props}>
-      {matchTeam?.name}
-    </Typography>
+    <TeamLineupHover
+      team={matchTeam}
+      matchDate={matchDate}
+      authenticatedUser={authenticatedUser}
+    >
+      <Typography
+        component={Link}
+        to={`/teams/${matchTeam?.idTeam}`}
+        {...props}
+      >
+        {matchTeam?.name}
+      </Typography>
+    </TeamLineupHover>
   );
 };

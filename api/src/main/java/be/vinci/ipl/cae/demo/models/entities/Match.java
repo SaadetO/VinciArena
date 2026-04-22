@@ -38,7 +38,7 @@ public class Match {
   private Long idMatch;
 
   // Foreign Key to the Tournament
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "id_tournament", nullable = false)
   private Tournament tournament;
 
@@ -58,6 +58,8 @@ public class Match {
   @Column(nullable = false)
   private LocalDateTime dateHour;
 
+  private LocalDateTime scoreEncodedAt;
+
   // Enum mapped to String to save 'PLANIFIE' instead of 0
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
@@ -72,4 +74,12 @@ public class Match {
   @JsonIgnore
   private List<MatchLineup> lineups = new ArrayList<>();
 
+  /**
+   * tell match date has passed.
+   *
+   * @return boolean
+   */
+  public boolean wasPlayed() {
+    return dateHour != null && dateHour.isBefore(LocalDateTime.now());
+  }
 }

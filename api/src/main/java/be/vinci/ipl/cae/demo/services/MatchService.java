@@ -13,6 +13,7 @@ import be.vinci.ipl.cae.demo.exceptions.NoSlotAvailableForWinnerException;
 import be.vinci.ipl.cae.demo.exceptions.TeamNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.UnallowedTieException;
 import be.vinci.ipl.cae.demo.models.dtos.EncodeMatchResultDto;
+import be.vinci.ipl.cae.demo.models.dtos.MatchLineupDto;
 import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryTournamentDto;
 import be.vinci.ipl.cae.demo.models.dtos.MatchTeamDto;
@@ -26,7 +27,9 @@ import be.vinci.ipl.cae.demo.repositories.MatchLineupRepository;
 import be.vinci.ipl.cae.demo.repositories.MatchRepository;
 import be.vinci.ipl.cae.demo.specifications.MatchSpecifications;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -91,7 +94,9 @@ public class MatchService {
         availableMembers.add(member);
       }
     }
-    return availableMembers;
+    return availableMembers.stream()
+        .sorted(Comparator.comparing(Member::getTag))
+        .collect(Collectors.toCollection(LinkedHashSet::new));
   }
 
   /**
@@ -226,6 +231,7 @@ public class MatchService {
     Match match = handleMatchResult(matchId, member, true);
 
     if (bothTeamsConfirmed(match)) {
+      match.setStatus(MatchStatus.PLAYED);
       updateWinner(match);
       advanceWinnerToNextRound(match);
     }
@@ -261,7 +267,7 @@ public class MatchService {
    *
    * @param match the match to update the winner for
    */
-  private void updateWinner(Match match) {
+  public void updateWinner(Match match) {
     if (match == null) {
       throw new MatchNotFoundException("Match not found.");
     }
@@ -351,6 +357,7 @@ public class MatchService {
       winnerLineup.setScore(5);
       winnerLineup.setHasConfirmedResults(true);
     }
+
     if (forfeitingTeam != null) {
       MatchLineup forfeitLineup =
           lineups.stream().filter(l -> l.getTeam().equals(forfeitingTeam)).findFirst().orElse(null);
@@ -412,16 +419,17 @@ public class MatchService {
         .orElse(null);
 
     if (lineup == null) {
-      return new MatchTeamDto(team.getIdTeam(), team.getName(), null, false, false, false);
+      return new MatchTeamDto(team.getIdTeam(), team.getName(), null, false, false, false,null);
     }
-
+    MatchLineupDto lineupDto = MatchLineupDto.fromEntity(lineup);
     return new MatchTeamDto(
         team.getIdTeam(),
         team.getName(),
         lineup.getScore(),
         lineup.isWinner(),
         lineup.isHasForfeited(),
-        lineup.getHasConfirmedResults());
+        lineup.getHasConfirmedResults(),
+        lineupDto);
   }
 
   /**
@@ -500,7 +508,8 @@ public class MatchService {
     List<MatchLineup> lineups = getLineups(match);
     applyScores(match, lineups, dto);
 
-    match.setStatus(MatchStatus.PLAYED);
+    match.setScoreEncodedAt(LocalDateTime.now());
+    match.setStatus(MatchStatus.AWAITING_VALIDATION);
 
     return mapMatchToSummaryDto(match, match.getTournament());
   }

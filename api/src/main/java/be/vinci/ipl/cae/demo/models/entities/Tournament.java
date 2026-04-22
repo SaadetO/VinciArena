@@ -13,6 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -73,6 +74,7 @@ public class Tournament {
   @ManyToMany
   @JoinTable(name = "tournament_registrations", joinColumns = @JoinColumn(name = "id_tournament"),
       inverseJoinColumns = @JoinColumn(name = "id_team"))
+  @OrderBy("name ASC")
   private List<Team> teams = new ArrayList<>();
 
   /**

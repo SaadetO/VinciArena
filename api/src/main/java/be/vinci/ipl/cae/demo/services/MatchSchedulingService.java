@@ -1,6 +1,7 @@
 package be.vinci.ipl.cae.demo.services;
 
 import be.vinci.ipl.cae.demo.models.entities.Match;
+import be.vinci.ipl.cae.demo.models.entities.MatchLineup;
 import be.vinci.ipl.cae.demo.models.entities.MatchStatus;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.repositories.MatchRepository;
@@ -53,13 +54,14 @@ public class MatchSchedulingService {
         matchService.executeWalkover(match, t1, null);
         continue;
       }
+
       if (t1 == null && t2 != null) {
         matchService.executeWalkover(match, t2, null);
         continue;
       }
 
-      boolean team1Valid = hasFullRoster(t1);
-      boolean team2Valid = hasFullRoster(t2);
+      boolean team1Valid = hasEnoughPlayers(t1);
+      boolean team2Valid = hasEnoughPlayers(t2);
 
       if (!team1Valid && !team2Valid) {
         matchService.executeDoubleForfeit(match);
@@ -74,13 +76,48 @@ public class MatchSchedulingService {
   }
 
   /**
-   * Checks if the team has all 4 members.
+   * Periodically updates match confirmation. Runs every 60 seconds.
+   */
+  @Scheduled(initialDelay = 10000, fixedDelay = 60000)
+  @Transactional
+  public void autoValidateMatches() {
+    LocalDateTime twoHoursAgo = LocalDateTime.now().minusHours(2);
+
+    List<Match> expiredMatches = matchRepository
+        .findByStatusAndScoreEncodedAtLessThanEqual(MatchStatus.AWAITING_VALIDATION, twoHoursAgo);
+
+    for (Match match : expiredMatches) {
+      boolean isContested = match
+          .getLineups()
+          .stream()
+          .anyMatch(l -> Boolean.FALSE.equals(l.getHasConfirmedResults()));
+
+      if (isContested) {
+        continue;
+      }
+
+      System.out.println("Auto-validating match ID: " + match.getIdMatch());
+
+      for (MatchLineup lineup : match.getLineups()) {
+        if (lineup.getHasConfirmedResults() == null) {
+          lineup.setHasConfirmedResults(true);
+        }
+      }
+
+      match.setStatus(MatchStatus.PLAYED);
+      matchService.updateWinner(match);
+      matchService.advanceWinnerToNextRound(match);
+    }
+  }
+
+  /**
+   * Checks if the team has all required members.
    *
    * @param team the team
-   * @return true if it has all 4 members, false otherwise
+   * @return true if it has all required members, false otherwise
    */
-  private boolean hasFullRoster(Team team) {
-    return team.getMembers() != null && team.getMembers().size() >= 4;
+  private boolean hasEnoughPlayers(Team team) {
+    return team.getMembers() != null && !team.getMembers().isEmpty();
   }
 
 }

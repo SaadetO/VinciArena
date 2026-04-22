@@ -48,4 +48,15 @@ public interface MatchRepository
    * @return the list of matches found
    */
   List<Match> findByStatusAndDateHourLessThanEqual(MatchStatus status, LocalDateTime dateTime);
+
+  /**
+   * Find a match by status and ScoreEncodedAt.
+   *
+   * @param status the status
+   * @param dateTime the scoreEncodedAt
+   * @return the list of matches found
+   */
+  List<Match> findByStatusAndScoreEncodedAtLessThanEqual(
+      MatchStatus status,
+      LocalDateTime dateTime);
 }

@@ -7,7 +7,6 @@ import {
 } from '../../../types';
 import { declareForfeitModal } from '../modals/declareForfeitModal';
 import { scoresConfirmationModal } from '../modals/scoresConfirmationModal';
-
 export const useMatchMenuAction = ({ refetch }: { refetch: () => void }) => {
   const { confirmOrContestMatch } = useMatches({ refetch });
   const { declareForfeit } = useMatches({ refetch });
@@ -25,8 +24,6 @@ export const useMatchMenuAction = ({ refetch }: { refetch: () => void }) => {
       }),
     );
   };
-
-  const handleEditComposition = () => {};
 
   const handleConfirmOrContestScore = (params: ConfirmOrContestMatchParams) => {
     openModal(
@@ -47,7 +44,6 @@ export const useMatchMenuAction = ({ refetch }: { refetch: () => void }) => {
 
   return {
     handleForfeit,
-    handleEditComposition,
     handleConfirmOrContestScore,
     handleEncodeScore,
     handleEditScore,
