@@ -91,7 +91,7 @@ public class GlobalExceptionHandler {
   public ResponseEntity<String> handlePrivateLineup(PrivateLineupException ex) {
     return ResponseEntity
         .status(HttpStatus.FORBIDDEN) // The "Code" (403)
-        .body(ex.getMessage());       // The "Message"
+        .body(ex.getMessage()); // The "Message"
   }
 
 }

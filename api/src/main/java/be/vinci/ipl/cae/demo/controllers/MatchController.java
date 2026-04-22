@@ -5,8 +5,8 @@ import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.MemberSummaryDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.services.MatchService;
-import java.util.LinkedHashSet;
 import jakarta.validation.Valid;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -41,8 +41,8 @@ public class MatchController {
   /**
    * Retrieves matches for a team and member, filtered by search query.
    *
-   * @param teamId the id of the team
-   * @param memberId the id of the member
+   * @param teamId      the id of the team
+   * @param memberId    the id of the member
    * @param searchQuery the search query
    * @return the matches
    */
@@ -57,7 +57,7 @@ public class MatchController {
   /**
    * Confirms the result of a match.
    *
-   * @param id the id of the match
+   * @param id            the id of the match
    * @param currentMember the authenticated user
    */
   @PatchMapping("/{id}/confirm")
@@ -71,7 +71,7 @@ public class MatchController {
   /**
    * Contests the result of a match.
    *
-   * @param id the id of the match
+   * @param id            the id of the match
    * @param currentMember the authenticated user
    */
   @PatchMapping("/{id}/contest")
@@ -85,7 +85,7 @@ public class MatchController {
   /**
    * Fetches available members for a match.(manager use only.
    *
-   * @param matchId match id
+   * @param matchId       match id
    * @param currentMember the manager sending the request
    * @return set of members
    */
@@ -95,14 +95,17 @@ public class MatchController {
       @PathVariable Long matchId,
       @AuthenticationPrincipal Member currentMember) {
 
-    return matchService.getAvailableMembersForMatch(matchId, currentMember).stream()
-        .map(MemberSummaryDto::fromEntity).collect(Collectors.toCollection(LinkedHashSet::new));
+    return matchService
+        .getAvailableMembersForMatch(matchId, currentMember)
+        .stream()
+        .map(MemberSummaryDto::fromEntity)
+        .collect(Collectors.toCollection(LinkedHashSet::new));
   }
 
   /**
    * Encodes the result of a match (admin only).
    *
-   * @param id the id of the match
+   * @param id  the id of the match
    * @param dto the DTO containing the scores for both teams
    * @return the updated match summary
    */

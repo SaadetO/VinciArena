@@ -33,6 +33,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -73,11 +74,11 @@ public class MemberService {
   /**
    * Constructor.
    *
-   * @param passwordEncoder          the password encoder
-   * @param memberRepository         the member repository
+   * @param passwordEncoder the password encoder
+   * @param memberRepository the member repository
    * @param unavailabilityRepository the unavailability repository
-   * @param specialtyRepository      the specialty repository
-   * @param profileImageRepository   the profile image repository
+   * @param specialtyRepository the specialty repository
+   * @param profileImageRepository the profile image repository
    */
   public MemberService(
       BCryptPasswordEncoder passwordEncoder,
@@ -85,7 +86,8 @@ public class MemberService {
       UnavailabilityRepository unavailabilityRepository,
       SpecialtyRepository specialtyRepository,
       ProfileImageRepository profileImageRepository,
-      TeamRepository teamRepository, MatchLineupRepository matchLineupRepository) {
+      TeamRepository teamRepository,
+      MatchLineupRepository matchLineupRepository) {
     this.passwordEncoder = passwordEncoder;
     this.memberRepository = memberRepository;
     this.unavailabilityRepository = unavailabilityRepository;
@@ -99,7 +101,7 @@ public class MemberService {
    * Create an AuthenticatedUser based on a member and a token.
    *
    * @param member the member
-   * @param token  the token
+   * @param token the token
    * @return the authenticated user
    */
   public AuthenticatedUser toAuthenticatedUser(Member member, String token) {
@@ -153,7 +155,7 @@ public class MemberService {
   /**
    * Login a member.
    *
-   * @param email    the member email
+   * @param email the member email
    * @param password the member password
    * @return the authenticated user if login succeeds
    */
@@ -250,7 +252,7 @@ public class MemberService {
   /**
    * Update a member's profile image.
    *
-   * @param member       the member
+   * @param member the member
    * @param profileImage the new profile image
    * @return true if updated, false if the image is invalid
    */
@@ -271,7 +273,7 @@ public class MemberService {
   /**
    * Update a member's profile image.
    *
-   * @param member      the member
+   * @param member the member
    * @param specialtyId the new profile image
    * @return true if updated, false if the image is invalid
    */
@@ -291,7 +293,7 @@ public class MemberService {
   /**
    * Get member profile DTO with privacy rules.
    *
-   * @param requestedId        the requested member ID
+   * @param requestedId the requested member ID
    * @param authenticatedEmail the authenticated user email
    * @return the profile DTO or null if not found
    */
@@ -486,11 +488,11 @@ public class MemberService {
   /**
    * Validate business rules before banning a member.
    *
-   * @param member    the member to ban
+   * @param member the member to ban
    * @param requester the member performing the action
-   * @throws CannotBanAdminException      if trying to ban an admin
+   * @throws CannotBanAdminException if trying to ban an admin
    * @throws MemberAlreadyBannedException if the member is already banned
-   * @throws CannotBanSelfException       if the user tries to ban themselves
+   * @throws CannotBanSelfException if the user tries to ban themselves
    */
   private void checkBanValidity(Member member, Member requester) {
     if (member.getIdMember().equals(requester.getIdMember())) {
@@ -530,7 +532,7 @@ public class MemberService {
             .stream()
             .filter(m -> !m.getIdMember().equals(member.getIdMember()))
             .filter(m -> !m.isDeleted())
-            .min((m1, m2) -> m1.getCreationDate().compareTo(m2.getCreationDate()))
+            .min(Comparator.comparing(Member::getCreationDate))
             .orElse(null);
 
         if (replacement != null) {
@@ -564,14 +566,14 @@ public class MemberService {
   /**
    * Ban a member from the platform (soft delete).
    *
-   * @param id             the ID of the member to ban
+   * @param id the ID of the member to ban
    * @param requesterEmail the email of the authenticated user
-   * @throws NotAuthenticatedException    if the user is not authenticated
-   * @throws NotAdminException            if the requester is not an admin
-   * @throws MemberNotFoundException      if the member does not exist
-   * @throws CannotBanAdminException      if trying to ban an admin
+   * @throws NotAuthenticatedException if the user is not authenticated
+   * @throws NotAdminException if the requester is not an admin
+   * @throws MemberNotFoundException if the member does not exist
+   * @throws CannotBanAdminException if trying to ban an admin
    * @throws MemberAlreadyBannedException if the member is already banned
-   * @throws CannotBanSelfException       if the user tries to ban themselves
+   * @throws CannotBanSelfException if the user tries to ban themselves
    */
   @Transactional
   public void banMember(Long id, String requesterEmail) {
@@ -593,8 +595,8 @@ public class MemberService {
     if (member.getTeam() == null) {
       return;
     }
-    List<MatchLineup> activeLineups = matchLineupRepository.findByTeamAndMatchDateHourAfter(
-        member.getTeam(), LocalDateTime.now());
+    List<MatchLineup> activeLineups = matchLineupRepository
+        .findByTeamAndMatchDateHourAfter(member.getTeam(), LocalDateTime.now());
     for (MatchLineup lineup : activeLineups) {
       lineup.getMembers().remove(member);
       matchLineupRepository.save(lineup);

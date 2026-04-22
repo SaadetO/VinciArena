@@ -54,8 +54,8 @@ public class MatchLineupController {
   @PreAuthorize("isAuthenticated()")
   public MatchLineupDto getMatchLineup(
       @PathVariable Long matchId,
-      @PathVariable Long teamId, @AuthenticationPrincipal Member currentMember
-  ) {
+      @PathVariable Long teamId,
+      @AuthenticationPrincipal Member currentMember) {
 
     return matchLineupService.getLineupForTeam(matchId, teamId, currentMember);
   }

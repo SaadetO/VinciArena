@@ -16,12 +16,4 @@ public class MemberUnavailableException extends RuntimeException {
     super("The selected member is not available at this time.");
   }
 
-  /**
-   * Constructs a new MemberUnavailableException with the specified message.
-   *
-   * @param message the detail message
-   */
-  public MemberUnavailableException(String message) {
-    super(message);
-  }
 }

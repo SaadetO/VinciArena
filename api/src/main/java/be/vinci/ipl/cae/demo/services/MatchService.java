@@ -93,7 +93,8 @@ public class MatchService {
         availableMembers.add(member);
       }
     }
-    return availableMembers.stream()
+    return availableMembers
+        .stream()
         .sorted(Comparator.comparing(Member::getTag))
         .collect(Collectors.toCollection(LinkedHashSet::new));
   }
@@ -343,6 +344,7 @@ public class MatchService {
           lineups.stream().filter(l -> l.getTeam().equals(forfeitingTeam)).findFirst().orElse(null);
 
       if (forfeitLineup != null) {
+        assert winnerLineup != null;
         winnerLineup.setHasForfeited(true);
         winnerLineup.setHasConfirmedResults(true);
       }
