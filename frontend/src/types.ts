@@ -78,6 +78,7 @@ interface AuthenticatedUser {
   tag: string;
   managedTeamId?: number;
   token: string;
+  teamId?: number;
 }
 
 interface UserSummaryDto {

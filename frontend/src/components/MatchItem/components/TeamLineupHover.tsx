@@ -16,8 +16,8 @@ export const TeamLineupHover = ({
   children,
 }: TeamLineupHoverProps) => {
   const isPast = dayjs(matchDate).isBefore(dayjs());
-  const isMyTeam = authenticatedUser?.managedTeamId === team.idTeam;
-  const canSee = isPast || isMyTeam;
+  const isTeammate = authenticatedUser?.teamId === team.idTeam;
+  const canSee = isPast || isTeammate;
 
   // if not allowed to see no tooltip
   if (!canSee) {

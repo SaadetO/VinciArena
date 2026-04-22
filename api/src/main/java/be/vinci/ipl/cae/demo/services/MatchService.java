@@ -17,7 +17,6 @@ import be.vinci.ipl.cae.demo.models.dtos.MatchLineupDto;
 import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryTournamentDto;
 import be.vinci.ipl.cae.demo.models.dtos.MatchTeamDto;
-import be.vinci.ipl.cae.demo.models.dtos.MemberSummaryDto;
 import be.vinci.ipl.cae.demo.models.entities.Match;
 import be.vinci.ipl.cae.demo.models.entities.MatchLineup;
 import be.vinci.ipl.cae.demo.models.entities.MatchStatus;
