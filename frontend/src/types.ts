@@ -286,6 +286,12 @@ interface ConfirmOrContestMatchParams {
   previousMatch: MatchSummaryDto;
 }
 
+interface DeclareForfeitMatchParams {
+  matchID: number;
+  winningTeamId: number;
+  forfeitingTeamId: number;
+}
+
 export type {
   MainContext,
   User,
@@ -318,4 +324,5 @@ export type {
   HomePageContextType,
   TournamentMatchFilters,
   ConfirmOrContestMatchParams,
+  DeclareForfeitMatchParams,
 };

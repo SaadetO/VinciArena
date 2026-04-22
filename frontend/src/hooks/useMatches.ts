@@ -3,6 +3,7 @@ import {
   ApiError,
   ConfirmOrContestMatchParams,
   MatchSummaryDto,
+  DeclareForfeitMatchParams,
 } from '../types';
 import { useApi } from './useApi';
 import { useSnackbar } from './useSnackbar';
@@ -110,10 +111,62 @@ export const useMatches = (config?: UseMatchesOptions) => {
     },
   );
 
+  const {
+    execute: declareForfeit,
+    loading: isDeclaringForfeit,
+  } = useApi(
+    async ({
+      matchID,
+      winningTeamId,
+      forfeitingTeamId,
+    }: DeclareForfeitMatchParams) => {
+      const response = await fetch(`/api/matches/${matchID}/declare-forfeit`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: authenticatedUser?.token ?? '',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          matchID: matchID,
+          winningTeamId: winningTeamId,
+          forfeitingTeamId: forfeitingTeamId,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new ApiError(
+          'Échec lors de la déclaration de forfait',
+          response.status,
+        );
+      }
+
+      return;
+    },
+    {
+      onSuccess: () => {
+        showSnackbar({
+          message: 'Forfait déclaré avec succès',
+          severity: 'success',
+        });
+      },
+      onError: (err) => {
+        showSnackbar({
+          message:
+            err instanceof ApiError
+              ? err.message
+              : 'Une erreur est survenue lors de la déclaration de forfait',
+          severity: 'error',
+        });
+      },
+    },
+  );
+
   return {
     getAll,
     isGettingMatches,
     confirmOrContestMatch,
     isConfirmingOrContestingMatch,
+    declareForfeit,
+    isDeclaringForfeit,
   };
 };

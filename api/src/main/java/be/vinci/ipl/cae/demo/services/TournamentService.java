@@ -578,26 +578,4 @@ public class TournamentService {
 
     return lineup;
   }
-
-  public void eliminateTeam(Long teamId, Long matchId, Long tournamentId) {
-    Team team = teamRepository.findById(teamId).orElse(null);
-
-    if (team == null) {
-      throw new TeamNotFoundException("Team not found");
-    }
-
-    Tournament tournament = tournamentRepository.findById(tournamentId).orElse(null);
-
-    if (tournament == null) {
-      throw new TournamentNotFoundException("Tournament not found");
-    }
-
-    MatchLineup lineup = matchLineupRepository.findByIdIdMatch(matchId)
-        .stream().findFirst().orElse(null);
-
-    if (lineup == null) {
-      // TODO: create a new exception for this case
-      throw new RuntimeException("Match line up not found");
-    }
-  }
 }

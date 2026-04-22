@@ -1,10 +1,14 @@
 package be.vinci.ipl.cae.demo.controllers;
 
 import be.vinci.ipl.cae.demo.models.dtos.EncodeMatchResultDto;
+import be.vinci.ipl.cae.demo.models.dtos.ForfeitRequest;
 import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.MemberSummaryDto;
+import be.vinci.ipl.cae.demo.models.entities.Match;
 import be.vinci.ipl.cae.demo.models.entities.Member;
+import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.services.MatchService;
+import be.vinci.ipl.cae.demo.services.TeamService;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Set;
@@ -27,14 +31,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class MatchController {
 
   private final MatchService matchService;
+  private final TeamService teamService;
 
   /**
    * Constructor for MatchController.
    *
    * @param matchService the injected MatchService
    */
-  public MatchController(MatchService matchService) {
+  public MatchController(MatchService matchService, TeamService teamService) {
     this.matchService = matchService;
+    this.teamService = teamService;
   }
 
   /**
@@ -114,6 +120,26 @@ public class MatchController {
       @PathVariable Long id,
       @Valid @RequestBody EncodeMatchResultDto dto) {
     return matchService.encodeResult(id, dto);
+  }
+
+  /**
+   * Declare forfeit for a match (manager only).
+   *
+   * @param matchId the match id
+   * @param request the request body containing the id's of the match, the winning team and
+   *                the forfeiting team
+   */
+  @PatchMapping("/{matchId}/declare-forfeit")
+  @PreAuthorize("isAuthenticated()")
+  public void declareForfeit(
+      @PathVariable Long matchId,
+      @RequestBody ForfeitRequest request
+  ) {
+    Match match = matchService.getMatchById(matchId);
+    Team winningTeam = teamService.getExistingTeam(request.winningTeamId());
+    Team forfeitingTeam = teamService.getExistingTeam(request.forfeitingTeamId());
+
+    matchService.executeWalkover(match, winningTeam, forfeitingTeam);
   }
 
 }

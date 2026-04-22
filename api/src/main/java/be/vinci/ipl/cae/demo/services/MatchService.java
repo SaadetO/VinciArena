@@ -3,7 +3,6 @@ package be.vinci.ipl.cae.demo.services;
 import be.vinci.ipl.cae.demo.exceptions.MatchNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.MatchNotPlayedException;
 import be.vinci.ipl.cae.demo.exceptions.TeamNotFoundException;
-import be.vinci.ipl.cae.demo.exceptions.TeamNotInMatchException;
 import be.vinci.ipl.cae.demo.models.entities.Match;
 import be.vinci.ipl.cae.demo.models.entities.MatchStatus;
 import be.vinci.ipl.cae.demo.models.entities.Team;
@@ -121,6 +120,21 @@ public class MatchService {
   }
 
   /**
+   * Finds a match by its id.
+   * @param matchId the id of the searched match
+   * @return the found match
+   * @throws MatchNotFoundException if no match has this id
+   */
+  public Match getMatchById(Long matchId) {
+    Match match = matchRepository.getMatchByIdMatch(matchId);
+
+    if (match == null) {
+      throw new MatchNotFoundException("Match not found");
+    }
+
+    return match;
+  }
+  /**
    * Retrieves a match by its id.
    *
    * @param matchId the id of the match
@@ -165,8 +179,7 @@ public class MatchService {
    * Updates the confirmation status (confirm or contest) for the correct team.
    *
    * @param match the match
-   * @param member the member
-   * @param confirmation the confirmation entity
+   * @param team the team
    * @param status true for confirm, false for contest
    */
   private void updateConfirmationStatus(Match match, Team team, boolean status) {
@@ -556,77 +569,5 @@ public class MatchService {
     }
 
     match.setStatus(MatchStatus.FORFEIT);
-  }
-
-  /**
-   * TODO: Description of the methode.
-   *
-   * @param teamId the team id
-   * @param matchId the match id
-   * @return true if the team has been declared forfeit for the match, false otherwise.
-   * @throws TeamNotFoundException if no team has teamId id
-   * @throws MatchNotFoundException if no match has matchId id
-   */
-  public boolean declareForfeit(Long teamId, Long matchId) {
-    Team team = teamRepository.findById(teamId).orElse(null);
-    if (team == null) {
-      throw new TeamNotFoundException("Team not found");
-    }
-
-    Match match = matchRepository.findById(matchId).orElse(null);
-    if (match == null) {
-      throw new MatchNotFoundException("Match not found");
-    }
-
-    boolean isTheTeamPartOfTheMatch = isTheTeamPartOfTheMatch(team, match);
-
-    if (!isTheTeamPartOfTheMatch) {
-      throw new TeamNotInMatchException("Team not in match");
-    }
-
-    if (!MatchStatus.PLAYED.equals(match.getStatus())) {
-      throw new MatchNotPlayedException("Match should have been played before declaring forfeit");
-    }
-
-    match.setStatus(MatchStatus.FORFEIT);
-
-    // TODO:
-    //  Set the other team as the winner (if they haven't declared forfeit as well ? IMPOSSIBLE)
-    //    QUESTION: what if the other team also declare forfeit ?
-    //  Eliminate the team from the tournament (calling TeamService ?)
-    //    QUESTION: which service should be eliminating the team from the tournament ?
-    //      (MatchService or TournamentService or TeamService)
-    Long tournamentId = match.getTournament().getIdTournament();
-    Tournament tournament = tournamentRepository.findById(tournamentId).orElse(null);
-
-
-    return true;
-  }
-
-  /**
-   * Check if a team is one of the match's team.
-   *
-   * @param team the team
-   * @param match the match
-   * @return true if the team is one of the match's team, false otherwise
-   */
-  public boolean isTheTeamPartOfTheMatch(Team team, Match match) {
-    return team.equals(match.getTeam1()) || team.equals(match.getTeam2());
-  }
-
-  /**
-   * Check if a team is team1 or team2 of a match.
-   *
-   * @param team the team
-   * @param match the match
-   * @return 1 if the team is team1 of the match, 2 if it is team 2, 0 otherwise
-   */
-  public int getNumberOfTeamInMatch(Team team, Match match) {
-    if (team.equals(match.getTeam1())) {
-      return 1;
-    } else if (team.equals(match.getTeam2())) {
-      return 2;
-    }
-    return 0;
   }
 }
