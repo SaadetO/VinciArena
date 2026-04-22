@@ -32,7 +32,13 @@ public class MatchLineupService {
   private final TeamService teamService;
 
   /**
-   * match lineupservice constructor.
+   * Match lineupservice constructor.
+   *
+   * @param matchRepository match repository
+   * @param matchLineupRepository matchLineup repository
+   * @param memberRepository member repository
+   * @param memberService member service
+   * @param teamService team service
    */
   public MatchLineupService(
       MatchRepository matchRepository,

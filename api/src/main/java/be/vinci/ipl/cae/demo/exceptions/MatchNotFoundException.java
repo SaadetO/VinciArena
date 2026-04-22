@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public class MatchNotFoundException extends RuntimeException {
 
   /**
-   * exception with default message.
+   * Constructor with no params, exception with default message.
    */
   public MatchNotFoundException() {
     super("Match not found.");
