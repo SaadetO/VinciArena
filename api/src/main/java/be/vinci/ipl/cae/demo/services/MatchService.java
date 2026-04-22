@@ -125,12 +125,29 @@ public class MatchService {
   }
 
   /**
+   * Finds a match by its id.
+   *
+   * @param matchId the id of the searched match
+   * @return the found match
+   * @throws MatchNotFoundException if no match has this id
+   */
+  public Match getMatchById(Long matchId) {
+    Match match = matchRepository.getMatchByIdMatch(matchId);
+
+    if (match == null) {
+      throw new MatchNotFoundException("Match not found");
+    }
+
+    return match;
+  }
+  /**
    * Retrieves a match by its id.
    *
    * @param matchId the id of the match
    * @return the match
    * @throws MatchNotFoundException if the match is not found
    */
+
   private Match getMatch(Long matchId) {
     return matchRepository
         .findById(matchId)
@@ -169,6 +186,7 @@ public class MatchService {
    * Updates the confirmation status (confirm or contest) for the correct team.
    *
    * @param match the match
+   * @param team the team
    * @param status true for confirm, false for contest
    */
   private void updateConfirmationStatus(Match match, Team team, boolean status) {

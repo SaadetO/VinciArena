@@ -1,14 +1,29 @@
 import { useMatches } from '../../../hooks/useMatches';
 import { useModal } from '../../../hooks/useModal';
 import { useModalController } from '../../../hooks/useModalController';
-import { ConfirmOrContestMatchParams } from '../../../types';
+import {
+  ConfirmOrContestMatchParams,
+  DeclareForfeitMatchParams,
+} from '../../../types';
+import { declareForfeitModal } from '../modals/declareForfeitModal';
 import { scoresConfirmationModal } from '../modals/scoresConfirmationModal';
 export const useMatchMenuAction = ({ refetch }: { refetch: () => void }) => {
   const { confirmOrContestMatch } = useMatches({ refetch });
+  const { declareForfeit } = useMatches({ refetch });
   const { openModal } = useModal();
   const { setLoading } = useModalController();
 
-  const handleForfeit = () => {};
+  const handleForfeit = (params: DeclareForfeitMatchParams) => {
+    openModal(
+      declareForfeitModal({
+        onConfirm: async (close) => {
+          setLoading(true);
+          await declareForfeit(params);
+          close();
+        },
+      }),
+    );
+  };
 
   const handleConfirmOrContestScore = (params: ConfirmOrContestMatchParams) => {
     openModal(
