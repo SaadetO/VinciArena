@@ -117,7 +117,7 @@ public class MatchSchedulingService {
    * @return true if it has all required members, false otherwise
    */
   private boolean hasEnoughPlayers(Team team) {
-    return team.getMembers() != null && team.getMembers().isEmpty();
+    return team.getMembers() != null && !team.getMembers().isEmpty();
   }
 
 }

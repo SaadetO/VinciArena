@@ -338,6 +338,7 @@ public class MatchService {
       winnerLineup.setScore(5);
       winnerLineup.setHasConfirmedResults(true);
     }
+
     if (forfeitingTeam != null) {
       MatchLineup forfeitLineup =
           lineups.stream().filter(l -> l.getTeam().equals(forfeitingTeam)).findFirst().orElse(null);
