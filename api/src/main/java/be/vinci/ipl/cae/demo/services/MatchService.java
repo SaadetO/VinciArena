@@ -1,27 +1,27 @@
 package be.vinci.ipl.cae.demo.services;
 
-import be.vinci.ipl.cae.demo.exceptions.MatchNotFoundException;
-import be.vinci.ipl.cae.demo.exceptions.MatchNotPlayedException;
-import be.vinci.ipl.cae.demo.exceptions.TeamNotFoundException;
-import be.vinci.ipl.cae.demo.models.entities.Match;
-import be.vinci.ipl.cae.demo.models.entities.MatchStatus;
-import be.vinci.ipl.cae.demo.models.entities.Team;
-import be.vinci.ipl.cae.demo.models.entities.Tournament;
 import be.vinci.ipl.cae.demo.exceptions.AlreadyConfirmedException;
 import be.vinci.ipl.cae.demo.exceptions.ForbiddenException;
 import be.vinci.ipl.cae.demo.exceptions.InvalidMatchStatusException;
 import be.vinci.ipl.cae.demo.exceptions.MatchLineupNotFoundException;
+import be.vinci.ipl.cae.demo.exceptions.MatchNotFoundException;
+import be.vinci.ipl.cae.demo.exceptions.MatchNotPlayedException;
 import be.vinci.ipl.cae.demo.exceptions.MatchScoreNotSetException;
 import be.vinci.ipl.cae.demo.exceptions.MemberHasNoTeamException;
 import be.vinci.ipl.cae.demo.exceptions.MemberNotManagerOfTeamException;
 import be.vinci.ipl.cae.demo.exceptions.NoSlotAvailableForWinnerException;
+import be.vinci.ipl.cae.demo.exceptions.TeamNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.UnallowedTieException;
 import be.vinci.ipl.cae.demo.models.dtos.EncodeMatchResultDto;
 import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryTournamentDto;
 import be.vinci.ipl.cae.demo.models.dtos.MatchTeamDto;
+import be.vinci.ipl.cae.demo.models.entities.Match;
 import be.vinci.ipl.cae.demo.models.entities.MatchLineup;
+import be.vinci.ipl.cae.demo.models.entities.MatchStatus;
 import be.vinci.ipl.cae.demo.models.entities.Member;
+import be.vinci.ipl.cae.demo.models.entities.Team;
+import be.vinci.ipl.cae.demo.models.entities.Tournament;
 import be.vinci.ipl.cae.demo.repositories.MatchLineupRepository;
 import be.vinci.ipl.cae.demo.repositories.MatchRepository;
 import be.vinci.ipl.cae.demo.specifications.MatchSpecifications;
@@ -121,6 +121,7 @@ public class MatchService {
 
   /**
    * Finds a match by its id.
+   *
    * @param matchId the id of the searched match
    * @return the found match
    * @throws MatchNotFoundException if no match has this id
@@ -141,6 +142,7 @@ public class MatchService {
    * @return the match
    * @throws MatchNotFoundException if the match is not found
    */
+
   private Match getMatch(Long matchId) {
     return matchRepository
         .findById(matchId)
