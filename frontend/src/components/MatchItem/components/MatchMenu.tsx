@@ -77,20 +77,22 @@ export const MatchMenu = ({ match, refetch }: MatchMenuProps) => {
             </Typography>
             {showForfeit && (
               <MenuItem
-                disabled={match.status == "FORFEIT"}
+                disabled={match.status == 'FORFEIT'}
                 onClick={() => {
                   const forfeitingTeamId = authenticatedUser?.managedTeamId;
 
                   if (!forfeitingTeamId) {
-                    console.log(`No team found for authenticatedUser (user id: ${authenticatedUser?.id})`);
+                    console.log(
+                      `No team found for authenticatedUser (user id: ${authenticatedUser?.id})`,
+                    );
                     return;
                   }
 
                   const winningTeamId =
                     forfeitingTeamId === match.team1.idTeam
-                    ? match.team2.idTeam
-                    : match.team1.idTeam;
-                  
+                      ? match.team2.idTeam
+                      : match.team1.idTeam;
+
                   handleForfeit({
                     matchID: match.idMatch,
                     winningTeamId: winningTeamId,

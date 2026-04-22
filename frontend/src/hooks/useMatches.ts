@@ -111,10 +111,7 @@ export const useMatches = (config?: UseMatchesOptions) => {
     },
   );
 
-  const {
-    execute: declareForfeit,
-    loading: isDeclaringForfeit,
-  } = useApi(
+  const { execute: declareForfeit, loading: isDeclaringForfeit } = useApi(
     async ({
       matchID,
       winningTeamId,

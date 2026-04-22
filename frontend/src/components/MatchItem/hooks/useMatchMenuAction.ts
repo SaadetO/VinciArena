@@ -1,7 +1,10 @@
 import { useMatches } from '../../../hooks/useMatches';
 import { useModal } from '../../../hooks/useModal';
 import { useModalController } from '../../../hooks/useModalController';
-import { ConfirmOrContestMatchParams, DeclareForfeitMatchParams } from '../../../types';
+import {
+  ConfirmOrContestMatchParams,
+  DeclareForfeitMatchParams,
+} from '../../../types';
 import { declareForfeitModal } from '../modals/declareForfeitModal';
 import { scoresConfirmationModal } from '../modals/scoresConfirmationModal';
 
