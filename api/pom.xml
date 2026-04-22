@@ -9,7 +9,7 @@
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
     <version>3.3.4</version>
-    <relativePath /> <!-- lookup parent from repository -->
+    <relativePath/> <!-- lookup parent from repository -->
   </parent>
   <groupId>be.vinci.ipl.cae.demos</groupId>
   <artifactId>cae-exercices-demo</artifactId>
@@ -20,6 +20,12 @@
     <java.version>21</java.version>
   </properties>
   <dependencies>
+    <dependency>
+      <groupId>io.github.cdimascio</groupId>
+      <artifactId>dotenv-java</artifactId>
+      <!-- 3.2.0 works normally ! -->
+      <version>3.2.0</version>
+    </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -71,15 +77,15 @@
 
   <build>
     <plugins>
-    <plugin>
+      <plugin>
         <groupId>net.revelc.code.formatter</groupId>
         <artifactId>formatter-maven-plugin</artifactId>
         <version>2.23.0</version>
         <configuration>
-            <configFile>${project.basedir}/eclipse_formatter.xml</configFile>
-            <lineEnding>KEEP</lineEnding>
+          <configFile>${project.basedir}/eclipse_formatter.xml</configFile>
+          <lineEnding>KEEP</lineEnding>
         </configuration>
-    </plugin>
+      </plugin>
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>

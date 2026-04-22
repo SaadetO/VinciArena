@@ -16,6 +16,7 @@ import be.vinci.ipl.cae.demo.repositories.ProfileImageRepository;
 import be.vinci.ipl.cae.demo.repositories.SpecialtyRepository;
 import be.vinci.ipl.cae.demo.repositories.TeamRepository;
 import be.vinci.ipl.cae.demo.repositories.TournamentRepository;
+import io.github.cdimascio.dotenv.Dotenv;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -46,13 +47,21 @@ public class VinciArena {
    * @param args the arguments
    */
   public static void main(String[] args) {
-
+    System.out.println("--- START LOAD .ENV FILE ---");
+    Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
+    // show all env values
+    dotenv.entries().forEach(entry -> {
+      if (entry.getKey().startsWith("APP_")) {
+        System.out.println("VAR DETECTED : " + entry.getKey() + " = " + entry.getValue());
+        // INJECT VAR IN SYSTEM PROPERTY FOR application.properties
+        System.setProperty(entry.getKey(), entry.getValue());
+      }
+    });
+    System.out.println("--- END LOAD .ENV FILE ---");
     SpringApplication.run(VinciArena.class, args);
   }
 
-  private void createEmptyMatchLineup(
-      Match match,
-      Team team,
+  private void createEmptyMatchLineup(Match match, Team team,
       MatchLineupRepository matchLineupRepo) {
     // Assuming 3 slots per match per team
     MatchLineup lineup = new MatchLineup();
@@ -226,9 +235,7 @@ public class VinciArena {
 
       // create mock matches
       Tournament springBattle = StreamSupport.stream(tournamentRepo.findAll().spliterator(), false)
-          .filter(t -> "Spring Battle Series 2026".equals(t.getName()))
-          .findFirst()
-          .orElse(null);
+          .filter(t -> "Spring Battle Series 2026".equals(t.getName())).findFirst().orElse(null);
       Team alpha = teamRepo.findByName("TEAM_ALPHA");
       Team omega = teamRepo.findByName("TEAM_OMEGA");
 
