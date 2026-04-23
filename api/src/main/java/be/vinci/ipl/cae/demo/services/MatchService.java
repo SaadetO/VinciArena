@@ -24,6 +24,7 @@ import be.vinci.ipl.cae.demo.models.entities.MatchStatus;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.models.entities.Tournament;
+import be.vinci.ipl.cae.demo.models.entities.TournamentStatus;
 import be.vinci.ipl.cae.demo.repositories.MatchLineupRepository;
 import be.vinci.ipl.cae.demo.repositories.MatchRepository;
 import be.vinci.ipl.cae.demo.specifications.MatchSpecifications;
@@ -199,7 +200,7 @@ public class MatchService {
       throw new MatchLineupNotFoundException("Lineup not found for match and team");
     }
 
-    if (lineup.isConfirmed() || lineup.isContested()) {
+    if (!lineup.isPending()) {
       throw new AlreadyConfirmedException("Lineup already confirmed with a different status");
     }
 
@@ -277,11 +278,13 @@ public class MatchService {
 
     MatchStatus status = match.getStatus();
 
-    if (status != MatchStatus.PLAYED || status != MatchStatus.FORFEIT) {
+    if (status != MatchStatus.PLAYED && status != MatchStatus.FORFEIT) {
+      System.out.println("Match status not okay");
       throw new MatchNotPlayedException("Match is not played, can't update winner.");
     }
 
     if (match.getTeam1() == null || match.getTeam2() == null) {
+      System.out.println("Match team not okay");
       throw new TeamNotFoundException("Couldn't find one or more team in the match.");
     }
 
@@ -368,9 +371,9 @@ public class MatchService {
           lineups.stream().filter(l -> l.getTeam().equals(forfeitingTeam)).findFirst().orElse(null);
 
       if (forfeitLineup != null) {
-        winnerLineup.setHasForfeited(true);
-        winnerLineup.setScore(0);
-        winnerLineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
+        forfeitLineup.setHasForfeited(true);
+        forfeitLineup.setScore(0);
+        forfeitLineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
       }
     }
 
@@ -450,6 +453,7 @@ public class MatchService {
    *
    * @param match the match to advance
    */
+  @Transactional
   public void advanceWinnerToNextRound(Match match) {
     if (match == null) {
       throw new MatchNotFoundException("Match not found.");
@@ -457,11 +461,6 @@ public class MatchService {
 
     Match nextMatch = match.getNextMatch();
     List<MatchLineup> lineups = match.getLineups();
-
-    if (nextMatch == null) {
-      System.out.println("NextMatch is null for Match ID " + match.getIdMatch());
-      return;
-    }
 
     if (lineups == null || lineups.isEmpty()) {
       System.out.println("No lineups exist in DB for Match ID " + match.getIdMatch());
@@ -480,6 +479,11 @@ public class MatchService {
 
     if (winnerTeam == null) {
       throw new TeamNotFoundException("No team found for the winner lineup.");
+    }
+    
+    if (nextMatch == null) {
+      match.getTournament().setWinner(winnerTeam);
+      return;
     }
 
     if (nextMatch.getTeam1() == null) {

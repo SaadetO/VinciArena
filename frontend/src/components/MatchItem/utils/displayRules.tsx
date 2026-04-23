@@ -1,8 +1,11 @@
+import { Box, BoxProps, TypographyProps } from '@mui/material';
 import {
   MatchSummaryDto,
   MatchTeamDto,
   MaybeAuthenticatedUser,
 } from '../../../types';
+import { isContested, isPending } from '../../../utils/confirmationUtils';
+import { Flag } from '@gravity-ui/icons';
 
 interface UseMenuSectionDisplayProps {
   match: MatchSummaryDto;
@@ -28,10 +31,9 @@ export const getMenuSectionDisplay = ({
 
   const isManagerOfParticipant = !!managedTeam;
 
-  const bothTeamsScoresHaveBeenConfirmed =
-    team1?.hasConfirmedResults === true && team2?.hasConfirmedResults === true;
+  const isPlayed = match.status === 'PLAYED';
 
-  if (bothTeamsScoresHaveBeenConfirmed)
+  if (isPlayed)
     return {
       showTeamSection: false,
       showForfeit: false,
@@ -46,7 +48,7 @@ export const getMenuSectionDisplay = ({
     };
 
   const managedTeamScoresHaveBeenConfirmedOrContested =
-    managedTeam?.hasConfirmedResults != null;
+    managedTeam && !isPending(managedTeam);
 
   const isPlanned = match.status === 'PLANNED';
   const isInProgress = match.status === 'IN_PROGRESS';
@@ -63,8 +65,7 @@ export const getMenuSectionDisplay = ({
   const showTeamSection = showForfeit || showEditComposition;
 
   const hasContestedScore =
-    team1?.hasConfirmedResults === false ||
-    team2?.hasConfirmedResults === false;
+    (team1 && isContested(team1)) || (team2 && isContested(team2));
 
   const showScoresSection =
     isManagerOfParticipant &&
@@ -125,8 +126,6 @@ export const getOverlayDisplay = ({
 
   const isPlanned = match.status === 'PLANNED';
 
-  // const isPlayed = match.status === 'PLAYED';
-
   const isInProgress = match.status === 'IN_PROGRESS';
 
   const isInAwaitingValidation = match.status === 'AWAITING_VALIDATION';
@@ -138,19 +137,20 @@ export const getOverlayDisplay = ({
         ? match.team2
         : null;
 
-  const canConfirmScores =
-    team?.hasConfirmedResults === null && isInAwaitingValidation;
+  const canConfirmScores = team && isPending(team) && isInAwaitingValidation;
 
   // TODO: check if the user already has registered members in the match for canEditComposition
   const canEditComposition = team && isPlanned;
 
   const canEncodeScores = isAdmin && isInProgress;
 
+  const team1 = match.team1;
+  const team2 = match.team2;
+
   const canEditScores =
     isAdmin &&
     isInAwaitingValidation &&
-    (match?.team1.hasConfirmedResults === false ||
-      match?.team2.hasConfirmedResults === false);
+    (isContested(team1) || isContested(team2));
 
   const displayOverlay =
     canConfirmScores || canEditComposition || canEncodeScores || canEditScores;
@@ -167,5 +167,88 @@ export const getOverlayDisplay = ({
   return {
     displayOverlay,
     getOverlayLabel,
+  };
+};
+
+export const getTypographyProps = ({
+  matchTeam,
+  isFinal,
+}: {
+  matchTeam: MatchTeamDto;
+  isFinal: boolean;
+}): TypographyProps => {
+  const isWinner = matchTeam?.isWinner && isFinal;
+  return {
+    variant: 'h4',
+    borderRadius: isWinner ? '100rem' : '0.25rem',
+    padding: isWinner ? '0.125rem 0.75rem' : '',
+    sx: {
+      opacity: matchTeam?.name ? 1 : 0.5,
+      textDecoration: 'none',
+      color: (theme) =>
+        isWinner
+          ? `${theme.palette.primary.main} !important`
+          : `${theme.palette.text.primary} !important`,
+      background: (theme) =>
+        isWinner
+          ? `color-mix(in srgb, ${theme.palette.primary.main} 10%, ${theme.palette.background.s3})`
+          : `none`,
+    },
+    textOverflow: 'ellipsis',
+    noWrap: true,
+  };
+};
+
+const boxProps: BoxProps = {
+  display: 'contents',
+  sx: {
+    color: (theme) => theme.palette.text.secondary,
+  },
+};
+
+export const getVersusItemDisplay = ({
+  match,
+  authenticatedUser,
+}: {
+  match: MatchSummaryDto;
+  authenticatedUser: MaybeAuthenticatedUser;
+}) => {
+  const isAdmin = authenticatedUser?.admin;
+
+  const isAwaitingValidation = match.status === 'AWAITING_VALIDATION';
+  const isPlayed = match.status === 'PLAYED';
+  const isForfeit = match.status === 'FORFEIT';
+
+  const showScoresSection = isPlayed || isAwaitingValidation || isForfeit;
+
+  const isManager =
+    authenticatedUser?.managedTeamId === match.team1?.idTeam ||
+    authenticatedUser?.managedTeamId === match.team2?.idTeam;
+
+  const revealScores = isPlayed || isForfeit || isManager || isAdmin;
+
+  const isFinal = match.isFinal;
+
+  const getScore = ({ team }: { team: MatchTeamDto | undefined }) => {
+    const hasForfeited = team?.hasForfeited;
+
+    const score = team?.score;
+
+    if (hasForfeited)
+      return (
+        <Box {...boxProps}>
+          <Flag />
+        </Box>
+      );
+    else if (revealScores) return score;
+    else '-';
+  };
+
+  return {
+    showScoresSection,
+    revealScores,
+    isFinal,
+    isForfeit,
+    getScore,
   };
 };

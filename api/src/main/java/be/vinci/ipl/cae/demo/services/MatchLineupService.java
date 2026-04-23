@@ -159,9 +159,9 @@ public class MatchLineupService {
     }
 
     Team targetMatchTeam;
-    if (match.getTeam1().getIdTeam().equals(teamId)) {
+    if (match.getTeam1() != null && match.getTeam1().getIdTeam().equals(teamId)) {
       targetMatchTeam = match.getTeam1();
-    } else if (match.getTeam2().getIdTeam().equals(teamId)) {
+    } else if (match.getTeam2() != null && match.getTeam2().getIdTeam().equals(teamId)) {
       targetMatchTeam = match.getTeam2();
     } else {
       throw new IllegalArgumentException("Cette équipe ne participe pas à ce match.");
