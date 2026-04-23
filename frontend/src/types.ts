@@ -206,7 +206,7 @@ interface MatchSummaryDto {
   idMatch: number;
   dateHour: string;
   turn: number;
-  status: 'PLANNED' | 'PLAYED' | 'IN_PROGRESS' | 'FORFEIT';
+  status: 'PLANNED' | 'PLAYED' | 'IN_PROGRESS' | 'FORFEIT' | 'AWAITING_VALIDATION';
   teams: Team[];
   team1: MatchTeamDto;
   team2: MatchTeamDto;
@@ -286,6 +286,11 @@ interface ConfirmOrContestMatchParams {
   previousMatch: MatchSummaryDto;
 }
 
+interface EncodeMatchResultDto {
+  scoreTeam1: number;
+  scoreTeam2: number;
+}
+
 export type {
   MainContext,
   User,
@@ -318,4 +323,5 @@ export type {
   HomePageContextType,
   TournamentMatchFilters,
   ConfirmOrContestMatchParams,
+  EncodeMatchResultDto,
 };
