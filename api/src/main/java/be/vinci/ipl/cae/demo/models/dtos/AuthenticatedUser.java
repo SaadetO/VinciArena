@@ -16,4 +16,5 @@ public class AuthenticatedUser {
   private String tag;
   private Long managedTeamId;
   private String token;
+  private Long teamId;
 }

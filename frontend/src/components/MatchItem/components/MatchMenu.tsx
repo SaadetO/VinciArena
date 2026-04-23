@@ -10,6 +10,10 @@ import {
 } from '@gravity-ui/icons';
 import { MatchSummaryDto } from '../../../types';
 import { useMatchMenu } from '../hooks/useMatchMenu';
+import { LineupModal } from '../modals/LineupModal/LineupModal';
+import { useModal } from '../../../hooks/useModal';
+import { useMatches } from '../../../hooks/useMatches';
+import { useRef } from 'react';
 
 interface MatchMenuProps {
   match: MatchSummaryDto;
@@ -17,6 +21,9 @@ interface MatchMenuProps {
 }
 
 export const MatchMenu = ({ match, refetch }: MatchMenuProps) => {
+  const { openModal } = useModal();
+  const { updateLineup } = useMatches();
+  const selectedIdsRef = useRef<number[]>([]);
   const {
     theme,
     anchorEl,
@@ -33,7 +40,6 @@ export const MatchMenu = ({ match, refetch }: MatchMenuProps) => {
     needsDividerAfterScores,
     displayMenu,
     handleForfeit,
-    handleEditComposition,
     handleConfirmOrContestScore,
     handleEncodeScore,
     handleEditScore,
@@ -42,6 +48,35 @@ export const MatchMenu = ({ match, refetch }: MatchMenuProps) => {
 
   if (!displayMenu) return null;
 
+  const onEditComposition = () => {
+    handleClose(); //  close match menu first
+    openModal({
+      title: 'Modifier la composition',
+      subtitle: '',
+      children: (
+        <LineupModal
+          matchId={match.idMatch}
+          /* ESLint: The menu only displays if showEditComposition is true, 
+           which guarantees authenticatedUser and managedTeamId are defined.
+          */
+          // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+          teamId={authenticatedUser?.managedTeamId!}
+          onSelectionChange={(ids) => {
+            selectedIdsRef.current = ids;
+          }}
+        />
+      ),
+      onConfirm: (closeModal: () => void) => {
+        updateLineup({
+          matchId: match.idMatch,
+          playerIds: selectedIdsRef.current,
+          closeModal,
+        });
+        refetch();
+      },
+      onCancel: (close) => close(),
+    });
+  };
   return (
     <>
       <IconButton size="small" onClick={handleClick}>
@@ -77,8 +112,25 @@ export const MatchMenu = ({ match, refetch }: MatchMenuProps) => {
             </Typography>
             {showForfeit && (
               <MenuItem
+                disabled={match.status == 'FORFEIT'}
                 onClick={() => {
-                  handleForfeit();
+                  const forfeitingTeamId = authenticatedUser?.managedTeamId;
+
+                  if (!forfeitingTeamId) {
+                    return;
+                  }
+
+                  const winningTeamId =
+                    forfeitingTeamId === match.team1.idTeam
+                      ? match.team2.idTeam
+                      : match.team1.idTeam;
+
+                  handleForfeit({
+                    matchId: match.idMatch,
+                    winningTeamId: winningTeamId,
+                    forfeitingTeamId: forfeitingTeamId,
+                  });
+
                   handleClose();
                 }}
               >
@@ -89,7 +141,7 @@ export const MatchMenu = ({ match, refetch }: MatchMenuProps) => {
             {showEditComposition && (
               <MenuItem
                 onClick={() => {
-                  handleEditComposition();
+                  onEditComposition();
                   handleClose();
                 }}
               >

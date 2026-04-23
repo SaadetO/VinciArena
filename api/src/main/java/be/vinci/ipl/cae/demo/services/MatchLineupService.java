@@ -6,6 +6,8 @@ import be.vinci.ipl.cae.demo.exceptions.MatchNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.MemberNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.MemberNotInTeamException;
 import be.vinci.ipl.cae.demo.exceptions.MemberUnavailableException;
+import be.vinci.ipl.cae.demo.exceptions.PrivateLineupException;
+import be.vinci.ipl.cae.demo.exceptions.TeamNotFoundException;
 import be.vinci.ipl.cae.demo.models.dtos.MatchLineupDto;
 import be.vinci.ipl.cae.demo.models.dtos.NewMatchLineupDto;
 import be.vinci.ipl.cae.demo.models.entities.Match;
@@ -15,8 +17,12 @@ import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.repositories.MatchLineupRepository;
 import be.vinci.ipl.cae.demo.repositories.MatchRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
+import be.vinci.ipl.cae.demo.repositories.TeamRepository;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 /**
@@ -30,21 +36,33 @@ public class MatchLineupService {
   private final MemberRepository memberRepository;
   private final MemberService memberService;
   private final TeamService teamService;
+  private final TeamRepository teamRepository;
+  private final NotificationService notificationService;
 
   /**
-   * match lineupservice constructor.
+   * Match lineupservice constructor.
+   *
+   * @param matchRepository match repository
+   * @param matchLineupRepository matchLineup repository
+   * @param memberRepository member repository
+   * @param memberService member service
+   * @param teamService team service
    */
   public MatchLineupService(
       MatchRepository matchRepository,
       MatchLineupRepository matchLineupRepository,
       MemberRepository memberRepository,
       MemberService memberService,
-      TeamService teamService) {
+      TeamService teamService,
+      TeamRepository teamRepository,
+      NotificationService notificationService) {
     this.matchRepository = matchRepository;
     this.matchLineupRepository = matchLineupRepository;
     this.memberRepository = memberRepository;
     this.memberService = memberService;
     this.teamService = teamService;
+    this.teamRepository = teamRepository;
+    this.notificationService = notificationService;
   }
 
   /**
@@ -68,8 +86,16 @@ public class MatchLineupService {
     MatchLineup matchLineup = matchLineupRepository
         .findByMatchAndTeam(match, team)
         .orElseThrow(MatchLineupNotFoundException::new);
+    Set<Long> oldLineup =
+        matchLineup.getMembers().stream().map(Member::getIdMember).collect(Collectors.toSet());
     matchLineup.replaceLineup(membersSet);
     matchLineupRepository.save(matchLineup);
+    notificationService
+        .notifyLineup(
+            oldLineup,
+            newLineup.playerIds(),
+            match.getTournament().getIdTournament(),
+            match);
     return MatchLineupDto.fromEntity(matchLineup);
   }
 
@@ -107,6 +133,48 @@ public class MatchLineupService {
     }
     return memberSet;
 
+  }
+
+  /**
+  * Get the lineup linked to a team.
+  *
+  * @param matchId the match id
+  * @param teamId the team id
+  * @param currentMember the authenticated member
+  * @return the lineup linked to the team and match
+ */
+  public MatchLineupDto getLineupForTeam(Long matchId, Long teamId, Member currentMember) {
+    Match match = matchRepository.findById(matchId).orElseThrow(MatchNotFoundException::new);
+
+    Team team = teamRepository
+        .findById(teamId)
+        .orElseThrow(() -> new TeamNotFoundException("Team not found"));
+
+    boolean isUserInThisTeam = memberService.isMemberOfTeam(currentMember.getIdMember(), team);
+    boolean matchWasPlayed = match.wasPlayed();
+
+    if (!matchWasPlayed && !isUserInThisTeam) {
+      throw new PrivateLineupException("Lineup is private until match date.");
+    }
+
+    Team targetMatchTeam;
+    if (match.getTeam1().getIdTeam().equals(teamId)) {
+      targetMatchTeam = match.getTeam1();
+    } else if (match.getTeam2().getIdTeam().equals(teamId)) {
+      targetMatchTeam = match.getTeam2();
+    } else {
+      throw new IllegalArgumentException("Cette équipe ne participe pas à ce match.");
+    }
+
+    // FETCH the lineup as an Optional
+    Optional<MatchLineup> lineupOpt =
+        matchLineupRepository.findByMatchAndTeam(match, targetMatchTeam);
+
+    // return mapped entity to dto or empty dto set
+    return lineupOpt
+        .map(MatchLineupDto::fromEntity)
+        .orElseGet(
+            () -> new MatchLineupDto(matchId, teamId, team.getName(), Collections.emptySet()));
   }
 
   /**

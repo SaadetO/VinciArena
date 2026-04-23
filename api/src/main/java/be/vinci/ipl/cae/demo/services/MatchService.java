@@ -13,6 +13,7 @@ import be.vinci.ipl.cae.demo.exceptions.NoSlotAvailableForWinnerException;
 import be.vinci.ipl.cae.demo.exceptions.TeamNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.UnallowedTieException;
 import be.vinci.ipl.cae.demo.models.dtos.EncodeMatchResultDto;
+import be.vinci.ipl.cae.demo.models.dtos.MatchLineupDto;
 import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryTournamentDto;
 import be.vinci.ipl.cae.demo.models.dtos.MatchTeamDto;
@@ -26,7 +27,9 @@ import be.vinci.ipl.cae.demo.repositories.MatchLineupRepository;
 import be.vinci.ipl.cae.demo.repositories.MatchRepository;
 import be.vinci.ipl.cae.demo.specifications.MatchSpecifications;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -91,7 +94,10 @@ public class MatchService {
         availableMembers.add(member);
       }
     }
-    return availableMembers;
+    return availableMembers
+        .stream()
+        .sorted(Comparator.comparing(Member::getTag))
+        .collect(Collectors.toCollection(LinkedHashSet::new));
   }
 
   /**
@@ -120,12 +126,30 @@ public class MatchService {
   }
 
   /**
+   * Finds a match by its id.
+   *
+   * @param matchId the id of the searched match
+   * @return the found match
+   * @throws MatchNotFoundException if no match has this id
+   */
+  public Match getMatchById(Long matchId) {
+    Match match = matchRepository.getMatchByIdMatch(matchId);
+
+    if (match == null) {
+      throw new MatchNotFoundException("Match not found");
+    }
+
+    return match;
+  }
+
+  /**
    * Retrieves a match by its id.
    *
    * @param matchId the id of the match
    * @return the match
    * @throws MatchNotFoundException if the match is not found
    */
+
   private Match getMatch(Long matchId) {
     return matchRepository
         .findById(matchId)
@@ -164,8 +188,7 @@ public class MatchService {
    * Updates the confirmation status (confirm or contest) for the correct team.
    *
    * @param match the match
-   * @param member the member
-   * @param confirmation the confirmation entity
+   * @param team the team
    * @param status true for confirm, false for contest
    */
   private void updateConfirmationStatus(Match match, Team team, boolean status) {
@@ -336,6 +359,7 @@ public class MatchService {
       winnerLineup.setScore(5);
       winnerLineup.setHasConfirmedResults(true);
     }
+
     if (forfeitingTeam != null) {
       MatchLineup forfeitLineup =
           lineups.stream().filter(l -> l.getTeam().equals(forfeitingTeam)).findFirst().orElse(null);
@@ -397,16 +421,17 @@ public class MatchService {
         .orElse(null);
 
     if (lineup == null) {
-      return new MatchTeamDto(team.getIdTeam(), team.getName(), null, false, false, false);
+      return new MatchTeamDto(team.getIdTeam(), team.getName(), null, false, false, false, null);
     }
-
+    MatchLineupDto lineupDto = MatchLineupDto.fromEntity(lineup);
     return new MatchTeamDto(
         team.getIdTeam(),
         team.getName(),
         lineup.getScore(),
         lineup.isWinner(),
         lineup.isHasForfeited(),
-        lineup.getHasConfirmedResults());
+        lineup.getHasConfirmedResults(),
+        lineupDto);
   }
 
   /**

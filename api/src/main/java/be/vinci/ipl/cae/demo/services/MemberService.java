@@ -15,11 +15,13 @@ import be.vinci.ipl.cae.demo.models.dtos.MemberSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.NewMember;
 import be.vinci.ipl.cae.demo.models.dtos.ProfileDto;
 import be.vinci.ipl.cae.demo.models.dtos.UserSummaryDto;
+import be.vinci.ipl.cae.demo.models.entities.MatchLineup;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.ProfileImage;
 import be.vinci.ipl.cae.demo.models.entities.Specialty;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.models.entities.Unavailability;
+import be.vinci.ipl.cae.demo.repositories.MatchLineupRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.ProfileImageRepository;
 import be.vinci.ipl.cae.demo.repositories.SpecialtyRepository;
@@ -56,6 +58,7 @@ public class MemberService {
   private final SpecialtyRepository specialtyRepository;
   private final ProfileImageRepository profileImageRepository;
   private final TeamRepository teamRepository;
+  private final MatchLineupRepository matchLineupRepository;
 
   /**
    * Constructor.
@@ -72,13 +75,15 @@ public class MemberService {
       UnavailabilityRepository unavailabilityRepository,
       SpecialtyRepository specialtyRepository,
       ProfileImageRepository profileImageRepository,
-      TeamRepository teamRepository) {
+      TeamRepository teamRepository,
+      MatchLineupRepository matchLineupRepository) {
     this.passwordEncoder = passwordEncoder;
     this.memberRepository = memberRepository;
     this.unavailabilityRepository = unavailabilityRepository;
     this.specialtyRepository = specialtyRepository;
     this.profileImageRepository = profileImageRepository;
     this.teamRepository = teamRepository;
+    this.matchLineupRepository = matchLineupRepository;
   }
 
   /**
@@ -95,6 +100,7 @@ public class MemberService {
     authenticatedUser.setTag(member.getTag());
     authenticatedUser.setToken(token);
     authenticatedUser.setAdmin(member.isAdmin());
+    authenticatedUser.setTeamId(member.getTeam().getIdTeam());
 
     teamRepository
         .findFirstByManager1OrManager2(member, member)
@@ -570,8 +576,26 @@ public class MemberService {
     checkBanValidity(member, requester);
 
     handleTeamBeforeBan(member);
+    handleActiveLineupsWhenMemberRemoval(member);
 
     performBan(member);
+  }
+
+  /**
+   * Remove a member from a lineup.
+   *
+   * @param member the member we want to remove
+   */
+  public void handleActiveLineupsWhenMemberRemoval(Member member) {
+    if (member.getTeam() == null) {
+      return;
+    }
+    List<MatchLineup> activeLineups = matchLineupRepository
+        .findByTeamAndMatchDateHourAfter(member.getTeam(), LocalDateTime.now());
+    for (MatchLineup lineup : activeLineups) {
+      lineup.getMembers().remove(member);
+      matchLineupRepository.save(lineup);
+    }
   }
 
   /**

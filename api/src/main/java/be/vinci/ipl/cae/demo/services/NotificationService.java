@@ -1,6 +1,7 @@
 package be.vinci.ipl.cae.demo.services;
 
 import be.vinci.ipl.cae.demo.models.dtos.NotificationDto;
+import be.vinci.ipl.cae.demo.models.entities.Match;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Notification;
 import be.vinci.ipl.cae.demo.models.entities.NotificationType;
@@ -11,6 +12,7 @@ import jakarta.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.springframework.stereotype.Service;
 
 /**
@@ -185,6 +187,48 @@ public class NotificationService {
    */
   public Optional<Notification> getById(Long idNotification) {
     return notificationRepository.getNotificationByIdNotification(idNotification);
+  }
+
+  /**
+   * Notifies members who were recently added or removed from a lineup.
+   *
+   */
+  public void notifyLineup(
+      Set<Long> oldLineup,
+      Set<Long> newLineup,
+      Long tournamentId,
+      Match match) {
+    // Format the date and time once for reuse
+    String date = match.getDateHour().toLocalDate().toString();
+    String time =
+        String.format("%02dh%02d", match.getDateHour().getHour(), match.getDateHour().getMinute());
+    String matchInfo = date + " à " + time;
+
+    // notify all removed members
+    for (Long oldId : oldLineup) {
+      if (!newLineup.contains(oldId)) {
+        String message = String
+            .format(
+                "Changement de tactique ! 📋\n"
+                    + "Tu ne fais plus partie de la composition pour le match du %s. "
+                    + "Ce sera pour la prochaine fois !",
+                matchInfo);
+        notifyMember(oldId, message, NotificationType.TOURNAMENT, tournamentId);
+      }
+    }
+
+    // notify all added Members
+    for (Long newId : newLineup) {
+      if (!oldLineup.contains(newId)) {
+        String message = String
+            .format(
+                "Prépare-toi pour la bataille ! ⚔️\n"
+                    + "Tu as été sélectionné dans l'équipe pour le match du %s. "
+                    + "Donne tout sur le terrain !",
+                matchInfo);
+        notifyMember(newId, message, NotificationType.TOURNAMENT, tournamentId);
+      }
+    }
   }
 
 }

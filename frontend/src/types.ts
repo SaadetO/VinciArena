@@ -78,6 +78,7 @@ interface AuthenticatedUser {
   tag: string;
   managedTeamId?: number;
   token: string;
+  teamId?: number;
 }
 
 interface UserSummaryDto {
@@ -198,8 +199,16 @@ interface MatchTeamDto {
   name: string;
   score: number | null;
   isWinner: boolean;
-  hasForfeited: boolean | null;
+  hasForfeited: boolean;
+  lineup?: MatchLineupDto;
   hasConfirmedResults: boolean | null;
+}
+
+interface MatchLineupDto {
+  matchId: number;
+  teamId: number;
+  teamName: string;
+  players: MemberSummaryDto[];
 }
 
 interface MatchSummaryDto {
@@ -210,8 +219,8 @@ interface MatchSummaryDto {
     | 'PLANNED'
     | 'PLAYED'
     | 'IN_PROGRESS'
-    | 'FORFEIT'
-    | 'AWAITING_VALIDATION';
+    | 'AWAITING_VALIDATION'
+    | 'FORFEIT';
   teams: Team[];
   team1: MatchTeamDto;
   team2: MatchTeamDto;
@@ -296,6 +305,12 @@ interface EncodeMatchResultDto {
   scoreTeam2: number;
 }
 
+interface DeclareForfeitMatchParams {
+  matchId: number;
+  winningTeamId: number;
+  forfeitingTeamId: number;
+}
+
 export type {
   MainContext,
   User,
@@ -327,6 +342,8 @@ export type {
   MemberFilters,
   HomePageContextType,
   TournamentMatchFilters,
+  MatchLineupDto,
   ConfirmOrContestMatchParams,
   EncodeMatchResultDto,
+  DeclareForfeitMatchParams,
 };

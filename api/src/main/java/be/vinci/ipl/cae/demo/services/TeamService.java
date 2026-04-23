@@ -262,6 +262,7 @@ public class TeamService {
     Team team = getExistingTeam(currentMember.getTeam().getIdTeam());
 
     handleManagerQuitting(team, currentMember);
+    memberService.handleActiveLineupsWhenMemberRemoval(currentMember);
     deactivateIfEmpty(team);
 
     currentMember.setTeam(null);

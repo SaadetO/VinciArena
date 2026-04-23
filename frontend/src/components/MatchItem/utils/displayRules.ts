@@ -50,8 +50,9 @@ export const getMenuSectionDisplay = ({
 
   const isPlanned = match.status === 'PLANNED';
   const isInProgress = match.status === 'IN_PROGRESS';
-  const isPlayed = match.status === 'PLAYED';
+  // const isPlayed = match.status === 'PLAYED';
   const isForfeit = match.status === 'FORFEIT';
+  const isInAwaitingValidation = match.status === 'AWAITING_VALIDATION';
 
   const bothTeamsKnown = team1 && team2;
 
@@ -67,15 +68,13 @@ export const getMenuSectionDisplay = ({
 
   const showScoresSection =
     isManagerOfParticipant &&
-    isPlayed &&
+    isInAwaitingValidation &&
     !managedTeamScoresHaveBeenConfirmedOrContested;
 
   const showAdminEncode = isAdmin && isInProgress;
 
   const showAdminModify =
-    isAdmin &&
-    (match.status === 'AWAITING_VALIDATION' || isPlayed) &&
-    hasContestedScore;
+    isAdmin && isInAwaitingValidation && hasContestedScore;
   const showAdminSection = showAdminEncode || showAdminModify;
 
   const visibleSections = [
@@ -126,9 +125,11 @@ export const getOverlayDisplay = ({
 
   const isPlanned = match.status === 'PLANNED';
 
-  const isPlayed = match.status === 'PLAYED';
+  // const isPlayed = match.status === 'PLAYED';
 
   const isInProgress = match.status === 'IN_PROGRESS';
+
+  const isInAwaitingValidation = match.status === 'AWAITING_VALIDATION';
 
   const team =
     match.team1?.idTeam === authenticatedUser?.managedTeamId
@@ -137,7 +138,8 @@ export const getOverlayDisplay = ({
         ? match.team2
         : null;
 
-  const canConfirmScores = team?.hasConfirmedResults === null && isPlayed;
+  const canConfirmScores =
+    team?.hasConfirmedResults === null && isInAwaitingValidation;
 
   // TODO: check if the user already has registered members in the match for canEditComposition
   const canEditComposition = team && isPlanned;
@@ -146,7 +148,7 @@ export const getOverlayDisplay = ({
 
   const canEditScores =
     isAdmin &&
-    (match.status === 'AWAITING_VALIDATION' || isPlayed) &&
+    isInAwaitingValidation &&
     (match?.team1.hasConfirmedResults === false ||
       match?.team2.hasConfirmedResults === false);
 

@@ -1,9 +1,14 @@
 import { useMatches } from '../../../hooks/useMatches';
 import { useModal } from '../../../hooks/useModal';
 import { useModalController } from '../../../hooks/useModalController';
-import { ConfirmOrContestMatchParams, MatchSummaryDto } from '../../../types';
+import {
+  ConfirmOrContestMatchParams,
+  DeclareForfeitMatchParams,
+  MatchSummaryDto,
+} from '../../../types';
 import { adminEncodeScoreModal } from '../modals/adminEncodeScoreModal';
 import { scoresConfirmationModal } from '../modals/scoresConfirmationModal';
+import { declareForfeitModal } from '../modals/declareForfeitModal';
 
 export const useMatchMenuAction = ({
   match,
@@ -12,13 +17,22 @@ export const useMatchMenuAction = ({
   match: MatchSummaryDto;
   refetch: () => void;
 }) => {
-  const { confirmOrContestMatch, encodeMatchResult } = useMatches({ refetch });
+  const { confirmOrContestMatch, declareForfeit, encodeMatchResult } =
+    useMatches({ refetch });
   const { openModal } = useModal();
   const { setLoading } = useModalController();
 
-  const handleForfeit = () => {};
-
-  const handleEditComposition = () => {};
+  const handleForfeit = (params: DeclareForfeitMatchParams) => {
+    openModal(
+      declareForfeitModal({
+        onConfirm: async (close) => {
+          setLoading(true);
+          await declareForfeit(params);
+          close();
+        },
+      }),
+    );
+  };
 
   const handleConfirmOrContestScore = (params: ConfirmOrContestMatchParams) => {
     openModal(
@@ -68,7 +82,6 @@ export const useMatchMenuAction = ({
 
   return {
     handleForfeit,
-    handleEditComposition,
     handleConfirmOrContestScore,
     handleEncodeScore,
     handleEditScore,
