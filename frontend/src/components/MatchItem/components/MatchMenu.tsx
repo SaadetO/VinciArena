@@ -10,7 +10,7 @@ import {
 } from '@gravity-ui/icons';
 import { MatchSummaryDto } from '../../../types';
 import { useMatchMenu } from '../hooks/useMatchMenu';
-import { LineupModal } from '../modals/LineupModal/LineupModal';
+import { LineupModal } from '../modals/LineupModal/LineupModalContent';
 import { useModal } from '../../../hooks/useModal';
 import { useMatches } from '../../../hooks/useMatches';
 import { useRef } from 'react';
