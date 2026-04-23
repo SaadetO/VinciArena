@@ -45,13 +45,9 @@ public class DevDataInitializer implements CommandLineRunner {
   private final MatchLineupRepository matchLineupRepo;
 
   // Constructor Injection (Best Practice)
-  public DevDataInitializer(
-      MemberRepository memberRepo,
-      TeamRepository teamRepo,
-      SpecialtyRepository specRepo,
-      ProfileImageRepository imageRepo,
-      TournamentRepository tournamentRepo,
-      MatchRepository matchRepo,
+  public DevDataInitializer(MemberRepository memberRepo, TeamRepository teamRepo,
+      SpecialtyRepository specRepo, ProfileImageRepository imageRepo,
+      TournamentRepository tournamentRepo, MatchRepository matchRepo,
       MatchLineupRepository matchLineupRepo) {
     this.memberRepo = memberRepo;
     this.teamRepo = teamRepo;
@@ -175,8 +171,8 @@ public class DevDataInitializer implements CommandLineRunner {
             "Compétition élite réservée aux meilleures teams", "2025-05-15", "2025-05-30",
             "2025-05-11T20:00:00", 8, 6, "TEAM_IOTA", TournamentStatus.DONE),
         new TournamentMockData("Summer Pro League 2025",
-            "Tournoi estival de haut niveau avec les meilleures teams", "2025-07-01",
-            "2025-07-15", "2025-06-25T20:00:00", 16, 14, "TEAM_IOTA", TournamentStatus.DONE),
+            "Tournoi estival de haut niveau avec les meilleures teams", "2025-07-01", "2025-07-15",
+            "2025-06-25T20:00:00", 16, 14, "TEAM_IOTA", TournamentStatus.DONE),
         new TournamentMockData("Vinci Winter Clash 2026",
             "Tournoi hivernal réunissant des équipes semi-professionnelles", "2026-01-10",
             "2026-01-20", "2026-01-05T20:00:00", 12, 12, "TEAM_ALPHA", TournamentStatus.DONE),
@@ -258,9 +254,7 @@ public class DevDataInitializer implements CommandLineRunner {
     System.out.println("--- DEV DATA INITIALIZATION COMPLETE ---");
   }
 
-  private void createEmptyMatchLineup(
-      Match match,
-      Team team,
+  private void createEmptyMatchLineup(Match match, Team team,
       MatchLineupRepository matchLineupRepo) {
     MatchLineup lineup = new MatchLineup();
     lineup.setMatch(match);
