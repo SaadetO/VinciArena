@@ -24,7 +24,10 @@ public class MatchSchedulingService {
   /**
    * Constructor.
    */
-  public MatchSchedulingService(MatchRepository matchRepository, MatchService matchService) {
+  public MatchSchedulingService(
+    MatchRepository matchRepository,
+    MatchService matchService
+  ) {
     this.matchRepository = matchRepository;
     this.matchService = matchService;
   }
@@ -39,10 +42,12 @@ public class MatchSchedulingService {
     System.out.println("Updating matches...");
     LocalDateTime now = LocalDateTime.now();
     List<Match> startingMatches =
-        matchRepository.findByStatusAndDateHourLessThanEqual(MatchStatus.PLANNED, now);
+      matchRepository.findByStatusAndDateHourLessThanEqual(
+        MatchStatus.PLANNED,
+        now
+      );
 
     for (Match match : startingMatches) {
-
       Team t1 = match.getTeam1();
       Team t2 = match.getTeam2();
 
@@ -79,17 +84,23 @@ public class MatchSchedulingService {
   /**
    * Periodically updates match confirmation. Runs every 60 seconds.
    */
-  @Scheduled(initialDelay = 10000, fixedDelay = 60000)
+  @Scheduled(initialDelay = 5000, fixedDelay = 5000)
   @Transactional
   public void autoValidateMatches() {
+    System.out.println("Auto-validating matches...");
     LocalDateTime twoHoursAgo = LocalDateTime.now().minusHours(2);
 
-    List<Match> expiredMatches = matchRepository
-        .findByStatusAndScoreEncodedAtLessThanEqual(MatchStatus.AWAITING_VALIDATION, twoHoursAgo);
+    List<Match> expiredMatches =
+      matchRepository.findByStatusAndScoreEncodedAtLessThanEqual(
+        MatchStatus.AWAITING_VALIDATION,
+        twoHoursAgo
+      );
 
     for (Match match : expiredMatches) {
-      boolean isContested =
-          match.getLineups().stream().anyMatch(l -> Boolean.FALSE.equals(l.isContested()));
+      boolean isContested = match
+        .getLineups()
+        .stream()
+        .anyMatch(MatchLineup::isContested);
 
       if (isContested) {
         continue;
@@ -118,5 +129,4 @@ public class MatchSchedulingService {
   private boolean hasEnoughPlayers(Team team) {
     return team.getMembers() != null && !team.getMembers().isEmpty();
   }
-
 }
