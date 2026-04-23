@@ -298,7 +298,7 @@ public class MatchServiceTest {
   @Test
   void encodeResult_success() {
     // Arrange
-    match.setStatus(MatchStatus.PLANNED);
+    match.setStatus(MatchStatus.IN_PROGRESS);
 
     EncodeMatchResultDto dto = new EncodeMatchResultDto(2, 1);
 
@@ -334,7 +334,7 @@ public class MatchServiceTest {
 
   @Test
   void encodeResult_unallowed_tie() {
-    match.setStatus(MatchStatus.PLANNED);
+    match.setStatus(MatchStatus.IN_PROGRESS);
     when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
 
     assertThrows(
@@ -344,7 +344,7 @@ public class MatchServiceTest {
 
   @Test
   void encodeResult_lineup_not_found() {
-    match.setStatus(MatchStatus.PLANNED);
+    match.setStatus(MatchStatus.IN_PROGRESS);
     match.getLineups().clear(); // Trigger exception
     when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
 
