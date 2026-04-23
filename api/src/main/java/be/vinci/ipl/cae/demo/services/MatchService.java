@@ -200,6 +200,12 @@ public class MatchService {
       throw new MatchLineupNotFoundException("Lineup not found for match and team");
     }
 
+    if (status == ConfirmationStatus.CONTESTED
+        && (lineup.getConfirmationStatus() == ConfirmationStatus.CONTESTED
+        || lineup.getConfirmationStatus() == ConfirmationStatus.ADMIN_LOCKED)) {
+      throw new AlreadyContestedException("Vous avez déjà contesté ce match une fois.");
+    }
+
     if (!lineup.isPending()) {
       throw new AlreadyConfirmedException("Lineup already confirmed with a different status");
     }
