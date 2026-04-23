@@ -1,9 +1,9 @@
 import { InputLabel, Stack, Typography } from '@mui/material';
-import { MatchSummaryDto } from '../../../../types';
-import { useModalController } from '../../../../hooks/useModalController';
+import { MatchSummaryDto } from '../../../types';
+import { useModalController } from '../../../hooks/useModalController';
 import { useEffect } from 'react';
-import { NumericTextField } from '../../../../modals/TournamentModal/components/NumericTextField';
-import { VersusSymbol } from '../../components/VersusSymbol';
+import { NumericTextField } from '../../../modals/TournamentModal/components/NumericTextField';
+import { VersusSymbol } from './VersusSymbol';
 
 interface AdminEncodeScoreFormProps {
   match: MatchSummaryDto;
