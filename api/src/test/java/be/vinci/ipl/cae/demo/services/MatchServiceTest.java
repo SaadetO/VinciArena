@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import be.vinci.ipl.cae.demo.exceptions.AlreadyConfirmedException;
+import be.vinci.ipl.cae.demo.exceptions.AlreadyContestedException;
 import be.vinci.ipl.cae.demo.exceptions.InvalidMatchStatusException;
 import be.vinci.ipl.cae.demo.exceptions.MatchLineupNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.MatchNotFoundException;
@@ -280,7 +281,7 @@ public class MatchServiceTest {
         .thenReturn(Optional.of(team1Lineup));
     when(teamService.isManager(any(), any())).thenReturn(true);
 
-    assertThrows(AlreadyConfirmedException.class, () -> matchService.contestResult(1L, member));
+    assertThrows(AlreadyContestedException.class, () -> matchService.contestResult(1L, member));
   }
 
   @Test
@@ -293,7 +294,7 @@ public class MatchServiceTest {
         .thenReturn(Optional.of(team2Lineup));
     when(teamService.isManager(any(), any())).thenReturn(true);
 
-    assertThrows(AlreadyConfirmedException.class, () -> matchService.contestResult(1L, member));
+    assertThrows(AlreadyContestedException.class, () -> matchService.contestResult(1L, member));
   }
 
   @Test
@@ -355,5 +356,72 @@ public class MatchServiceTest {
     assertThrows(
         MatchLineupNotFoundException.class,
         () -> matchService.encodeResult(1L, new EncodeMatchResultDto(2, 1)));
+  }
+
+  @Test
+  void encodeResult_allows_AWAITING_VALIDATION_status() {
+    // Arrange
+    match.setStatus(MatchStatus.AWAITING_VALIDATION);
+    Match localMatch = new Match();
+    team1Lineup.setMatch(localMatch);
+    team2Lineup.setMatch(localMatch);
+
+    EncodeMatchResultDto dto = new EncodeMatchResultDto(3, 2);
+
+    when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
+    when(matchLineupRepository.findByIdIdMatch(1L)).thenReturn(List.of(team1Lineup, team2Lineup));
+
+    // Act
+    MatchSummaryDto result = matchService.encodeResult(1L, dto);
+
+    // Assert
+    assertTrue(result.status() == MatchStatus.AWAITING_VALIDATION);
+  }
+
+  @Test
+  void encodeResult_finalizes_match_when_both_teams_locked() {
+    // Arrange
+    match.setStatus(MatchStatus.AWAITING_VALIDATION);
+    team1Lineup.setConfirmationStatus(ConfirmationStatus.CONTESTED);
+    team2Lineup.setConfirmationStatus(ConfirmationStatus.CONTESTED);
+    Match localMatch = new Match();
+    team1Lineup.setMatch(localMatch);
+    team2Lineup.setMatch(localMatch);
+
+    EncodeMatchResultDto dto = new EncodeMatchResultDto(3, 2);
+
+    when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
+    when(matchLineupRepository.findByIdIdMatch(1L)).thenReturn(List.of(team1Lineup, team2Lineup));
+
+    // Act
+    MatchSummaryDto result = matchService.encodeResult(1L, dto);
+
+    // Assert
+    assertTrue(result.status() == MatchStatus.PLAYED);
+    assertTrue(team1Lineup.getConfirmationStatus() == ConfirmationStatus.ADMIN_LOCKED);
+    assertTrue(team2Lineup.getConfirmationStatus() == ConfirmationStatus.ADMIN_LOCKED);
+  }
+
+  @Test
+  void encodeResult_resets_confirmed_to_pending() {
+    // Arrange
+    match.setStatus(MatchStatus.IN_PROGRESS);
+    team1Lineup.setConfirmationStatus(ConfirmationStatus.CONFIRMED);
+    team2Lineup.setConfirmationStatus(ConfirmationStatus.PENDING);
+    Match localMatch = new Match();
+    team1Lineup.setMatch(localMatch);
+    team2Lineup.setMatch(localMatch);
+
+    EncodeMatchResultDto dto = new EncodeMatchResultDto(3, 2);
+
+    when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
+    when(matchLineupRepository.findByIdIdMatch(1L)).thenReturn(List.of(team1Lineup, team2Lineup));
+
+    // Act
+    matchService.encodeResult(1L, dto);
+
+    // Assert
+    assertTrue(team1Lineup.getConfirmationStatus() == ConfirmationStatus.PENDING);
+    assertTrue(team2Lineup.getConfirmationStatus() == ConfirmationStatus.PENDING);
   }
 }
