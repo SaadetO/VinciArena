@@ -24,6 +24,7 @@ import be.vinci.ipl.cae.demo.models.entities.MatchStatus;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.models.entities.Tournament;
+import be.vinci.ipl.cae.demo.models.entities.TournamentStatus;
 import be.vinci.ipl.cae.demo.repositories.MatchLineupRepository;
 import be.vinci.ipl.cae.demo.repositories.MatchRepository;
 import be.vinci.ipl.cae.demo.specifications.MatchSpecifications;
@@ -452,6 +453,7 @@ public class MatchService {
    *
    * @param match the match to advance
    */
+  @Transactional
   public void advanceWinnerToNextRound(Match match) {
     if (match == null) {
       throw new MatchNotFoundException("Match not found.");
@@ -459,11 +461,6 @@ public class MatchService {
 
     Match nextMatch = match.getNextMatch();
     List<MatchLineup> lineups = match.getLineups();
-
-    if (nextMatch == null) {
-      System.out.println("NextMatch is null for Match ID " + match.getIdMatch());
-      return;
-    }
 
     if (lineups == null || lineups.isEmpty()) {
       System.out.println("No lineups exist in DB for Match ID " + match.getIdMatch());
@@ -482,6 +479,11 @@ public class MatchService {
 
     if (winnerTeam == null) {
       throw new TeamNotFoundException("No team found for the winner lineup.");
+    }
+    
+    if (nextMatch == null) {
+      match.getTournament().setWinner(winnerTeam);
+      return;
     }
 
     if (nextMatch.getTeam1() == null) {
