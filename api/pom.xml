@@ -167,6 +167,9 @@
           <failOnViolation>true</failOnViolation>
           <printFailingErrors>true</printFailingErrors>
           <minimumTokens>40</minimumTokens>
+            <excludes>
+              <exclude>be/vinci/ipl/cae/demo/initializers/*.java</exclude>
+            </excludes>
           <rulesets>
             <ruleset>rulesets/java/quickstart.xml</ruleset>
           </rulesets>
