@@ -57,7 +57,7 @@ public class GlobalExceptionHandler {
       MemberUnavailableException.class, TournamentStatusException.class,
       UnallowedTieException.class,
       AlreadyPlayedMatchInTournamentMatchGenerationAttemptException.class,
-      InvalidMatchStatusException.class})
+      InvalidMatchStatusException.class, AlreadyContestedException.class})
   public ResponseEntity<Map<String, String>> handleBadRequestExceptions(RuntimeException ex) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", ex.getMessage()));
   }
