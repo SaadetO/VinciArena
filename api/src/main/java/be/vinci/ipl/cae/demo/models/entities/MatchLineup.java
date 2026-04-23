@@ -52,7 +52,7 @@ public class MatchLineup {
   @ManyToMany
   @JoinTable(name = "match_members",
       joinColumns = {@JoinColumn(name = "id_match", referencedColumnName = "id_match"),
-          @JoinColumn(name = "id_team", referencedColumnName = "id_team"),},
+          @JoinColumn(name = "id_team", referencedColumnName = "id_team")},
       inverseJoinColumns = @JoinColumn(name = "id_membre"))
   private Set<Member> members = new HashSet<>();
 
@@ -69,8 +69,8 @@ public class MatchLineup {
    * Check id a confirmationStatus is confirmed.
    */
   public boolean isConfirmed() {
-    return (this.confirmationStatus.equals(ConfirmationStatus.CONFIRMED)
-        || this.confirmationStatus.equals(ConfirmationStatus.ADMIN_LOCKED));
+    return this.confirmationStatus.equals(ConfirmationStatus.CONFIRMED)
+        || this.confirmationStatus.equals(ConfirmationStatus.ADMIN_LOCKED);
   }
 
   /**
