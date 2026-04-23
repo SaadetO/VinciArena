@@ -10,6 +10,7 @@ import be.vinci.ipl.cae.demo.exceptions.PrivateLineupException;
 import be.vinci.ipl.cae.demo.exceptions.TeamNotFoundException;
 import be.vinci.ipl.cae.demo.models.dtos.MatchLineupDto;
 import be.vinci.ipl.cae.demo.models.dtos.NewMatchLineupDto;
+import be.vinci.ipl.cae.demo.models.entities.ConfirmationStatus;
 import be.vinci.ipl.cae.demo.models.entities.Match;
 import be.vinci.ipl.cae.demo.models.entities.MatchLineup;
 import be.vinci.ipl.cae.demo.models.entities.Member;
@@ -136,13 +137,13 @@ public class MatchLineupService {
   }
 
   /**
-  * Get the lineup linked to a team.
-  *
-  * @param matchId the match id
-  * @param teamId the team id
-  * @param currentMember the authenticated member
-  * @return the lineup linked to the team and match
- */
+   * Get the lineup linked to a team.
+   *
+   * @param matchId the match id
+   * @param teamId the team id
+   * @param currentMember the authenticated member
+   * @return the lineup linked to the team and match
+   */
   public MatchLineupDto getLineupForTeam(Long matchId, Long teamId, Member currentMember) {
     Match match = matchRepository.findById(matchId).orElseThrow(MatchNotFoundException::new);
 
@@ -190,7 +191,7 @@ public class MatchLineupService {
     lineup.setTeam(team);
     lineup.setWinner(false);
     lineup.setHasForfeited(false);
-    lineup.setHasConfirmedResults(null);
+    lineup.setConfirmationStatus(ConfirmationStatus.PENDING);
 
     return lineup;
   }
