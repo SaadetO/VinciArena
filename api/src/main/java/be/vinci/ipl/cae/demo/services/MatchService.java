@@ -528,23 +528,8 @@ public class MatchService {
     List<MatchLineup> lineups = getLineups(match);
     applyScores(match, lineups, dto);
 
-    for (MatchLineup lineup : lineups) {
-      ConfirmationStatus currentStatus = lineup.getConfirmationStatus();
-      if (currentStatus == ConfirmationStatus.CONTESTED) {
-        lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
-      } else if (currentStatus == ConfirmationStatus.CONFIRMED) {
-        lineup.setConfirmationStatus(ConfirmationStatus.PENDING);
-      }
-    }
-
-    if (bothTeamsConfirmed(match)) {
-      match.setStatus(MatchStatus.PLAYED);
-      updateWinner(match);
-      advanceWinnerToNextRound(match);
-    } else {
-      match.setScoreEncodedAt(LocalDateTime.now());
-      match.setStatus(MatchStatus.AWAITING_VALIDATION);
-    }
+    updateConfirmationStatusesForEncoding(lineups);
+    finalizeOrAwaitValidation(match);
 
     return mapMatchToSummaryDto(match, match.getTournament());
   }
@@ -574,6 +559,38 @@ public class MatchService {
 
     team1Lineup.setScore(dto.scoreTeam1());
     team2Lineup.setScore(dto.scoreTeam2());
+  }
+
+  /**
+   * Updates confirmation statuses of lineups during score encoding.
+   *
+   * @param lineups the match lineups
+   */
+  private void updateConfirmationStatusesForEncoding(List<MatchLineup> lineups) {
+    for (MatchLineup lineup : lineups) {
+      ConfirmationStatus currentStatus = lineup.getConfirmationStatus();
+      if (currentStatus == ConfirmationStatus.CONTESTED) {
+        lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
+      } else if (currentStatus == ConfirmationStatus.CONFIRMED) {
+        lineup.setConfirmationStatus(ConfirmationStatus.PENDING);
+      }
+    }
+  }
+
+  /**
+   * Finalizes the match if both teams confirmed, otherwise sets it to await validation.
+   *
+   * @param match the match
+   */
+  private void finalizeOrAwaitValidation(Match match) {
+    if (bothTeamsConfirmed(match)) {
+      match.setStatus(MatchStatus.PLAYED);
+      updateWinner(match);
+      advanceWinnerToNextRound(match);
+    } else {
+      match.setScoreEncodedAt(LocalDateTime.now());
+      match.setStatus(MatchStatus.AWAITING_VALIDATION);
+    }
   }
 
   /**
