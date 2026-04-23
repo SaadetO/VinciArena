@@ -193,7 +193,7 @@ public class VinciArena {
               "2027-04-08T20:00:00", 8, 7, null, TournamentStatus.REGISTRATION_OPEN),
           new TournamentMockData("Elite Championship 2026",
               "Compétition élite réservée aux meilleures teams", "2026-05-15", "2026-05-30",
-              "2026-05-11T20:00:00", 16, 14, null, TournamentStatus.REGISTRATION_OPEN)};
+              "2026-04-11T20:00:00", 16, 14, null, TournamentStatus.REGISTRATION_CLOSED)};
 
       for (TournamentMockData data : tournamentDataList) {
         Tournament t = new Tournament();

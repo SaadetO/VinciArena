@@ -160,6 +160,7 @@ export const useMatches = (config?: UseMatchesOptions) => {
         },
       },
     );
+
   const { execute: getLineup, loading: isGettingLineup } = useApi(
     async ({ matchId, teamId }: { matchId: number; teamId: number }) => {
       const response = await fetch(
@@ -287,7 +288,6 @@ export const useMatches = (config?: UseMatchesOptions) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          matchID: matchId,
           winningTeamId: winningTeamId,
           forfeitingTeamId: forfeitingTeamId,
         }),
@@ -302,6 +302,7 @@ export const useMatches = (config?: UseMatchesOptions) => {
     },
     {
       onSuccess: () => {
+        refetch?.();
         showSnackbar({
           message: 'Forfait déclaré avec succès',
           severity: 'success',

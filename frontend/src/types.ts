@@ -201,8 +201,14 @@ interface MatchTeamDto {
   isWinner: boolean;
   hasForfeited: boolean;
   lineup?: MatchLineupDto;
-  hasConfirmedResults: boolean | null;
+  confirmationStatus: ConfirmationStatus;
 }
+
+export type ConfirmationStatus =
+  | 'PENDING'
+  | 'CONFIRMED'
+  | 'CONTESTED'
+  | 'ADMIN_LOCKED';
 
 interface MatchLineupDto {
   matchId: number;

@@ -199,7 +199,7 @@ public class MatchService {
       throw new MatchLineupNotFoundException("Lineup not found for match and team");
     }
 
-    if (lineup.isConfirmed() || lineup.isContested()) {
+    if (!lineup.isPending()) {
       throw new AlreadyConfirmedException("Lineup already confirmed with a different status");
     }
 
@@ -277,11 +277,13 @@ public class MatchService {
 
     MatchStatus status = match.getStatus();
 
-    if (status != MatchStatus.PLAYED || status != MatchStatus.FORFEIT) {
+    if (status != MatchStatus.PLAYED && status != MatchStatus.FORFEIT) {
+      System.out.println("Match status not okay");
       throw new MatchNotPlayedException("Match is not played, can't update winner.");
     }
 
     if (match.getTeam1() == null || match.getTeam2() == null) {
+      System.out.println("Match team not okay");
       throw new TeamNotFoundException("Couldn't find one or more team in the match.");
     }
 
@@ -368,9 +370,9 @@ public class MatchService {
           lineups.stream().filter(l -> l.getTeam().equals(forfeitingTeam)).findFirst().orElse(null);
 
       if (forfeitLineup != null) {
-        winnerLineup.setHasForfeited(true);
-        winnerLineup.setScore(0);
-        winnerLineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
+        forfeitLineup.setHasForfeited(true);
+        forfeitLineup.setScore(0);
+        forfeitLineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
       }
     }
 
