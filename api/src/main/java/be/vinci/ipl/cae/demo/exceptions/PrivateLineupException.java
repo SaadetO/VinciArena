@@ -1,14 +1,14 @@
 package be.vinci.ipl.cae.demo.exceptions;
 
 /**
- * Private Lineup exception.
+ * Exception thrown when a lineup is accessed when it shouldn't be.
  */
 public class PrivateLineupException extends RuntimeException {
 
   /**
-   * exception that handles trying to access private lineups.
+   * Constructor.
    *
-   * @param message error message
+   * @param message the exception message
    */
   public PrivateLineupException(String message) {
     super(message);

@@ -13,9 +13,11 @@ import be.vinci.ipl.cae.demo.exceptions.NoSlotAvailableForWinnerException;
 import be.vinci.ipl.cae.demo.exceptions.TeamNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.UnallowedTieException;
 import be.vinci.ipl.cae.demo.models.dtos.EncodeMatchResultDto;
+import be.vinci.ipl.cae.demo.models.dtos.MatchLineupDto;
 import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryDto;
 import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryTournamentDto;
 import be.vinci.ipl.cae.demo.models.dtos.MatchTeamDto;
+import be.vinci.ipl.cae.demo.models.entities.ConfirmationStatus;
 import be.vinci.ipl.cae.demo.models.entities.Match;
 import be.vinci.ipl.cae.demo.models.entities.MatchLineup;
 import be.vinci.ipl.cae.demo.models.entities.MatchStatus;
@@ -125,12 +127,30 @@ public class MatchService {
   }
 
   /**
+   * Finds a match by its id.
+   *
+   * @param matchId the id of the searched match
+   * @return the found match
+   * @throws MatchNotFoundException if no match has this id
+   */
+  public Match getMatchById(Long matchId) {
+    Match match = matchRepository.getMatchByIdMatch(matchId);
+
+    if (match == null) {
+      throw new MatchNotFoundException("Match not found");
+    }
+
+    return match;
+  }
+
+  /**
    * Retrieves a match by its id.
    *
    * @param matchId the id of the match
    * @return the match
    * @throws MatchNotFoundException if the match is not found
    */
+
   private Match getMatch(Long matchId) {
     return matchRepository
         .findById(matchId)
@@ -169,20 +189,21 @@ public class MatchService {
    * Updates the confirmation status (confirm or contest) for the correct team.
    *
    * @param match the match
+   * @param team the team
    * @param status true for confirm, false for contest
    */
-  private void updateConfirmationStatus(Match match, Team team, boolean status) {
+  private void updateConfirmationStatus(Match match, Team team, ConfirmationStatus status) {
     MatchLineup lineup = matchLineupRepository.findByMatchAndTeam(match, team).orElse(null);
 
     if (lineup == null) {
       throw new MatchLineupNotFoundException("Lineup not found for match and team");
     }
 
-    if (lineup.getHasConfirmedResults() != null) {
+    if (!lineup.isPending()) {
       throw new AlreadyConfirmedException("Lineup already confirmed with a different status");
     }
 
-    lineup.setHasConfirmedResults(status);
+    lineup.setConfirmationStatus(status);
   }
 
   /**
@@ -192,7 +213,7 @@ public class MatchService {
    * @param member the authenticated user
    * @param status true for confirm, false for contest
    */
-  private Match handleMatchResult(Long matchId, Member member, boolean status) {
+  private Match handleMatchResult(Long matchId, Member member, ConfirmationStatus status) {
     Match match = getMatch(matchId);
 
     validateUserCanConfirm(match, member);
@@ -210,7 +231,7 @@ public class MatchService {
    */
   @Transactional
   public void confirmResult(Long matchId, Member member) {
-    Match match = handleMatchResult(matchId, member, true);
+    Match match = handleMatchResult(matchId, member, ConfirmationStatus.CONFIRMED);
 
     if (bothTeamsConfirmed(match)) {
       match.setStatus(MatchStatus.PLAYED);
@@ -230,7 +251,7 @@ public class MatchService {
     if (lineups == null || lineups.size() < 2) {
       return false;
     }
-    return lineups.stream().allMatch(l -> Boolean.TRUE.equals(l.getHasConfirmedResults()));
+    return lineups.stream().allMatch(l -> Boolean.TRUE.equals(l.isConfirmed()));
   }
 
   /**
@@ -241,7 +262,7 @@ public class MatchService {
    */
   @Transactional
   public void contestResult(Long matchId, Member member) {
-    handleMatchResult(matchId, member, false);
+    handleMatchResult(matchId, member, ConfirmationStatus.CONTESTED);
   }
 
   /**
@@ -254,11 +275,15 @@ public class MatchService {
       throw new MatchNotFoundException("Match not found.");
     }
 
-    if (match.getStatus() != MatchStatus.PLAYED) {
+    MatchStatus status = match.getStatus();
+
+    if (status != MatchStatus.PLAYED && status != MatchStatus.FORFEIT) {
+      System.out.println("Match status not okay");
       throw new MatchNotPlayedException("Match is not played, can't update winner.");
     }
 
     if (match.getTeam1() == null || match.getTeam2() == null) {
+      System.out.println("Match team not okay");
       throw new TeamNotFoundException("Couldn't find one or more team in the match.");
     }
 
@@ -321,7 +346,7 @@ public class MatchService {
   }
 
   /**
-   * Executes a walkover (win by default).
+   * Executes a walkover.
    */
   @Transactional
   public void executeWalkover(Match match, Team winningTeam, Team forfeitingTeam) {
@@ -337,16 +362,17 @@ public class MatchService {
     if (winnerLineup != null) {
       winnerLineup.setWinner(true);
       winnerLineup.setScore(5);
-      winnerLineup.setHasConfirmedResults(true);
+      winnerLineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
     }
+
     if (forfeitingTeam != null) {
       MatchLineup forfeitLineup =
           lineups.stream().filter(l -> l.getTeam().equals(forfeitingTeam)).findFirst().orElse(null);
 
       if (forfeitLineup != null) {
-        assert winnerLineup != null;
-        winnerLineup.setHasForfeited(true);
-        winnerLineup.setHasConfirmedResults(true);
+        forfeitLineup.setHasForfeited(true);
+        forfeitLineup.setScore(0);
+        forfeitLineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
       }
     }
 
@@ -401,16 +427,24 @@ public class MatchService {
         .orElse(null);
 
     if (lineup == null) {
-      return new MatchTeamDto(team.getIdTeam(), team.getName(), null, false, false, false);
+      return new MatchTeamDto(
+          team.getIdTeam(),
+          team.getName(),
+          null,
+          false,
+          false,
+          ConfirmationStatus.PENDING,
+          null);
     }
-
+    MatchLineupDto lineupDto = MatchLineupDto.fromEntity(lineup);
     return new MatchTeamDto(
         team.getIdTeam(),
         team.getName(),
         lineup.getScore(),
         lineup.isWinner(),
         lineup.isHasForfeited(),
-        lineup.getHasConfirmedResults());
+        lineup.getConfirmationStatus(),
+        lineupDto);
   }
 
   /**
@@ -418,22 +452,17 @@ public class MatchService {
    *
    * @param match the match to advance
    */
+  @Transactional
   public void advanceWinnerToNextRound(Match match) {
     if (match == null) {
       throw new MatchNotFoundException("Match not found.");
     }
+
     Match nextMatch = match.getNextMatch();
     List<MatchLineup> lineups = match.getLineups();
 
-    if (nextMatch == null) {
-      System.out
-          .println("❌ ABORTING ADVANCE: nextMatch is null for Match ID " + match.getIdMatch());
-      return;
-    }
-
     if (lineups == null || lineups.isEmpty()) {
-      System.out
-          .println("❌ ABORTING ADVANCE: No lineups exist in DB for Match ID " + match.getIdMatch());
+      System.out.println("No lineups exist in DB for Match ID " + match.getIdMatch());
       throw new MatchLineupNotFoundException("No lineups found for the match.");
     }
 
@@ -441,10 +470,7 @@ public class MatchService {
         lineups.stream().filter(MatchLineup::isWinner).findFirst().orElse(null);
 
     if (winnerLineup == null) {
-      System.out
-          .println(
-              "❌ ABORTING ADVANCE: Nobody is marked as the winner in Match ID "
-                  + match.getIdMatch());
+      System.out.println("Nobody is marked as the winner in Match ID " + match.getIdMatch());
       return;
     }
 
@@ -452,6 +478,11 @@ public class MatchService {
 
     if (winnerTeam == null) {
       throw new TeamNotFoundException("No team found for the winner lineup.");
+    }
+
+    if (nextMatch == null) {
+      match.getTournament().setWinner(winnerTeam);
+      return;
     }
 
     if (nextMatch.getTeam1() == null) {
@@ -529,9 +560,9 @@ public class MatchService {
    * @throws InvalidMatchStatusException if the match is not in PLANNED status
    */
   private void validateMatchCanBeEncoded(Match match) {
-    if (match.getStatus() != MatchStatus.PLANNED) {
+    if (match.getStatus() != MatchStatus.IN_PROGRESS) {
       throw new InvalidMatchStatusException(
-          "Le match doit être en statut PLANIFIÉ pour encoder les résultats.");
+          "Le match doit être en statut IN_PROGRESS pour encoder les résultats.");
     }
   }
 
@@ -557,7 +588,7 @@ public class MatchService {
 
     for (MatchLineup lineup : match.getLineups()) {
       lineup.setHasForfeited(true);
-      lineup.setHasConfirmedResults(true);
+      lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
     }
 
     match.setStatus(MatchStatus.FORFEIT);

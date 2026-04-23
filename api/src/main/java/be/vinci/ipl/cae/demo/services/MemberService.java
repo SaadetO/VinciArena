@@ -111,7 +111,12 @@ public class MemberService {
     authenticatedUser.setTag(member.getTag());
     authenticatedUser.setToken(token);
     authenticatedUser.setAdmin(member.isAdmin());
-
+    Team teamTemp = member.getTeam();
+    if (teamTemp == null) {
+      authenticatedUser.setTeamId(null);
+    } else {
+      authenticatedUser.setTeamId(member.getTeam().getIdTeam());
+    }
     teamRepository
         .findFirstByManager1OrManager2(member, member)
         .ifPresent(team -> authenticatedUser.setManagedTeamId(team.getIdTeam()));
@@ -591,6 +596,11 @@ public class MemberService {
     performBan(member);
   }
 
+  /**
+   * Remove a member from a lineup.
+   *
+   * @param member the member we want to remove
+   */
   public void handleActiveLineupsWhenMemberRemoval(Member member) {
     if (member.getTeam() == null) {
       return;

@@ -560,4 +560,5 @@ public class TournamentService {
 
     matchLineupRepository.saveAll(defaultLineups);
   }
+
 }

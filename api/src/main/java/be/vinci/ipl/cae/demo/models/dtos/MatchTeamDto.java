@@ -1,5 +1,7 @@
 package be.vinci.ipl.cae.demo.models.dtos;
 
+import be.vinci.ipl.cae.demo.models.entities.ConfirmationStatus;
+
 /**
  * Match Team DTO including result information.
  */
@@ -9,5 +11,6 @@ public record MatchTeamDto(
     Integer score,
     boolean isWinner,
     boolean hasForfeited,
-    Boolean hasConfirmedResults
+    ConfirmationStatus confirmationStatus,
+    MatchLineupDto lineup
 ) {}

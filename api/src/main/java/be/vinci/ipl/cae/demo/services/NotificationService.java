@@ -198,26 +198,35 @@ public class NotificationService {
       Set<Long> newLineup,
       Long tournamentId,
       Match match) {
+    // Format the date and time once for reuse
+    String date = match.getDateHour().toLocalDate().toString();
+    String time =
+        String.format("%02dh%02d", match.getDateHour().getHour(), match.getDateHour().getMinute());
+    String matchInfo = date + " à " + time;
+
     // notify all removed members
     for (Long oldId : oldLineup) {
       if (!newLineup.contains(oldId)) {
-        notifyMember(
-            oldId,
-            "Changement de tactique ! Tu ne fais plus partie de l'équipe pour le match du "
-                + match.getDateHour() + ". Ce sera pour la prochaine !",
-            NotificationType.TOURNAMENT,
-            tournamentId);
+        String message = String
+            .format(
+                "Changement de tactique ! 📋\n"
+                    + "Tu ne fais plus partie de la composition pour le match du %s. "
+                    + "Ce sera pour la prochaine fois !",
+                matchInfo);
+        notifyMember(oldId, message, NotificationType.TOURNAMENT, tournamentId);
       }
     }
+
     // notify all added Members
     for (Long newId : newLineup) {
       if (!oldLineup.contains(newId)) {
-        notifyMember(
-            newId,
-            "Prépare-toi pour la bataille ! ⚔️ Tu es ajouté à l'équipe pour le match du "
-                + match.getDateHour(),
-            NotificationType.TOURNAMENT,
-            tournamentId);
+        String message = String
+            .format(
+                "Prépare-toi pour la bataille ! ⚔️\n"
+                    + "Tu as été sélectionné dans l'équipe pour le match du %s. "
+                    + "Donne tout sur le terrain !",
+                matchInfo);
+        notifyMember(newId, message, NotificationType.TOURNAMENT, tournamentId);
       }
     }
   }

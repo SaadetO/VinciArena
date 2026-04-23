@@ -78,6 +78,7 @@ interface AuthenticatedUser {
   tag: string;
   managedTeamId?: number;
   token: string;
+  teamId?: number;
 }
 
 interface UserSummaryDto {
@@ -200,8 +201,14 @@ interface MatchTeamDto {
   isWinner: boolean;
   hasForfeited: boolean;
   lineup?: MatchLineupDto;
-  hasConfirmedResults: boolean | null;
+  confirmationStatus: ConfirmationStatus;
 }
+
+export type ConfirmationStatus =
+  | 'PENDING'
+  | 'CONFIRMED'
+  | 'CONTESTED'
+  | 'ADMIN_LOCKED';
 
 interface MatchLineupDto {
   matchId: number;
@@ -214,7 +221,12 @@ interface MatchSummaryDto {
   idMatch: number;
   dateHour: string;
   turn: number;
-  status: 'PLANNED' | 'PLAYED' | 'IN_PROGRESS' | 'FORFEIT';
+  status:
+    | 'PLANNED'
+    | 'PLAYED'
+    | 'IN_PROGRESS'
+    | 'AWAITING_VALIDATION'
+    | 'FORFEIT';
   teams: Team[];
   team1: MatchTeamDto;
   team2: MatchTeamDto;
@@ -294,6 +306,17 @@ interface ConfirmOrContestMatchParams {
   previousMatch: MatchSummaryDto;
 }
 
+interface EncodeMatchResultDto {
+  scoreTeam1: number;
+  scoreTeam2: number;
+}
+
+interface DeclareForfeitMatchParams {
+  matchId: number;
+  winningTeamId: number;
+  forfeitingTeamId: number;
+}
+
 export type {
   MainContext,
   User,
@@ -327,4 +350,6 @@ export type {
   TournamentMatchFilters,
   MatchLineupDto,
   ConfirmOrContestMatchParams,
+  EncodeMatchResultDto,
+  DeclareForfeitMatchParams,
 };

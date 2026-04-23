@@ -70,7 +70,8 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler({AccountBannedException.class, NotAdminException.class,
       CannotBanAdminException.class, ForbiddenException.class, NotManagerException.class,
-      MemberHasNoTeamException.class, MemberNotManagerOfTeamException.class})
+      MemberHasNoTeamException.class, MemberNotManagerOfTeamException.class,
+      PrivateLineupException.class})
   public ResponseEntity<Map<String, String>> handleForbiddenExceptions(RuntimeException ex) {
     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", ex.getMessage()));
   }

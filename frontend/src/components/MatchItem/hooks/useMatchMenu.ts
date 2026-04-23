@@ -31,7 +31,7 @@ export const useMatchMenu = ({ match, refetch }: MatchMenuProps) => {
     handleConfirmOrContestScore,
     handleEncodeScore,
     handleEditScore,
-  } = useMatchMenuAction({ refetch });
+  } = useMatchMenuAction({ match, refetch });
 
   return {
     theme,

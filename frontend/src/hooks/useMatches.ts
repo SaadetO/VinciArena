@@ -1,9 +1,11 @@
 import { Dispatch, SetStateAction } from 'react';
 import {
   ApiError,
+  ConfirmOrContestMatchParams,
+  EncodeMatchResultDto,
   MatchLineupDto,
   MatchSummaryDto,
-  ConfirmOrContestMatchParams,
+  DeclareForfeitMatchParams,
 } from '../types';
 import { useApi } from './useApi';
 import { useSnackbar } from './useSnackbar';
@@ -158,6 +160,7 @@ export const useMatches = (config?: UseMatchesOptions) => {
         },
       },
     );
+
   const { execute: getLineup, loading: isGettingLineup } = useApi(
     async ({ matchId, teamId }: { matchId: number; teamId: number }) => {
       const response = await fetch(
@@ -236,6 +239,87 @@ export const useMatches = (config?: UseMatchesOptions) => {
     },
   );
 
+  const { execute: encodeMatchResult, loading: isEncodingMatchResult } = useApi(
+    async ({ id, dto }: { id: number; dto: EncodeMatchResultDto }) => {
+      if (isNaN(id) || id <= 0) return;
+
+      const response = await fetch(`/api/matches/${id}/result`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: authenticatedUser?.token ?? '',
+        },
+        body: JSON.stringify(dto),
+      });
+      if (!response.ok) {
+        throw new ApiError("Échec de l'encodage des scores !", response.status);
+      }
+    },
+    {
+      onSuccess: () => {
+        refetch?.();
+        showSnackbar({
+          message: 'Scores encodés avec succès !',
+          severity: 'success',
+        });
+      },
+      onError: (err) => {
+        showSnackbar({
+          message:
+            err instanceof ApiError
+              ? err.message
+              : "Une erreur est survenue lors de l'encodage des scores !",
+          severity: 'error',
+        });
+      },
+    },
+  );
+
+  const { execute: declareForfeit, loading: isDeclaringForfeit } = useApi(
+    async ({
+      matchId,
+      winningTeamId,
+      forfeitingTeamId,
+    }: DeclareForfeitMatchParams) => {
+      const response = await fetch(`/api/matches/${matchId}/declare-forfeit`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: authenticatedUser?.token ?? '',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          winningTeamId: winningTeamId,
+          forfeitingTeamId: forfeitingTeamId,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new ApiError(
+          'Échec lors de la déclaration de forfait',
+          response.status,
+        );
+      }
+    },
+    {
+      onSuccess: () => {
+        refetch?.();
+        showSnackbar({
+          message: 'Forfait déclaré avec succès',
+          severity: 'success',
+        });
+      },
+      onError: (err) => {
+        showSnackbar({
+          message:
+            err instanceof ApiError
+              ? err.message
+              : 'Une erreur est survenue lors de la déclaration de forfait',
+          severity: 'error',
+        });
+      },
+    },
+  );
+
   return {
     getAll,
     isGettingMatches,
@@ -247,5 +331,9 @@ export const useMatches = (config?: UseMatchesOptions) => {
     isGettingLineup,
     confirmOrContestMatch,
     isConfirmingOrContestingMatch,
+    encodeMatchResult,
+    isEncodingMatchResult,
+    declareForfeit,
+    isDeclaringForfeit,
   };
 };

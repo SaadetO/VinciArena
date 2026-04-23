@@ -1,5 +1,6 @@
 package be.vinci.ipl.cae.demo.services;
 
+import be.vinci.ipl.cae.demo.models.entities.ConfirmationStatus;
 import be.vinci.ipl.cae.demo.models.entities.Match;
 import be.vinci.ipl.cae.demo.models.entities.MatchLineup;
 import be.vinci.ipl.cae.demo.models.entities.MatchStatus;
@@ -23,7 +24,10 @@ public class MatchSchedulingService {
   /**
    * Constructor.
    */
-  public MatchSchedulingService(MatchRepository matchRepository, MatchService matchService) {
+  public MatchSchedulingService(
+    MatchRepository matchRepository,
+    MatchService matchService
+  ) {
     this.matchRepository = matchRepository;
     this.matchService = matchService;
   }
@@ -38,15 +42,17 @@ public class MatchSchedulingService {
     System.out.println("Updating matches...");
     LocalDateTime now = LocalDateTime.now();
     List<Match> startingMatches =
-        matchRepository.findByStatusAndDateHourLessThanEqual(MatchStatus.PLANNED, now);
+      matchRepository.findByStatusAndDateHourLessThanEqual(
+        MatchStatus.PLANNED,
+        now
+      );
 
     for (Match match : startingMatches) {
-
       Team t1 = match.getTeam1();
       Team t2 = match.getTeam2();
 
       if (t1 == null && t2 == null) {
-        match.setStatus(MatchStatus.PLAYED);
+        match.setStatus(MatchStatus.FORFEIT);
         continue;
       }
 
@@ -78,19 +84,23 @@ public class MatchSchedulingService {
   /**
    * Periodically updates match confirmation. Runs every 60 seconds.
    */
-  @Scheduled(initialDelay = 10000, fixedDelay = 60000)
+  @Scheduled(initialDelay = 5000, fixedDelay = 5000)
   @Transactional
   public void autoValidateMatches() {
+    System.out.println("Auto-validating matches...");
     LocalDateTime twoHoursAgo = LocalDateTime.now().minusHours(2);
 
-    List<Match> expiredMatches = matchRepository
-        .findByStatusAndScoreEncodedAtLessThanEqual(MatchStatus.AWAITING_VALIDATION, twoHoursAgo);
+    List<Match> expiredMatches =
+      matchRepository.findByStatusAndScoreEncodedAtLessThanEqual(
+        MatchStatus.AWAITING_VALIDATION,
+        twoHoursAgo
+      );
 
     for (Match match : expiredMatches) {
       boolean isContested = match
-          .getLineups()
-          .stream()
-          .anyMatch(l -> Boolean.FALSE.equals(l.getHasConfirmedResults()));
+        .getLineups()
+        .stream()
+        .anyMatch(MatchLineup::isContested);
 
       if (isContested) {
         continue;
@@ -99,8 +109,8 @@ public class MatchSchedulingService {
       System.out.println("Auto-validating match ID: " + match.getIdMatch());
 
       for (MatchLineup lineup : match.getLineups()) {
-        if (lineup.getHasConfirmedResults() == null) {
-          lineup.setHasConfirmedResults(true);
+        if (lineup.isPending()) {
+          lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
         }
       }
 
@@ -117,7 +127,6 @@ public class MatchSchedulingService {
    * @return true if it has all required members, false otherwise
    */
   private boolean hasEnoughPlayers(Team team) {
-    return team.getMembers() != null && team.getMembers().isEmpty();
+    return team.getMembers() != null && !team.getMembers().isEmpty();
   }
-
 }

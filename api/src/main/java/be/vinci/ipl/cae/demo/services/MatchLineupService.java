@@ -10,6 +10,7 @@ import be.vinci.ipl.cae.demo.exceptions.PrivateLineupException;
 import be.vinci.ipl.cae.demo.exceptions.TeamNotFoundException;
 import be.vinci.ipl.cae.demo.models.dtos.MatchLineupDto;
 import be.vinci.ipl.cae.demo.models.dtos.NewMatchLineupDto;
+import be.vinci.ipl.cae.demo.models.entities.ConfirmationStatus;
 import be.vinci.ipl.cae.demo.models.entities.Match;
 import be.vinci.ipl.cae.demo.models.entities.MatchLineup;
 import be.vinci.ipl.cae.demo.models.entities.Member;
@@ -40,7 +41,13 @@ public class MatchLineupService {
   private final NotificationService notificationService;
 
   /**
-   * match lineupservice constructor.
+   * Match lineupservice constructor.
+   *
+   * @param matchRepository match repository
+   * @param matchLineupRepository matchLineup repository
+   * @param memberRepository member repository
+   * @param memberService member service
+   * @param teamService team service
    */
   public MatchLineupService(
       MatchRepository matchRepository,
@@ -129,6 +136,14 @@ public class MatchLineupService {
 
   }
 
+  /**
+   * Get the lineup linked to a team.
+   *
+   * @param matchId the match id
+   * @param teamId the team id
+   * @param currentMember the authenticated member
+   * @return the lineup linked to the team and match
+   */
   public MatchLineupDto getLineupForTeam(Long matchId, Long teamId, Member currentMember) {
     Match match = matchRepository.findById(matchId).orElseThrow(MatchNotFoundException::new);
 
@@ -144,9 +159,9 @@ public class MatchLineupService {
     }
 
     Team targetMatchTeam;
-    if (match.getTeam1().getIdTeam().equals(teamId)) {
+    if (match.getTeam1() != null && match.getTeam1().getIdTeam().equals(teamId)) {
       targetMatchTeam = match.getTeam1();
-    } else if (match.getTeam2().getIdTeam().equals(teamId)) {
+    } else if (match.getTeam2() != null && match.getTeam2().getIdTeam().equals(teamId)) {
       targetMatchTeam = match.getTeam2();
     } else {
       throw new IllegalArgumentException("Cette équipe ne participe pas à ce match.");
@@ -176,7 +191,7 @@ public class MatchLineupService {
     lineup.setTeam(team);
     lineup.setWinner(false);
     lineup.setHasForfeited(false);
-    lineup.setHasConfirmedResults(null);
+    lineup.setConfirmationStatus(ConfirmationStatus.PENDING);
 
     return lineup;
   }

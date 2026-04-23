@@ -17,6 +17,7 @@ import be.vinci.ipl.cae.demo.models.dtos.EncodeMatchResultDto;
 import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryDto;
 import be.vinci.ipl.cae.demo.models.entities.Tournament;
 import be.vinci.ipl.cae.demo.models.entities.TournamentStatus;
+import be.vinci.ipl.cae.demo.models.entities.ConfirmationStatus;
 import be.vinci.ipl.cae.demo.models.entities.Match;
 import be.vinci.ipl.cae.demo.models.entities.MatchLineup;
 import be.vinci.ipl.cae.demo.models.entities.MatchStatus;
@@ -107,7 +108,7 @@ public class MatchServiceTest {
     matchService.confirmResult(1L, member);
 
     // Assert
-    assertTrue(team1Lineup.getHasConfirmedResults());
+    assertTrue(team1Lineup.isConfirmed());
   }
 
   @Test
@@ -124,7 +125,7 @@ public class MatchServiceTest {
     matchService.confirmResult(1L, member);
 
     // Assert
-    assertTrue(team2Lineup.getHasConfirmedResults());
+    assertTrue(team2Lineup.isConfirmed());
   }
 
   @Test
@@ -171,7 +172,7 @@ public class MatchServiceTest {
   @Test
   void confirmResult_already_confirmed_team1() {
     member.setTeam(match.getTeam1());
-    team1Lineup.setHasConfirmedResults(true);
+    team1Lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
 
     when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
     when(matchLineupRepository.findByMatchAndTeam(match, match.getTeam1()))
@@ -184,7 +185,7 @@ public class MatchServiceTest {
   @Test
   void confirmResult_already_confirmed_team2() {
     member.setTeam(match.getTeam2());
-    team2Lineup.setHasConfirmedResults(true);
+    team2Lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
 
     when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
     when(matchLineupRepository.findByMatchAndTeam(match, match.getTeam2()))
@@ -208,7 +209,7 @@ public class MatchServiceTest {
     matchService.contestResult(1L, member);
 
     // Assert
-    assertFalse(team1Lineup.getHasConfirmedResults());
+    assertFalse(team1Lineup.isConfirmed());
   }
 
   @Test
@@ -225,7 +226,7 @@ public class MatchServiceTest {
     matchService.contestResult(1L, member);
 
     // Assert
-    assertFalse(team2Lineup.getHasConfirmedResults());
+    assertFalse(team2Lineup.isConfirmed());
   }
 
   @Test
@@ -272,7 +273,7 @@ public class MatchServiceTest {
   @Test
   void contestResult_already_confirmed_team1() {
     member.setTeam(match.getTeam1());
-    team1Lineup.setHasConfirmedResults(true);
+    team1Lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
 
     when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
     when(matchLineupRepository.findByMatchAndTeam(match, match.getTeam1()))
@@ -285,7 +286,7 @@ public class MatchServiceTest {
   @Test
   void contestResult_already_confirmed_team2() {
     member.setTeam(match.getTeam2());
-    team2Lineup.setHasConfirmedResults(true);
+    team2Lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
 
     when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
     when(matchLineupRepository.findByMatchAndTeam(match, match.getTeam2()))
@@ -298,7 +299,10 @@ public class MatchServiceTest {
   @Test
   void encodeResult_success() {
     // Arrange
-    match.setStatus(MatchStatus.PLANNED);
+    match.setStatus(MatchStatus.IN_PROGRESS);
+    Match localMatch = new Match();
+    team1Lineup.setMatch(localMatch);
+    team2Lineup.setMatch(localMatch);
 
     EncodeMatchResultDto dto = new EncodeMatchResultDto(2, 1);
 
@@ -334,7 +338,7 @@ public class MatchServiceTest {
 
   @Test
   void encodeResult_unallowed_tie() {
-    match.setStatus(MatchStatus.PLANNED);
+    match.setStatus(MatchStatus.IN_PROGRESS);
     when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
 
     assertThrows(
@@ -344,7 +348,7 @@ public class MatchServiceTest {
 
   @Test
   void encodeResult_lineup_not_found() {
-    match.setStatus(MatchStatus.PLANNED);
+    match.setStatus(MatchStatus.IN_PROGRESS);
     match.getLineups().clear(); // Trigger exception
     when(matchRepository.findById(1L)).thenReturn(Optional.of(match));
 

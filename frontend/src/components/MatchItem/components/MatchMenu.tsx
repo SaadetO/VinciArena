@@ -56,6 +56,9 @@ export const MatchMenu = ({ match, refetch }: MatchMenuProps) => {
       children: (
         <LineupModal
           matchId={match.idMatch}
+          /* ESLint: The menu only displays if showEditComposition is true, 
+           which guarantees authenticatedUser and managedTeamId are defined.
+          */
           // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
           teamId={authenticatedUser?.managedTeamId!}
           onSelectionChange={(ids) => {
@@ -69,6 +72,7 @@ export const MatchMenu = ({ match, refetch }: MatchMenuProps) => {
           playerIds: selectedIdsRef.current,
           closeModal,
         });
+        refetch();
       },
       onCancel: (close) => close(),
     });
@@ -108,8 +112,25 @@ export const MatchMenu = ({ match, refetch }: MatchMenuProps) => {
             </Typography>
             {showForfeit && (
               <MenuItem
+                disabled={match.status == 'FORFEIT'}
                 onClick={() => {
-                  handleForfeit();
+                  const forfeitingTeamId = authenticatedUser?.managedTeamId;
+
+                  if (!forfeitingTeamId) {
+                    return;
+                  }
+
+                  const winningTeamId =
+                    forfeitingTeamId === match.team1.idTeam
+                      ? match.team2.idTeam
+                      : match.team1.idTeam;
+
+                  handleForfeit({
+                    matchId: match.idMatch,
+                    winningTeamId: winningTeamId,
+                    forfeitingTeamId: forfeitingTeamId,
+                  });
+
                   handleClose();
                 }}
               >
