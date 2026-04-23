@@ -465,7 +465,6 @@ public class MatchService {
       throw new MatchNotFoundException("Match not found.");
     }
 
-    Match nextMatch = match.getNextMatch();
     List<MatchLineup> lineups = match.getLineups();
 
     if (lineups == null || lineups.isEmpty()) {
@@ -486,7 +485,9 @@ public class MatchService {
     if (winnerTeam == null) {
       throw new TeamNotFoundException("No team found for the winner lineup.");
     }
-    
+
+    Match nextMatch = match.getNextMatch();
+
     if (nextMatch == null) {
       match.getTournament().setWinner(winnerTeam);
       return;
