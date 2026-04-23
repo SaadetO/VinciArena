@@ -1,6 +1,7 @@
 package be.vinci.ipl.cae.demo.services;
 
 import be.vinci.ipl.cae.demo.exceptions.AlreadyConfirmedException;
+import be.vinci.ipl.cae.demo.exceptions.AlreadyContestedException;
 import be.vinci.ipl.cae.demo.exceptions.ForbiddenException;
 import be.vinci.ipl.cae.demo.exceptions.InvalidMatchStatusException;
 import be.vinci.ipl.cae.demo.exceptions.MatchLineupNotFoundException;
@@ -520,8 +521,23 @@ public class MatchService {
     List<MatchLineup> lineups = getLineups(match);
     applyScores(match, lineups, dto);
 
-    match.setScoreEncodedAt(LocalDateTime.now());
-    match.setStatus(MatchStatus.AWAITING_VALIDATION);
+    for (MatchLineup lineup : lineups) {
+      ConfirmationStatus currentStatus = lineup.getConfirmationStatus();
+      if (currentStatus == ConfirmationStatus.CONTESTED) {
+        lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
+      } else if (currentStatus == ConfirmationStatus.CONFIRMED) {
+        lineup.setConfirmationStatus(ConfirmationStatus.PENDING);
+      }
+    }
+
+    if (bothTeamsConfirmed(match)) {
+      match.setStatus(MatchStatus.PLAYED);
+      updateWinner(match);
+      advanceWinnerToNextRound(match);
+    } else {
+      match.setScoreEncodedAt(LocalDateTime.now());
+      match.setStatus(MatchStatus.AWAITING_VALIDATION);
+    }
 
     return mapMatchToSummaryDto(match, match.getTournament());
   }
@@ -560,9 +576,11 @@ public class MatchService {
    * @throws InvalidMatchStatusException if the match is not in PLANNED status
    */
   private void validateMatchCanBeEncoded(Match match) {
-    if (match.getStatus() != MatchStatus.IN_PROGRESS) {
+    if (match.getStatus() != MatchStatus.IN_PROGRESS
+        && match.getStatus() != MatchStatus.AWAITING_VALIDATION) {
       throw new InvalidMatchStatusException(
-          "Le match doit être en statut IN_PROGRESS pour encoder les résultats.");
+          "Le match doit être en statut IN_PROGRESS ou AWAITING_VALIDATION "
+              + "pour encoder les résultats.");
     }
   }
 
