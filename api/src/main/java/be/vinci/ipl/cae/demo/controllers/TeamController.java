@@ -117,4 +117,21 @@ public class TeamController {
       @AuthenticationPrincipal Member currentMember) {
     return teamService.resignManager(id, currentMember, replacementId);
   }
+
+  /**
+   * Exclude a member from their team.
+   *
+   * @param id the team id
+   * @param idMember the id of the member to exclude
+   * @param currentMember the authenticated member
+   */
+  @PostMapping("/{id}/manager/{idMember}")
+  @PreAuthorize("isAuthenticated()")
+  public void excludeMember(
+      @PathVariable Long id,
+      @PathVariable Long idMember,
+      @AuthenticationPrincipal Member currentMember
+  ) {
+    teamService.excludeMember(currentMember.getTeam(), idMember);
+  }
 }
