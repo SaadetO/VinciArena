@@ -734,6 +734,61 @@ class TeamServiceTest {
   }
 
   @Test
+  void excludeUnexistingMember() {
+    // Arrange
+    Team team = new Team();
+    team.setIdTeam(1L);
+
+    when(memberRepository.findById(10L)).thenReturn(Optional.empty());
+
+    // Act + Assert
+    assertThrows(MemberNotFoundException.class, () -> teamService.excludeMember(team, 10L));
+  }
+
+  @Test
+  void excludeMemberOfADifferentTeam() {
+    // Arrange
+    Team team1 = new Team();
+    team1.setIdTeam(1L);
+
+    Team team2 = new Team();
+    team2.setIdTeam(2L);
+
+    creator.setTeam(team2);
+
+    when(memberRepository.findById(1L)).thenReturn(Optional.of(creator));
+
+    // Act + Assert
+    assertThrows(
+        MemberNotInTeamException.class,
+        () -> teamService.excludeMember(team1, 1L)
+    );
+  }
+
+  @Test
+  void excludeMemberOfTheTeam() {
+    // Arrange
+    Team team1 = new Team();
+    team1.setIdTeam(1L);
+
+    creator.setTeam(team1);
+
+    when(memberRepository.findById(1L)).thenReturn(Optional.of(creator));
+
+    // Act
+    teamService.excludeMember(team1, 1L);
+
+    // Assert
+    assertAll(
+        () -> assertNull(creator.getTeam()),
+        () -> assertFalse(team1.getMembers().contains(creator))
+    );
+
+    verify(memberRepository).save(creator);
+    verify(teamRepository).save(team1);
+  }
+
+  @Test
   void resignManagerOfUnexistingTeam() {
     // Arrange
     long unexistingTeamId = 404L;
