@@ -1,10 +1,11 @@
 import { Dispatch, SetStateAction } from 'react';
 import {
   ApiError,
+  ConfirmOrContestMatchParams,
+  EncodeMatchResultDto,
   MatchLineupDto,
   MatchSummaryDto,
   DeclareForfeitMatchParams,
-  ConfirmOrContestMatchParams,
 } from '../types';
 import { useApi } from './useApi';
 import { useSnackbar } from './useSnackbar';
@@ -237,6 +238,42 @@ export const useMatches = (config?: UseMatchesOptions) => {
     },
   );
 
+  const { execute: encodeMatchResult, loading: isEncodingMatchResult } = useApi(
+    async ({ id, dto }: { id: number; dto: EncodeMatchResultDto }) => {
+      if (isNaN(id) || id <= 0) return;
+
+      const response = await fetch(`/api/matches/${id}/result`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: authenticatedUser?.token ?? '',
+        },
+        body: JSON.stringify(dto),
+      });
+      if (!response.ok) {
+        throw new ApiError("Échec de l'encodage des scores !", response.status);
+      }
+    },
+    {
+      onSuccess: () => {
+        refetch?.();
+        showSnackbar({
+          message: 'Scores encodés avec succès !',
+          severity: 'success',
+        });
+      },
+      onError: (err) => {
+        showSnackbar({
+          message:
+            err instanceof ApiError
+              ? err.message
+              : "Une erreur est survenue lors de l'encodage des scores !",
+          severity: 'error',
+        });
+      },
+    },
+  );
+
   const { execute: declareForfeit, loading: isDeclaringForfeit } = useApi(
     async ({
       matchId,
@@ -293,6 +330,8 @@ export const useMatches = (config?: UseMatchesOptions) => {
     isGettingLineup,
     confirmOrContestMatch,
     isConfirmingOrContestingMatch,
+    encodeMatchResult,
+    isEncodingMatchResult,
     declareForfeit,
     isDeclaringForfeit,
   };

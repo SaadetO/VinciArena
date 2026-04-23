@@ -4,12 +4,21 @@ import { useModalController } from '../../../hooks/useModalController';
 import {
   ConfirmOrContestMatchParams,
   DeclareForfeitMatchParams,
+  MatchSummaryDto,
 } from '../../../types';
-import { declareForfeitModal } from '../modals/declareForfeitModal';
+import { adminEncodeScoreModal } from '../modals/adminEncodeScoreModal';
 import { scoresConfirmationModal } from '../modals/scoresConfirmationModal';
-export const useMatchMenuAction = ({ refetch }: { refetch: () => void }) => {
-  const { confirmOrContestMatch } = useMatches({ refetch });
-  const { declareForfeit } = useMatches({ refetch });
+import { declareForfeitModal } from '../modals/declareForfeitModal';
+
+export const useMatchMenuAction = ({
+  match,
+  refetch,
+}: {
+  match: MatchSummaryDto;
+  refetch: () => void;
+}) => {
+  const { confirmOrContestMatch, declareForfeit, encodeMatchResult } =
+    useMatches({ refetch });
   const { openModal } = useModal();
   const { setLoading } = useModalController();
 
@@ -38,9 +47,38 @@ export const useMatchMenuAction = ({ refetch }: { refetch: () => void }) => {
     );
   };
 
-  const handleEncodeScore = () => {};
+  const handleEncodeScore = () => {
+    openModal(
+      adminEncodeScoreModal({
+        match,
+        onConfirm: async (score1, score2, close) => {
+          setLoading(true);
+          await encodeMatchResult({
+            id: match.idMatch,
+            dto: { scoreTeam1: score1, scoreTeam2: score2 },
+          });
+          close();
+        },
+      }),
+    );
+  };
 
-  const handleEditScore = () => {};
+  const handleEditScore = () => {
+    openModal(
+      adminEncodeScoreModal({
+        match,
+        isEdit: true,
+        onConfirm: async (score1, score2, close) => {
+          setLoading(true);
+          await encodeMatchResult({
+            id: match.idMatch,
+            dto: { scoreTeam1: score1, scoreTeam2: score2 },
+          });
+          close();
+        },
+      }),
+    );
+  };
 
   return {
     handleForfeit,

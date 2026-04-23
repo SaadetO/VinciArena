@@ -300,6 +300,11 @@ interface ConfirmOrContestMatchParams {
   previousMatch: MatchSummaryDto;
 }
 
+interface EncodeMatchResultDto {
+  scoreTeam1: number;
+  scoreTeam2: number;
+}
+
 interface DeclareForfeitMatchParams {
   matchId: number;
   winningTeamId: number;
@@ -339,5 +344,6 @@ export type {
   TournamentMatchFilters,
   MatchLineupDto,
   ConfirmOrContestMatchParams,
+  EncodeMatchResultDto,
   DeclareForfeitMatchParams,
 };

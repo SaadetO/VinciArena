@@ -2,7 +2,6 @@ import {
   Box,
   BoxProps,
   Grid2,
-  Stack,
   Typography,
   TypographyProps,
 } from '@mui/material';
@@ -10,6 +9,7 @@ import { MatchSummaryDto, MaybeAuthenticatedUser } from '../../../types';
 import { Link } from 'react-router-dom';
 import { useUser } from '../../../hooks/useUser';
 import { Flag } from '@gravity-ui/icons';
+import { VersusSymbol } from './VersusSymbol';
 
 interface VersusItemProps {
   match: MatchSummaryDto;
@@ -29,9 +29,10 @@ export const VersusItem = ({ match }: VersusItemProps) => {
 
   const isAdmin = authenticatedUser?.admin;
   const isPlayed = match.status === 'PLAYED';
+  const isAwaitingValidation = match.status === 'AWAITING_VALIDATION';
   const isForfeit = match.status === 'FORFEIT';
 
-  const showScoresSection = isPlayed || isForfeit;
+  const showScoresSection = isPlayed || isAwaitingValidation || isForfeit;
 
   const isConfirmed =
     match.team1?.hasConfirmedResults && match.team2?.hasConfirmedResults;
@@ -83,20 +84,7 @@ export const VersusItem = ({ match }: VersusItemProps) => {
           </Typography>
         )}
       </Grid2>
-      <Stack
-        width="0.375rem"
-        position="absolute"
-        top="50%"
-        left="50%"
-        sx={{ transform: 'translate(-50%, -50%)' }}
-        alignItems="center"
-      >
-        <Box
-          width="1px"
-          height="1.25rem"
-          sx={{ rotate: '30deg', background: (theme) => theme.palette.divider }}
-        />
-      </Stack>
+      <VersusSymbol />
       <Grid2 size={6} display="flex" alignItems="center" gap="1.25rem">
         {showScoresSection && (
           <Typography
