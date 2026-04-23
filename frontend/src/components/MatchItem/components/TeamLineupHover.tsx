@@ -1,6 +1,7 @@
-import { Box, Stack, Tooltip, Typography } from '@mui/material';
+import { Avatar, Box, Chip, Stack, Tooltip, Typography } from '@mui/material';
 import dayjs from 'dayjs';
 import { MatchTeamDto, MaybeAuthenticatedUser } from '../../../types';
+import { Link } from 'react-router-dom';
 
 interface TeamLineupHoverProps {
   team: MatchTeamDto;
@@ -28,26 +29,42 @@ export const TeamLineupHover = ({
   const hasPlayers = team.lineup?.players && team.lineup.players.length > 0;
 
   const lineupContent = (
-    <Stack spacing={0.5} sx={{ p: 0.5 }}>
-      <Typography
-        variant="caption"
-        sx={{ fontWeight: 700, color: 'primary.main', mb: 0.5 }}
-      >
-        {team.name}
-      </Typography>
-
+    <Stack
+      direction="row"
+      rowGap="0.625rem"
+      columnGap="0.5rem"
+      padding="0.25rem"
+      flexWrap="wrap"
+      maxWidth="16rem"
+    >
       {hasPlayers ? (
-        team.lineup?.players?.map((player) => (
-          // list of players in lineup
-          <Typography
-            key={player.id}
-            sx={{ fontSize: '0.75rem', lineHeight: 1.4 }}
-          >
-            • {player.tag}
-          </Typography>
+        team.lineup?.players?.map((member) => (
+          <Chip
+            size="medium"
+            sx={{
+              cursor: 'pointer',
+              border: (theme) =>
+                authenticatedUser?.id === member.id
+                  ? `2px solid ${theme.palette.primary.main}`
+                  : '',
+              '&:hover': {
+                background: (theme) => theme.palette.background.s4,
+              },
+            }}
+            key={member.id}
+            component={Link}
+            to={`/users/${member.id}`}
+            label={member.tag}
+            avatar={
+              <Avatar
+                sx={{ height: '1rem !important', width: '1rem !important' }}
+                src={`/assets/avatars/${member.avatar}`}
+              />
+            }
+            variant={authenticatedUser?.id === member.id ? 'active' : 'filled'}
+          />
         ))
       ) : (
-        // no players to show
         <Typography variant="caption" color="text.secondary">
           Non définie
         </Typography>
@@ -56,27 +73,8 @@ export const TeamLineupHover = ({
   );
 
   return (
-    <Tooltip
-      title={lineupContent}
-      placement="top"
-      arrow
-      slotProps={{
-        tooltip: {
-          sx: {
-            bgcolor: 'background.s3',
-            border: '1px solid',
-            borderColor: 'divider',
-            boxShadow: 4,
-          },
-        },
-        arrow: {
-          sx: { color: 'background.s3' },
-        },
-      }}
-    >
-      <Box component="span" sx={{ cursor: 'help' }}>
-        {children}
-      </Box>
+    <Tooltip title={lineupContent} placement="top" arrow>
+      <Box>{children}</Box>
     </Tooltip>
   );
 };
