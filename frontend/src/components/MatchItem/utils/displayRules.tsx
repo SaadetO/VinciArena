@@ -126,8 +126,6 @@ export const getOverlayDisplay = ({
 
   const isPlanned = match.status === 'PLANNED';
 
-  // const isPlayed = match.status === 'PLAYED';
-
   const isInProgress = match.status === 'IN_PROGRESS';
 
   const isInAwaitingValidation = match.status === 'AWAITING_VALIDATION';
@@ -227,7 +225,7 @@ export const getVersusItemDisplay = ({
     authenticatedUser?.managedTeamId === match.team1?.idTeam ||
     authenticatedUser?.managedTeamId === match.team2?.idTeam;
 
-  const revealScores = isPlayed || isManager || isAdmin;
+  const revealScores = isPlayed || isForfeit || isManager || isAdmin;
 
   const isFinal = match.isFinal;
 
