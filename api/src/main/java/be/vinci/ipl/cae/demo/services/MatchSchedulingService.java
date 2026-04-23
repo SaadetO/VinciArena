@@ -1,9 +1,11 @@
 package be.vinci.ipl.cae.demo.services;
 
+import be.vinci.ipl.cae.demo.models.entities.ConfirmationStatus;
 import be.vinci.ipl.cae.demo.models.entities.Match;
 import be.vinci.ipl.cae.demo.models.entities.MatchLineup;
 import be.vinci.ipl.cae.demo.models.entities.MatchStatus;
 import be.vinci.ipl.cae.demo.models.entities.Team;
+import be.vinci.ipl.cae.demo.repositories.MatchLineupRepository;
 import be.vinci.ipl.cae.demo.repositories.MatchRepository;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -46,7 +48,7 @@ public class MatchSchedulingService {
       Team t2 = match.getTeam2();
 
       if (t1 == null && t2 == null) {
-        match.setStatus(MatchStatus.PLAYED);
+        match.setStatus(MatchStatus.FORFEIT);
         continue;
       }
 
@@ -87,10 +89,8 @@ public class MatchSchedulingService {
         .findByStatusAndScoreEncodedAtLessThanEqual(MatchStatus.AWAITING_VALIDATION, twoHoursAgo);
 
     for (Match match : expiredMatches) {
-      boolean isContested = match
-          .getLineups()
-          .stream()
-          .anyMatch(l -> Boolean.FALSE.equals(l.getHasConfirmedResults()));
+      boolean isContested =
+          match.getLineups().stream().anyMatch(l -> Boolean.FALSE.equals(l.isContested()));
 
       if (isContested) {
         continue;
@@ -99,8 +99,8 @@ public class MatchSchedulingService {
       System.out.println("Auto-validating match ID: " + match.getIdMatch());
 
       for (MatchLineup lineup : match.getLineups()) {
-        if (lineup.getHasConfirmedResults() == null) {
-          lineup.setHasConfirmedResults(true);
+        if (lineup.isPending()) {
+          lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
         }
       }
 

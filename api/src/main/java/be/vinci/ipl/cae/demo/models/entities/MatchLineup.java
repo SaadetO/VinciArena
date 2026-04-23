@@ -47,12 +47,12 @@ public class MatchLineup {
 
   private boolean isWinner;
 
-  private Boolean hasConfirmedResults;
+  private ConfirmationStatus confirmationStatus = ConfirmationStatus.PENDING;
 
   @ManyToMany
   @JoinTable(name = "match_members",
       joinColumns = {@JoinColumn(name = "id_match", referencedColumnName = "id_match"),
-          @JoinColumn(name = "id_team", referencedColumnName = "id_team")},
+          @JoinColumn(name = "id_team", referencedColumnName = "id_team"),},
       inverseJoinColumns = @JoinColumn(name = "id_membre"))
   private Set<Member> members = new HashSet<>();
 
@@ -65,4 +65,25 @@ public class MatchLineup {
     this.members = updatedMembers;
   }
 
+  /**
+   * Check id a confirmationStatus is confirmed.
+   */
+  public boolean isConfirmed() {
+    return (this.confirmationStatus.equals(ConfirmationStatus.CONFIRMED)
+        || this.confirmationStatus.equals(ConfirmationStatus.ADMIN_LOCKED));
+  }
+
+  /**
+   * Check id a confirmationStatus is contested.
+   */
+  public boolean isContested() {
+    return this.confirmationStatus.equals(ConfirmationStatus.CONTESTED);
+  }
+
+  /**
+   * Check id a confirmationStatus is pending.
+   */
+  public boolean isPending() {
+    return this.confirmationStatus.equals(ConfirmationStatus.PENDING);
+  }
 }
