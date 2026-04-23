@@ -1,6 +1,7 @@
 import { useMatches } from '../../../hooks/useMatches';
 import { useModal } from '../../../hooks/useModal';
 import { useModalController } from '../../../hooks/useModalController';
+import { useUser } from '../../../hooks/useUser';
 import {
   ConfirmOrContestMatchParams,
   DeclareForfeitMatchParams,
@@ -9,6 +10,7 @@ import {
 import { adminEncodeScoreModal } from '../modals/adminEncodeScoreModal';
 import { scoresConfirmationModal } from '../modals/scoresConfirmationModal';
 import { declareForfeitModal } from '../modals/declareForfeitModal';
+import { lineupModal } from '../modals/lineupModal';
 
 export const useMatchMenuAction = ({
   match,
@@ -17,10 +19,15 @@ export const useMatchMenuAction = ({
   match: MatchSummaryDto;
   refetch: () => void;
 }) => {
-  const { confirmOrContestMatch, declareForfeit, encodeMatchResult } =
-    useMatches({ refetch });
+  const {
+    updateLineup,
+    confirmOrContestMatch,
+    declareForfeit,
+    encodeMatchResult,
+  } = useMatches({ refetch });
   const { openModal } = useModal();
   const { setLoading } = useModalController();
+  const { authenticatedUser } = useUser();
 
   const handleForfeit = (params: DeclareForfeitMatchParams) => {
     openModal(
@@ -28,6 +35,23 @@ export const useMatchMenuAction = ({
         onConfirm: async (close) => {
           setLoading(true);
           await declareForfeit(params);
+          close();
+        },
+      }),
+    );
+  };
+
+  const handleEditComposition = () => {
+    const teamId = authenticatedUser?.managedTeamId;
+    if (!teamId) return;
+
+    openModal(
+      lineupModal({
+        match,
+        teamId,
+        onConfirm: async (playerIds, close) => {
+          setLoading(true);
+          await updateLineup({ matchId: match.idMatch, playerIds });
           close();
         },
       }),
@@ -82,6 +106,7 @@ export const useMatchMenuAction = ({
 
   return {
     handleForfeit,
+    handleEditComposition,
     handleConfirmOrContestScore,
     handleEncodeScore,
     handleEditScore,

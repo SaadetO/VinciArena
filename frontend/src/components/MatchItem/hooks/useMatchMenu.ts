@@ -28,6 +28,7 @@ export const useMatchMenu = ({ match, refetch }: MatchMenuProps) => {
   } = getMenuSectionDisplay({ match, authenticatedUser });
   const {
     handleForfeit,
+    handleEditComposition,
     handleConfirmOrContestScore,
     handleEncodeScore,
     handleEditScore,
@@ -49,6 +50,7 @@ export const useMatchMenu = ({ match, refetch }: MatchMenuProps) => {
     needsDividerAfterScores,
     displayMenu,
     handleForfeit,
+    handleEditComposition,
     handleConfirmOrContestScore,
     handleEncodeScore,
     handleEditScore,
