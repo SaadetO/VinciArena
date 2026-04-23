@@ -72,7 +72,10 @@ export const getMenuSectionDisplay = ({
 
   const showAdminEncode = isAdmin && isInProgress;
 
-  const showAdminModify = isAdmin && isPlayed && hasContestedScore;
+  const showAdminModify =
+    isAdmin &&
+    (match.status === 'AWAITING_VALIDATION' || isPlayed) &&
+    hasContestedScore;
   const showAdminSection = showAdminEncode || showAdminModify;
 
   const visibleSections = [
@@ -143,7 +146,7 @@ export const getOverlayDisplay = ({
 
   const canEditScores =
     isAdmin &&
-    isPlayed &&
+    (match.status === 'AWAITING_VALIDATION' || isPlayed) &&
     (match?.team1.hasConfirmedResults === false ||
       match?.team2.hasConfirmedResults === false);
 

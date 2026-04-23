@@ -525,7 +525,7 @@ public class MatchService {
    * @throws InvalidMatchStatusException if the match is not in PLANNED status
    */
   private void validateMatchCanBeEncoded(Match match) {
-    if (match.getStatus() != MatchStatus.PLANNED) {
+    if (match.getStatus() != MatchStatus.IN_PROGRESS) {
       throw new InvalidMatchStatusException(
           "Le match doit être en statut PLANIFIÉ pour encoder les résultats.");
     }
