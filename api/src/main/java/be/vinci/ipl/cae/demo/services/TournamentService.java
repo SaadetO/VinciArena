@@ -150,7 +150,7 @@ public class TournamentService {
    * @param match the match
    * @return true if the match is a bye match, false otherwise
    */
-  private boolean isByeMatch(Match match) {
+  public boolean isByeMatch(Match match) {
     if (match.getStatus() == MatchStatus.FORFEIT) {
       return false;
     }

@@ -15,6 +15,8 @@ import be.vinci.ipl.cae.demo.exceptions.RegistrationClosedException;
 import be.vinci.ipl.cae.demo.exceptions.TournamentNotFoundException;
 import be.vinci.ipl.cae.demo.models.dtos.NewTournament;
 import be.vinci.ipl.cae.demo.models.dtos.TournamentDetailsDto;
+import be.vinci.ipl.cae.demo.models.entities.Match;
+import be.vinci.ipl.cae.demo.models.entities.MatchStatus;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.models.entities.Tournament;
@@ -293,4 +295,147 @@ class TournamentServiceTest {
     assertThrows(RegistrationClosedException.class, () -> tournamentService.registerTeam(100L, manager));
     verify(tournamentRepository, never()).save(any());
   }
+
+  @Test
+  void isByeMatchWithMatchStatusForfeit() {
+    // Arrange
+    Match match = new Match();
+    match.setStatus(MatchStatus.FORFEIT);
+
+    // Act
+    boolean result = tournamentService.isByeMatch(match);
+
+    // Assert
+    assertFalse(result);
+  }
+
+  @Test
+  void isByeMatchWithNoTeams() {
+    // Arrange
+    Match match = new Match();
+    match.setStatus(MatchStatus.PLANNED);
+
+    match.setTeam1(null);
+    match.setTeam2(null);
+
+    // Act
+    boolean result = tournamentService.isByeMatch(match);
+
+    // Assert
+    assertFalse(result);
+  }
+
+  @Test
+  void isByeMatchWithTwoTeams() {
+    // Arrange
+    Match match = new Match();
+    match.setStatus(MatchStatus.PLANNED);
+
+    match.setTeam1(new Team());
+    match.setTeam2(new Team());
+
+    // Act
+    boolean result = tournamentService.isByeMatch(match);
+
+    // Assert
+    assertFalse(result);
+  }
+
+  @Test
+  void isByeMatchWithOneTeamButNoNextMatch() {
+    // Arrange
+    Match match = new Match();
+    match.setStatus(MatchStatus.PLANNED);
+
+    Team t1 = new Team();
+    match.setTeam1(t1);
+    match.setTeam2(null);
+
+    match.setNextMatch(null);
+
+    // Act
+    boolean result = tournamentService.isByeMatch(match);
+
+    // Assert
+    assertFalse(result);
+  }
+
+  @Test
+  void isByeMatchWithOneTeamButNotInNextMatch() {
+    // Arrange
+    Match match = new Match();
+    match.setStatus(MatchStatus.PLANNED);
+
+    Team t1 = new Team();
+    t1.setIdTeam(1L);
+
+    Team t2 = new Team();
+    t2.setIdTeam(2L);
+
+    match.setTeam1(t1);
+    match.setTeam2(null);
+
+    Match next = new Match();
+    next.setTeam1(t2);
+    next.setTeam2(null);
+
+    match.setNextMatch(next);
+
+    // Act
+    boolean result = tournamentService.isByeMatch(match);
+
+    // Assert
+    assertFalse(result);
+  }
+
+  @Test
+  void isByeMatchWithOneTeamAndPresentInNextMatch() {
+    // Arrange
+    Match match = new Match();
+    match.setStatus(MatchStatus.PLANNED);
+
+    Team t1 = new Team();
+    t1.setIdTeam(1L);
+
+    match.setTeam1(t1);
+    match.setTeam2(null);
+
+    Match next = new Match();
+    next.setTeam1(t1);
+    next.setTeam2(null);
+
+    match.setNextMatch(next);
+
+    // Act
+    boolean result = tournamentService.isByeMatch(match);
+
+    // Assert
+    assertTrue(result);
+  }
+
+  @Test
+  void isByeMatchWithTeam2AndPresentInNextMatch() {
+    // Arrange
+    Match match = new Match();
+    match.setStatus(MatchStatus.PLANNED);
+
+    Team t1 = new Team();
+    t1.setIdTeam(1L);
+
+    match.setTeam1(null);
+    match.setTeam2(t1);
+
+    Match next = new Match();
+    next.setTeam1(null);
+    next.setTeam2(t1);
+
+    match.setNextMatch(next);
+
+    // Act
+    boolean result = tournamentService.isByeMatch(match);
+
+    // Assert
+    assertTrue(result);
+  }
+
 }
