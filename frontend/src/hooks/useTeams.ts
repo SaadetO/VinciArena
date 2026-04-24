@@ -418,6 +418,11 @@ export const useTeams = (options?: UseTeamsOptions) => {
             ? {
                 ...prev,
                 members: prev.members.filter((m) => m.id !== selectedMEmber.id),
+                managers:
+                  prev.managers.length > 1 &&
+                  prev.managers.includes(selectedMEmber)
+                    ? prev.managers.filter((m) => m.id !== selectedMEmber.id)
+                    : prev.managers,
               }
             : undefined,
         );
