@@ -2,6 +2,7 @@ package be.vinci.ipl.cae.demo.initializers;
 
 import be.vinci.ipl.cae.demo.initializers.InitializerUtils.MemberMockData;
 import be.vinci.ipl.cae.demo.initializers.InitializerUtils.TournamentMockData;
+import be.vinci.ipl.cae.demo.models.entities.ConfirmationStatus;
 import be.vinci.ipl.cae.demo.models.entities.Match;
 import be.vinci.ipl.cae.demo.models.entities.MatchStatus;
 import be.vinci.ipl.cae.demo.models.entities.Specialty;
@@ -227,10 +228,13 @@ public class DemoDataInitializer implements CommandLineRunner {
           memberRepo.findByEmail("zoe@mail.com")
       ));
       lineup.setScore(4);
+      lineup.setWinner(true);
+      lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
       matchLineupRepo.save(lineup);
     });
     matchLineupRepo.findByMatchAndTeam(g1vsiota, ghost1).ifPresent(lineup -> {
       lineup.setScore(0);
+      lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
       matchLineupRepo.save(lineup);
     });
 
@@ -247,11 +251,14 @@ public class DemoDataInitializer implements CommandLineRunner {
           memberRepo.findByEmail("max@mail.com")
       ));
       lineup.setScore(5);
+      lineup.setWinner(true);
+      lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
       matchLineupRepo.save(lineup);
     });
 
     matchLineupRepo.findByMatchAndTeam(g2vsdelta, ghost2).ifPresent(lineup -> {
       lineup.setScore(2);
+      lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
       matchLineupRepo.save(lineup);
     });
 
@@ -269,10 +276,13 @@ public class DemoDataInitializer implements CommandLineRunner {
           memberRepo.findByEmail("pol@mail.com")
       ));
       lineup.setScore(5);
+      lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
+      lineup.setWinner(true);
       matchLineupRepo.save(lineup);
     });
     matchLineupRepo.findByMatchAndTeam(g3vsalpha, ghost3).ifPresent(lineup -> {
       lineup.setScore(3);
+      lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
       matchLineupRepo.save(lineup);
     });
 
@@ -287,10 +297,13 @@ public class DemoDataInitializer implements CommandLineRunner {
           Set.of(memberRepo.findByEmail("tibo@mail.com"), memberRepo.findByEmail("neo@mail.com")
           ));
       lineup.setScore(5);
+      lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
+      lineup.setWinner(true);
       matchLineupRepo.save(lineup);
     });
     matchLineupRepo.findByMatchAndTeam(g4vsomega, ghost4).ifPresent(lineup -> {
       lineup.setScore(0);
+      lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
       matchLineupRepo.save(lineup);
     });
 
@@ -299,7 +312,7 @@ public class DemoDataInitializer implements CommandLineRunner {
         .filter(t -> "Elite Championship 2025".equals(t.getName())).findFirst().orElse(null);
 
     Match tiboMatch2 = InitializerUtils.createOneMatch(
-        eliteChamp25, omega, ghost1, 2, null,
+        eliteChamp25, omega, iota, 2, null,
         LocalDateTime.of(2025, 5, 15, 20, 4),
         MatchStatus.PLAYED, matchRepo, matchLineupRepo
     );
@@ -307,52 +320,135 @@ public class DemoDataInitializer implements CommandLineRunner {
       lineup.replaceLineup(
           Set.of(memberRepo.findByEmail("tibo@mail.com")
           ));
+      lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
       lineup.setScore(3);
       matchLineupRepo.save(lineup);
     });
-    matchLineupRepo.findByMatchAndTeam(tiboMatch2, ghost1).ifPresent(lineup -> {
+    matchLineupRepo.findByMatchAndTeam(tiboMatch2, iota).ifPresent(lineup -> {
+      lineup.replaceLineup(Set.of(
+          memberRepo.findByEmail("lisa@mail.com"),
+          memberRepo.findByEmail("noa@mail.com"),
+          memberRepo.findByEmail("tim@mail.com"),
+          memberRepo.findByEmail("zoe@mail.com")
+      ));
       lineup.setScore(5);
+      lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
+      lineup.setWinner(true);
       matchLineupRepo.save(lineup);
     });
 
-    Tournament winterClash26 = StreamSupport.stream(tournamentRepo.findAll().spliterator(), false)
-        .filter(t -> "Vinci Winter Clash 2026".equals(t.getName())).findFirst().orElse(null);
+    Tournament springArena25 = StreamSupport.stream(tournamentRepo.findAll().spliterator(), false)
+        .filter(t -> "Spring Arena Cup 2025".equals(t.getName())).findFirst().orElse(null);
 
     Match tiboMatch3 = InitializerUtils.createOneMatch(
-        winterClash26, omega, ghost1, 2, null,
-        LocalDateTime.of(2026, 1, 12, 16, 50),
+        springArena25, omega, ghost1, 2, null,
+        LocalDateTime.of(2025, 4, 16, 16, 50),
         MatchStatus.PLAYED, matchRepo, matchLineupRepo
     );
     matchLineupRepo.findByMatchAndTeam(tiboMatch3, omega).ifPresent(lineup -> {
       lineup.replaceLineup(
           Set.of(memberRepo.findByEmail("tibo@mail.com")
           ));
-      lineup.setScore(4);
+      lineup.setScore(5);
+      lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
+      lineup.setWinner(true);
       matchLineupRepo.save(lineup);
     });
     matchLineupRepo.findByMatchAndTeam(tiboMatch3, ghost1).ifPresent(lineup -> {
-      lineup.setScore(1);
-      lineup.replaceLineup(Set.of(
-          memberRepo.findByEmail("lea@mail.com"),
-          memberRepo.findByEmail("tom@mail.com")));
+      lineup.setHasForfeited(true);
+      lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
       matchLineupRepo.save(lineup);
     });
 
+    Tournament summerPro25 = StreamSupport.stream(tournamentRepo.findAll().spliterator(), false)
+        .filter(t -> "Summer Pro League 2025".equals(t.getName())).findFirst().orElse(null);
     Match tiboMatch4 = InitializerUtils.createOneMatch(
-        winterClash26, omega, alpha, 1, tiboMatch3,
-        LocalDateTime.of(2026, 1, 11, 19, 0),
+        summerPro25, omega, alpha, 2, null,
+        LocalDateTime.of(2025, 7, 2, 19, 15),
         MatchStatus.PLAYED, matchRepo, matchLineupRepo
     );
     matchLineupRepo.findByMatchAndTeam(tiboMatch4, omega).ifPresent(lineup -> {
       lineup.replaceLineup(
           Set.of(memberRepo.findByEmail("tibo@mail.com")
           ));
-      lineup.setScore(5);
-      lineup.setWinner(true);
+      lineup.setScore(2);
+      lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
       matchLineupRepo.save(lineup);
     });
+
     matchLineupRepo.findByMatchAndTeam(tiboMatch4, alpha).ifPresent(lineup -> {
+      lineup.replaceLineup(Set.of(
+          memberRepo.findByEmail("lea@mail.com"),
+          memberRepo.findByEmail("tom@mail.com"),
+          memberRepo.findByEmail("ines@mail.com"),
+          memberRepo.findByEmail("pol@mail.com")
+      ));
+      lineup.setWinner(true);
+      lineup.setScore(4);
+      lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
+      matchLineupRepo.save(lineup);
+    });
+
+    //  -- create rest of the final matches to be able to display the winner to tournaments
+    Tournament winterClash26 = StreamSupport.stream(tournamentRepo.findAll().spliterator(), false)
+        .filter(t -> "Vinci Winter Clash 2026".equals(t.getName())).findFirst().orElse(null);
+    Match wintClashFinal =  InitializerUtils.createOneMatch(
+        winterClash26, iota, delta, 3, null,
+        LocalDateTime.of(2026, 1, 19, 20, 30),
+        MatchStatus.PLAYED, matchRepo, matchLineupRepo
+    );
+    matchLineupRepo.findByMatchAndTeam(wintClashFinal, iota).ifPresent(lineup -> {
+      lineup.replaceLineup(Set.of(
+          memberRepo.findByEmail("lisa@mail.com"),
+          memberRepo.findByEmail("noa@mail.com"),
+          memberRepo.findByEmail("tim@mail.com"),
+          memberRepo.findByEmail("zoe@mail.com")
+      ));
+      lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
       lineup.setHasForfeited(true);
+      matchLineupRepo.save(lineup);
+    });
+    matchLineupRepo.findByMatchAndTeam(wintClashFinal, delta).ifPresent(lineup -> {
+      lineup.replaceLineup(Set.of(
+          memberRepo.findByEmail("oli@mail.com"),
+          memberRepo.findByEmail("ali@mail.com"),
+          memberRepo.findByEmail("fin@mail.com"),
+          memberRepo.findByEmail("seb@mail.com")
+      ));
+      lineup.setScore(5);
+      lineup.setWinner(true);
+      lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
+      matchLineupRepo.save(lineup);
+    });
+
+    Tournament easterCup26 = StreamSupport.stream(tournamentRepo.findAll().spliterator(), false)
+        .filter(t -> "Vinci Easter Cup 2026".equals(t.getName())).findFirst().orElse(null);
+    Match easterCupFinal = InitializerUtils.createOneMatch(
+        easterCup26, delta, alpha, 3, null,
+        LocalDateTime.of(2026, 4, 16, 12, 0),
+        MatchStatus.PLAYED, matchRepo, matchLineupRepo
+    );
+    matchLineupRepo.findByMatchAndTeam(easterCupFinal, delta).ifPresent(lineup -> {
+      lineup.replaceLineup(Set.of(
+          memberRepo.findByEmail("max@mail.com"),
+          memberRepo.findByEmail("ali@mail.com"),
+          memberRepo.findByEmail("zed@mail.com"),
+          memberRepo.findByEmail("seb@mail.com")
+      ));
+      lineup.setScore(2);
+      lineup.setWinner(true);
+      lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
+      matchLineupRepo.save(lineup);
+    });
+    matchLineupRepo.findByMatchAndTeam(easterCupFinal, alpha).ifPresent(lineup -> {
+      lineup.replaceLineup(Set.of(
+          memberRepo.findByEmail("lea@mail.com"),
+          memberRepo.findByEmail("tom@mail.com"),
+          memberRepo.findByEmail("ines@mail.com"),
+          memberRepo.findByEmail("pol@mail.com")
+      ));
+      lineup.setScore(1);
+      lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
       matchLineupRepo.save(lineup);
     });
     System.out.println("--- DEMO DATA INITIALIZATION COMPLETE ---");
