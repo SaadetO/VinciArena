@@ -6,17 +6,19 @@ interface TournamentDateProps {
   startDate: string;
   endDate: string;
   component?: 'Typography' | 'Chip';
+  forceMonth?: boolean;
 }
 
 export const TournamentDate = ({
   startDate,
   endDate,
   component = 'Typography',
+  forceMonth = false,
 }: TournamentDateProps) => {
   if (component === 'Typography') {
     return (
       <Typography variant="h5" color="text.secondary" flex={1}>
-        {getFormattedDate(startDate, endDate, false)}
+        {getFormattedDate(startDate, endDate, forceMonth)}
       </Typography>
     );
   }
@@ -32,3 +34,4 @@ export const TournamentDate = ({
     </Tooltip>
   );
 };
+
