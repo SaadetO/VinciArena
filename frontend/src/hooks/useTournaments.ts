@@ -4,9 +4,13 @@ import { Dispatch, SetStateAction } from 'react';
 import { ApiError, TournamentDetailsInfoDto, TournamentDto } from '../types';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from './useUser';
+import { getStatusesForTimeframe } from '../utils/tournamentUtils';
 
 interface UseTournamentOptions {
   setTournaments?: (tournaments: TournamentDto[]) => void;
+  setFutureTournaments?: (tournaments: TournamentDto[]) => void;
+  setCurrentTournaments?: (tournaments: TournamentDto[]) => void;
+  setPastTournaments?: (tournaments: TournamentDto[]) => void;
   setTournament?: Dispatch<
     SetStateAction<TournamentDetailsInfoDto | undefined>
   >;
@@ -19,9 +23,17 @@ interface UseTournamentOptions {
   onError?: (err: Error) => void;
 }
 
-export const useTournament = (config: UseTournamentOptions) => {
-  const { setTournaments, setTournament, setError, onSuccess, onError } =
-    config;
+export const useTournaments = (config: UseTournamentOptions) => {
+  const {
+    setTournaments,
+    setFutureTournaments,
+    setCurrentTournaments,
+    setPastTournaments,
+    setTournament,
+    setError,
+    onSuccess,
+    onError,
+  } = config;
   const { showSnackbar } = useSnackbar();
   const { authenticatedUser } = useUser();
   const navigate = useNavigate();
@@ -55,14 +67,7 @@ export const useTournament = (config: UseTournamentOptions) => {
       if (maxDate) params.append('maxDate', maxDate);
       if (limit) params.append('limit', String(limit));
 
-      console.log(
-        'fetching tournaments',
-        `/api/tournaments/${params.size > 0 ? '?' : ''}${params.toString()}`,
-      );
-
-      const response = await fetch(
-        `/api/tournaments/${params.size > 0 ? '?' : ''}${params.toString()}`,
-      );
+      const response = await fetch(`/api/tournaments/?${params.toString()}`);
       if (!response.ok) {
         throw new ApiError(
           'Échec de la récupération des tournois !',
@@ -81,6 +86,102 @@ export const useTournament = (config: UseTournamentOptions) => {
             err instanceof ApiError
               ? err.message
               : 'Une erreur est survenue lors de la récupération des tournois !',
+          severity: 'error',
+        });
+      },
+    },
+  );
+
+  const { execute: getFuture, loading: isGettingFutureTournaments } = useApi(
+    async ({ limit }: { limit?: number }) => {
+      const params = new URLSearchParams();
+      params.append(
+        'statuses',
+        getStatusesForTimeframe('future', authenticatedUser?.admin).join(','),
+      );
+      if (limit) params.append('limit', String(limit));
+
+      const response = await fetch(`/api/tournaments/?${params.toString()}`);
+      if (!response.ok) {
+        throw new ApiError(
+          'Échec de la récupération des tournois à venir !',
+          response.status,
+        );
+      }
+      return response.json();
+    },
+    {
+      onSuccess: (data) => setFutureTournaments?.(data),
+      onError: (err) => {
+        showSnackbar({
+          message:
+            err instanceof ApiError
+              ? err.message
+              : 'Une erreur est survenue lors de la récupération des tournois à venir !',
+          severity: 'error',
+        });
+      },
+    },
+  );
+
+  const { execute: getCurrent, loading: isGettingCurrentTournaments } = useApi(
+    async ({ limit }: { limit?: number }) => {
+      const params = new URLSearchParams();
+      params.append(
+        'statuses',
+        getStatusesForTimeframe('current', false).join(','),
+      );
+      if (limit) params.append('limit', String(limit));
+
+      const response = await fetch(`/api/tournaments/?${params.toString()}`);
+      if (!response.ok) {
+        throw new ApiError(
+          'Échec de la récupération des tournois en cours !',
+          response.status,
+        );
+      }
+      return response.json();
+    },
+    {
+      onSuccess: (data) => setCurrentTournaments?.(data),
+      onError: (err) => {
+        showSnackbar({
+          message:
+            err instanceof ApiError
+              ? err.message
+              : 'Une erreur est survenue lors de la récupération des tournois en cours !',
+          severity: 'error',
+        });
+      },
+    },
+  );
+
+  const { execute: getPast, loading: isGettingPastTournaments } = useApi(
+    async ({ limit }: { limit?: number }) => {
+      const params = new URLSearchParams();
+      params.append(
+        'statuses',
+        getStatusesForTimeframe('past', false).join(','),
+      );
+      if (limit) params.append('limit', String(limit));
+
+      const response = await fetch(`/api/tournaments/?${params.toString()}`);
+      if (!response.ok) {
+        throw new ApiError(
+          'Échec de la récupération des tournois terminés !',
+          response.status,
+        );
+      }
+      return response.json();
+    },
+    {
+      onSuccess: (data) => setPastTournaments?.(data),
+      onError: (err) => {
+        showSnackbar({
+          message:
+            err instanceof ApiError
+              ? err.message
+              : 'Une erreur est survenue lors de la récupération des tournois terminés !',
           severity: 'error',
         });
       },
@@ -414,6 +515,9 @@ export const useTournament = (config: UseTournamentOptions) => {
 
   return {
     getAll,
+    getFuture,
+    getCurrent,
+    getPast,
     getById,
     create,
     update,
@@ -422,6 +526,9 @@ export const useTournament = (config: UseTournamentOptions) => {
     register,
     generateMatches,
     isGettingTournaments,
+    isGettingFutureTournaments,
+    isGettingCurrentTournaments,
+    isGettingPastTournaments,
     isGettingTournamentById,
     isCreating,
     isPublishing,
