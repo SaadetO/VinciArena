@@ -20,8 +20,11 @@ export const TeamLineupHover = ({
   children,
 }: TeamLineupHoverProps) => {
   const isPlanned = matchStatus === 'PLANNED';
+  const isInProgress = matchStatus === 'IN_PROGRESS';
   const isTeammate = authenticatedUser?.teamId === team.idTeam;
-  const canSee = !isPlanned || isTeammate;
+  const isAdmin = !!authenticatedUser?.admin;
+
+  const canSee = (!isPlanned && !isInProgress) || isTeammate || isAdmin;
 
   // if not allowed to see no tooltip
   if (!canSee) {
