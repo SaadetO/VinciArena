@@ -202,7 +202,7 @@ public class MatchService {
 
     if (status == ConfirmationStatus.CONTESTED
         && (lineup.getConfirmationStatus() == ConfirmationStatus.CONTESTED
-        || lineup.getConfirmationStatus() == ConfirmationStatus.ADMIN_LOCKED)) {
+            || lineup.getConfirmationStatus() == ConfirmationStatus.ADMIN_LOCKED)) {
       throw new AlreadyContestedException("Vous avez déjà contesté ce match une fois.");
     }
 
