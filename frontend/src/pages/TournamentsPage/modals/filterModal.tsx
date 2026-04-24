@@ -4,13 +4,13 @@ import { TournamentFilters } from '../../../utils/tournamentUtils';
 
 export const filterModal = ({
   initialFilters,
-  showStatusFilter,
+  timeFrame,
   isAdmin,
   onFiltersChange,
   onConfirm,
 }: {
   initialFilters: Partial<TournamentFilters>;
-  showStatusFilter: boolean;
+  timeFrame: 'past' | 'current' | 'future';
   isAdmin?: boolean;
   onFiltersChange: (filters: Partial<TournamentFilters>) => void;
   onConfirm: (close: () => void) => void;
@@ -22,7 +22,7 @@ export const filterModal = ({
   children: (
     <FilterModalContent
       initialFilters={initialFilters}
-      showStatusFilter={showStatusFilter}
+      timeFrame={timeFrame}
       isAdmin={isAdmin}
       onFiltersChange={onFiltersChange}
     />

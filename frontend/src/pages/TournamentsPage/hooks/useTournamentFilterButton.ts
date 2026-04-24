@@ -64,7 +64,7 @@ export const useTournamentFilterButton = ({
     openModal(
       filterModal({
         initialFilters,
-        showStatusFilter: filters.timeFrame === 'future',
+        timeFrame: filters.timeFrame,
         isAdmin,
         onFiltersChange,
         onConfirm,
