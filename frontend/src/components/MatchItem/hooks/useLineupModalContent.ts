@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { MemberSummaryDto } from '../../../../types';
-import { useMatches } from '../../../../hooks/useMatches';
-import { useModalController } from '../../../../hooks/useModalController';
+import { MemberSummaryDto } from '../../../types';
+import { useMatches } from '../../../hooks/useMatches';
+import { useModalController } from '../../../hooks/useModalController';
 
 interface UseLineupModalContentProps {
   matchId: number;
@@ -27,7 +27,7 @@ export const useLineupModalContent = ({
   }, [onChange]);
 
   useEffect(() => {
-    const loadData = async () => {
+    (async () => {
       try {
         setLoading(true);
         const [members, lineup] = await Promise.all([
@@ -43,8 +43,7 @@ export const useLineupModalContent = ({
       } finally {
         setLoading(false);
       }
-    };
-    loadData();
+    })();
   }, [getAvailableMembers, getLineup, matchId, teamId]);
 
   useEffect(() => {

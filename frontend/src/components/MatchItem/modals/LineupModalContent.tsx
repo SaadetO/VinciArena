@@ -2,7 +2,7 @@ import { MemberSummaryDto } from '../../../types';
 import { Stack } from '@mui/material';
 import { PlayerItem } from '../components/PlayerItem';
 import { PlayerItemListSkeleton } from '../components/PlayerItemListSkeleton';
-import { useLineupModalContent } from './hooks/useLineupModalContent';
+import { useLineupModalContent } from '../hooks/useLineupModalContent';
 
 interface LineupModalContentProps {
   matchId: number;
