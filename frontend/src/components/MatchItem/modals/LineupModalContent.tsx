@@ -22,14 +22,21 @@ export const LineupModalContent = ({
 
   return (
     <Stack spacing="0.25rem" px="0.625rem">
-      {allMembers.map((member: MemberSummaryDto) => (
-        <PlayerItem
-          key={member.id}
-          player={member}
-          isSelected={selectedIds.includes(member.id)}
-          onToggle={() => handleToggle(member.id)}
-        />
-      ))}
+      {allMembers.map((member: MemberSummaryDto) => {
+        const isSelected = selectedIds.includes(member.id);
+        // block toggle if there are already 4 members and its not a member we are trying to unselect
+        const isFull = selectedIds.length >= 4 && !isSelected;
+
+        return (
+          <PlayerItem
+            key={member.id}
+            player={member}
+            isSelected={isSelected}
+            // if full toggle has no effect
+            onToggle={() => !isFull && handleToggle(member.id)}
+          />
+        );
+      })}
     </Stack>
   );
 };
