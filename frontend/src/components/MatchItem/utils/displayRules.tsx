@@ -52,7 +52,6 @@ export const getMenuSectionDisplay = ({
 
   const isPlanned = match.status === 'PLANNED';
   const isInProgress = match.status === 'IN_PROGRESS';
-  // const isPlayed = match.status === 'PLAYED';
   const isForfeit = match.status === 'FORFEIT';
   const isInAwaitingValidation = match.status === 'AWAITING_VALIDATION';
 
