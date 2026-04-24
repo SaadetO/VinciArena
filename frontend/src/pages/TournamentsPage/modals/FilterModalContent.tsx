@@ -15,7 +15,6 @@ import { useMembers } from '../../../hooks/useMembers';
 interface FilterModalContentProps {
   initialFilters: Partial<TournamentFilters>;
   showStatusFilter: boolean;
-  onlyStatusFilter?: boolean;
   isAdmin?: boolean;
   onFiltersChange: (filters: Partial<TournamentFilters>) => void;
 }
@@ -23,7 +22,6 @@ interface FilterModalContentProps {
 export const FilterModalContent = ({
   initialFilters,
   showStatusFilter,
-  onlyStatusFilter = false,
   isAdmin = false,
   onFiltersChange,
 }: FilterModalContentProps) => {
@@ -54,11 +52,9 @@ export const FilterModalContent = ({
   });
 
   useEffect(() => {
-    if (!onlyStatusFilter) {
-      getAllTeams({ isActive: true });
-      getAllMembers({});
-    }
-  }, [onlyStatusFilter, getAllTeams, getAllMembers]);
+    getAllTeams({ isActive: true });
+    getAllMembers({});
+  }, [getAllTeams, getAllMembers]);
 
   // Derived selected arrays for Autocomplete components
   const selectedTeams = useMemo(
@@ -137,39 +133,35 @@ export const FilterModalContent = ({
   };
   return (
     <Stack spacing="0.625rem">
-      {!onlyStatusFilter && (
-        <>
-          <FilterAutocomplete
-            options={allTeams}
-            value={selectedTeams}
-            onChange={(teams) =>
-              setLocalFilters({
-                ...localFilters,
-                teams: teams.map((t) => t.idTeam),
-              })
-            }
-            loading={isGettingAllTeams}
-            placeholder="Filtrer par équipes"
-            getOptionLabel={(team) => team.name}
-            getOptionId={(team) => team.idTeam}
-          />
-          <FilterAutocomplete
-            options={allMembers}
-            value={selectedMembers}
-            onChange={(members) =>
-              setLocalFilters({
-                ...localFilters,
-                members: members.map((m) => m.id),
-              })
-            }
-            loading={isGettingSummaries}
-            placeholder="Filtrer par membres"
-            getOptionLabel={(member) => member.tag}
-            getOptionId={(member) => member.id}
-            getOptionAvatar={(member) => member.avatar ?? undefined}
-          />
-        </>
-      )}
+      <FilterAutocomplete
+        options={allTeams}
+        value={selectedTeams}
+        onChange={(teams) =>
+          setLocalFilters({
+            ...localFilters,
+            teams: teams.map((t) => t.idTeam),
+          })
+        }
+        loading={isGettingAllTeams}
+        placeholder="Filtrer par équipes"
+        getOptionLabel={(team) => team.name}
+        getOptionId={(team) => team.idTeam}
+      />
+      <FilterAutocomplete
+        options={allMembers}
+        value={selectedMembers}
+        onChange={(members) =>
+          setLocalFilters({
+            ...localFilters,
+            members: members.map((m) => m.id),
+          })
+        }
+        loading={isGettingSummaries}
+        placeholder="Filtrer par membres"
+        getOptionLabel={(member) => member.tag}
+        getOptionId={(member) => member.id}
+        getOptionAvatar={(member) => member.avatar ?? undefined}
+      />
       {showStatusFilter && (
         <FilterAutocomplete
           options={statusOptions}

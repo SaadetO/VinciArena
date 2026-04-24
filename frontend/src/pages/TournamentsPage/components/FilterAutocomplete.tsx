@@ -45,7 +45,6 @@ export const FilterAutocomplete = <T,>({
       renderTags={(val, getTagProps) =>
         val.map((option, index) => {
           const { key, ...tagProps } = getTagProps({ index });
-          void key;
           const avatar = getOptionAvatar?.(option);
           return (
             <Chip
@@ -67,11 +66,10 @@ export const FilterAutocomplete = <T,>({
       }
       renderOption={(props, option) => {
         const { key, ...optionProps } = props;
-        void key;
         const avatar = getOptionAvatar?.(option);
         return (
           <Stack
-            key={key}
+            key={key + getOptionId(option)}
             direction="row"
             component="li"
             {...optionProps}
