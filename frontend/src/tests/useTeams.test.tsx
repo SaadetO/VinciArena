@@ -77,6 +77,7 @@ describe('useTeams hook', () => {
       setError: setErrorModal,
       setConfirmDisabled: vi.fn(),
       setLoading: vi.fn(),
+      setSubtitle: vi.fn(),
     });
     vi.clearAllMocks();
   });

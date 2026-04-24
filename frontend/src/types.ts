@@ -91,6 +91,7 @@ interface MemberSummaryDto {
   id: number;
   tag: string;
   avatar: string | null;
+  specialty: string | null;
 }
 
 interface Team {

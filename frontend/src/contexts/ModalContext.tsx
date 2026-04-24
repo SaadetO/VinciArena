@@ -34,11 +34,13 @@ const ModalContextProvider = ({ children }: { children: ReactNode }) => {
   const [error, setError] = useState<string | null>(null);
   const [confirmDisabled, setConfirmDisabled] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [dynamicSubtitle, setDynamicSubtitle] = useState<string | null>(null);
 
   const openModal = useCallback((cfg: ModalConfig) => {
     setConfirmDisabled(cfg.confirmDisabled ?? false);
     setLoading(cfg.loading ?? false);
     setError(null);
+    setDynamicSubtitle(null);
     setConfig(cfg);
     setOpen(true);
   }, []);
@@ -63,8 +65,9 @@ const ModalContextProvider = ({ children }: { children: ReactNode }) => {
       setConfirmDisabled,
       setLoading,
       setError,
+      setSubtitle: setDynamicSubtitle,
     }),
-    [setConfirmDisabled, setError, setLoading],
+    [setConfirmDisabled, setError, setLoading, setDynamicSubtitle],
   );
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -105,13 +108,13 @@ const ModalContextProvider = ({ children }: { children: ReactNode }) => {
             style={{ display: 'contents' }}
           >
             <DialogTitle variant="h2">{config?.title}</DialogTitle>
-            {config?.subtitle && (
+            {(dynamicSubtitle || config?.subtitle) && (
               <Typography
                 textAlign="center"
                 padding="0 2rem 1rem"
                 color="secondary"
               >
-                {config?.subtitle}
+                {dynamicSubtitle || config?.subtitle}
               </Typography>
             )}
             <Stack
