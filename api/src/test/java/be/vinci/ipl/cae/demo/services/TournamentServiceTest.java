@@ -15,6 +15,7 @@ import be.vinci.ipl.cae.demo.exceptions.RegistrationClosedException;
 import be.vinci.ipl.cae.demo.exceptions.TournamentNotFoundException;
 import be.vinci.ipl.cae.demo.models.dtos.NewTournament;
 import be.vinci.ipl.cae.demo.models.dtos.TournamentDetailsDto;
+import be.vinci.ipl.cae.demo.models.dtos.TournamentSummaryDto;
 import be.vinci.ipl.cae.demo.models.entities.Match;
 import be.vinci.ipl.cae.demo.models.entities.MatchStatus;
 import be.vinci.ipl.cae.demo.models.entities.Member;
@@ -33,6 +34,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
 class TournamentServiceTest {
@@ -436,6 +439,83 @@ class TournamentServiceTest {
 
     // Assert
     assertTrue(result);
+  }
+
+  @Test
+  void getTournamentsWithNullLimitUsesMaxPageable() {
+    // Arrange
+    when(tournamentRepository.findAll(any(), any(Pageable.class)))
+        .thenReturn(new PageImpl<>(List.of(tournament)));
+
+    // Act
+    Iterable<TournamentSummaryDto> result = tournamentService.getTournaments(
+        List.of(), List.of(), List.of(), null, null, null, null);
+
+    // Assert
+    assertNotNull(result);
+    verify(tournamentRepository, times(1))
+        .findAll(any(), any(Pageable.class));
+  }
+
+  @Test
+  void getTournamentsReturnsEmptyListWhenRepositoryIsEmpty() {
+    // Arrange
+    when(tournamentRepository.findAll(any(), any(Pageable.class)))
+        .thenReturn(new PageImpl<>(List.of()));
+
+    // Act
+    Iterable<TournamentSummaryDto> result = tournamentService.getTournaments(
+        List.of(), List.of(), List.of(), null, null, null, null);
+
+    // Assert
+    assertAll(
+        () -> assertNotNull(result),
+        () -> assertEquals(0, ((List<?>) result).size())
+    );
+  }
+
+  @Test
+  void getTournamentsWithFiltersCallsRepositoryCorrectly() {
+    // Arrange
+    when(tournamentRepository.findAll(any(), any(Pageable.class)))
+        .thenReturn(new PageImpl<>(List.of(tournament)));
+
+    List<TournamentStatus> statuses = List.of(TournamentStatus.REGISTRATION_OPEN);
+    List<Long> teams = List.of(10L, 20L);
+    List<Long> members = List.of(1L, 2L);
+    String search = "cup";
+
+    // Act
+    tournamentService.getTournaments(
+        statuses, teams, members, search,
+        LocalDate.of(2025, 1, 1),
+        LocalDate.of(2025, 12, 31),
+        null);
+
+    // Assert
+    verify(tournamentRepository, times(1))
+        .findAll(any(), any(Pageable.class));
+  }
+
+  @Test
+  void getTournamentsMapsEntitiesToSummaryDto() {
+    // Arrange
+    tournament.setName("Test Tournament");
+
+    when(tournamentRepository.findAll(any(), any(Pageable.class)))
+        .thenReturn(new PageImpl<>(List.of(tournament)));
+
+    // Act
+    Iterable<TournamentSummaryDto> result = tournamentService.getTournaments(
+        List.of(), List.of(), List.of(), null, null, null, null);
+
+    List<TournamentSummaryDto> list = (List<TournamentSummaryDto>) result;
+
+    // Assert
+    assertAll(
+        () -> assertEquals(1, list.size()),
+        () -> assertEquals("Test Tournament", list.getFirst().name())
+    );
   }
 
 }
