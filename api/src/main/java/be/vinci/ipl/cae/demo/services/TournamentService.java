@@ -150,7 +150,7 @@ public class TournamentService {
    * @param match the match
    * @return true if the match is a bye match, false otherwise
    */
-  private boolean isByeMatch(Match match) {
+  public boolean isByeMatch(Match match) {
     if (match.getStatus() == MatchStatus.FORFEIT) {
       return false;
     }
@@ -508,7 +508,7 @@ public class TournamentService {
    * @param matches the matches to schedule
    * @param tournament the tournament
    */
-  private void scheduleMatches(List<Match> matches, Tournament tournament) {
+  public void scheduleMatches(List<Match> matches, Tournament tournament) {
     final int matchDurationMins = 60;
     final int bufferMins = 30;
     final int daysBetweenRounds = 1;
