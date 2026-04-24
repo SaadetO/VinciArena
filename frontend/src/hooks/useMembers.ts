@@ -42,7 +42,7 @@ export const useMembers = (options?: UseMembersOptions) => {
       if (status) params.append('statuses', status.toString());
       if (searchQuery) params.append('search', searchQuery);
       const response = await fetch(
-        `/api/members${params.size > 0 ? '?' : ''}${params.toString()}`,
+        `/api/members?${params.toString()}`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -83,7 +83,7 @@ export const useMembers = (options?: UseMembersOptions) => {
       if (status !== undefined) params.append('status', status);
       if (searchQuery) params.append('searchQuery', searchQuery);
       const response = await fetch(
-        `/api/members/full${params.size > 0 ? '?' : ''}${params.toString()}`,
+        `/api/members/full?${params.toString()}`,
         {
           headers: {
             'Content-Type': 'application/json',
