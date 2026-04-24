@@ -92,9 +92,9 @@ public final class InitializerUtils {
   }
 
   /**
-   * Creates members and their associated teams.
+   * Creates members and their associated teams and returns the list of created teams.
    */
-  public static void createMembers(
+  public static List<Team> createMembers(
       MemberMockData[] dataList,
       String encodedPw,
       Map<String, Specialty> specMap,
@@ -102,6 +102,9 @@ public final class InitializerUtils {
       MemberRepository memberRepo,
       TeamRepository teamRepo,
       ProfileImageRepository imageRepo) {
+
+    List<Team> createdTeams = new ArrayList<>();
+
     for (int i = 0; i < dataList.length; i++) {
       MemberMockData data = dataList[i];
 
@@ -109,8 +112,16 @@ public final class InitializerUtils {
         Team t = new Team();
         t.setName(name);
         t.setIsActive(true);
-        return teamRepo.save(t);
+        Team savedTeam = teamRepo.save(t);
+        createdTeams.add(savedTeam); // Add to list only when newly created
+        return savedTeam;
       });
+
+      // If the team was already in the map but not in our list yet
+      // (relevant if teams were partially created elsewhere)
+      if (!createdTeams.contains(team)) {
+        createdTeams.add(team);
+      }
 
       Member member = new Member();
       member.setEmail(data.email());
@@ -122,6 +133,7 @@ public final class InitializerUtils {
       member.setSpecialty(specMap.get(data.specialty()));
       member.setProfileImage(imageRepo.getProfileImageByIdImage((long) ((i % 20) + 1)));
       member.setTeam(team);
+
       team.getMembers().add(member);
       member = memberRepo.save(member);
 
@@ -134,6 +146,17 @@ public final class InitializerUtils {
         teamRepo.save(team);
       }
     }
+    return createdTeams;
+  }
+  /**
+   * Automatically sets the lineup for a filler team using all its registered members.
+   */
+  public static void setFillerLineup(Match match, Team team, MatchLineupRepository matchLineupRepo) {
+    matchLineupRepo.findByMatchAndTeam(match, team).ifPresent(lineup -> {
+      // We take all members registered to the team and put them in the lineup
+      lineup.replaceLineup(new HashSet<>(team.getMembers()));
+      matchLineupRepo.save(lineup);
+    });
   }
 
   /**

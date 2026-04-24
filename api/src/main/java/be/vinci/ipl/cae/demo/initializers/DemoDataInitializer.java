@@ -16,6 +16,7 @@ import be.vinci.ipl.cae.demo.repositories.ProfileImageRepository;
 import be.vinci.ipl.cae.demo.repositories.SpecialtyRepository;
 import be.vinci.ipl.cae.demo.repositories.TeamRepository;
 import be.vinci.ipl.cae.demo.repositories.TournamentRepository;
+import jakarta.persistence.criteria.CriteriaBuilder.In;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -47,12 +48,12 @@ public class DemoDataInitializer implements CommandLineRunner {
   /**
    * Demo data Initializer constructor.
    *
-   * @param memberRepo member repository.
-   * @param teamRepo team repository
-   * @param specRepo specialty repository
-   * @param imageRepo image repository
-   * @param tournamentRepo tournament repository
-   * @param matchRepo match repository
+   * @param memberRepo      member repository.
+   * @param teamRepo        team repository
+   * @param specRepo        specialty repository
+   * @param imageRepo       image repository
+   * @param tournamentRepo  tournament repository
+   * @param matchRepo       match repository
    * @param matchLineupRepo matchlineup repository
    */
   public DemoDataInitializer(
@@ -209,11 +210,111 @@ public class DemoDataInitializer implements CommandLineRunner {
             false,
             "TEAM_DELTA")};
 
+    MemberMockData[] fillerTeamMembers = {// TEAM: Primus Squad (Team 1)
+        new MemberMockData("p1@mail.com", "Uno", "exécuteur", "2025-10-01", false, true,
+            "Primus Squad"),
+        new MemberMockData("p2@mail.com", "Alpha-One", "tacticien", "2025-10-01", false, false,
+            "Primus Squad"),
+        new MemberMockData("p3@mail.com", "Lead-1", "guérisseur", "2025-10-01", false, false,
+            "Primus Squad"),
+        new MemberMockData("p4@mail.com", "First-Step", "gardien", "2025-10-01", false, false,
+            "Primus Squad"),
+
+// TEAM: Secundus Force (Team 2)
+        new MemberMockData("s1@mail.com", "Duo", "exécuteur", "2025-10-01", false, true,
+            "Secundus Force"),
+        new MemberMockData("s2@mail.com", "Dual-Core", "architecte", "2025-10-01", false, false,
+            "Secundus Force"),
+        new MemberMockData("s3@mail.com", "Binary", "tacticien", "2025-10-01", false, false,
+            "Secundus Force"),
+        new MemberMockData("s4@mail.com", "Second-Strike", "catalyseur", "2025-10-01", false, false,
+            "Secundus Force"),
+
+// TEAM: Tertius Alliance (Team 3)
+        new MemberMockData("t1@mail.com", "Trio", "perturbateur", "2025-10-01", false, true,
+            "Tertius Alliance"),
+        new MemberMockData("t2@mail.com", "Trident", "exécuteur", "2025-10-01", false, false,
+            "Tertius Alliance"),
+        new MemberMockData("t3@mail.com", "Triple-Threat", "gardien", "2025-10-01", false, false,
+            "Tertius Alliance"),
+        new MemberMockData("t4@mail.com", "Triangle", "tacticien", "2025-10-01", false, false,
+            "Tertius Alliance"),
+
+// TEAM: Quartus Legion (Team 4)
+        new MemberMockData("q1@mail.com", "Quad", "guérisseur", "2025-10-01", false, true,
+            "Quartus Legion"),
+        new MemberMockData("q2@mail.com", "Quartal", "exécuteur", "2025-10-01", false, false,
+            "Quartus Legion"),
+        new MemberMockData("q3@mail.com", "Four-Pack", "architecte", "2025-10-01", false, false,
+            "Quartus Legion"),
+        new MemberMockData("q4@mail.com", "Tetra", "catalyseur", "2025-10-01", false, false,
+            "Quartus Legion"),
+
+// TEAM: Quintus Elite (Team 5)
+        new MemberMockData("qi1@mail.com", "Penta", "perturbateur", "2025-10-01", false, true,
+            "Quintus Elite"),
+        new MemberMockData("qi2@mail.com", "Fifth-Element", "exécuteur", "2025-10-01", false, false,
+            "Quintus Elite"),
+        new MemberMockData("qi3@mail.com", "Quinary", "tacticien", "2025-10-01", false, false,
+            "Quintus Elite"),
+        new MemberMockData("qi4@mail.com", "V-Star", "gardien", "2025-10-01", false, false,
+            "Quintus Elite"),
+
+// TEAM: Sextus Division (Team 6)
+        new MemberMockData("sx1@mail.com", "Hex", "exécuteur", "2025-10-01", false, true,
+            "Sextus Division"),
+        new MemberMockData("sx2@mail.com", "Sixer", "guérisseur", "2025-10-01", false, false,
+            "Sextus Division"),
+        new MemberMockData("sx3@mail.com", "Sixtus", "architecte", "2025-10-01", false, false,
+            "Sextus Division"),
+        new MemberMockData("sx4@mail.com", "Half-Dozen", "catalyseur", "2025-10-01", false, false,
+            "Sextus Division"),
+
+// TEAM: Septimus Guard (Team 7)
+        new MemberMockData("se1@mail.com", "Seven", "tacticien", "2025-10-01", false, true,
+            "Septimus Guard"),
+        new MemberMockData("se2@mail.com", "Heptagon", "exécuteur", "2025-10-01", false, false,
+            "Septimus Guard"),
+        new MemberMockData("se3@mail.com", "Lucky-7", "gardien", "2025-10-01", false, false,
+            "Septimus Guard"),
+        new MemberMockData("se4@mail.com", "Septum", "perturbateur", "2025-10-01", false, false,
+            "Septimus Guard"),
+
+// TEAM: Octavus Clan (Team 8)
+        new MemberMockData("o1@mail.com", "Octo", "exécuteur", "2025-10-01", false, true,
+            "Octavus Clan"),
+        new MemberMockData("o2@mail.com", "Eight-Ball", "guérisseur", "2025-10-01", false, false,
+            "Octavus Clan"),
+        new MemberMockData("o3@mail.com", "Octane", "tacticien", "2025-10-01", false, false,
+            "Octavus Clan"),
+        new MemberMockData("o4@mail.com", "Octopus", "architecte", "2025-10-01", false, false,
+            "Octavus Clan"),
+
+// TEAM: Nonus Phalanx (Team 9)
+        new MemberMockData("n1@mail.com", "Niner", "exécuteur", "2025-10-01", false, true,
+            "Nonus Phalanx"),
+        new MemberMockData("n2@mail.com", "Cloud-9", "catalyseur", "2025-10-01", false, false,
+            "Nonus Phalanx"),
+        new MemberMockData("n3@mail.com", "Nova", "gardien", "2025-10-01", false, false,
+            "Nonus Phalanx"),
+        new MemberMockData("n4@mail.com", "Nonary", "tacticien", "2025-10-01", false, false,
+            "Nonus Phalanx"),
+
+// TEAM: Decimus Prime (Team 10)
+        new MemberMockData("d1@mail.com", "Deca", "perturbateur", "2025-10-01", false, true,
+            "Decimus Prime"),
+        new MemberMockData("d2@mail.com", "Ten-Fold", "exécuteur", "2025-10-01", false, false,
+            "Decimus Prime"),
+        new MemberMockData("d3@mail.com", "Metric", "guérisseur", "2025-10-01", false, false,
+            "Decimus Prime"),
+        new MemberMockData("d4@mail.com", "Titan-X", "gardien", "2025-10-01", false, false,
+            "Decimus Prime")};
+
     String pw = "Password1!";
     String encodedPw = new BCryptPasswordEncoder().encode(pw);
     Map<String, Team> teamMap = new HashMap<>();
 
-    InitializerUtils
+    List<Team> demoTeams = InitializerUtils
         .createMembers(
             memberDataList,
             encodedPw,
@@ -223,13 +324,15 @@ public class DemoDataInitializer implements CommandLineRunner {
             teamRepo,
             imageRepo);
 
-    List<Team> ghostTeams = new ArrayList<>();
-    for (int i = 1; i <= 15; i++) {
-      Team ghost = new Team();
-      ghost.setName("TEAM_GHOST_" + i);
-      ghost.setIsActive(true);
-      ghostTeams.add(teamRepo.save(ghost));
-    }
+    List<Team> fillerTeams = InitializerUtils
+        .createMembers(
+            fillerTeamMembers,
+            encodedPw,
+            specMap,
+            teamMap,
+            memberRepo,
+            teamRepo,
+            imageRepo);
 
     TournamentMockData[] tournamentDataList = {
         // PASSÉS (DONE)
@@ -322,7 +425,7 @@ public class DemoDataInitializer implements CommandLineRunner {
       t.getTeams().add(teamMap.get("TEAM_IOTA"));
       t.getTeams().add(teamMap.get("TEAM_OMEGA"));
       InitializerUtils
-          .completeTournamentRegistration(t, ghostTeams, data.teamCount(), tournamentRepo);
+          .completeTournamentRegistration(t, fillerTeams, data.teamCount(), tournamentRepo);
 
     }
 
@@ -340,7 +443,7 @@ public class DemoDataInitializer implements CommandLineRunner {
     InitializerUtils
         .completeTournamentRegistration(
             futureTournament,
-            ghostTeams,
+            fillerTeams,
             futureTournamentMock.teamCount(),
             tournamentRepo);
 
@@ -355,10 +458,10 @@ public class DemoDataInitializer implements CommandLineRunner {
     Team omega = teamRepo.findByName("TEAM_OMEGA");
     Team delta = teamRepo.findByName("TEAM_DELTA");
     Team iota = teamRepo.findByName("TEAM_IOTA");
-    Team ghost1 = teamRepo.findByName("TEAM_GHOST_1");
-    Team ghost2 = teamRepo.findByName("TEAM_GHOST_2");
-    Team ghost3 = teamRepo.findByName("TEAM_GHOST_3");
-    Team ghost4 = teamRepo.findByName("TEAM_GHOST_4");
+    Team fillerTeam1 = teamRepo.findByName("Primus Squad");
+    Team fillerTeam2 = teamRepo.findByName("Secundus Force");
+    Team fillerTeam3 = teamRepo.findByName("Tertius Alliance");
+    Team fillerTeam4 = teamRepo.findByName("Quartus Legion");
     // 1. Create the FINAL (nextMatch is null)
     Match finalMatch = InitializerUtils
         .createOneMatch(
@@ -396,10 +499,10 @@ public class DemoDataInitializer implements CommandLineRunner {
             matchRepo,
             matchLineupRepo);
 
-    Match g1VsIota = InitializerUtils
+    Match f1VsIota = InitializerUtils
         .createOneMatch(
             springBattle,
-            ghost1,
+            fillerTeam1,
             iota,
             1,
             deltaVsIota,
@@ -407,7 +510,7 @@ public class DemoDataInitializer implements CommandLineRunner {
             MatchStatus.PLAYED,
             matchRepo,
             matchLineupRepo);
-    matchLineupRepo.findByMatchAndTeam(g1VsIota, iota).ifPresent(lineup -> {
+    matchLineupRepo.findByMatchAndTeam(f1VsIota, iota).ifPresent(lineup -> {
       lineup
           .replaceLineup(
               Set
@@ -421,16 +524,17 @@ public class DemoDataInitializer implements CommandLineRunner {
       lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
       matchLineupRepo.save(lineup);
     });
-    matchLineupRepo.findByMatchAndTeam(g1VsIota, ghost1).ifPresent(lineup -> {
+    InitializerUtils.setFillerLineup(f1VsIota, fillerTeam1, matchLineupRepo);
+    matchLineupRepo.findByMatchAndTeam(f1VsIota, fillerTeam1).ifPresent(lineup -> {
       lineup.setScore(0);
       lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
       matchLineupRepo.save(lineup);
     });
 
-    Match g2vsdelta = InitializerUtils
+    Match f2vsdelta = InitializerUtils
         .createOneMatch(
             springBattle,
-            ghost2,
+            fillerTeam2,
             delta,
             1,
             deltaVsIota,
@@ -438,7 +542,7 @@ public class DemoDataInitializer implements CommandLineRunner {
             MatchStatus.PLAYED,
             matchRepo,
             matchLineupRepo);
-    matchLineupRepo.findByMatchAndTeam(g2vsdelta, delta).ifPresent(lineup -> {
+    matchLineupRepo.findByMatchAndTeam(f2vsdelta, delta).ifPresent(lineup -> {
       lineup
           .replaceLineup(
               Set
@@ -453,16 +557,16 @@ public class DemoDataInitializer implements CommandLineRunner {
       matchLineupRepo.save(lineup);
     });
 
-    matchLineupRepo.findByMatchAndTeam(g2vsdelta, ghost2).ifPresent(lineup -> {
+    matchLineupRepo.findByMatchAndTeam(f2vsdelta, fillerTeam2).ifPresent(lineup -> {
       lineup.setScore(2);
       lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
       matchLineupRepo.save(lineup);
     });
 
-    Match g3vsalpha = InitializerUtils
+    Match f3vsalpha = InitializerUtils
         .createOneMatch(
             springBattle,
-            ghost3,
+            fillerTeam3,
             alpha,
             1,
             omegaVsAlpha,
@@ -471,7 +575,7 @@ public class DemoDataInitializer implements CommandLineRunner {
             matchRepo,
             matchLineupRepo);
     // saving the lineup composition and score
-    matchLineupRepo.findByMatchAndTeam(g3vsalpha, alpha).ifPresent(lineup -> {
+    matchLineupRepo.findByMatchAndTeam(f3vsalpha, alpha).ifPresent(lineup -> {
       lineup
           .replaceLineup(
               Set
@@ -485,16 +589,17 @@ public class DemoDataInitializer implements CommandLineRunner {
       lineup.setWinner(true);
       matchLineupRepo.save(lineup);
     });
-    matchLineupRepo.findByMatchAndTeam(g3vsalpha, ghost3).ifPresent(lineup -> {
+    InitializerUtils.setFillerLineup(f3vsalpha, fillerTeam3, matchLineupRepo);
+    matchLineupRepo.findByMatchAndTeam(f3vsalpha, fillerTeam3).ifPresent(lineup -> {
       lineup.setScore(3);
       lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
       matchLineupRepo.save(lineup);
     });
 
-    Match g4vsomega = InitializerUtils
+    Match f4vsomega = InitializerUtils
         .createOneMatch(
             springBattle,
-            ghost4,
+            fillerTeam4,
             omega,
             1,
             omegaVsAlpha,
@@ -503,19 +608,20 @@ public class DemoDataInitializer implements CommandLineRunner {
             matchRepo,
             matchLineupRepo);
     // saving the lineup composition and score
-    matchLineupRepo.findByMatchAndTeam(g4vsomega, omega).ifPresent(lineup -> {
+    matchLineupRepo.findByMatchAndTeam(f4vsomega, omega).ifPresent(lineup -> {
       lineup
           .replaceLineup(
               Set
                   .of(
                       memberRepo.findByEmail("tibo@mail.com"),
-                      memberRepo.findByEmail("neo@mail.com")));
+                      memberRepo.findByEmail("noa@mail.com")));
       lineup.setScore(5);
       lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
       lineup.setWinner(true);
       matchLineupRepo.save(lineup);
     });
-    matchLineupRepo.findByMatchAndTeam(g4vsomega, ghost4).ifPresent(lineup -> {
+    InitializerUtils.setFillerLineup(f4vsomega, fillerTeam4, matchLineupRepo);
+    matchLineupRepo.findByMatchAndTeam(f4vsomega, fillerTeam4).ifPresent(lineup -> {
       lineup.setScore(0);
       lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
       matchLineupRepo.save(lineup);
@@ -570,7 +676,7 @@ public class DemoDataInitializer implements CommandLineRunner {
         .createOneMatch(
             springArena25,
             omega,
-            ghost1,
+            fillerTeam1,
             2,
             null,
             LocalDateTime.of(2025, 4, 16, 16, 50),
@@ -584,7 +690,8 @@ public class DemoDataInitializer implements CommandLineRunner {
       lineup.setWinner(true);
       matchLineupRepo.save(lineup);
     });
-    matchLineupRepo.findByMatchAndTeam(tiboMatch3, ghost1).ifPresent(lineup -> {
+    InitializerUtils.setFillerLineup(tiboMatch3, fillerTeam1, matchLineupRepo);
+    matchLineupRepo.findByMatchAndTeam(tiboMatch3, fillerTeam1).ifPresent(lineup -> {
       lineup.setHasForfeited(true);
       lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
       matchLineupRepo.save(lineup);
@@ -685,7 +792,7 @@ public class DemoDataInitializer implements CommandLineRunner {
             alpha,
             3,
             null,
-            LocalDateTime.of(2026, 4, 16, 12, 0),
+            LocalDateTime.of(2026, 4, 20, 12, 0),
             MatchStatus.PLAYED,
             matchRepo,
             matchLineupRepo);
@@ -716,6 +823,122 @@ public class DemoDataInitializer implements CommandLineRunner {
       lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
       matchLineupRepo.save(lineup);
     });
+
+    // fill Vinci Easter Cup 2026 entirely
+    // --- VINCI EASTER CUP 2026 ---
+
+    // 1. FINAL
+    // 2. SEMI-FINALS
+    Match easterCupSemi1 = InitializerUtils.createOneMatch(
+        easterCup26, delta, fillerTeam2, 2, easterCupFinal,
+        LocalDateTime.of(2026, 4, 17, 18, 0),
+        MatchStatus.PLAYED, matchRepo, matchLineupRepo
+    );
+    matchLineupRepo.findByMatchAndTeam(easterCupSemi1, delta).ifPresent(lineup -> {
+      lineup.replaceLineup(
+          Set.of(memberRepo.findByEmail("oli@mail.com"), memberRepo.findByEmail("ali@mail.com"),
+              memberRepo.findByEmail("max@mail.com"), memberRepo.findByEmail("fin@mail.com")));
+      lineup.setScore(5);
+      lineup.setWinner(true);
+      lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
+      matchLineupRepo.save(lineup);
+    });
+
+    matchLineupRepo.findByMatchAndTeam(easterCupSemi1, fillerTeam2).ifPresent(lineup -> {
+      lineup.setHasForfeited(true);
+      lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
+      matchLineupRepo.save(lineup);
+    });
+
+    Match easterCupSemi2 = InitializerUtils.createOneMatch(
+        easterCup26, alpha, iota, 2, easterCupFinal,
+        LocalDateTime.of(2026, 4, 17, 12, 15),
+        MatchStatus.PLAYED, matchRepo, matchLineupRepo
+    );
+    matchLineupRepo.findByMatchAndTeam(easterCupSemi2, alpha).ifPresent(lineup -> {
+      lineup.replaceLineup(
+          Set.of(memberRepo.findByEmail("lea@mail.com"), memberRepo.findByEmail("tom@mail.com"),
+              memberRepo.findByEmail("ines@mail.com"), memberRepo.findByEmail("pol@mail.com")));
+      lineup.setWinner(true);
+      lineup.setScore(2);
+      lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
+      matchLineupRepo.save(lineup);
+    });
+    matchLineupRepo.findByMatchAndTeam(easterCupSemi2, iota).ifPresent(lineup -> {
+      lineup.replaceLineup(
+          Set.of(memberRepo.findByEmail("lisa@mail.com"), memberRepo.findByEmail("noa@mail.com"),
+              memberRepo.findByEmail("tim@mail.com"), memberRepo.findByEmail("zoe@mail.com")));
+      lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
+      lineup.setScore(1);
+      matchLineupRepo.save(lineup);
+    });
+
+    // 3. QUARTER-FINALS
+    // QF1
+    Match easterCupQF1 = InitializerUtils.createOneMatch(
+        easterCup26, delta, fillerTeam3, 1, easterCupSemi1,
+        LocalDateTime.of(2026, 4, 16, 10, 0),
+        MatchStatus.PLAYED, matchRepo, matchLineupRepo
+    );
+    matchLineupRepo.findByMatchAndTeam(easterCupQF1, delta).ifPresent(l -> {
+      l.replaceLineup(
+          Set.of(memberRepo.findByEmail("max@mail.com"), memberRepo.findByEmail("ali@mail.com"),
+              memberRepo.findByEmail("seb@mail.com"), memberRepo.findByEmail("zed@mail.com")));
+      l.setScore(5);
+      l.setWinner(true);
+      l.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
+      matchLineupRepo.save(l);
+    });
+    InitializerUtils.setFillerLineup(easterCupQF1, fillerTeam3, matchLineupRepo);
+    matchLineupRepo.findByMatchAndTeam(easterCupQF1, fillerTeam3).ifPresent(l -> {
+      l.setScore(2);
+      l.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
+      matchLineupRepo.save(l);
+    });
+
+    // QF2
+    Match easterCupQF2 = InitializerUtils.createOneMatch(
+        easterCup26, fillerTeam1, fillerTeam2, 1, easterCupSemi1,
+        LocalDateTime.of(2026, 4, 16, 14, 45),
+        MatchStatus.PLAYED, matchRepo, matchLineupRepo
+    );
+    InitializerUtils.setFillerLineup(easterCupQF2, fillerTeam2, matchLineupRepo);
+    matchLineupRepo.findByMatchAndTeam(easterCupQF2, fillerTeam2).ifPresent(l -> {
+      l.setScore(3);
+      l.setWinner(true);
+      l.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
+      matchLineupRepo.save(l);
+    });
+    InitializerUtils.setFillerLineup(easterCupQF2, fillerTeam1, matchLineupRepo);
+    matchLineupRepo.findByMatchAndTeam(easterCupQF2, fillerTeam1).ifPresent(l -> {
+      l.setScore(2);
+      l.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
+      matchLineupRepo.save(l);
+    });
+
+    // QF3
+    Match easterCupQF3 = InitializerUtils.createOneMatch(
+        easterCup26, alpha, omega, 1, easterCupSemi2,
+        LocalDateTime.of(2026, 4, 16, 16, 0),
+        MatchStatus.PLAYED, matchRepo, matchLineupRepo
+    );
+    matchLineupRepo.findByMatchAndTeam(easterCupQF3, alpha).ifPresent(lineup -> {
+      lineup.replaceLineup(
+          Set.of(memberRepo.findByEmail("lea@mail.com"), memberRepo.findByEmail("tom@mail.com"),
+              memberRepo.findByEmail("ines@mail.com"), memberRepo.findByEmail("pol@mail.com")));
+      lineup.setWinner(true);
+      lineup.setScore(4);
+      lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
+      matchLineupRepo.save(lineup);
+    });
+    matchLineupRepo.findByMatchAndTeam(easterCupQF3, omega).ifPresent(lineup -> {
+      lineup.replaceLineup(
+          Set.of(memberRepo.findByEmail("neo@mail.com"), memberRepo.findByEmail("tibo@mail.com")));
+      lineup.setScore(2);
+      lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
+      matchLineupRepo.save(lineup);
+    });
+
     System.out.println("--- DEMO DATA INITIALIZATION COMPLETE ---");
   }
 
