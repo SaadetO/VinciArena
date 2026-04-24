@@ -40,30 +40,17 @@ public final class InitializerUtils {
   /**
    * Mock version of a member.
    */
-  public record MemberMockData(
-      String email,
-      String tag,
-      String specialty,
-      String creationDate,
-      boolean isAdmin,
-      boolean isManager,
-      String teamName) {
+  public record MemberMockData(String email, String tag, String specialty, String creationDate,
+                               boolean isAdmin, boolean isManager, String teamName) {
 
   }
 
   /**
    * Mock version of a tournament.
    */
-  public record TournamentMockData(
-      String name,
-      String description,
-      String start,
-      String end,
-      String deadline,
-      int capacity,
-      int teamCount,
-      String winnerTeamName,
-      TournamentStatus status) {
+  public record TournamentMockData(String name, String description, String start, String end,
+                                   String deadline, int capacity, int teamCount,
+                                   String winnerTeamName, TournamentStatus status) {
 
   }
 
@@ -71,8 +58,7 @@ public final class InitializerUtils {
   /**
    * Initializes specialties and profile images.
    */
-  public static Map<String, Specialty> initializeBasics(
-      SpecialtyRepository specRepo,
+  public static Map<String, Specialty> initializeBasics(SpecialtyRepository specRepo,
       ProfileImageRepository imageRepo) {
     String[] specialities = {"architecte", "exécuteur", "tacticien", "gardien", "catalyseur",
         "perturbateur", "guérisseur"};
@@ -92,16 +78,14 @@ public final class InitializerUtils {
   }
 
   /**
-   * Creates members and their associated teams.
+   * Creates members and their associated teams and returns the list of created teams.
    */
-  public static void createMembers(
-      MemberMockData[] dataList,
-      String encodedPw,
-      Map<String, Specialty> specMap,
-      Map<String, Team> teamMap,
-      MemberRepository memberRepo,
-      TeamRepository teamRepo,
-      ProfileImageRepository imageRepo) {
+  public static List<Team> createMembers(MemberMockData[] dataList, String encodedPw,
+      Map<String, Specialty> specMap, Map<String, Team> teamMap, MemberRepository memberRepo,
+      TeamRepository teamRepo, ProfileImageRepository imageRepo) {
+
+    List<Team> createdTeams = new ArrayList<>();
+
     for (int i = 0; i < dataList.length; i++) {
       MemberMockData data = dataList[i];
 
@@ -109,8 +93,16 @@ public final class InitializerUtils {
         Team t = new Team();
         t.setName(name);
         t.setIsActive(true);
-        return teamRepo.save(t);
+        Team savedTeam = teamRepo.save(t);
+        createdTeams.add(savedTeam); // Add to list only when newly created
+        return savedTeam;
       });
+
+      // If the team was already in the map but not in our list yet
+      // (relevant if teams were partially created elsewhere)
+      if (!createdTeams.contains(team)) {
+        createdTeams.add(team);
+      }
 
       Member member = new Member();
       member.setEmail(data.email());
@@ -122,6 +114,7 @@ public final class InitializerUtils {
       member.setSpecialty(specMap.get(data.specialty()));
       member.setProfileImage(imageRepo.getProfileImageByIdImage((long) ((i % 20) + 1)));
       member.setTeam(team);
+
       team.getMembers().add(member);
       member = memberRepo.save(member);
 
@@ -134,16 +127,26 @@ public final class InitializerUtils {
         teamRepo.save(team);
       }
     }
+    return createdTeams;
+  }
+
+  /**
+   * Automatically sets the lineup for a filler team using all its registered members.
+   */
+  public static void setFillerLineup(Match match, Team team,
+      MatchLineupRepository matchLineupRepo) {
+    matchLineupRepo.findByMatchAndTeam(match, team).ifPresent(lineup -> {
+      // We take all members registered to the team and put them in the lineup
+      lineup.replaceLineup(new HashSet<>(team.getMembers()));
+      matchLineupRepo.save(lineup);
+    });
   }
 
   /**
    * Creates tournaments and fills them with a pool of teams.
    */
-  public static void createTournaments(
-      TournamentMockData[] dataList,
-      Map<String, Team> teamMap,
-      List<Team> poolOfTeams,
-      TournamentRepository tournamentRepo) {
+  public static void createTournaments(TournamentMockData[] dataList, Map<String, Team> teamMap,
+      List<Team> poolOfTeams, TournamentRepository tournamentRepo) {
     for (TournamentMockData data : dataList) {
       Tournament t = new Tournament();
       t.setName(data.name());
@@ -172,16 +175,13 @@ public final class InitializerUtils {
   /**
    * Completes the registration of a tournament using a pool of ghost teams.
    *
-   * @param tournament tournament
-   * @param ghostPool pool of ghost teams
+   * @param tournament       tournament
+   * @param ghostPool        pool of ghost teams
    * @param totalTeamsTarget number of registered teams
-   * @param tournamentRepo tournament repository
+   * @param tournamentRepo   tournament repository
    */
-  public static void completeTournamentRegistration(
-      Tournament tournament,
-      List<Team> ghostPool,
-      int totalTeamsTarget,
-      TournamentRepository tournamentRepo) {
+  public static void completeTournamentRegistration(Tournament tournament, List<Team> ghostPool,
+      int totalTeamsTarget, TournamentRepository tournamentRepo) {
     // Get the teams already registered (the ones you manually added)
     List<Team> registered = new ArrayList<>(tournament.getTeams());
 
@@ -205,13 +205,11 @@ public final class InitializerUtils {
   /**
    * Creates empty match lineup.
    *
-   * @param match match
-   * @param team team
+   * @param match           match
+   * @param team            team
    * @param matchLineupRepo match lineup repository
    */
-  public static void createEmptyMatchLineup(
-      Match match,
-      Team team,
+  public static void createEmptyMatchLineup(Match match, Team team,
       MatchLineupRepository matchLineupRepo) {
     MatchLineup lineup = new MatchLineup();
     lineup.setMatch(match);
@@ -223,33 +221,17 @@ public final class InitializerUtils {
   /**
    * Mock version of a match.
    */
-  public record MatchMockData(
-      String tournamentName,
-      String team1Name,
-      String team2Name,
-      int turn,
-      int year,
-      int month,
-      int day,
-      int hour,
-      int minute,
-      MatchStatus status,
-      boolean isFinal) {
+  public record MatchMockData(String tournamentName, String team1Name, String team2Name, int turn,
+                              int year, int month, int day, int hour, int minute,
+                              MatchStatus status, boolean isFinal) {
 
   }
 
   /**
    * Creates a single match and its associated empty lineups.
    */
-  public static Match createOneMatch(
-      Tournament tournament,
-      Team t1,
-      Team t2,
-      int turn,
-      Match nextMatch,
-      LocalDateTime dateHour,
-      MatchStatus status,
-      MatchRepository matchRepo,
+  public static Match createOneMatch(Tournament tournament, Team t1, Team t2, int turn,
+      Match nextMatch, LocalDateTime dateHour, MatchStatus status, MatchRepository matchRepo,
       MatchLineupRepository matchLineupRepo) {
     Match match = new Match();
     match.setTournament(tournament);
@@ -276,12 +258,8 @@ public final class InitializerUtils {
   /**
    * Sets the lineup for a specific team in a match using a list of member emails.
    */
-  public static void setTeamLineup(
-      Match match,
-      Team team,
-      String[] emails,
-      MemberRepository memberRepo,
-      MatchLineupRepository matchLineupRepo) {
+  public static void setTeamLineup(Match match, Team team, String[] emails,
+      MemberRepository memberRepo, MatchLineupRepository matchLineupRepo) {
     // This line ensures the database knows about the lineups we just created
     matchLineupRepo.flush();
 
