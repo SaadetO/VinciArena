@@ -71,9 +71,21 @@ export const MatchItem = ({ match, refetch }: MatchItemProps) => {
               {match.tournament.name}
             </Typography>
           </Stack>
-          <Stack color="text.secondary" alignItems="flex-end" flex={1} direction="row" justifyContent="flex-end" spacing={1}>
+          <Stack
+            color="text.secondary"
+            alignItems="flex-end"
+            flex={1}
+            direction="row"
+            justifyContent="flex-end"
+            spacing={1}
+          >
             {(isContested(match.team1) || isContested(match.team2)) && (
-              <Chip label="Contesté" color="error" size="small" variant="outlined" />
+              <Chip
+                label="Contesté"
+                color="error"
+                size="small"
+                variant="outlined"
+              />
             )}
             {isFinal ? (
               <Chip label="Finale" color="primary" />

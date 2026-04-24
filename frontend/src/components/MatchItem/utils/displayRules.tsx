@@ -148,10 +148,7 @@ export const getOverlayDisplay = ({
   const team2 = match.team2;
 
   const hasContestedScore = isContested(team1) || isContested(team2);
-  const canEditScores =
-    isAdmin &&
-    isInAwaitingValidation &&
-    hasContestedScore;
+  const canEditScores = isAdmin && isInAwaitingValidation && hasContestedScore;
   const displayOverlay =
     canConfirmScores ||
     canEditComposition ||
@@ -164,7 +161,8 @@ export const getOverlayDisplay = ({
     if (canEditScores) return 'Veuillez corriger les scores de ce match.';
     if (canConfirmScores)
       return 'Veuillez confirmer ou contester les scores de ce match.';
-    if (hasContestedScore) return 'Le résultat de ce match est actuellement contesté.';
+    if (hasContestedScore)
+      return 'Le résultat de ce match est actuellement contesté.';
     if (canEditComposition)
       return 'Veuillez enregistrer des joueurs pour ce match.';
   };
