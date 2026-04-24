@@ -13,7 +13,7 @@ import {
   groupTournamentsByYearAndMonth,
   TournamentFilters,
 } from '../../../utils/tournamentUtils';
-import { useTournament } from '../../../hooks/useTournaments';
+import { useTournaments } from '../../../hooks/useTournaments';
 
 const defaultTournamentsPageContext: TournamentsPageContextType = {
   filters: {
@@ -52,7 +52,7 @@ const TournamentsPageContextProvider = ({
     statuses: [],
     dates: { minDate: undefined, maxDate: undefined },
   });
-  const { getAll, isGettingTournaments } = useTournament({ setTournaments });
+  const { getAll, isGettingTournaments } = useTournaments({ setTournaments });
   const [debouncedSearch, setDebouncedSearch] = useState(filters.searchQuery);
 
   useEffect(() => {

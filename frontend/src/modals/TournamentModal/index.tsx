@@ -14,7 +14,7 @@ import { DetailsTab } from './components/DetailsTab';
 import { TournamentFormData } from '../../types';
 import dayjs from 'dayjs';
 import { useTournamentModal } from '../../hooks/useTournamentModal';
-import { useTournament } from '../../hooks/useTournaments';
+import { useTournaments } from '../../hooks/useTournaments';
 
 const defaultReg = dayjs()
   .add(1, 'week')
@@ -43,7 +43,7 @@ export const TournamentModal = () => {
 
   const [formData, setFormData] = useState<TournamentFormData>(initialFormData);
 
-  const { create, update, isCreating, isPublishing } = useTournament({
+  const { create, update, isCreating, isPublishing } = useTournaments({
     onSuccess: (t) => {
       onSuccess?.(t);
       closeModal();

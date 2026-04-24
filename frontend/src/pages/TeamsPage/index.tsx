@@ -10,7 +10,7 @@ export const TeamsPage = () => {
     <Container
       maxWidth="md"
       sx={{
-        padding: '1.5rem 0 0 0',
+        padding: '1.5rem 0 4rem 0',
       }}
     >
       <SearchBar

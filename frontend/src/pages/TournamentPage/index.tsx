@@ -1,7 +1,7 @@
 import { TournamentBanner } from './components/TournamentBanner';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { TournamentDetailsInfoDto } from '../../types';
-import { useTournament } from '../../hooks/useTournaments';
+import { useTournaments } from '../../hooks/useTournaments';
 import { useParams } from 'react-router-dom';
 import { Container, Grid2, Stack } from '@mui/material';
 import { TeamsCard } from './components/TeamsCard';
@@ -40,7 +40,7 @@ export const TournamentPage = () => {
     register,
     generateMatches,
     isGettingTournamentById,
-  } = useTournament({
+  } = useTournaments({
     setTournament,
     setError,
   });

@@ -5,7 +5,7 @@ import { SnackbarContext } from '../contexts/SnackbarContext';
 import { BrowserRouter } from 'react-router-dom';
 import { ReactNode } from 'react';
 import { ApiError, UserContextType, AuthenticatedUser } from '../types';
-import { useTournament } from '../hooks/useTournaments';
+import { useTournaments } from '../hooks/useTournaments';
 
 const mockShowSnackbar = vi.fn();
 const mockNavigate = vi.fn();
@@ -65,7 +65,7 @@ describe('useTournament basic tests', () => {
     // mock setTournaments
     const setTournaments = vi.fn();
     // init hook in a test enviroment with mocks
-    const { result } = renderHook(() => useTournament({ setTournaments }), {
+    const { result } = renderHook(() => useTournaments({ setTournaments }), {
       wrapper,
     });
 
@@ -96,7 +96,7 @@ describe('useTournament basic tests', () => {
 
     const onSuccess = vi.fn();
     // init hook
-    const { result } = renderHook(() => useTournament({ onSuccess }), {
+    const { result } = renderHook(() => useTournaments({ onSuccess }), {
       wrapper,
     });
     // act: create new tournament
@@ -118,7 +118,7 @@ describe('useTournament basic tests', () => {
 
     vi.stubGlobal('fetch', vi.fn().mockReturnValue(fetchPromise));
     // init hook
-    const { result } = renderHook(() => useTournament({ setTournament }), {
+    const { result } = renderHook(() => useTournaments({ setTournament }), {
       wrapper,
     });
 
@@ -151,7 +151,7 @@ describe('useTournament basic tests', () => {
       } as Response),
     );
 
-    const { result } = renderHook(() => useTournament({}), { wrapper });
+    const { result } = renderHook(() => useTournaments({}), { wrapper });
 
     await act(async () => {
       await result.current.register(1);
@@ -172,7 +172,7 @@ describe('useTournament basic tests', () => {
     // init hook
     const { result } = renderHook(
       () =>
-        useTournament({
+        useTournaments({
           setTournament,
           setError,
         }),
@@ -222,7 +222,7 @@ describe('useTournament basic tests', () => {
 
     const { result } = renderHook(
       () =>
-        useTournament({
+        useTournaments({
           setTournament,
           onSuccess,
         }),
@@ -280,7 +280,7 @@ describe('useTournament basic tests', () => {
 
     const { result } = renderHook(
       () =>
-        useTournament({
+        useTournaments({
           onError,
           onSuccess,
         }),
