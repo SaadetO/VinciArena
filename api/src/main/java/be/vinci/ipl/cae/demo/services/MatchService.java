@@ -1,6 +1,7 @@
 package be.vinci.ipl.cae.demo.services;
 
 import be.vinci.ipl.cae.demo.exceptions.AlreadyConfirmedException;
+import be.vinci.ipl.cae.demo.exceptions.AlreadyContestedException;
 import be.vinci.ipl.cae.demo.exceptions.ForbiddenException;
 import be.vinci.ipl.cae.demo.exceptions.InvalidMatchStatusException;
 import be.vinci.ipl.cae.demo.exceptions.MatchLineupNotFoundException;
@@ -24,7 +25,6 @@ import be.vinci.ipl.cae.demo.models.entities.MatchStatus;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.models.entities.Tournament;
-import be.vinci.ipl.cae.demo.models.entities.TournamentStatus;
 import be.vinci.ipl.cae.demo.repositories.MatchLineupRepository;
 import be.vinci.ipl.cae.demo.repositories.MatchRepository;
 import be.vinci.ipl.cae.demo.specifications.MatchSpecifications;
@@ -198,6 +198,12 @@ public class MatchService {
 
     if (lineup == null) {
       throw new MatchLineupNotFoundException("Lineup not found for match and team");
+    }
+
+    if (status == ConfirmationStatus.CONTESTED
+        && (lineup.getConfirmationStatus() == ConfirmationStatus.CONTESTED
+            || lineup.getConfirmationStatus() == ConfirmationStatus.ADMIN_LOCKED)) {
+      throw new AlreadyContestedException("Vous avez déjà contesté ce match une fois.");
     }
 
     if (!lineup.isPending()) {
@@ -459,7 +465,6 @@ public class MatchService {
       throw new MatchNotFoundException("Match not found.");
     }
 
-    Match nextMatch = match.getNextMatch();
     List<MatchLineup> lineups = match.getLineups();
 
     if (lineups == null || lineups.isEmpty()) {
@@ -480,7 +485,9 @@ public class MatchService {
     if (winnerTeam == null) {
       throw new TeamNotFoundException("No team found for the winner lineup.");
     }
-    
+
+    Match nextMatch = match.getNextMatch();
+
     if (nextMatch == null) {
       match.getTournament().setWinner(winnerTeam);
       return;
@@ -521,8 +528,8 @@ public class MatchService {
     List<MatchLineup> lineups = getLineups(match);
     applyScores(match, lineups, dto);
 
-    match.setScoreEncodedAt(LocalDateTime.now());
-    match.setStatus(MatchStatus.AWAITING_VALIDATION);
+    updateConfirmationStatusesForEncoding(lineups);
+    finalizeOrAwaitValidation(match);
 
     return mapMatchToSummaryDto(match, match.getTournament());
   }
@@ -555,15 +562,49 @@ public class MatchService {
   }
 
   /**
+   * Updates confirmation statuses of lineups during score encoding.
+   *
+   * @param lineups the match lineups
+   */
+  private void updateConfirmationStatusesForEncoding(List<MatchLineup> lineups) {
+    for (MatchLineup lineup : lineups) {
+      ConfirmationStatus currentStatus = lineup.getConfirmationStatus();
+      if (currentStatus == ConfirmationStatus.CONTESTED) {
+        lineup.setConfirmationStatus(ConfirmationStatus.ADMIN_LOCKED);
+      } else if (currentStatus == ConfirmationStatus.CONFIRMED) {
+        lineup.setConfirmationStatus(ConfirmationStatus.PENDING);
+      }
+    }
+  }
+
+  /**
+   * Finalizes the match if both teams confirmed, otherwise sets it to await validation.
+   *
+   * @param match the match
+   */
+  private void finalizeOrAwaitValidation(Match match) {
+    if (bothTeamsConfirmed(match)) {
+      match.setStatus(MatchStatus.PLAYED);
+      updateWinner(match);
+      advanceWinnerToNextRound(match);
+    } else {
+      match.setScoreEncodedAt(LocalDateTime.now());
+      match.setStatus(MatchStatus.AWAITING_VALIDATION);
+    }
+  }
+
+  /**
    * Validates that a match is in PLANNED status.
    *
    * @param match the match to validate
    * @throws InvalidMatchStatusException if the match is not in PLANNED status
    */
   private void validateMatchCanBeEncoded(Match match) {
-    if (match.getStatus() != MatchStatus.IN_PROGRESS) {
+    if (match.getStatus() != MatchStatus.IN_PROGRESS
+        && match.getStatus() != MatchStatus.AWAITING_VALIDATION) {
       throw new InvalidMatchStatusException(
-          "Le match doit être en statut IN_PROGRESS pour encoder les résultats.");
+          "Le match doit être en statut IN_PROGRESS ou AWAITING_VALIDATION "
+              + "pour encoder les résultats.");
     }
   }
 

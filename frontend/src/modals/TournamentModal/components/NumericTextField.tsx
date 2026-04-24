@@ -60,7 +60,6 @@ export const NumericTextField = ({
   onChange,
   min = 2,
   max,
-  placeholder,
   fullWidth = true,
   required,
 }: NumericTextFieldProps) => {
@@ -85,9 +84,8 @@ export const NumericTextField = ({
   return (
     <StyledNumericTextField
       fullWidth={fullWidth}
-      value={value || ''}
+      value={value}
       onChange={handleInputChange}
-      placeholder={placeholder}
       type="number"
       required={required}
       slotProps={{

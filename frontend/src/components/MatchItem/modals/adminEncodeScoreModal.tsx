@@ -1,5 +1,5 @@
 import { MatchSummaryDto, ModalConfig } from '../../../types';
-import { AdminEncodeScoreModalContent } from './components/AdminEncodeScoreModalContent';
+import { AdminEncodeScoreModalContent } from './AdminEncodeScoreModalContent';
 
 export const adminEncodeScoreModal = ({
   match,

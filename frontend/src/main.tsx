@@ -80,11 +80,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <SnackbarProvider>
-          <ModalContextProvider>
-            <UserContextProvider>
+          <UserContextProvider>
+            <ModalContextProvider>
               <RouterProvider router={router} />
-            </UserContextProvider>
-          </ModalContextProvider>
+            </ModalContextProvider>
+          </UserContextProvider>
         </SnackbarProvider>
       </ThemeProvider>
     </LocalizationProvider>

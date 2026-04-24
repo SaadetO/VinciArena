@@ -30,7 +30,7 @@ export const VersusItem = ({ match }: VersusItemProps) => {
           matchTeam={match.team1}
           isFinal={isFinal}
           isForfeit={isForfeit}
-          matchDate={match.dateHour}
+          match={match}
           authenticatedUser={authenticatedUser}
         />
         {showScoresSection && (
@@ -68,7 +68,7 @@ export const VersusItem = ({ match }: VersusItemProps) => {
           matchTeam={match.team2}
           isFinal={isFinal}
           isForfeit={isForfeit}
-          matchDate={match.dateHour}
+          match={match}
           authenticatedUser={authenticatedUser}
         />
       </Grid2>
@@ -80,13 +80,13 @@ const TeamItem = ({
   matchTeam,
   isFinal,
   isForfeit,
-  matchDate,
+  match,
   authenticatedUser,
 }: {
   matchTeam: MatchSummaryDto['team1'] | MatchSummaryDto['team2'];
   isFinal: boolean;
   isForfeit: boolean;
-  matchDate: string;
+  match: MatchSummaryDto;
   authenticatedUser: MaybeAuthenticatedUser;
 }) => {
   if (!matchTeam?.idTeam || !matchTeam?.name)
@@ -99,7 +99,7 @@ const TeamItem = ({
   return (
     <TeamLineupHover
       team={matchTeam}
-      matchDate={matchDate}
+      matchStatus={match.status}
       authenticatedUser={authenticatedUser}
     >
       <Typography
