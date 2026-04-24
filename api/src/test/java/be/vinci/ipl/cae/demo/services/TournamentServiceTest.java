@@ -508,16 +508,15 @@ class TournamentServiceTest {
         .thenReturn(new PageImpl<>(List.of(tournament)));
 
     // Act
-    Iterable<TournamentSummaryDto> result = tournamentService.getTournaments(
-        List.of(), List.of(), List.of(), null, null, null, null);
+    Iterable<TournamentSummaryDto> result =
+        tournamentService.getTournaments(List.of(), List.of(), List.of(), null, null, null, null);
 
     List<TournamentSummaryDto> list = (List<TournamentSummaryDto>) result;
 
     // Assert
     assertAll(
         () -> assertEquals(1, list.size()),
-        () -> assertEquals("Test Tournament", list.getFirst().name())
-    );
+        () -> assertEquals("Test Tournament", list.getFirst().name()));
   }
 
   @Test
@@ -527,8 +526,10 @@ class TournamentServiceTest {
     tournament.setStartDate(LocalDate.of(2030, 1, 1));
     tournament.setEndDate(LocalDate.of(2030, 1, 10));
 
-    Match m1 = new Match(); m1.setTurn(2);
-    Match m2 = new Match(); m2.setTurn(1);
+    Match m1 = new Match();
+    m1.setTurn(2);
+    Match m2 = new Match();
+    m2.setTurn(1);
 
     List<Match> matches = new ArrayList<>(List.of(m1, m2));
 
@@ -538,8 +539,7 @@ class TournamentServiceTest {
     // Assert
     assertAll(
         () -> assertEquals(1, matches.getFirst().getTurn()),
-        () -> assertEquals(2, matches.get(1).getTurn())
-    );
+        () -> assertEquals(2, matches.get(1).getTurn()));
   }
 
   @Test
@@ -563,8 +563,7 @@ class TournamentServiceTest {
     // Assert
     assertAll(
         () -> assertEquals(MatchStatus.PLANNED, m.getStatus()),
-        () -> assertNotNull(m.getDateHour())
-    );
+        () -> assertNotNull(m.getDateHour()));
   }
 
   @Test
@@ -603,11 +602,15 @@ class TournamentServiceTest {
     tournament.setStartDate(LocalDate.of(2030, 1, 1));
     tournament.setEndDate(LocalDate.of(2030, 1, 10));
 
-    Match m1 = new Match(); m1.setTurn(1);
-    m1.setTeam1(new Team()); m1.setTeam2(new Team());
+    Match m1 = new Match();
+    m1.setTurn(1);
+    m1.setTeam1(new Team());
+    m1.setTeam2(new Team());
 
-    Match m2 = new Match(); m2.setTurn(2);
-    m2.setTeam1(new Team()); m2.setTeam2(new Team());
+    Match m2 = new Match();
+    m2.setTurn(2);
+    m2.setTeam1(new Team());
+    m2.setTeam2(new Team());
 
     List<Match> matches = new ArrayList<>();
     matches.add(m1);
@@ -619,8 +622,7 @@ class TournamentServiceTest {
     // Assert
     assertAll(
         () -> assertEquals(LocalDate.of(2030, 1, 1), m1.getDateHour().toLocalDate()),
-        () -> assertEquals(LocalDate.of(2030, 1, 2), m2.getDateHour().toLocalDate())
-    );
+        () -> assertEquals(LocalDate.of(2030, 1, 2), m2.getDateHour().toLocalDate()));
   }
 
   @Test
@@ -644,10 +646,8 @@ class TournamentServiceTest {
     assertAll(
         () -> assertThrows(
             ImpossibleTournamentException.class,
-            () -> tournamentService.scheduleMatches(matches, tournament)
-        ),
-        () -> assertEquals(TournamentStatus.CANCELLED, tournament.getStatus())
-    );
+            () -> tournamentService.scheduleMatches(matches, tournament)),
+        () -> assertEquals(TournamentStatus.CANCELLED, tournament.getStatus()));
   }
 
   @Test

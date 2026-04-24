@@ -759,10 +759,7 @@ class TeamServiceTest {
     when(memberRepository.findById(1L)).thenReturn(Optional.of(creator));
 
     // Act + Assert
-    assertThrows(
-        MemberNotInTeamException.class,
-        () -> teamService.excludeMember(team1, 1L)
-    );
+    assertThrows(MemberNotInTeamException.class, () -> teamService.excludeMember(team1, 1L));
   }
 
   @Test
@@ -781,8 +778,7 @@ class TeamServiceTest {
     // Assert
     assertAll(
         () -> assertNull(creator.getTeam()),
-        () -> assertFalse(team1.getMembers().contains(creator))
-    );
+        () -> assertFalse(team1.getMembers().contains(creator)));
 
     verify(memberRepository).save(creator);
     verify(teamRepository).save(team1);

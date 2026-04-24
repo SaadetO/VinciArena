@@ -273,8 +273,7 @@ public class TeamService {
   }
 
   /**
-   * Exclude a member from their team.
-   * Promotes manager2 to manager1 if manager1 is excluded.
+   * Exclude a member from their team. Promotes manager2 to manager1 if manager1 is excluded.
    * Deactivates the team if no manager is remaining.
    *
    * @param team the team

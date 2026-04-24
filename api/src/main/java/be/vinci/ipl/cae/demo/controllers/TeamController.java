@@ -130,8 +130,7 @@ public class TeamController {
   public void excludeMember(
       @PathVariable Long id,
       @PathVariable Long idMember,
-      @AuthenticationPrincipal Member currentMember
-  ) {
+      @AuthenticationPrincipal Member currentMember) {
     teamService.excludeMember(currentMember.getTeam(), idMember);
   }
 }
