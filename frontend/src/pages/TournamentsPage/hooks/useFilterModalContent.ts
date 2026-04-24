@@ -3,22 +3,13 @@ import { FullTeamDto, MemberSummaryDto } from '../../../types';
 import {
   TournamentFilters,
   getStatusesForTimeframe,
+  STATUS_LABELS,
 } from '../../../utils/tournamentUtils';
 import { getDurationString } from '../../../utils/date';
 import { useModalController } from '../../../hooks/useModalController';
 import { useTeams } from '../../../hooks/useTeams';
 import { useMembers } from '../../../hooks/useMembers';
 import dayjs from 'dayjs';
-
-const STATUS_LABELS: Record<string, string> = {
-  IN_PREPARATION: 'En préparation',
-  REGISTRATION_OPEN: 'Inscriptions',
-  REGISTRATION_CLOSED: 'Inscriptions closes',
-  PLANNED: 'Planifié',
-  IN_PROGRESS: 'En cours',
-  DONE: 'Terminé',
-  CANCELLED: 'Annulé',
-};
 
 const EMPTY_DATES = { minDate: undefined, maxDate: undefined };
 

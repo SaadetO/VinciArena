@@ -28,8 +28,19 @@ export const TIMEFRAME_STATUS_MAP: Record<string, string[]> = {
   future: ['REGISTRATION_OPEN', 'REGISTRATION_CLOSED', 'PLANNED'],
 };
 
+export const STATUS_LABELS: Record<string, string> = {
+  IN_PREPARATION: 'En préparation',
+  REGISTRATION_OPEN: 'Inscriptions',
+  REGISTRATION_CLOSED: 'Inscriptions closes',
+  PLANNED: 'Planifié',
+  IN_PROGRESS: 'En cours',
+  DONE: 'Terminé',
+  CANCELLED: 'Annulé',
+};
+
 /**
  * Gets the list of statuses for a given timeframe.
+ *
  * @param {string} timeFrame The timeframe to get statuses for.
  * @param {boolean} isAdmin Whether the user is an admin.
  * @return {string[]} Returns the list of statuses for a given
