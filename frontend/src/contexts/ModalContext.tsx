@@ -19,6 +19,7 @@ import {
 } from 'react';
 import { ModalConfig } from '../types';
 import { ModalControllerContext } from './ModalControllerContext';
+import { ModalScrollSx } from '../themes';
 
 interface ModalContextType {
   openModal: (config: ModalConfig) => void;
@@ -32,10 +33,14 @@ const ModalContextProvider = ({ children }: { children: ReactNode }) => {
   const [config, setConfig] = useState<ModalConfig | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [confirmDisabled, setConfirmDisabled] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [dynamicSubtitle, setDynamicSubtitle] = useState<string | null>(null);
 
   const openModal = useCallback((cfg: ModalConfig) => {
     setConfirmDisabled(cfg.confirmDisabled ?? false);
+    setLoading(cfg.loading ?? false);
     setError(null);
+    setDynamicSubtitle(null);
     setConfig(cfg);
     setOpen(true);
   }, []);
@@ -58,9 +63,11 @@ const ModalContextProvider = ({ children }: { children: ReactNode }) => {
   const modalControllerContextValue = useMemo(
     () => ({
       setConfirmDisabled,
+      setLoading,
       setError,
+      setSubtitle: setDynamicSubtitle,
     }),
-    [setConfirmDisabled, setError],
+    [setConfirmDisabled, setError, setLoading, setDynamicSubtitle],
   );
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -101,48 +108,20 @@ const ModalContextProvider = ({ children }: { children: ReactNode }) => {
             style={{ display: 'contents' }}
           >
             <DialogTitle variant="h2">{config?.title}</DialogTitle>
-            {config?.subtitle && (
+            {(dynamicSubtitle || config?.subtitle) && (
               <Typography
                 textAlign="center"
                 padding="0 2rem 1rem"
                 color="secondary"
               >
-                {config?.subtitle}
+                {dynamicSubtitle || config?.subtitle}
               </Typography>
             )}
             <Stack
               maxHeight="20rem"
-              sx={{
-                position: 'relative',
-                '&::before': {
-                  content: '""',
-                  display: 'block',
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  height: '2rem',
-                  zIndex: 100,
-                  background: (theme) =>
-                    `linear-gradient(to bottom, ${theme.palette.background.s1}, transparent)`,
-                  width: '100%',
-                  opacity: canScrollTop ? 1 : 0,
-                  pointerEvents: 'none',
-                },
-                '&::after': {
-                  content: '""',
-                  display: 'block',
-                  position: 'absolute',
-                  bottom: 0,
-                  left: 0,
-                  height: '2rem',
-                  zIndex: 100,
-                  background: (theme) =>
-                    `linear-gradient(to top, ${theme.palette.background.s1}, transparent)`,
-                  width: '100%',
-                  opacity: canScrollBottom ? 1 : 0,
-                  pointerEvents: 'none',
-                },
-              }}
+              sx={ModalScrollSx}
+              data-scrolltop={canScrollTop}
+              data-scrollbottom={canScrollBottom}
             >
               {config?.children && (
                 <DialogContent
@@ -151,6 +130,8 @@ const ModalContextProvider = ({ children }: { children: ReactNode }) => {
                   sx={{
                     maxHeight: '25rem',
                     overflowY: 'auto',
+                    paddingTop: '0.5rem',
+                    paddingBottom: '0.5rem',
                   }}
                 >
                   {config.children}
@@ -169,6 +150,7 @@ const ModalContextProvider = ({ children }: { children: ReactNode }) => {
                 variant="contained"
                 color="secondary"
                 type="button"
+                data-testid="modal-cancel-button"
                 onClick={() => {
                   config?.onCancel?.(closeModal);
                 }}
@@ -181,7 +163,9 @@ const ModalContextProvider = ({ children }: { children: ReactNode }) => {
                 color={config?.confirmColor ?? 'primary'}
                 type="submit"
                 fullWidth
+                loading={loading}
                 disabled={confirmDisabled}
+                data-testid="modal-confirm-button"
               >
                 {config?.confirmLabel ?? 'Confirmer'}
               </Button>

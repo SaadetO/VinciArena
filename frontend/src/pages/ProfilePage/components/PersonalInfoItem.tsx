@@ -1,8 +1,9 @@
 import { Avatar, Chip, Skeleton, Stack, Typography, Box } from '@mui/material';
-import { EditOutlined } from '@mui/icons-material';
+import { Pencil } from '@gravity-ui/icons';
 import { Dispatch, SetStateAction } from 'react';
 import { ProfileInfoDto, ProfilePicture } from '../../../types';
 import { useModal } from '../../../hooks/useModal';
+import { useModalController } from '../../../hooks/useModalController';
 import { useMembers } from '../../../hooks/useMembers';
 import { profilePictureModal } from '../../../modals/profilePictureModal';
 import { formatDate } from '../../../utils/date';
@@ -15,6 +16,7 @@ interface PersonalInfoItemProps {
 
 export const PersonalInfoItem = ({ user, setUser }: PersonalInfoItemProps) => {
   const { openModal } = useModal();
+  const { setLoading } = useModalController();
   const { updateAvatar } = useMembers({
     setUser,
   });
@@ -28,6 +30,7 @@ export const PersonalInfoItem = ({ user, setUser }: PersonalInfoItemProps) => {
       if (!user || !selectedImage) return;
       const previousAvatar = user.avatar;
       if (previousAvatar === selectedImage.path) return;
+      setLoading(true);
       close();
       updateAvatar(selectedImage, previousAvatar ?? '');
     };
@@ -39,6 +42,7 @@ export const PersonalInfoItem = ({ user, setUser }: PersonalInfoItemProps) => {
       <Stack direction="row" justifyContent="space-between">
         <Box
           onClick={user ? handleAvatarChange : undefined}
+          data-testid="profile-avatar-clickable"
           sx={{
             position: 'relative',
             width: '2.75rem',
@@ -57,6 +61,7 @@ export const PersonalInfoItem = ({ user, setUser }: PersonalInfoItemProps) => {
           {user ? (
             <>
               <Avatar
+                data-testid="profile-avatar-image"
                 src={user.avatar ? `/assets/avatars/${user.avatar}` : undefined}
                 sx={{
                   width: '2rem',
@@ -78,7 +83,7 @@ export const PersonalInfoItem = ({ user, setUser }: PersonalInfoItemProps) => {
                   justifyContent: 'center',
                 }}
               >
-                <EditOutlined sx={{ color: 'white', fontSize: '1.5rem' }} />
+                <Pencil style={{ color: 'white', fontSize: '1.5rem' }} />
               </Stack>
             </>
           ) : (
@@ -87,13 +92,18 @@ export const PersonalInfoItem = ({ user, setUser }: PersonalInfoItemProps) => {
         </Box>
 
         {user ? (
-          <EditMenu user={user} setUser={setUser} />
+          <EditMenu
+            user={user}
+            setUser={setUser}
+            data-testid="profile-edit-menu"
+          />
         ) : (
           <Skeleton
             variant="rounded"
             width="6.875rem"
             height="2rem"
             sx={{ borderRadius: '0.75rem' }}
+            data-testid="profile-menu-skeleton"
           />
         )}
       </Stack>
@@ -111,6 +121,7 @@ export const PersonalInfoItem = ({ user, setUser }: PersonalInfoItemProps) => {
         <Stack direction="row" spacing="0.75rem" alignItems="center">
           {user?.specialty ? (
             <Chip
+              data-testid="profile-specialty-display"
               label={
                 user.specialty.charAt(0).toUpperCase() + user.specialty.slice(1)
               }

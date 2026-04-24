@@ -44,7 +44,13 @@ class NotificationServiceTest {
     return m;
   }
 
-  private Notification createNotification(Long id, String content, Member member, boolean isRead, NotificationType type, Long idReference) {
+  private Notification createNotification(
+      Long id,
+      String content,
+      Member member,
+      boolean isRead,
+      NotificationType type,
+      Long idReference) {
     Notification n = new Notification();
     n.setIdNotification(id);
     n.setContent(content);
@@ -55,8 +61,12 @@ class NotificationServiceTest {
     return n;
   }
 
-  private void assertSavedNotification(Notification captured, Member expectedMember,
-      String expectedContent, NotificationType expectedType, Long expectedReference) {
+  private void assertSavedNotification(
+      Notification captured,
+      Member expectedMember,
+      String expectedContent,
+      NotificationType expectedType,
+      Long expectedReference) {
     assertEquals(expectedMember, captured.getMember());
     assertEquals(expectedContent, captured.getContent());
     assertEquals(expectedType, captured.getType());
@@ -95,7 +105,7 @@ class NotificationServiceTest {
   void notifyAllMembers_Success() {
     Member m1 = createMember(1L);
     Member m2 = createMember(2L);
-    when(memberRepository.findAllByIsDeletedOrderByTagAsc(false)).thenReturn(new Member[]{m1, m2});
+    when(memberRepository.findAllByIsDeletedOrderByTagAsc(false)).thenReturn(new Member[] {m1, m2});
 
     notificationService.notifyAllMembers("hi everyone", NotificationType.TOURNAMENT, 30L);
 
@@ -149,13 +159,14 @@ class NotificationServiceTest {
     long memberId = 1L;
     Member m1 = createMember(memberId);
     Notification n1 = createNotification(100L, "First Notif", m1, true, NotificationType.TEAM, 10L);
-    Notification n2 = createNotification(101L, "Second Notif", m1, false, NotificationType.MATCH, 20L);
+    Notification n2 =
+        createNotification(101L, "Second Notif", m1, false, NotificationType.MATCH, 20L);
 
     when(notificationRepository.findByMemberIdMemberOrderByIsReadAscDateTimeDesc(memberId))
         .thenReturn(List.of(n1, n2));
 
-    Iterable<NotificationDto> result = notificationService.getNotificationsByIdMember(memberId,
-        false);
+    Iterable<NotificationDto> result =
+        notificationService.getNotificationsByIdMember(memberId, false);
     List<NotificationDto> dtoList = new ArrayList<>();
     result.forEach(dtoList::add);
 

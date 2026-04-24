@@ -11,6 +11,7 @@ import { Link } from 'react-router-dom';
 import { useContext } from 'react';
 import { UserContext } from '../../../contexts/UserContext';
 import { useModal } from '../../../hooks/useModal';
+import { useModalController } from '../../../hooks/useModalController';
 import { managerModal } from '../modals/managerModal';
 import { useTeams } from '../../../hooks/useTeams';
 import { resignManagerModal } from '../modals/resignManagerModal';
@@ -24,6 +25,7 @@ export const ManagerCard = ({
 }) => {
   const { authenticatedUser } = useContext(UserContext);
   const { openModal } = useModal();
+  const { setLoading } = useModalController();
   const { promoteToManager, resignManager } = useTeams({ setTeam });
 
   const handlePromote = () => {
@@ -35,8 +37,8 @@ export const ManagerCard = ({
 
     const onConfirm = async (close: () => void) => {
       if (!selectedManager || !team) return;
+      setLoading(true);
       close();
-
       promoteToManager(team.idTeam, selectedManager);
     };
 
@@ -46,8 +48,9 @@ export const ManagerCard = ({
   const handleResign = async () => {
     const onConfirm = async (close: () => void) => {
       if (!team || team.managers.length < 2) return;
+      setLoading(true);
       close();
-      await resignManager(team.idTeam);
+      resignManager(team.idTeam);
     };
     openModal(resignManagerModal({ onConfirm }));
   };
@@ -73,6 +76,11 @@ export const ManagerCard = ({
               color="secondary"
               onClick={team.managers.length < 2 ? handlePromote : handleResign}
               sx={{ my: '-0.25rem' }}
+              data-testid={
+                team.managers.length < 2
+                  ? 'team-promote-button'
+                  : 'team-resign-button'
+              }
             >
               {team.managers.length < 2 ? 'Désigner' : 'Renoncer'}
             </Button>
@@ -82,6 +90,7 @@ export const ManagerCard = ({
         {team ? (
           team?.managers?.map((manager) => (
             <Chip
+              size="large"
               sx={{
                 cursor: 'pointer',
                 '&:hover': {
@@ -107,7 +116,7 @@ export const ManagerCard = ({
                 gap="0.5rem"
                 alignItems="center"
                 height="2.75rem"
-                padding="0 1rem 0 0.75rem"
+                padding="0 0.75rem"
                 sx={{
                   background: (theme) => theme.palette.background.s2,
                 }}

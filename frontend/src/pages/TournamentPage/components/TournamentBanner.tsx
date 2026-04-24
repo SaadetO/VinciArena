@@ -3,8 +3,8 @@ import { TournamentDetailsInfoDto } from '../../../types';
 import tournamentHeroHeader from '../../../assets/images/tournament_hero_header.jpg';
 import { TournamentStatusChip } from '../../../components/TournamentItem/components/TournamentStatusChip';
 import { TournamentDate } from '../../../components/TournamentItem/components/TournamentDate';
-import { EventBusy } from '@mui/icons-material';
-import { formatDate } from '../../../utils/date';
+import { CalendarXmark } from '@gravity-ui/icons';
+import dayjs from 'dayjs';
 
 export const TournamentBanner = ({
   tournament,
@@ -23,7 +23,7 @@ export const TournamentBanner = ({
       padding="5rem"
     >
       <Stack spacing="0.75rem" alignItems="center" direction="row">
-        <Typography variant="h1">
+        <Typography variant="h1" data-testid="tournament-banner-name">
           {tournament ? (
             tournament.name
           ) : (
@@ -37,10 +37,15 @@ export const TournamentBanner = ({
             <TournamentStatusChip status={tournament.status} />
             <Tooltip title="Date limite d'inscription" arrow>
               <Chip
+                data-testid="tournament-banner-deadline"
                 size="medium"
                 variant="text"
-                icon={<EventBusy />}
-                label={formatDate(tournament.registrationDeadline, false)}
+                icon={
+                  <CalendarXmark style={{ width: '1rem', height: '1rem' }} />
+                }
+                label={dayjs(tournament.registrationDeadline).format(
+                  'D MMMM YYYY',
+                )}
               />
             </Tooltip>
             <TournamentDate

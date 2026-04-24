@@ -30,6 +30,7 @@ export const UserItem = ({
   if (!user) {
     return (
       <ListItem
+        data-testid="admin-user-row-loading"
         sx={{
           borderRadius: '0.5rem',
           mb: '0.25rem',
@@ -58,6 +59,7 @@ export const UserItem = ({
 
   return (
     <ListItem
+      data-testid={`admin-user-row-${user.tag}`}
       key={user.id}
       sx={{
         borderRadius: '0.5rem',
@@ -73,7 +75,9 @@ export const UserItem = ({
               <Tooltip title="Bannir" placement="left" arrow>
                 <IconButton
                   size="small"
-                  onClick={() => handleBan(user.id, user.tag)}
+                  onClick={async () => {
+                    await handleBan(user.id, user.tag);
+                  }}
                   disabled={isPending || user.deleted}
                 >
                   <BlockIcon sx={{ color: 'text.secondary' }} />
@@ -97,6 +101,7 @@ export const UserItem = ({
             arrow
           >
             <Switch
+              data-testid="admin-status-switch"
               edge="end"
               checked={user.admin}
               onChange={() => !isPending && handleToggleAdmin(user)}

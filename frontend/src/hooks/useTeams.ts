@@ -4,7 +4,7 @@ import {
   ProfileInfoDto,
   TeamDetailsInfoDto,
   UserSummaryDto,
-  Team,
+  FullTeamDto,
 } from '../types';
 import { UserContext } from '../contexts/UserContext';
 import { useSnackbar } from './useSnackbar';
@@ -19,7 +19,7 @@ interface UseTeamsOptions {
       { code: number; message: string; subtitle?: string } | undefined
     >
   >;
-  setTeams?: Dispatch<SetStateAction<Team[]>>;
+  setTeams?: Dispatch<SetStateAction<FullTeamDto[]>>;
 }
 
 export const useTeams = (options?: UseTeamsOptions) => {
@@ -69,12 +69,24 @@ export const useTeams = (options?: UseTeamsOptions) => {
   );
 
   const { execute: getAll, loading: isGettingAllTeams } = useApi(
-    async () => {
-      const response = await fetch('/api/teams', {
-        headers: {
-          Authorization: authenticatedUser?.token ?? '',
+    async ({
+      isActive,
+      searchQuery,
+    }: {
+      isActive?: boolean | undefined;
+      searchQuery?: string | undefined;
+    }) => {
+      const params = new URLSearchParams();
+      if (isActive) params.append('isActive', isActive.toString());
+      if (searchQuery) params.append('searchQuery', searchQuery);
+      const response = await fetch(
+        `/api/teams${params.toString() ? '?' : ''}${params.toString()}`,
+        {
+          headers: {
+            Authorization: authenticatedUser?.token ?? '',
+          },
         },
-      });
+      );
 
       if (!response.ok)
         throw new ApiError(
@@ -96,7 +108,7 @@ export const useTeams = (options?: UseTeamsOptions) => {
     },
   );
 
-  const { execute: createTeam } = useApi(
+  const { execute: createTeam, loading: isCreatingTeam } = useApi(
     async (selectedName: string) => {
       const response = await fetch('/api/teams/', {
         method: 'POST',
@@ -205,7 +217,7 @@ export const useTeams = (options?: UseTeamsOptions) => {
     },
   );
 
-  const { execute: promoteToManager } = useApi(
+  const { execute: promoteToManager, loading: isPromotingToManager } = useApi(
     async (idTeam: number, selectedManager: UserSummaryDto) => {
       const response = await fetch(
         `/api/teams/${idTeam}/manager/${selectedManager.id}`,
@@ -286,7 +298,7 @@ export const useTeams = (options?: UseTeamsOptions) => {
     },
   );
 
-  const { execute: resignManager } = useApi(
+  const { execute: resignManager, loading: isResigningManager } = useApi(
     async (idTeam: number) => {
       const response = await fetch(`/api/teams/${idTeam}/resign`, {
         method: 'PUT',
@@ -370,6 +382,85 @@ export const useTeams = (options?: UseTeamsOptions) => {
     },
   );
 
+  const { execute: excludeMember, loading: isExcludiingMember } = useApi(
+    async (idTeam: number, selectedMEmber: UserSummaryDto) => {
+      const response = await fetch(
+        `/api/teams/${idTeam}/exclude-member/${selectedMEmber.id}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: authenticatedUser?.token ?? '',
+          },
+        },
+      );
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new ApiError('Membre introuvable.', response.status);
+        } else if (response.status === 400) {
+          throw new ApiError(
+            "Le membre n'est pas dans l'équipe.",
+            response.status,
+          );
+        } else if (response.status === 409) {
+          throw new ApiError(
+            "Désignez un autre resppnsable avant d'exclure celui-ci.",
+            response.status,
+          );
+        }
+      }
+    },
+    {
+      onOptimism: (_idTeam, selectedMEmber) => {
+        setTeam?.((prev) =>
+          prev
+            ? {
+                ...prev,
+                members: prev.members.filter((m) => m.id !== selectedMEmber.id),
+                managers:
+                  prev.managers.length > 1 &&
+                  prev.managers.includes(selectedMEmber)
+                    ? prev.managers.filter((m) => m.id !== selectedMEmber.id)
+                    : prev.managers,
+              }
+            : undefined,
+        );
+      },
+      onSuccess: () => {
+        showSnackbar({
+          message: 'Membre exclu avec succès !',
+          severity: 'success',
+        });
+      },
+      onError: (err) => {
+        const status = err instanceof ApiError ? err.status : 500;
+        const message =
+          status === 404
+            ? 'Le membre est introuvable.'
+            : status === 400
+              ? "Le membre ne fait pas ou plus partie de l'équipe."
+              : status === 409
+                ? 'Le dernier responsable de la team ne peut pas etre exclu.'
+                : "Une erreur est survenue lors de l'exclusion.";
+        showSnackbar({
+          message,
+          severity: 'error',
+        });
+      },
+      onRollback: (_idTeam, selectedMEmber) => {
+        setTeam?.((prev) =>
+          prev
+            ? {
+                ...prev,
+                members: [...prev.members, selectedMEmber],
+              }
+            : undefined,
+        );
+      },
+    },
+  );
+
   return {
     getAll,
     getById,
@@ -377,8 +468,13 @@ export const useTeams = (options?: UseTeamsOptions) => {
     quitTeam,
     promoteToManager,
     resignManager,
+    excludeMember,
     isGettingAllTeams,
     isGettingTeam,
+    isCreatingTeam,
     isQuittingTeam,
+    isPromotingToManager,
+    isResigningManager,
+    isExcludiingMember,
   };
 };

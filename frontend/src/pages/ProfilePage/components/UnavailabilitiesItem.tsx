@@ -5,12 +5,14 @@ import {
   Tooltip,
   Divider,
   Skeleton,
+  Box,
 } from '@mui/material';
-import { Add } from '@mui/icons-material';
+import { Plus } from '@gravity-ui/icons';
 import { memo } from 'react';
 import { ProfileInfoDto } from '../../../types';
 import { UnavailabilityItem } from './UnavailabilityItem';
 import { useModal } from '../../../hooks/useModal';
+import { useModalController } from '../../../hooks/useModalController';
 import { unavailabilitiesModal } from '../modals/unavailabilitiesModal';
 import { useUnavailabilities } from '../../../hooks/useUnavailabilities';
 
@@ -23,6 +25,7 @@ export const UnavailabilitiesItem = memo(
     setUser: React.Dispatch<React.SetStateAction<ProfileInfoDto | undefined>>;
   }) => {
     const { openModal } = useModal();
+    const { setLoading } = useModalController();
     const { addUnavailability } = useUnavailabilities({ setUser });
 
     const handleAddUnavailability = () => {
@@ -36,8 +39,9 @@ export const UnavailabilitiesItem = memo(
       ) => {
         selectedDates = dates;
       };
-      const onConfirm = (close: () => void) => {
+      const onConfirm = async (close: () => void) => {
         if (!selectedDates) return;
+        setLoading(true);
         close();
         addUnavailability(selectedDates);
       };
@@ -70,8 +74,11 @@ export const UnavailabilitiesItem = memo(
                 onClick={handleAddUnavailability}
                 size="small"
                 color="secondary"
+                data-testid="add-unavailability-button"
               >
-                <Add />
+                <Box display="inline-flex">
+                  <Plus />
+                </Box>
               </IconButton>
             ) : (
               <Skeleton
@@ -95,7 +102,11 @@ export const UnavailabilitiesItem = memo(
             ))
           ) : user.unavailabilities?.length === 0 ? (
             <Stack width="100%" alignItems="center" padding="1rem">
-              <Typography variant="h5" color="text.secondary">
+              <Typography
+                variant="h5"
+                color="text.secondary"
+                data-testid="no-unavailabilities-message"
+              >
                 Aucune indisponibilité pour le moment
               </Typography>
             </Stack>

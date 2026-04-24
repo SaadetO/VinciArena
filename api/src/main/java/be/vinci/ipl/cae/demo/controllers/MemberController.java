@@ -6,6 +6,7 @@ import be.vinci.ipl.cae.demo.models.dtos.ProfileDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.ProfileImage;
 import be.vinci.ipl.cae.demo.services.MemberService;
+import be.vinci.ipl.cae.demo.services.MemberService.MemberQueryStatus;
 import be.vinci.ipl.cae.demo.services.TeamService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -33,7 +35,7 @@ public class MemberController {
    * Constructor for MemberController.
    *
    * @param memberService the injected MemberService
-   * @param teamService   the injected TeamService
+   * @param teamService the injected TeamService
    */
   public MemberController(MemberService memberService, TeamService teamService) {
     this.memberService = memberService;
@@ -46,8 +48,10 @@ public class MemberController {
    * @return an array of member summaries
    */
   @GetMapping({"/", ""})
-  public MemberSummaryDto[] getAllMemberSummaries() {
-    return memberService.getAllMemberSummaries();
+  public Iterable<MemberSummaryDto> getAllMemberSummaries(
+      @RequestParam(required = false) MemberQueryStatus status,
+      @RequestParam(required = false) String searchQuery) {
+    return memberService.getAllMemberSummaries(status, searchQuery);
   }
 
   /**
@@ -56,25 +60,24 @@ public class MemberController {
    * @param currentMember the authenticated member
    * @return all members
    */
-  @PreAuthorize("isAuthenticated()")
   @GetMapping("/full")
-  public Iterable<Member> getAllMembers(@AuthenticationPrincipal Member currentMember) {
-    if (!currentMember.isAdmin()) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-    }
-    return memberService.getAllMembers();
+  @PreAuthorize("hasRole('ADMIN')")
+  public Iterable<Member> getAllMembers(
+      @AuthenticationPrincipal Member currentMember,
+      @RequestParam(required = false) MemberQueryStatus status,
+      @RequestParam(required = false) String searchQuery) {
+    return memberService.getAllMembers(status, searchQuery);
   }
 
   /**
    * Read one member's profile.
    *
-   * @param id            the member ID
+   * @param id the member ID
    * @param currentMember the authenticated member
    * @return the profile
    */
   @GetMapping("/{id}")
-  public ProfileDto readOne(@PathVariable Long id,
-      @AuthenticationPrincipal Member currentMember) {
+  public ProfileDto readOne(@PathVariable Long id, @AuthenticationPrincipal Member currentMember) {
     String authenticatedEmail = currentMember != null ? currentMember.getEmail() : null;
     ProfileDto profile = memberService.getProfile(id, authenticatedEmail);
 
@@ -88,24 +91,20 @@ public class MemberController {
   /**
    * Update password.
    *
-   * @param passwordDto   the password DTO
+   * @param passwordDto the password DTO
    * @param currentMember the authenticated member
    */
-  @PreAuthorize("isAuthenticated()")
   @PatchMapping("/me/password")
+  @PreAuthorize("isAuthenticated()")
   public void updatePassword(
       @RequestBody PasswordUpdateDto passwordDto,
       @AuthenticationPrincipal Member currentMember) {
-
-    if (passwordDto == null
-        || passwordDto.getPassword() == null
+    if (passwordDto == null || passwordDto.getPassword() == null
         || passwordDto.getPassword().trim().isEmpty()) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-          "Password cannot be empty");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password cannot be empty");
     }
 
-    boolean updated = memberService.updatePassword(currentMember,
-        passwordDto.getPassword());
+    boolean updated = memberService.updatePassword(currentMember, passwordDto.getPassword());
     if (!updated) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
@@ -114,49 +113,40 @@ public class MemberController {
   /**
    * Update avatar.
    */
-  @PreAuthorize("isAuthenticated()")
   @PatchMapping("/me/avatar")
+  @PreAuthorize("isAuthenticated()")
   public void updateAvatar(
       @RequestBody ProfileImage profileImage,
       @AuthenticationPrincipal Member currentMember) {
-
     boolean updated = memberService.updateAvatar(currentMember, profileImage);
     if (!updated) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-          "Invalid profile image");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid profile image");
     }
   }
 
   /**
    * Update specialty.
    */
-  @PreAuthorize("isAuthenticated()")
   @PatchMapping("/me/specialty")
+  @PreAuthorize("isAuthenticated()")
   public void updateSpecialty(
       @RequestBody Long specialtyId,
       @AuthenticationPrincipal Member currentMember) {
-
     boolean updated = memberService.updateSpecialty(currentMember, specialtyId);
     if (!updated) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-          "Invalid profile image");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid specialty");
     }
   }
 
   /**
    * Toggle admin.
    */
-  @PreAuthorize("isAuthenticated()")
   @PatchMapping("/{id}/admin")
-  public void toggleAdmin(@PathVariable Long id,
-      @AuthenticationPrincipal Member currentMember) {
-
-    if (!currentMember.isAdmin()) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-    }
-
+  @PreAuthorize("hasRole('ADMIN')")
+  public void toggleAdmin(@PathVariable Long id, @AuthenticationPrincipal Member currentMember) {
     if (currentMember.getIdMember().equals(id)) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST,
           "You cannot change your own admin status");
     }
 
@@ -178,17 +168,23 @@ public class MemberController {
   /**
    * Ban a member.
    *
-   * @param id            the member ID
+   * @param id the member ID
    * @param currentMember the authenticated member
    */
   @PatchMapping("/{id}/ban")
-  public void banMember(@PathVariable Long id,
-      @AuthenticationPrincipal Member currentMember) {
-
-    if (currentMember == null) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-    }
-
+  @PreAuthorize("hasRole('ADMIN')")
+  public void banMember(@PathVariable Long id, @AuthenticationPrincipal Member currentMember) {
     memberService.banMember(id, currentMember.getEmail());
+  }
+
+  /**
+   * Check if a member is the last active member of their team.
+   *
+   * @param id the ID of the member
+   * @return true if the member is the last active member, false otherwise
+   */
+  @GetMapping("/{id}/is-last")
+  public boolean isLastMember(@PathVariable Long id) {
+    return memberService.isLastMember(id);
   }
 }

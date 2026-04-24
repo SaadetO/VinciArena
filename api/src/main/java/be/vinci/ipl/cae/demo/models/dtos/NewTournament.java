@@ -1,5 +1,6 @@
 package be.vinci.ipl.cae.demo.models.dtos;
 
+import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -13,7 +14,10 @@ import java.time.LocalDateTime;
  * @param capacity nbMaxOfTeams of the tournament
  * @param registrationDeadline registrationDeadline of the tournament
  */
-public record NewTournament(String name, String description, LocalDate startDate,
-                            LocalDate endDate, int capacity,
-                            LocalDateTime registrationDeadline) {
+public record NewTournament(
+    @Size(max = 50) String name,
+    @Size(max = 255) String description,
+    LocalDate startDate,
+    LocalDate endDate, int capacity,
+    LocalDateTime registrationDeadline) {
 }

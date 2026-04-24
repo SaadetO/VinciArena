@@ -8,17 +8,20 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -27,7 +30,9 @@ import lombok.Setter;
  * Tournament table.
  */
 @Entity
-@Table(name = "tournaments")
+@Table(name = "tournaments",
+    indexes = {@Index(name = "idx_tournament_status_dates",
+        columnList = "status, start_date, registration_deadline, end_date")})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -38,10 +43,12 @@ public class Tournament {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long idTournament;
 
-  @Column(nullable = false, unique = true)
+  @Column(nullable = false, unique = true, length = 50)
+  @Size(max = 50)
   private String name;
 
-  @Column(nullable = false)
+  @Column(nullable = false, length = 255)
+  @Size(max = 255)
   private String description;
 
   @Column(nullable = false)
@@ -65,12 +72,10 @@ public class Tournament {
   private Team winner;
 
   @ManyToMany
-  @JoinTable(
-      name = "tournament_registrations",
-      joinColumns = @JoinColumn(name = "id_tournament"),
-      inverseJoinColumns = @JoinColumn(name = "id_team")
-  )
-  private Set<Team> teams = new HashSet<>();
+  @JoinTable(name = "tournament_registrations", joinColumns = @JoinColumn(name = "id_tournament"),
+      inverseJoinColumns = @JoinColumn(name = "id_team"))
+  @OrderBy("name ASC")
+  private List<Team> teams = new ArrayList<>();
 
   /**
    * Set max number of teams for the current tournament.
@@ -124,8 +129,7 @@ public class Tournament {
   public boolean registerTeam(Team team) {
     // checking dates
     LocalDateTime now = LocalDateTime.now();
-    if (this.status != TournamentStatus.REGISTRATION_OPEN
-        || !registrationDeadline.isAfter(now)) {
+    if (this.status != TournamentStatus.REGISTRATION_OPEN || !registrationDeadline.isAfter(now)) {
       return false;
     }
     // register team
@@ -137,6 +141,5 @@ public class Tournament {
     }
     return true;
   }
+
 }
-
-

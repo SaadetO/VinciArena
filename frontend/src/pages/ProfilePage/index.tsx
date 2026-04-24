@@ -1,4 +1,4 @@
-import { Container, Grid2, Stack, Typography } from '@mui/material';
+import { Container, Grid2, Stack } from '@mui/material';
 import { PersonalInfoItem } from './components/PersonalInfoItem';
 import { ProfileBanner } from './components/ProfileBanner';
 import { TeamItem } from './components/TeamItem';
@@ -10,6 +10,7 @@ import { NotFoundPage } from '../NotFoundPage';
 import { UnavailabilitiesItem } from './components/UnavailabilitiesItem';
 import { useMembers } from '../../hooks/useMembers';
 import { Divider } from '@mui/material';
+import { TournamentMatchSection } from '../../components/TournamentMatchSection';
 
 export const ProfilePage = () => {
   const { id } = useParams();
@@ -35,27 +36,16 @@ export const ProfilePage = () => {
       <Container maxWidth="lg">
         <Grid2
           container
-          spacing={3}
-          padding="1.5rem 0 4rem"
-          direction={{ xs: 'column-reverse', md: 'row' }}
+          spacing="1.5rem"
+          padding="0 0 4rem"
+          direction={{ xs: 'column-reverse', desktop: 'row' }}
           justifyContent="center"
         >
-          <Grid2 size={{ xs: 12, md: 6.5, lg: 7.5 }}>
-            <Stack spacing="1.5rem">
-              {/* menu */}
-              <Stack
-                sx={{ background: (theme) => theme.palette.background.s1 }}
-                padding="1.25rem 1rem 1rem"
-                borderRadius="1.5rem"
-              >
-                <Typography variant="h5" textAlign="center">
-                  Placeholder for match & tournament section
-                </Typography>
-              </Stack>
-            </Stack>
+          <Grid2 size={{ xs: 12, desktop: 6.5, lg: 7.5 }}>
+            <TournamentMatchSection id={idNbr} focus="member" />
           </Grid2>
           {authenticatedUser?.id === idNbr && (
-            <Grid2 size={{ xs: 12, md: 5.5, lg: 4.5 }}>
+            <Grid2 size={{ xs: 12, desktop: 5.5, lg: 4.5 }} paddingTop="1.5rem">
               <Stack
                 sx={{ background: (theme) => theme.palette.background.s1 }}
                 borderRadius="1.5rem"

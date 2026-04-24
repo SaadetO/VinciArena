@@ -1,7 +1,8 @@
-import { Check, CloseRounded } from '@mui/icons-material';
-import { createTheme, SxProps } from '@mui/material/styles';
+import { createTheme } from '@mui/material/styles';
 import { ZoomTransition } from './components/ZoomTransition';
-import { Theme } from '@emotion/react';
+import { Check, ChevronDown, Xmark } from '@gravity-ui/icons';
+import type {} from '@mui/x-date-pickers/themeAugmentation';
+import { SafeCalendarIcon } from './components/SafeCalendarIcon';
 
 declare module '@mui/material/styles' {
   interface TypeBackground {
@@ -10,6 +11,15 @@ declare module '@mui/material/styles' {
     s2: string;
     s3: string;
     s4: string;
+  }
+  interface PaletteColor {
+    secondary?: string;
+  }
+  interface SimplePaletteColorOptions {
+    secondary?: string;
+  }
+  interface BreakpointOverrides {
+    desktop: true;
   }
 }
 
@@ -58,6 +68,16 @@ const surfaceLevels = {
 const primaryColor = '#0088F6';
 
 export const theme = createTheme({
+  breakpoints: {
+    values: {
+      xs: 0,
+      sm: 600,
+      md: 900,
+      desktop: 1152,
+      lg: 1200,
+      xl: 1536,
+    },
+  },
   palette: {
     mode: 'dark',
     primary: {
@@ -72,6 +92,7 @@ export const theme = createTheme({
     },
     error: {
       main: '#EF7D7D',
+      secondary: '#DF3C3D',
     },
     divider: '#303030',
     background: {
@@ -141,6 +162,21 @@ export const theme = createTheme({
     },
   },
   components: {
+    MuiInputLabel: {
+      styleOverrides: {
+        root: {
+          position: 'static',
+          transform: 'none',
+          color: '#FFFFFF',
+          fontSize: '0.875rem',
+          lineHeight: 'calc(1.25 * 0.875rem)',
+          fontWeight: 500,
+          '& .MuiFormLabel-asterisk': {
+            color: '#DF3C3D',
+          },
+        },
+      },
+    },
     MuiTypography: {
       styleOverrides: {},
       variants: [
@@ -227,8 +263,7 @@ export const theme = createTheme({
     },
     MuiChip: {
       defaultProps: {
-        deleteIcon: <CloseRounded />,
-        size: 'large',
+        deleteIcon: <Xmark width="0.75rem" height="0.75rem" />,
       },
       styleOverrides: {
         root: {
@@ -313,7 +348,7 @@ export const theme = createTheme({
           style: {
             height: '2.75rem',
             borderRadius: '0.75rem',
-            padding: '0 1rem',
+            padding: '0 0.75rem',
           },
         },
         {
@@ -328,7 +363,7 @@ export const theme = createTheme({
           props: { variant: 'active' },
           style: {
             border: `2px solid ${primaryColor}`,
-            color: primaryColor,
+            color: primaryColor + ' !important',
           },
         },
         {
@@ -493,12 +528,32 @@ export const theme = createTheme({
         },
       },
     },
+    MuiFormHelperText: {
+      styleOverrides: {
+        root: {
+          position: 'absolute',
+          top: '100%',
+          left: 0,
+          right: 0,
+          fontSize: '0.75rem',
+          margin: '0.375rem 0.25rem 0',
+        },
+      },
+    },
+    MuiFormControl: {
+      styleOverrides: {
+        root: {
+          position: 'relative',
+        },
+      },
+    },
     MuiTextField: {
       defaultProps: {
         variant: 'outlined',
       },
       styleOverrides: {
         root: {
+          position: 'relative',
           '& .MuiButtonBase-root': {
             color: '#8C8C8C',
             height: '2rem',
@@ -510,25 +565,29 @@ export const theme = createTheme({
             backgroundColor: surfaceLevels.s3,
           },
           '& .MuiInputBase-input': {
-            height: '3rem',
-            padding: '0 1rem',
+            height: '2.25rem',
+            padding: '0 0.75rem',
             fontWeight: 'Medium',
-            fontSize: '1rem',
+            fontSize: '0.875rem',
             color: '#FFFFFF',
           },
           '& .MuiOutlinedInput-notchedOutline': {
             border: 'none',
+            borderColor: primaryColor,
+            borderWidth: '0',
+            borderStyle: 'solid',
           },
           '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline':
             {
-              border: `2px solid ${primaryColor}`,
+              borderWidth: '2px',
             },
           '& input::placeholder': {
             color: '#8C8C8C',
             opacity: 0.75,
           },
           '& textarea': {
-            padding: '0 1rem !important',
+            lineHeight: '1.25rem',
+            padding: '0 0.75rem !important',
             fontSize: '1rem',
             color: '#FFFFFF',
             '&::placeholder': {
@@ -537,7 +596,7 @@ export const theme = createTheme({
             },
           },
           '& .MuiInputBase-multiline': {
-            padding: '0.875rem 0',
+            padding: '0.5rem 0',
           },
           '& input[type="password"]': {
             fontFamily: 'monospace',
@@ -620,66 +679,89 @@ export const theme = createTheme({
       },
     },
     MuiAutocomplete: {
+      defaultProps: {
+        clearIcon: <Xmark />,
+        popupIcon: <ChevronDown />,
+        ChipProps: {
+          deleteIcon: <Xmark />,
+        },
+      },
       styleOverrides: {
         root: {
           '&.Mui-focused:has(.MuiChip-root) .MuiAutocomplete-input:not(:placeholder-shown)':
             {
               minWidth: '5rem !important',
-              padding: '0 0.375rem !important',
+              padding: '0 0.25rem !important',
             },
           '&:has(.MuiChip-root) .MuiOutlinedInput-root': {
             paddingLeft: '0.625rem',
           },
           '& .MuiOutlinedInput-root': {
-            padding: '0.375rem 3rem 0.375rem 1rem',
+            borderRadius: '0.75rem',
+            backgroundColor: surfaceLevels.s3,
+            padding: '0.5rem 2.5rem 0.5rem 0.75rem',
+            minHeight: '2.25rem',
             flexWrap: 'wrap',
-            rowGap: '0',
-            columnGap: '0.375rem',
+            gap: '0.375rem',
+            '& .MuiOutlinedInput-notchedOutline': {
+              border: 'none',
+            },
+            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+              border: '2px solid',
+              borderColor: primaryColor,
+            },
             '& .MuiAutocomplete-input': {
-              padding: '0',
-              height: 'auto',
-              minHeight: '2.25rem',
+              padding: '0 !important',
+              height: '1.25rem',
+              fontSize: '0.875rem',
+              color: '#FFFFFF',
+              boxSizing: 'border-box',
               minWidth: '0',
               flex: 1,
             },
             '& .MuiChip-root': {
               margin: 0,
               width: 'fit-content',
-              height: '1.75rem',
-              padding: '0.5rem',
+              height: '1.25rem',
+              borderRadius: '100rem',
+              padding: '0 0.5rem',
               background: surfaceLevels.s4,
-              marginTop: '0.25rem',
-              marginBottom: '0.25rem',
               color: '#FFFFFF',
+              gap: '0.25rem',
               pointerEvents: 'none',
               '& .MuiChip-avatar': {
-                width: '1.25rem',
-                height: '1.25rem',
-              },
-              '& .MuiChip-deleteIconSmall': {
+                marginRight: 0,
                 width: '1rem',
                 height: '1rem',
+              },
+              '& .MuiChip-deleteIconSmall': {
+                width: '0.75rem',
+                height: '0.75rem',
                 marginRight: '-0.25rem',
+                marginLeft: '0',
                 pointerEvents: 'auto',
                 cursor: 'pointer',
               },
             },
           },
           '& .MuiButtonBase-root': {
-            width: '2rem',
-            height: '2rem',
+            width: '1.75rem',
+            height: '1.75rem',
             borderRadius: '0.5rem',
           },
           '& .MuiAutocomplete-endAdornment': {
             minWidth: '2rem',
             width: 'fit-content',
-            right: '0.375rem',
-            '& .MuiButtonBase-root:last-child': {
-              marginRight: '0',
+            top: '50%',
+            right: '0.125rem !important',
+            transform: 'translateY(-50%)',
+            '& .MuiButtonBase-root': {
+              borderRadius: '100rem',
+              '&:last-child': {
+                marginRight: '0',
+                color: '#8C8C8C',
+              },
             },
-          },
-          '& .MuiButtonBase-root:last-child': {
-            color: '#8C8C8C',
           },
         },
         popper: {
@@ -713,12 +795,12 @@ export const theme = createTheme({
                 position: 'absolute',
                 right: '1rem',
                 top: '50%',
-                transform: 'translateY(-60%) rotate(45deg)',
-                width: '5px',
-                height: '9px',
-                border: '2px solid #FFFFFF',
-                borderTop: 'none',
-                borderLeft: 'none',
+                transform: 'translateY(-50%)',
+                width: '12px',
+                height: '12px',
+                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M13.3333 4L5.99999 11.3333L2.66666 8' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`,
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'center',
               },
             },
             '&.Mui-focused, &.Mui-focusVisible, &[aria-selected="true"].Mui-focused, &[aria-selected="true"].Mui-focusVisible':
@@ -749,6 +831,7 @@ export const theme = createTheme({
     MuiMenuItem: {
       styleOverrides: {
         root: {
+          gap: '0.625rem',
           borderRadius: '0.5rem',
           padding: '0.375rem 0.75rem',
           minHeight: '2.25rem',
@@ -853,7 +936,9 @@ export const theme = createTheme({
         disableRipple: true,
         icon: <span className="custom-checkbox" />,
         checkedIcon: (
-          <span className="custom-checkbox custom-checkbox--checked" />
+          <span className="custom-checkbox custom-checkbox--checked">
+            <Check />
+          </span>
         ),
       },
       styleOverrides: {
@@ -871,17 +956,14 @@ export const theme = createTheme({
           '& .custom-checkbox--checked': {
             backgroundColor: primaryColor,
             borderColor: primaryColor,
-            '&::after': {
-              content: '""',
-              position: 'absolute',
-              width: '5px',
-              height: '9px',
-              border: '2px solid #FFFFFF',
-              borderTop: 'none',
-              borderLeft: 'none',
-              transform: 'translate(-50%, -60%) rotate(45deg)',
-              top: '50%',
-              left: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#FFFFFF',
+            '& svg': {
+              minWidth: '16px',
+              minHeight: '16px',
+              display: 'block',
             },
           },
         },
@@ -890,40 +972,115 @@ export const theme = createTheme({
     MuiTooltip: {
       styleOverrides: {
         tooltip: {
-          backgroundColor: surfaceLevels.s2,
+          backgroundColor: surfaceLevels.s1,
           color: '#FFFFFF',
-          borderRadius: '0.75rem',
+          borderRadius: '1.5rem',
           padding: '0.25rem 0.75rem',
+          border: '1px solid',
+          borderColor: '#252525',
         },
         arrow: {
-          color: surfaceLevels.s2,
+          color: '#252525',
         },
+      },
+    },
+    MuiDatePicker: {
+      defaultProps: {
+        slots: { openPickerIcon: SafeCalendarIcon },
+        sx: (theme) => ({
+          '& .MuiPickersSectionList-root': {
+            height: '2.25rem',
+            padding: '0',
+            alignItems: 'center',
+          },
+          '& .MuiPickersInputBase-root': {
+            borderRadius: '0.75rem',
+            fontSize: '0.875rem',
+            letterSpacing: '0.25%',
+            backgroundColor: theme.palette.background.s3,
+          },
+          '& .MuiPickersOutlinedInput-notchedOutline': {
+            border: 'none',
+          },
+          '& .MuiButtonBase-root': {
+            width: '2rem',
+            height: '2rem',
+            color: theme.palette.text.secondary,
+          },
+          '& .MuiInputAdornment-root': {
+            '& svg': {
+              fontSize: '1rem',
+            },
+          },
+        }),
+      },
+    },
+    MuiDateTimePicker: {
+      defaultProps: {
+        slots: { openPickerIcon: SafeCalendarIcon },
+        sx: (theme) => ({
+          '& .MuiPickersSectionList-root': {
+            height: '2.25rem',
+            padding: '0',
+            alignItems: 'center',
+          },
+          '& .MuiPickersInputBase-root': {
+            borderRadius: '0.75rem',
+            fontSize: '0.875rem',
+            letterSpacing: '0.25%',
+            backgroundColor: theme.palette.background.s3,
+          },
+          '& .MuiPickersOutlinedInput-notchedOutline': {
+            border: 'none',
+          },
+          '& .MuiButtonBase-root': {
+            width: '2rem',
+            height: '2rem',
+            color: theme.palette.text.secondary,
+          },
+          '& .MuiInputAdornment-root': {
+            '& svg': {
+              fontSize: '1rem',
+            },
+          },
+        }),
       },
     },
   },
 });
 
-export const datePickerSx: SxProps<Theme> = {
-  '& .MuiPickersSectionList-root': {
-    height: '3rem',
-    padding: '0',
-    alignItems: 'center',
-  },
-  '& .MuiPickersInputBase-root': {
-    borderRadius: '0.75rem',
-    fontSize: '1rem',
-    letterSpacing: '0.25%',
-    backgroundColor: theme.palette.background.s3,
-  },
-  '& .MuiPickersOutlinedInput-notchedOutline': {
-    border: 'none',
-  },
-  '& .MuiButtonBase-root': {
-    width: '2rem',
+export const ModalScrollSx = {
+  position: 'relative',
+  '&::before': {
+    content: '""',
+    display: 'block',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
     height: '2rem',
-    color: theme.palette.text.secondary,
+    zIndex: 10,
+    background: `linear-gradient(to bottom, ${theme.palette.background.s1}, transparent)`,
+    pointerEvents: 'none',
+    opacity: 0,
   },
-  '& .MuiInputAdornment-root': {
-    marginRight: '0.375rem',
+  '&[data-scrollTop="true"]::before': {
+    opacity: 1,
+  },
+  '&::after': {
+    content: '""',
+    display: 'block',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: '2rem',
+    zIndex: 10,
+    background: `linear-gradient(to top, ${theme.palette.background.s1}, transparent)`,
+    pointerEvents: 'none',
+    opacity: 0,
+  },
+  '&[data-scrollBottom="true"]::after': {
+    opacity: 1,
   },
 };

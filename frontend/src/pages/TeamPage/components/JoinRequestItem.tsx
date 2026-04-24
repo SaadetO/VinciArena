@@ -3,6 +3,7 @@ import { TeamDetailsInfoDto, JoinRequestDto } from '../../../types';
 import { joinRequestRejectModal } from '../modals/joinRequestRejectModal';
 import { useJoinRequests } from '../../../hooks/useJoinRequests';
 import { useModal } from '../../../hooks/useModal';
+import { useModalController } from '../../../hooks/useModalController';
 
 export const JoinRequestItem = ({
   joinRequest,
@@ -15,6 +16,7 @@ export const JoinRequestItem = ({
     setTeam,
   });
   const { openModal } = useModal();
+  const { setLoading } = useModalController();
 
   const handleAction = async (
     status: 'ACCEPTED' | 'REJECTED',
@@ -32,9 +34,9 @@ export const JoinRequestItem = ({
       selectedReason = reason;
     };
 
-    const onConfirm = (close: () => void) => {
+    const onConfirm = async (close: () => void) => {
       if (!selectedReason) return;
-
+      setLoading(true);
       close();
       handleAction('REJECTED', selectedReason);
     };
@@ -50,6 +52,7 @@ export const JoinRequestItem = ({
         alignItems="center"
         spacing="0.5rem"
         direction="row"
+        data-testid={`join-request-item-${joinRequest.requester.tag}`}
         sx={{ background: (theme) => theme.palette.background.s2 }}
       >
         <Avatar
@@ -70,6 +73,7 @@ export const JoinRequestItem = ({
             color="secondary"
             size="small"
             disabled={isUpdatingJoinRequest}
+            data-testid="join-request-accept-button"
           >
             Accepter
           </Button>
@@ -79,6 +83,7 @@ export const JoinRequestItem = ({
             color="secondary"
             size="small"
             disabled={isUpdatingJoinRequest}
+            data-testid="join-request-deny-button"
           >
             Refuser
           </Button>

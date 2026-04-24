@@ -28,7 +28,7 @@ export const ChangeSpecialtyModalContent = ({
   }, [selectedSpecialty, onSelect]);
 
   return (
-    <Stack spacing="0.75rem">
+    <Stack spacing="0.625rem">
       <Autocomplete
         options={specialties.filter((s) => s.label !== currentSpecialty)}
         loading={isGettingSpecialties}
@@ -50,7 +50,11 @@ export const ChangeSpecialtyModalContent = ({
         renderInput={(params) => (
           <TextField
             {...params}
-            placeholder="Nouvelle spécialité"
+            inputProps={{
+              ...params.inputProps,
+              'data-testid': 'specialty-select-input', // Add this
+            }}
+            placeholder="Sélectionnez une spécialité"
             required
             autoFocus
           />

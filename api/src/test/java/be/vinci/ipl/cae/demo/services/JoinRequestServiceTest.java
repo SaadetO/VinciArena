@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -18,7 +19,6 @@ import be.vinci.ipl.cae.demo.models.entities.RequestStatus;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.repositories.JoinRequestRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
-import be.vinci.ipl.cae.demo.repositories.TeamRepository;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,7 +26,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.web.server.ResponseStatusException;
+import be.vinci.ipl.cae.demo.exceptions.*;
 
 @ExtendWith(MockitoExtension.class)
 class JoinRequestServiceTest {
@@ -35,7 +35,7 @@ class JoinRequestServiceTest {
   private JoinRequestRepository joinRequestRepository;
 
   @Mock
-  private TeamRepository teamRepository;
+  private TeamService teamService;
 
   @Mock
   private NotificationService notificationService;
@@ -63,7 +63,7 @@ class JoinRequestServiceTest {
 
   @Test
   void createJoinRequest_Valid() {
-    when(teamRepository.findById(2L)).thenReturn(Optional.of(team));
+    when(teamService.getExistingTeam(2L)).thenReturn(team);
     when(joinRequestRepository.existsByMemberAndRequestedTeamAndStatus(requester, team,
         RequestStatus.PENDING))
         .thenReturn(false);
@@ -88,12 +88,12 @@ class JoinRequestServiceTest {
 
   @Test
   void createJoinRequest_TeamNotFound() {
-    when(teamRepository.findById(2L)).thenReturn(Optional.empty());
+    when(teamService.getExistingTeam(2L)).thenThrow(new TeamNotFoundException("L'équipe demandée n'existe pas"));
 
-    ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+    TeamNotFoundException exception = assertThrows(TeamNotFoundException.class,
         () -> joinRequestService.createJoinRequest(2L, requester));
 
-    assertEquals("L'équipe demandée n'existe pas", exception.getReason());
+    assertEquals("L'équipe demandée n'existe pas", exception.getMessage());
     verify(joinRequestRepository, never()).save(any(JoinRequest.class));
   }
 
@@ -103,26 +103,27 @@ class JoinRequestServiceTest {
     anotherTeam.setIdTeam(3L);
     requester.setTeam(anotherTeam);
 
-    when(teamRepository.findById(2L)).thenReturn(Optional.of(team));
+    when(teamService.getExistingTeam(2L)).thenReturn(team);
 
-    ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+    UserAlreadyInTeamException exception = assertThrows(
+        UserAlreadyInTeamException.class,
         () -> joinRequestService.createJoinRequest(2L, requester));
 
-    assertEquals("Vous appartenez déjà à une équipe", exception.getReason());
+    assertEquals("Vous appartenez déjà à une équipe", exception.getMessage());
     verify(joinRequestRepository, never()).save(any(JoinRequest.class));
   }
 
   @Test
   void createJoinRequest_PendingRequestExists() {
-    when(teamRepository.findById(2L)).thenReturn(Optional.of(team));
+    when(teamService.getExistingTeam(2L)).thenReturn(team);
     when(joinRequestRepository.existsByMemberAndRequestedTeamAndStatus(requester, team,
         RequestStatus.PENDING))
         .thenReturn(true);
 
-    ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+    JoinRequestAlreadyExistsException exception = assertThrows(JoinRequestAlreadyExistsException.class,
         () -> joinRequestService.createJoinRequest(2L, requester));
 
-    assertEquals("Vous avez déjà une demande en attente pour cette équipe", exception.getReason());
+    assertEquals("Vous avez déjà une demande en attente pour cette équipe", exception.getMessage());
     verify(joinRequestRepository, never()).save(any(JoinRequest.class));
   }
 
@@ -145,8 +146,8 @@ class JoinRequestServiceTest {
     when(joinRequestRepository.findById(100L)).thenReturn(Optional.of(jr));
 
     // Act
-    JoinRequestDto result = joinRequestService.updateJoinRequestStatus(100L, RequestStatus.ACCEPTED,
-        null, manager);
+    JoinRequestDto result =
+        joinRequestService.updateJoinRequestStatus(100L, RequestStatus.ACCEPTED, null, manager);
 
     // Assert
     assertNotNull(result);
@@ -156,8 +157,12 @@ class JoinRequestServiceTest {
     verify(memberRepository).save(requester);
 
     // verify with type and reference
-    verify(notificationService).notifyMember(eq(requester.getIdMember()), anyString(),
-        eq(NotificationType.TEAM), eq(null));
+    verify(notificationService)
+        .notifyMember(
+            eq(requester.getIdMember()),
+            anyString(),
+            eq(NotificationType.TEAM),
+            eq(null));
 
     verify(joinRequestRepository).deleteAllByMemberAndStatus(requester, RequestStatus.PENDING);
   }
@@ -181,8 +186,8 @@ class JoinRequestServiceTest {
     when(joinRequestRepository.findById(100L)).thenReturn(Optional.of(jr));
 
     // Act
-    JoinRequestDto result = joinRequestService.updateJoinRequestStatus(100L, RequestStatus.REJECTED,
-        "Pas de place", manager);
+    JoinRequestDto result = joinRequestService
+        .updateJoinRequestStatus(100L, RequestStatus.REJECTED, "Pas de place", manager);
 
     // Assert
     assertNotNull(result);
@@ -190,8 +195,12 @@ class JoinRequestServiceTest {
     verify(joinRequestRepository).save(jr);
 
     // verify with type and reference
-    verify(notificationService).notifyMember(eq(requester.getIdMember()), anyString(),
-        eq(NotificationType.TEAM), eq(null));
+    verify(notificationService)
+        .notifyMember(
+            eq(requester.getIdMember()),
+            anyString(),
+            eq(NotificationType.TEAM),
+            eq(null));
 
     verify(memberRepository, never()).save(any(Member.class));
     verify(joinRequestRepository, never()).deleteAllByMemberAndStatus(any(), any());
@@ -214,11 +223,15 @@ class JoinRequestServiceTest {
     intruder.setIdMember(99L);
 
     when(joinRequestRepository.findById(100L)).thenReturn(Optional.of(jr));
+    doThrow(new NotManagerException("L'utilisateur n'a pas les droits de responsable."))
+        .when(teamService)
+        .requireManager(teamA, intruder);
 
     // Act & Assert
-    assertThrows(ResponseStatusException.class,
-        () -> joinRequestService.updateJoinRequestStatus(100L, RequestStatus.ACCEPTED, null,
-            intruder));
+    assertThrows(
+        NotManagerException.class,
+        () -> joinRequestService
+            .updateJoinRequestStatus(100L, RequestStatus.ACCEPTED, null, intruder));
   }
 
   @Test
@@ -238,12 +251,9 @@ class JoinRequestServiceTest {
     when(joinRequestRepository.findById(100L)).thenReturn(Optional.of(jr));
 
     // Act & Assert
-    assertThrows(ResponseStatusException.class,
-        () -> joinRequestService.updateJoinRequestStatus(
-            100L,
-            RequestStatus.REJECTED,
-            null,
-            manager
-        ));
+    assertThrows(
+        InvalidJoinRequestException.class,
+        () -> joinRequestService
+            .updateJoinRequestStatus(100L, RequestStatus.REJECTED, null, manager));
   }
 }

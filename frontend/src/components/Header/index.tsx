@@ -1,5 +1,5 @@
 import { Button, Stack, Tab, Tabs, Typography } from '@mui/material';
-import logo from '../../assets/images/Logo.svg';
+import logo from '../../assets/images/logo.svg';
 import { Link, useLocation } from 'react-router-dom';
 import { useContext } from 'react';
 import { NotificationMenu } from './components/NotificationMenu';
@@ -25,7 +25,7 @@ export const Header = () => {
         alignItems="center"
         sx={{
           background: (theme) => theme.palette.background.s1,
-          border: (theme) => `1px solid ${theme.palette.divider}`,
+          borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
         }}
       >
         <Link to="/" style={{ textDecoration: 'none', height: '100%' }}>
@@ -42,30 +42,45 @@ export const Header = () => {
         </Link>
         <Tabs
           value={
-            location.pathname === '/'
-              ? '/'
-              : location.pathname.startsWith('/teams')
-                ? '/teams'
-                : location.pathname.startsWith('/tournaments')
-                  ? '/'
-                  : false
+            location.pathname.startsWith('/teams')
+              ? '/teams'
+              : location.pathname.startsWith('/tournaments')
+                ? '/tournaments'
+                : false
           }
           sx={{ flex: 1 }}
         >
-          <Tab label="Tournois" value="/" component={Link} to="/" />
-          <Tab label="Teams" value="/teams" component={Link} to="/teams" />
+          <Tab
+            label="Tournois"
+            value="/tournaments"
+            component={Link}
+            to="/tournaments"
+            data-testid="nav-tournaments-tab"
+          />
+          <Tab
+            label="Teams"
+            value="/teams"
+            component={Link}
+            to="/teams"
+            data-testid="nav-teams-tab"
+          />
         </Tabs>
         <Stack direction="row" spacing="1.5rem">
           <Stack direction="row" spacing="1rem">
             {authenticatedUser?.admin && (
               <Stack direction="row" spacing="1rem">
-                <Button variant="contained" onClick={() => openCreateModal()}>
+                <Button
+                  variant="contained"
+                  onClick={() => openCreateModal()}
+                  data-testid="admin-create-tournament-button"
+                >
                   Créer un Tournoi
                 </Button>
                 <Button
                   variant="contained"
                   color="secondary"
                   onClick={() => setIsAdminModalOpen(true)}
+                  data-testid="admin-manage-members-button"
                 >
                   Gérer les Membres
                 </Button>
@@ -79,12 +94,18 @@ export const Header = () => {
             ) : (
               <>
                 <Link to="/auth/register">
-                  <Button variant="contained" color="secondary">
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    data-testid="header-register-button"
+                  >
                     S'Inscrire
                   </Button>
                 </Link>
                 <Link to="/auth/login">
-                  <Button variant="contained">Se Connecter</Button>
+                  <Button variant="contained" data-testid="header-login-button">
+                    Se Connecter
+                  </Button>
                 </Link>
               </>
             )}

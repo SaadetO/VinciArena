@@ -53,6 +53,7 @@ export const ProfilePictureModalContent = ({ onSelect }: Props) => {
               }}
             >
               <Avatar
+                data-testid={`avatar-option-${icon.path}`}
                 sx={{
                   width: 'calc(100% - 0.5rem)',
                   height: 'calc(100% - 0.5rem)',

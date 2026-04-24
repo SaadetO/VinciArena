@@ -24,7 +24,7 @@ export const Step1 = ({
   errors,
 }: Step1Props) => {
   return (
-    <Stack spacing="0.75rem">
+    <Stack spacing="0.625rem">
       <TextField
         fullWidth
         id="email"
@@ -37,6 +37,7 @@ export const Step1 = ({
         error={!!errors.email}
         helperText={errors.email || ''}
         required
+        inputProps={{ 'data-testid': 'register-email-input' }}
       />
       <TextField
         fullWidth
@@ -49,6 +50,7 @@ export const Step1 = ({
         error={!!errors.tag}
         helperText={errors.tag || ''}
         required
+        inputProps={{ 'data-testid': 'register-tag-input' }}
       />
       <Autocomplete
         options={specialties}
@@ -67,10 +69,14 @@ export const Step1 = ({
         renderInput={(params) => (
           <TextField
             {...params}
-            placeholder="Spécialité"
+            placeholder="Sélectionnez une spécialité"
             error={!!errors.specialtyId}
             helperText={errors.specialtyId || ''}
             required
+            inputProps={{
+              ...params.inputProps,
+              'data-testid': 'register-specialty-input',
+            }}
           />
         )}
         onChange={handleSpecialtyChange}

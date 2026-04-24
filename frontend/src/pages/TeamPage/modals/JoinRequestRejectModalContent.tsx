@@ -39,6 +39,9 @@ export const JoinRequestRejectModalContent = ({
         multiline
         rows={2}
         required
+        inputProps={{
+          'data-testid': 'reject-reason-input',
+        }}
       />
     </Stack>
   );

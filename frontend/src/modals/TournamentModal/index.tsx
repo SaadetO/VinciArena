@@ -9,12 +9,12 @@ import {
 } from '@mui/material';
 import { Tabs } from '../../components/Tabs';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { BaseTab } from './components/BaseTab';
+import { BaseTab, DESCRIPTION_MAX, NAME_MAX } from './components/BaseTab';
 import { DetailsTab } from './components/DetailsTab';
 import { TournamentFormData } from '../../types';
 import dayjs from 'dayjs';
 import { useTournamentModal } from '../../hooks/useTournamentModal';
-import { useTournament } from '../../hooks/useTournaments';
+import { useTournaments } from '../../hooks/useTournaments';
 
 const defaultReg = dayjs()
   .add(1, 'week')
@@ -43,12 +43,7 @@ export const TournamentModal = () => {
 
   const [formData, setFormData] = useState<TournamentFormData>(initialFormData);
 
-  const {
-    create,
-    update,
-    isGettingTournaments: isCreating,
-    isGettingTournamentById: isUpdating,
-  } = useTournament({
+  const { create, update, isCreating, isPublishing } = useTournaments({
     onSuccess: (t) => {
       onSuccess?.(t);
       closeModal();
@@ -58,7 +53,7 @@ export const TournamentModal = () => {
     },
   });
 
-  const isLoading = isCreating || isUpdating;
+  const isLoading = isCreating || isPublishing || !isOpen;
 
   const handleExited = () => {
     setFormData(initialFormData);
@@ -90,7 +85,12 @@ export const TournamentModal = () => {
     const missing: string[] = [];
     if (tab === 0) {
       if (!formData.name.trim()) missing.push('nom du tournoi');
+      else if (formData.name.length > NAME_MAX)
+        return `Le nom du tournoi ne peut pas dépasser ${NAME_MAX} caractères.`;
+
       if (!formData.description.trim()) missing.push('description');
+      else if (formData.description.length > DESCRIPTION_MAX)
+        return `La description ne peut pas dépasser ${DESCRIPTION_MAX} caractères.`;
     } else {
       if (!formData.startDate) missing.push('date de début');
       if (!formData.endDate) missing.push('date de fin');
@@ -222,18 +222,20 @@ export const TournamentModal = () => {
             padding: 0,
           }}
         >
-          <Stack ref={contentRef} sx={{ padding: '1rem' }}>
+          <Stack ref={contentRef} sx={{ padding: '0.75rem 1rem 1.5rem 1rem' }}>
             {value === 0 ? (
               <BaseTab
                 formData={formData}
                 onChange={handleChange}
                 error={error}
+                isCreation={!isEdit}
               />
             ) : (
               <DetailsTab
                 formData={formData}
                 onChange={handleChange}
                 error={error}
+                isCreation={!isEdit}
               />
             )}
           </Stack>

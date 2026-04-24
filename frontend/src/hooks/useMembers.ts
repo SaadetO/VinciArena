@@ -8,6 +8,7 @@ import {
   SpecialtyDto,
   MemberSummaryDto,
   ApiError,
+  MemberQueryStatus,
 } from '../types';
 import { useSnackbar } from './useSnackbar';
 
@@ -30,8 +31,17 @@ export const useMembers = (options?: UseMembersOptions) => {
   const { showSnackbar } = useSnackbar();
 
   const { execute: getAllSummaries, loading: isGettingSummaries } = useApi(
-    async () => {
-      const response = await fetch(`/api/members`, {
+    async ({
+      status,
+      searchQuery,
+    }: {
+      status?: MemberQueryStatus;
+      searchQuery?: string;
+    }) => {
+      const params = new URLSearchParams();
+      if (status) params.append('statuses', status.toString());
+      if (searchQuery) params.append('search', searchQuery);
+      const response = await fetch(`/api/members?${params.toString()}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: authenticatedUser?.token ?? '',
@@ -59,8 +69,17 @@ export const useMembers = (options?: UseMembersOptions) => {
   );
 
   const { execute: getAll, loading: isGettingUsers } = useApi(
-    async () => {
-      const response = await fetch(`/api/members/full`, {
+    async ({
+      status,
+      searchQuery,
+    }: {
+      status?: MemberQueryStatus;
+      searchQuery?: string;
+    }) => {
+      const params = new URLSearchParams();
+      if (status !== undefined) params.append('status', status);
+      if (searchQuery) params.append('searchQuery', searchQuery);
+      const response = await fetch(`/api/members/full?${params.toString()}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: authenticatedUser?.token ?? '',
@@ -120,7 +139,7 @@ export const useMembers = (options?: UseMembersOptions) => {
     },
   );
 
-  const { execute: updatePassword } = useApi(
+  const { execute: updatePassword, loading: isUpdatingPassword } = useApi(
     async (newPassword: string) => {
       const response = await fetch(`/api/members/me/password`, {
         method: 'PATCH',
@@ -157,7 +176,7 @@ export const useMembers = (options?: UseMembersOptions) => {
     },
   );
 
-  const { execute: updateAvatar } = useApi(
+  const { execute: updateAvatar, loading: isUpdatingAvatar } = useApi(
     async (avatar: ProfilePicture, previousAvatar: string) => {
       void previousAvatar;
       const response = await fetch(`/api/members/me/avatar`, {
@@ -205,7 +224,7 @@ export const useMembers = (options?: UseMembersOptions) => {
     },
   );
 
-  const { execute: updateSpecialty } = useApi(
+  const { execute: updateSpecialty, loading: isUpdatingSpecialty } = useApi(
     async (specialty: SpecialtyDto, previousSpecialty: string) => {
       void previousSpecialty;
       const response = await fetch(`/api/members/me/specialty`, {
@@ -253,7 +272,7 @@ export const useMembers = (options?: UseMembersOptions) => {
     },
   );
 
-  const { execute: toggleAdmin } = useApi(
+  const { execute: toggleAdmin, loading: isTogglingAdmin } = useApi(
     async (id: number, wasAdmin: boolean) => {
       void wasAdmin;
       const response = await fetch(`/api/members/${id}/admin`, {
@@ -305,7 +324,7 @@ export const useMembers = (options?: UseMembersOptions) => {
     },
   );
 
-  const { execute: banMember } = useApi(
+  const { execute: banMember, loading: isBanningMember } = useApi(
     async (id: number) => {
       const response = await fetch(`/api/members/${id}/ban`, {
         method: 'PATCH',
@@ -348,6 +367,20 @@ export const useMembers = (options?: UseMembersOptions) => {
     },
   );
 
+  const checkIsLastMember = async (id: number): Promise<boolean> => {
+    const response = await fetch(`/api/members/${id}/is-last`, {
+      headers: {
+        Authorization: `Bearer ${authenticatedUser?.token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Erreur lors de la vérification du membre');
+    }
+
+    return response.json();
+  };
+
   return {
     getAll,
     getById,
@@ -355,9 +388,15 @@ export const useMembers = (options?: UseMembersOptions) => {
     updateAvatar,
     updateSpecialty,
     toggleAdmin,
-    isGettingUsers,
     getAllSummaries,
-    isGettingSummaries,
     banMember,
+    isGettingUsers,
+    isGettingSummaries,
+    isUpdatingPassword,
+    isUpdatingAvatar,
+    isUpdatingSpecialty,
+    isTogglingAdmin,
+    isBanningMember,
+    checkIsLastMember,
   };
 };

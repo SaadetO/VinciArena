@@ -6,9 +6,13 @@ import { Link } from 'react-router-dom';
 
 interface TournamentItemProps {
   tournament: TournamentDto;
+  showFullDate?: boolean;
 }
 
-export const TournamentItem = ({ tournament }: TournamentItemProps) => {
+export const TournamentItem = ({
+  tournament,
+  showFullDate = false,
+}: TournamentItemProps) => {
   return (
     <Stack
       component={Link}
@@ -66,8 +70,15 @@ export const TournamentItem = ({ tournament }: TournamentItemProps) => {
         <TournamentDate
           startDate={tournament.startDate}
           endDate={tournament.endDate}
+          forceMonth={showFullDate}
         />
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          textOverflow="ellipsis"
+          noWrap
+          maxWidth="50%"
+        >
           {tournament.description}
         </Typography>
         <Stack color="text.secondary" alignItems="flex-end" flex={1}>

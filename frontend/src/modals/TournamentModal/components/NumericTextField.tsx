@@ -1,6 +1,6 @@
-import { Add, Remove } from '@mui/icons-material';
 import { IconButton, TextField, styled } from '@mui/material';
 import { theme } from '../../../themes';
+import { Minus, Plus } from '@gravity-ui/icons';
 
 const StyledNumericTextField = styled(TextField)(({ theme }) => ({
   '& .MuiInputBase-root': {
@@ -10,7 +10,7 @@ const StyledNumericTextField = styled(TextField)(({ theme }) => ({
   },
   '& .MuiInputBase-input': {
     padding: '0 1rem',
-    height: '2.75rem',
+    height: '2.25rem',
     boxSizing: 'border-box',
     '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
       WebkitAppearance: 'none',
@@ -21,7 +21,7 @@ const StyledNumericTextField = styled(TextField)(({ theme }) => ({
     },
   },
   '& .MuiInputAdornment-root': {
-    height: '2.75rem',
+    height: '2.25rem',
     maxHeight: 'none',
     margin: 0,
   },
@@ -32,9 +32,10 @@ const StyledNumericTextField = styled(TextField)(({ theme }) => ({
 
 const AdornmentButton = styled(IconButton)(
   ({ position }: { position: 'start' | 'end' }) => ({
-    minHeight: '2.75rem',
-    minWidth: '2.75rem',
+    minHeight: '2.25rem',
+    minWidth: '2.5rem',
     flexShrink: 0,
+    padding: 0,
     borderRadius:
       position === 'start' ? '0.75rem 0 0 0.75rem' : '0 0.75rem 0.75rem 0',
     borderRight:
@@ -51,6 +52,7 @@ interface NumericTextFieldProps {
   max?: number;
   placeholder?: string;
   fullWidth?: boolean;
+  required?: boolean;
 }
 
 export const NumericTextField = ({
@@ -58,8 +60,8 @@ export const NumericTextField = ({
   onChange,
   min = 2,
   max,
-  placeholder,
   fullWidth = true,
+  required,
 }: NumericTextFieldProps) => {
   const handleIncrement = () => {
     const newVal = value + 1;
@@ -82,10 +84,10 @@ export const NumericTextField = ({
   return (
     <StyledNumericTextField
       fullWidth={fullWidth}
-      value={value || ''}
+      value={value}
       onChange={handleInputChange}
-      placeholder={placeholder}
       type="number"
+      required={required}
       slotProps={{
         input: {
           startAdornment: (
@@ -94,7 +96,7 @@ export const NumericTextField = ({
               disabled={value <= min}
               position="start"
             >
-              <Remove fontSize="small" />
+              <Minus />
             </AdornmentButton>
           ),
           endAdornment: (
@@ -103,7 +105,7 @@ export const NumericTextField = ({
               disabled={max !== undefined && value >= max}
               position="end"
             >
-              <Add fontSize="small" />
+              <Plus />
             </AdornmentButton>
           ),
         },

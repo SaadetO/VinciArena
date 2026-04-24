@@ -9,7 +9,7 @@ import {
 import { NotificationDto } from '../types';
 import { useContext } from 'react';
 import { UserContext } from '../contexts/UserContext';
-import { Check } from '@mui/icons-material';
+import { Check } from '@gravity-ui/icons';
 import { formatRelativeTime } from '../utils/date';
 import { useNotifications } from '../hooks/useNotifications';
 import { NotificationContext } from '../contexts/NotificationContext';
@@ -65,6 +65,7 @@ export const NotificationItem = ({ notification }: Props) => {
                 e.stopPropagation();
                 markAsRead(notification.idNotification);
               }}
+              data-testid="notification-mark-as-read"
             >
               <Check />
             </IconButton>
