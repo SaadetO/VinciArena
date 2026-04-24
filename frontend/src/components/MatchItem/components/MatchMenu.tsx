@@ -1,4 +1,5 @@
-import { Divider, IconButton, Menu, MenuItem, Typography } from '@mui/material';
+import { Divider, IconButton, Menu, Typography } from '@mui/material';
+import { MatchMenuItem } from './MatchMenuItem';
 import {
   CircleCheck,
   CircleXmark,
@@ -76,7 +77,7 @@ export const MatchMenu = ({ match, refetch }: MatchMenuProps) => {
               Team
             </Typography>
             {showForfeit && (
-              <MenuItem
+              <MatchMenuItem
                 disabled={match.status == 'FORFEIT'}
                 onClick={() => {
                   const forfeitingTeamId = authenticatedUser?.managedTeamId;
@@ -98,21 +99,21 @@ export const MatchMenu = ({ match, refetch }: MatchMenuProps) => {
 
                   handleClose();
                 }}
-              >
-                <Flag style={{ color: theme.palette.text.secondary }} />
-                <Typography variant="h5">Déclarer Forfait</Typography>
-              </MenuItem>
+                icon={<Flag style={{ color: theme.palette.text.secondary }} />}
+                label="Déclarer Forfait"
+              />
             )}
             {showEditComposition && (
-              <MenuItem
+              <MatchMenuItem
                 onClick={() => {
                   handleEditComposition();
                   handleClose();
                 }}
-              >
-                <Persons style={{ color: theme.palette.text.secondary }} />
-                <Typography variant="h5">Modifier Composition</Typography>
-              </MenuItem>
+                icon={
+                  <Persons style={{ color: theme.palette.text.secondary }} />
+                }
+                label="Modifier Composition"
+              />
             )}
           </>
         )}
@@ -130,7 +131,7 @@ export const MatchMenu = ({ match, refetch }: MatchMenuProps) => {
             >
               Scores
             </Typography>
-            <MenuItem
+            <MatchMenuItem
               onClick={() => {
                 handleConfirmOrContestScore({
                   id: match.idMatch,
@@ -141,11 +142,12 @@ export const MatchMenu = ({ match, refetch }: MatchMenuProps) => {
                 });
                 handleClose();
               }}
-            >
-              <CircleCheck style={{ color: theme.palette.text.secondary }} />
-              <Typography variant="h5">Confirmer</Typography>
-            </MenuItem>
-            <MenuItem
+              icon={
+                <CircleCheck style={{ color: theme.palette.text.secondary }} />
+              }
+              label="Confirmer"
+            />
+            <MatchMenuItem
               onClick={() => {
                 handleConfirmOrContestScore({
                   id: match.idMatch,
@@ -156,10 +158,11 @@ export const MatchMenu = ({ match, refetch }: MatchMenuProps) => {
                 });
                 handleClose();
               }}
-            >
-              <CircleXmark style={{ color: theme.palette.text.secondary }} />
-              <Typography variant="h5">Contester</Typography>
-            </MenuItem>
+              icon={
+                <CircleXmark style={{ color: theme.palette.text.secondary }} />
+              }
+              label="Contester"
+            />
           </>
         )}
 
@@ -177,28 +180,32 @@ export const MatchMenu = ({ match, refetch }: MatchMenuProps) => {
               Administrateur
             </Typography>
             {showAdminEncode && (
-              <MenuItem
+              <MatchMenuItem
                 onClick={() => {
                   handleEncodeScore();
                   handleClose();
                 }}
-              >
-                <PencilToLine style={{ color: theme.palette.text.secondary }} />
-                <Typography variant="h5">Encoder les Scores</Typography>
-              </MenuItem>
+                icon={
+                  <PencilToLine
+                    style={{ color: theme.palette.text.secondary }}
+                  />
+                }
+                label="Encoder les Scores"
+              />
             )}
             {showAdminModify && (
-              <MenuItem
+              <MatchMenuItem
                 onClick={() => {
                   handleEditScore();
                   handleClose();
                 }}
-              >
-                <PencilToSquare
-                  style={{ color: theme.palette.text.secondary }}
-                />
-                <Typography variant="h5">Corriger les Scores</Typography>
-              </MenuItem>
+                icon={
+                  <PencilToSquare
+                    style={{ color: theme.palette.text.secondary }}
+                  />
+                }
+                label="Corriger les Scores"
+              />
             )}
           </>
         )}
