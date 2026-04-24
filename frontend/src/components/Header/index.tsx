@@ -1,5 +1,5 @@
 import { Button, Stack, Tab, Tabs, Typography } from '@mui/material';
-import logo from '../../assets/images/Logo.svg';
+import logo from '../../assets/images/logo.svg';
 import { Link, useLocation } from 'react-router-dom';
 import { useContext } from 'react';
 import { NotificationMenu } from './components/NotificationMenu';

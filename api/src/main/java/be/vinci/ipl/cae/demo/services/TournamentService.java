@@ -128,7 +128,7 @@ public class TournamentService {
    * @return the matches of the tournament
    */
   private List<MatchSummaryDto> getMatchesSummaryDto(Tournament tournament, Member currentMember) {
-    Boolean isAdmin = currentMember != null && currentMember.isAdmin();
+    boolean isAdmin = currentMember != null && currentMember.isAdmin();
 
     if (tournament.getStatus() == TournamentStatus.REGISTRATION_CLOSED && !isAdmin) {
       return Collections.emptyList();
