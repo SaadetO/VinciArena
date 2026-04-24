@@ -431,8 +431,7 @@ public class MatchServiceTest {
   @Test
   void advanceWinnerToNextRoundThrowsWhenMatchIsNull() {
     // Act + Assert
-    assertThrows(MatchNotFoundException.class,
-        () -> matchService.advanceWinnerToNextRound(null));
+    assertThrows(MatchNotFoundException.class, () -> matchService.advanceWinnerToNextRound(null));
   }
 
   @Test
@@ -441,7 +440,8 @@ public class MatchServiceTest {
     match.setLineups(List.of());
 
     // Act + Assert
-    assertThrows(MatchLineupNotFoundException.class,
+    assertThrows(
+        MatchLineupNotFoundException.class,
         () -> matchService.advanceWinnerToNextRound(match));
   }
 
@@ -468,8 +468,7 @@ public class MatchServiceTest {
     team1Lineup.setTeam(null);
 
     // Act + Assert
-    assertThrows(TeamNotFoundException.class,
-        () -> matchService.advanceWinnerToNextRound(match));
+    assertThrows(TeamNotFoundException.class, () -> matchService.advanceWinnerToNextRound(match));
   }
 
   @Test
@@ -494,8 +493,7 @@ public class MatchServiceTest {
     next.setLineups(new java.util.ArrayList<>());
     match.setNextMatch(next);
 
-    when(matchLineupService.createDefaultLineup(any(), any()))
-        .thenReturn(new MatchLineup());
+    when(matchLineupService.createDefaultLineup(any(), any())).thenReturn(new MatchLineup());
 
     // Act
     matchService.advanceWinnerToNextRound(match);
@@ -514,8 +512,7 @@ public class MatchServiceTest {
     next.setLineups(new java.util.ArrayList<>());
     match.setNextMatch(next);
 
-    when(matchLineupService.createDefaultLineup(any(), any()))
-        .thenReturn(new MatchLineup());
+    when(matchLineupService.createDefaultLineup(any(), any())).thenReturn(new MatchLineup());
 
     // Act
     matchService.advanceWinnerToNextRound(match);
@@ -535,7 +532,8 @@ public class MatchServiceTest {
     match.setNextMatch(next);
 
     // Act + Assert
-    assertThrows(NoSlotAvailableForWinnerException.class,
+    assertThrows(
+        NoSlotAvailableForWinnerException.class,
         () -> matchService.advanceWinnerToNextRound(match));
   }
 
@@ -549,8 +547,7 @@ public class MatchServiceTest {
     match.setNextMatch(next);
 
     MatchLineup created = new MatchLineup();
-    when(matchLineupService.createDefaultLineup(any(), any()))
-        .thenReturn(created);
+    when(matchLineupService.createDefaultLineup(any(), any())).thenReturn(created);
 
     // Act
     matchService.advanceWinnerToNextRound(match);
