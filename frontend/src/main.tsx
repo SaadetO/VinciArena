@@ -4,7 +4,7 @@ import './index.css';
 
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { App } from './App.tsx';
-import { HomePage } from './pages/HomePage/index.tsx';
+import { TournamentsPage } from './pages/TournamentsPage';
 import { RegisterPage } from './pages/RegisterPage/index.tsx';
 import { LoginPage } from './pages/LoginPage.tsx';
 import { UserContextProvider } from './contexts/UserContext.tsx';
@@ -23,6 +23,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import 'dayjs/locale/fr';
 import { TeamsPage } from './pages/TeamsPage/index.tsx';
+import { HomePage } from './pages/HomePage/index.tsx';
 
 dayjs.locale('fr');
 
@@ -54,9 +55,18 @@ const router = createBrowserRouter([
       },
       {
         path: 'notifications',
-        element: <NotificationsPage></NotificationsPage>,
+        element: <NotificationsPage />,
       },
-      { path: 'tournaments/:id', element: <TournamentPage /> },
+      {
+        path: 'tournaments',
+        children: [
+          {
+            path: '',
+            element: <TournamentsPage />,
+          },
+          { path: ':id', element: <TournamentPage /> },
+        ],
+      },
     ],
   },
   {

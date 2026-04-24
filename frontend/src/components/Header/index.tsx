@@ -42,21 +42,19 @@ export const Header = () => {
         </Link>
         <Tabs
           value={
-            location.pathname === '/'
-              ? '/'
-              : location.pathname.startsWith('/teams')
-                ? '/teams'
-                : location.pathname.startsWith('/tournaments')
-                  ? '/'
-                  : false
+            location.pathname.startsWith('/teams')
+              ? '/teams'
+              : location.pathname.startsWith('/tournaments')
+                ? '/tournaments'
+                : false
           }
           sx={{ flex: 1 }}
         >
           <Tab
             label="Tournois"
-            value="/"
+            value="/tournaments"
             component={Link}
-            to="/"
+            to="/tournaments"
             data-testid="nav-tournaments-tab"
           />
           <Tab

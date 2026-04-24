@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { HomePageContext } from '../contexts/HomePageContext';
+import { HomePageContext } from '../../TournamentsPage/contexts/HomePageContext';
 
 export const useHomePage = () => {
   const ctx = useContext(HomePageContext);

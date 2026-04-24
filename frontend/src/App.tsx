@@ -5,7 +5,7 @@ import { Box } from '@mui/material';
 import { NotificationProvider } from './contexts/NotificationContext';
 import { TournamentModalProvider } from './contexts/TournamentModalContext';
 import { TournamentModal } from './modals/TournamentModal';
-import { HomePageContextProvider } from './pages/HomePage/contexts/HomePageContext';
+import { HomePageContextProvider } from './pages/TournamentsPage/contexts/HomePageContext';
 
 export const App = () => {
   const mainContext: MainContext = {};
