@@ -125,7 +125,7 @@ public class TeamController {
    * @param idMember the id of the member to exclude
    * @param currentMember the authenticated member
    */
-  @PostMapping("/{id}/manager/{idMember}")
+  @PutMapping("/{id}/exclude-member/{idMember}")
   @PreAuthorize("isAuthenticated()")
   public void excludeMember(
       @PathVariable Long id,
