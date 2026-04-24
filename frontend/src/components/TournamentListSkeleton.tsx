@@ -1,6 +1,6 @@
 import { Skeleton, Stack, Typography } from '@mui/material';
 
-const TournamentItemSkeleton = () => {
+export const TournamentItemSkeleton = () => {
   return (
     <Stack
       bgcolor="background.s2"
