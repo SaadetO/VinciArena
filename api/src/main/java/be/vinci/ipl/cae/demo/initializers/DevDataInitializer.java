@@ -44,10 +44,16 @@ public class DevDataInitializer implements CommandLineRunner {
   private final MatchRepository matchRepo;
   private final MatchLineupRepository matchLineupRepo;
 
-  // Constructor Injection (Best Practice)
-  public DevDataInitializer(MemberRepository memberRepo, TeamRepository teamRepo,
-      SpecialtyRepository specRepo, ProfileImageRepository imageRepo,
-      TournamentRepository tournamentRepo, MatchRepository matchRepo,
+  /**
+   * Constructor Injection.
+   */
+  public DevDataInitializer(
+      MemberRepository memberRepo,
+      TeamRepository teamRepo,
+      SpecialtyRepository specRepo,
+      ProfileImageRepository imageRepo,
+      TournamentRepository tournamentRepo,
+      MatchRepository matchRepo,
       MatchLineupRepository matchLineupRepo) {
     this.memberRepo = memberRepo;
     this.teamRepo = teamRepo;
@@ -58,6 +64,9 @@ public class DevDataInitializer implements CommandLineRunner {
     this.matchLineupRepo = matchLineupRepo;
   }
 
+  /**
+   * Create mock data for members.
+   */
   @Override
   public void run(String... args) {
     System.out.println("--- STARTING DEV DATA INITIALIZATION ---");
@@ -244,18 +253,23 @@ public class DevDataInitializer implements CommandLineRunner {
     match2.setDateHour(LocalDateTime.now().plusDays(2).withHour(16).withMinute(30));
     match2.setStatus(MatchStatus.PLANNED);
     match2 = matchRepo.save(match2);
-    createEmptyMatchLineup(match1, alpha, matchLineupRepo);
-    createEmptyMatchLineup(match1, omega, matchLineupRepo);
+    createEmptyMatchLineup(match1, alpha);
+    createEmptyMatchLineup(match1, omega);
 
     // Match 2 slots
-    createEmptyMatchLineup(match2, iota, matchLineupRepo);
-    createEmptyMatchLineup(match2, ghost1, matchLineupRepo);
+    createEmptyMatchLineup(match2, iota);
+    createEmptyMatchLineup(match2, ghost1);
 
     System.out.println("--- DEV DATA INITIALIZATION COMPLETE ---");
   }
 
-  private void createEmptyMatchLineup(Match match, Team team,
-      MatchLineupRepository matchLineupRepo) {
+  /**
+   * Create an empty match lineup with default values.
+   *
+   * @param match the match
+   * @param team the team
+   */
+  private void createEmptyMatchLineup(Match match, Team team) {
     MatchLineup lineup = new MatchLineup();
     lineup.setMatch(match);
     lineup.setTeam(team);

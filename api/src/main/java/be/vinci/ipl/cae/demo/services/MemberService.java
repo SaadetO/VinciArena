@@ -57,6 +57,9 @@ public class MemberService {
   // Do NOT make this final or static
   private Algorithm algorithm;
 
+  /**
+   * Initialize jwt.
+   */
   @PostConstruct
   public void init() {
     // This runs only after jwtSecret is successfully pulled from .env
