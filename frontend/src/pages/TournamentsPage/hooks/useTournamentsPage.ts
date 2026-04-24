@@ -1,8 +1,11 @@
 import { useContext } from 'react';
-import { HomePageContext } from '../../TournamentsPage/contexts/HomePageContext';
+import { TournamentsPageContext } from '../../TournamentsPage/contexts/TournamentsPageContext';
 
-export const useHomePage = () => {
-  const ctx = useContext(HomePageContext);
-  if (!ctx) throw new Error('useHomePage must be used within HomePageProvider');
+export const useTournamentsPage = () => {
+  const ctx = useContext(TournamentsPageContext);
+  if (!ctx)
+    throw new Error(
+      'useTournamentsPage must be used within TournamentsPageProvider',
+    );
   return ctx;
 };

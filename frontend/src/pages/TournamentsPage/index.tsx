@@ -2,7 +2,7 @@ import { Stack, Typography, Container } from '@mui/material';
 import { TournamentYearGroup } from '../../components/TournamentYearGroup';
 import { TournamentControls } from './components/TournamentControls';
 import { TournamentListSkeleton } from '../../components/TournamentListSkeleton';
-import { useHomePage } from './hooks/useTournamentsPage';
+import { useTournamentsPage } from './hooks/useTournamentsPage';
 import { useEffect } from 'react';
 
 export const TournamentsPage = () => {
@@ -14,7 +14,7 @@ export const TournamentsPage = () => {
     isGettingTournaments,
     tournaments,
     groupedTournaments,
-  } = useHomePage();
+  } = useTournamentsPage();
 
   useEffect(() => {
     fetchWithFilters();
