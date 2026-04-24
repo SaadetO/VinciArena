@@ -1,7 +1,8 @@
 import { createTheme } from '@mui/material/styles';
 import { ZoomTransition } from './components/ZoomTransition';
-import { Calendar, Check, ChevronDown, Xmark } from '@gravity-ui/icons';
+import { Check, ChevronDown, Xmark } from '@gravity-ui/icons';
 import type {} from '@mui/x-date-pickers/themeAugmentation';
+import { SafeCalendarIcon } from './components/SafeCalendarIcon';
 
 declare module '@mui/material/styles' {
   interface TypeBackground {
@@ -362,7 +363,7 @@ export const theme = createTheme({
           props: { variant: 'active' },
           style: {
             border: `2px solid ${primaryColor}`,
-            color: primaryColor,
+            color: primaryColor + ' !important',
           },
         },
         {
@@ -830,6 +831,7 @@ export const theme = createTheme({
     MuiMenuItem: {
       styleOverrides: {
         root: {
+          gap: '0.625rem',
           borderRadius: '0.5rem',
           padding: '0.375rem 0.75rem',
           minHeight: '2.25rem',
@@ -970,19 +972,21 @@ export const theme = createTheme({
     MuiTooltip: {
       styleOverrides: {
         tooltip: {
-          backgroundColor: surfaceLevels.s2,
+          backgroundColor: surfaceLevels.s1,
           color: '#FFFFFF',
-          borderRadius: '0.75rem',
+          borderRadius: '1.5rem',
           padding: '0.25rem 0.75rem',
+          border: '1px solid',
+          borderColor: '#252525',
         },
         arrow: {
-          color: surfaceLevels.s2,
+          color: '#252525',
         },
       },
     },
     MuiDatePicker: {
       defaultProps: {
-        slots: { openPickerIcon: Calendar },
+        slots: { openPickerIcon: SafeCalendarIcon },
         sx: (theme) => ({
           '& .MuiPickersSectionList-root': {
             height: '2.25rem',
@@ -1013,7 +1017,7 @@ export const theme = createTheme({
     },
     MuiDateTimePicker: {
       defaultProps: {
-        slots: { openPickerIcon: Calendar },
+        slots: { openPickerIcon: SafeCalendarIcon },
         sx: (theme) => ({
           '& .MuiPickersSectionList-root': {
             height: '2.25rem',
@@ -1044,3 +1048,39 @@ export const theme = createTheme({
     },
   },
 });
+
+export const ModalScrollSx = {
+  position: 'relative',
+  '&::before': {
+    content: '""',
+    display: 'block',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '2rem',
+    zIndex: 10,
+    background: `linear-gradient(to bottom, ${theme.palette.background.s1}, transparent)`,
+    pointerEvents: 'none',
+    opacity: 0,
+  },
+  '&[data-scrollTop="true"]::before': {
+    opacity: 1,
+  },
+  '&::after': {
+    content: '""',
+    display: 'block',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: '2rem',
+    zIndex: 10,
+    background: `linear-gradient(to top, ${theme.palette.background.s1}, transparent)`,
+    pointerEvents: 'none',
+    opacity: 0,
+  },
+  '&[data-scrollBottom="true"]::after': {
+    opacity: 1,
+  },
+};

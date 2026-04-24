@@ -50,6 +50,10 @@ export const ChangeSpecialtyModalContent = ({
         renderInput={(params) => (
           <TextField
             {...params}
+            inputProps={{
+              ...params.inputProps,
+              'data-testid': 'specialty-select-input', // Add this
+            }}
             placeholder="Sélectionnez une spécialité"
             required
             autoFocus

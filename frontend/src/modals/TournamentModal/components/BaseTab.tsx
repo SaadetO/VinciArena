@@ -39,6 +39,7 @@ export const BaseTab = ({
         <InputLabel required={isCreation}>Description</InputLabel>
         <TextField
           placeholder="Décrivez votre tournoi"
+          data-testid="tournament-form-description"
           multiline
           rows={3}
           required
@@ -55,6 +56,7 @@ export const BaseTab = ({
       </Stack>
       {error && (
         <Alert
+          data-testid="tournament-form-error"
           severity="error"
           size="small"
           sx={{

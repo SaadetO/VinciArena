@@ -66,7 +66,11 @@ export const TeamsCard = ({
             )}
           </Typography>
           {capacity && (
-            <Typography variant="h5" color="text.secondary">
+            <Typography
+              variant="h5"
+              color="text.secondary"
+              data-testid="tournament-capacity-display"
+            >
               {teams?.length || 0}/{capacity}
             </Typography>
           )}
@@ -80,6 +84,7 @@ export const TeamsCard = ({
                 color="secondary"
                 sx={{ my: '-0.25rem' }}
                 onClick={() => onAction(!isUserTeamRegistered)}
+                data-testid="tournament-register-button"
               >
                 {isUserTeamRegistered ? 'Se retirer' : "S'inscrire"}
               </Button>

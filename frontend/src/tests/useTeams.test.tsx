@@ -77,6 +77,7 @@ describe('useTeams hook', () => {
       setError: setErrorModal,
       setConfirmDisabled: vi.fn(),
       setLoading: vi.fn(),
+      setSubtitle: vi.fn(),
     });
     vi.clearAllMocks();
   });
@@ -282,10 +283,10 @@ describe('useTeams hook', () => {
     );
 
     await act(async () => {
-      await result.current.getAll();
+      await result.current.getAll({ isActive: true });
     });
 
-    expect(fetch).toHaveBeenCalledWith('/api/teams', {
+    expect(fetch).toHaveBeenCalledWith('/api/teams?isActive=true', {
       headers: {
         Authorization: 'Bearer token',
       },
@@ -302,7 +303,7 @@ describe('useTeams hook', () => {
     );
 
     await act(async () => {
-      await result.current.getAll();
+      await result.current.getAll({ isActive: true });
     });
 
     // Check that setErrorModal from useModalController was called

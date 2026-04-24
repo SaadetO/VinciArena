@@ -1,5 +1,5 @@
-/* eslint-disable no-unused-vars */
 import { ReactNode } from 'react';
+import { TournamentFilters, YearGroup } from './utils/tournamentUtils';
 
 interface MainContext {}
 
@@ -78,6 +78,7 @@ interface AuthenticatedUser {
   tag: string;
   managedTeamId?: number;
   token: string;
+  teamId?: number;
 }
 
 interface UserSummaryDto {
@@ -89,14 +90,20 @@ interface UserSummaryDto {
 interface MemberSummaryDto {
   id: number;
   tag: string;
-  specialty: string | null;
   avatar: string | null;
+  specialty: string | null;
 }
 
 interface Team {
   idTeam: number;
   name: string;
   isActive: boolean;
+}
+
+interface FullTeamDto extends Team {
+  members: MemberSummaryDto[];
+  managerId1: number;
+  managerId2: number;
 }
 
 interface JoinRequestDto {
@@ -118,11 +125,7 @@ interface TeamDetailsInfoDto {
   joinRequests: JoinRequestDto[] | null;
 }
 
-export enum NotificationType {
-  TEAM = 'TEAM',
-  MATCH = 'MATCH',
-  TOURNAMENT = 'TOURNAMENT',
-}
+export type NotificationType = 'TEAM' | 'MATCH' | 'TOURNAMENT';
 interface NotificationDto {
   idNotification: number;
   content: string;
@@ -198,23 +201,46 @@ interface MatchTeamDto {
   score: number | null;
   isWinner: boolean;
   hasForfeited: boolean;
+  lineup?: MatchLineupDto;
+  confirmationStatus: ConfirmationStatus;
+}
+
+export type ConfirmationStatus =
+  | 'PENDING'
+  | 'CONFIRMED'
+  | 'CONTESTED'
+  | 'ADMIN_LOCKED';
+
+interface MatchLineupDto {
+  matchId: number;
+  teamId: number;
+  teamName: string;
+  players: MemberSummaryDto[];
 }
 
 interface MatchSummaryDto {
   idMatch: number;
   dateHour: string;
   turn: number;
-  status:
-    | 'IN_PREPARATION'
-    | 'REGISTRATION_OPEN'
-    | 'REGISTRATION_CLOSED'
-    | 'PLANNED'
-    | 'IN_PROGRESS'
-    | 'DONE';
+  status: matchStatus;
   teams: Team[];
-  isConfirmed: boolean;
   team1: MatchTeamDto;
   team2: MatchTeamDto;
+  tournament: MatchSummaryDtoTournament;
+  isFinal: boolean;
+}
+
+export type matchStatus =
+  | 'PLANNED'
+  | 'PLAYED'
+  | 'IN_PROGRESS'
+  | 'AWAITING_VALIDATION'
+  | 'FORFEIT';
+
+interface MatchSummaryDtoTournament {
+  id: number;
+  name: string;
+  status: TournamentStatus;
 }
 
 interface TournamentDetailsInfoDto {
@@ -254,6 +280,46 @@ export class ApiError extends Error {
   }
 }
 
+export type MemberQueryStatus = 'ADMIN' | 'MEMBER' | 'BANNED';
+
+interface MemberFilters {
+  status?: MemberQueryStatus;
+  searchQuery?: string;
+}
+
+interface TournamentsPageContextType {
+  filters: TournamentFilters;
+  fetchWithFilters: () => void;
+  setFilters: (filters: TournamentFilters) => void;
+  authenticatedUser: AuthenticatedUser | null;
+  isGettingTournaments: boolean;
+  tournaments: TournamentDto[];
+  groupedTournaments: YearGroup[];
+}
+
+interface TournamentMatchFilters {
+  data: 'tournaments' | 'matches';
+  searchQuery: string;
+}
+
+interface ConfirmOrContestMatchParams {
+  id: number;
+  isTeam1: boolean;
+  isConfirming: boolean;
+  previousMatch: MatchSummaryDto;
+}
+
+interface EncodeMatchResultDto {
+  scoreTeam1: number;
+  scoreTeam2: number;
+}
+
+interface DeclareForfeitMatchParams {
+  matchId: number;
+  winningTeamId: number;
+  forfeitingTeamId: number;
+}
+
 export type {
   MainContext,
   User,
@@ -262,6 +328,7 @@ export type {
   UserContextType,
   ProfileInfoDto,
   Team,
+  FullTeamDto,
   Unavailability,
   JoinRequestDto,
   TeamDetailsInfoDto,
@@ -281,4 +348,11 @@ export type {
   TeamSummaryDto,
   TournamentStatus,
   TournamentFormData,
+  MemberFilters,
+  TournamentsPageContextType,
+  TournamentMatchFilters,
+  MatchLineupDto,
+  ConfirmOrContestMatchParams,
+  EncodeMatchResultDto,
+  DeclareForfeitMatchParams,
 };

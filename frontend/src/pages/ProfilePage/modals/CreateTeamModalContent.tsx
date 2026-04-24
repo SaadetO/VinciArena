@@ -45,6 +45,9 @@ export const CreateTeamModalContent = ({
         error={!!localError}
         helperText={localError}
         required
+        inputProps={{
+          'data-testid': 'create-team-input',
+        }}
       />
     </Stack>
   );

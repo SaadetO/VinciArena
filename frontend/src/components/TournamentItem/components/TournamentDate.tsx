@@ -22,7 +22,7 @@ export const TournamentDate = ({
   }
 
   return (
-    <Tooltip title="Date de début et de fin du tournoi" arrow>
+    <Tooltip title="Date de début et de fin du tournoi">
       <Chip
         size="medium"
         variant="text"

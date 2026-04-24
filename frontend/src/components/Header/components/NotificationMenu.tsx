@@ -37,8 +37,13 @@ export const NotificationMenu = () => {
           background: (theme) =>
             isOpen ? theme.palette.background.s4 : 'transparent',
         }}
+        data-testid="notification-menu-button"
       >
-        <Badge badgeContent={unreadCount} color="primary">
+        <Badge
+          badgeContent={unreadCount}
+          color="primary"
+          data-testid="notification-badge"
+        >
           <Bell />
         </Badge>
       </IconButton>
@@ -88,6 +93,7 @@ export const NotificationMenu = () => {
             variant="contained"
             color="secondary"
             size="small"
+            data-testid="notification-view-all-button"
           >
             Voir Tout
           </Button>
@@ -97,7 +103,11 @@ export const NotificationMenu = () => {
 
         {unreadNotifications.length === 0 ? (
           <Stack padding="2rem 1.5rem" spacing="0.25rem" alignItems="center">
-            <Typography variant="h5" textAlign="center">
+            <Typography
+              variant="h5"
+              textAlign="center"
+              data-testid="notifications-empty-state"
+            >
               Rien à signaler !
             </Typography>
             <Typography
@@ -110,11 +120,12 @@ export const NotificationMenu = () => {
             </Typography>
           </Stack>
         ) : (
-          <Stack divider={<Divider />}>
+          <Stack divider={<Divider />} data-testid="notification-list">
             {unreadNotifications.map((notif) => (
               <NotificationItem
                 key={notif.idNotification}
                 notification={notif}
+                data-testid="notification-item"
               />
             ))}
           </Stack>

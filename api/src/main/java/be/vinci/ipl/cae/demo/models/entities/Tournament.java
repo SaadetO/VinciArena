@@ -8,18 +8,20 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -28,7 +30,9 @@ import lombok.Setter;
  * Tournament table.
  */
 @Entity
-@Table(name = "tournaments")
+@Table(name = "tournaments",
+    indexes = {@Index(name = "idx_tournament_status_dates",
+        columnList = "status, start_date, registration_deadline, end_date")})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -70,7 +74,8 @@ public class Tournament {
   @ManyToMany
   @JoinTable(name = "tournament_registrations", joinColumns = @JoinColumn(name = "id_tournament"),
       inverseJoinColumns = @JoinColumn(name = "id_team"))
-  private Set<Team> teams = new HashSet<>();
+  @OrderBy("name ASC")
+  private List<Team> teams = new ArrayList<>();
 
   /**
    * Set max number of teams for the current tournament.
@@ -136,6 +141,5 @@ public class Tournament {
     }
     return true;
   }
+
 }
-
-

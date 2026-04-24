@@ -1,9 +1,9 @@
 import { useSnackbar } from './useSnackbar';
 import { useApi } from './useApi';
-import { Dispatch, SetStateAction, useContext } from 'react';
-import { UserContext } from '../contexts/UserContext';
+import { Dispatch, SetStateAction } from 'react';
 import { ApiError, TournamentDetailsInfoDto, TournamentDto } from '../types';
 import { useNavigate } from 'react-router-dom';
+import { useUser } from './useUser';
 
 interface UseTournamentOptions {
   setTournaments?: (tournaments: TournamentDto[]) => void;
@@ -20,10 +20,10 @@ interface UseTournamentOptions {
 }
 
 export const useTournament = (config: UseTournamentOptions) => {
-  const { setTournaments, setTournament, setError, onError, onSuccess } =
+  const { setTournaments, setTournament, setError, onSuccess, onError } =
     config;
   const { showSnackbar } = useSnackbar();
-  const { authenticatedUser } = useContext(UserContext);
+  const { authenticatedUser } = useUser();
   const navigate = useNavigate();
 
   const { execute: getAll, loading: isGettingTournaments } = useApi(
@@ -32,11 +32,17 @@ export const useTournament = (config: UseTournamentOptions) => {
       members,
       teams,
       searchQuery,
+      minDate,
+      maxDate,
+      limit,
     }: {
-      statuses: string[] | undefined;
-      members: number[] | undefined;
-      teams: number[] | undefined;
+      statuses?: string[] | undefined;
+      members?: number[] | undefined;
+      teams?: number[] | undefined;
       searchQuery?: string | undefined;
+      minDate?: string | undefined;
+      maxDate?: string | undefined;
+      limit?: number | undefined;
     }) => {
       const params = new URLSearchParams();
       if (statuses && statuses.length > 0)
@@ -44,10 +50,18 @@ export const useTournament = (config: UseTournamentOptions) => {
       if (members && members.length > 0)
         params.append('membersIds', members.join(','));
       if (teams && teams.length > 0) params.append('teamsIds', teams.join(','));
-      if (searchQuery) params.append('search', searchQuery);
+      if (searchQuery) params.append('searchQuery', searchQuery);
+      if (minDate) params.append('minDate', minDate);
+      if (maxDate) params.append('maxDate', maxDate);
+      if (limit) params.append('limit', String(limit));
+
+      console.log(
+        'fetching tournaments',
+        `/api/tournaments/${params.size > 0 ? '?' : ''}${params.toString()}`,
+      );
 
       const response = await fetch(
-        `/api/tournaments${params.size > 0 ? '?' : ''}${params.toString()}`,
+        `/api/tournaments/${params.size > 0 ? '?' : ''}${params.toString()}`,
       );
       if (!response.ok) {
         throw new ApiError(
@@ -60,10 +74,8 @@ export const useTournament = (config: UseTournamentOptions) => {
     {
       onSuccess: (data) => {
         setTournaments?.(data);
-        config.onSuccess?.(data);
       },
       onError: (err) => {
-        config.onError?.(err);
         showSnackbar({
           message:
             err instanceof ApiError
@@ -77,7 +89,12 @@ export const useTournament = (config: UseTournamentOptions) => {
 
   const { execute: getById, loading: isGettingTournamentById } = useApi(
     async (id: number) => {
-      const response = await fetch(`/api/tournaments/${id}`);
+      const response = await fetch(`/api/tournaments/${id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: authenticatedUser?.token ?? '',
+        },
+      });
       if (!response.ok) {
         if (response.status === 404)
           throw new ApiError('Tournoi introuvable', response.status);
@@ -124,10 +141,10 @@ export const useTournament = (config: UseTournamentOptions) => {
     {
       onSuccess: (data) => {
         setTournament?.(data);
-        onSuccess?.(data);
         if (data.idTournament) {
           navigate(`/tournaments/${data.idTournament}`);
         }
+        onSuccess?.(data);
       },
       onError: (err) => {
         onError?.(err);
@@ -230,6 +247,59 @@ export const useTournament = (config: UseTournamentOptions) => {
     },
   );
 
+  const { execute: publishMatches, loading: isPublishingMatches } = useApi(
+    async (id: number) => {
+      const response = await fetch(`/api/tournaments/${id}/publish-matches`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: authenticatedUser?.token ?? '',
+        },
+      });
+
+      if (!response.ok) {
+        throw new ApiError(
+          'Échec de la publication des matchs',
+          response.status,
+        );
+      }
+
+      return response.json();
+    },
+    {
+      onOptimism: () => {
+        setTournament?.((prev) => {
+          if (!prev) return prev;
+          return { ...prev, status: 'PLANNED' };
+        });
+      },
+      onSuccess: (data) => {
+        setTournament?.((prev) => {
+          if (!prev) return data;
+          return { ...prev, ...data };
+        });
+        showSnackbar({
+          message: 'Matchs publiés avec succès',
+          severity: 'success',
+        });
+      },
+      onRollback: () => {
+        setTournament?.((prev) => {
+          if (!prev) return prev;
+          return { ...prev, status: 'REGISTRATION_CLOSED' };
+        });
+      },
+      onError: (err) => {
+        showSnackbar({
+          message:
+            err instanceof ApiError
+              ? err.message
+              : 'Une erreur est survenue lors de la publication des matchs',
+          severity: 'error',
+        });
+      },
+    },
+  );
+
   const { execute: register, loading: isRegistering } = useApi(
     async (id: number) => {
       const response = await fetch(`/api/tournaments/${id}/register`, {
@@ -254,7 +324,7 @@ export const useTournament = (config: UseTournamentOptions) => {
         throw new ApiError("Échec de l'inscription.", response.status);
       }
 
-      return await response.json();
+      return response.json();
     },
     {
       onSuccess: (data) => {
@@ -286,17 +356,77 @@ export const useTournament = (config: UseTournamentOptions) => {
     },
   );
 
+  const { execute: generateMatches, loading: isGeneratingMatches } = useApi(
+    async (id: number) => {
+      const response = await fetch(`/api/tournaments/${id}/matches`, {
+        method: 'POST',
+        headers: {
+          Authorization: authenticatedUser?.token ?? '',
+        },
+      });
+
+      if (!response.ok) {
+        if (response.status === 404)
+          throw new ApiError('Tournoi introuvable.', response.status);
+        else if (response.status === 400)
+          throw new ApiError('Tournoi impossible.', response.status);
+        throw new ApiError(
+          'Échec de la génération des matchs.',
+          response.status,
+        );
+      }
+
+      return response.json();
+    },
+    {
+      onSuccess: (data) => {
+        setTournament?.(data);
+        showSnackbar({
+          message: 'Matchs générés avec succès.',
+          severity: 'success',
+        });
+      },
+      onError: (err) => {
+        const status = err instanceof ApiError ? err.status : 500;
+
+        const message =
+          status === 404
+            ? "Ce tournoi n'existe pas ou a été supprimé."
+            : status === 400
+              ? 'La date de fin du tournoi est trop proche pour pouvoir planifier tous les matchs. Tournoi annulé.'
+              : 'Une erreur est survenue lors de la génération des matchs.';
+
+        if (status === 400)
+          setTournament?.((prev) => {
+            if (!prev) return prev;
+            return {
+              ...prev,
+              status: 'CANCELLED',
+            };
+          });
+        showSnackbar({
+          message,
+          severity: 'error',
+        });
+      },
+    },
+  );
+
   return {
     getAll,
     getById,
     create,
     update,
     publish,
+    publishMatches,
     register,
+    generateMatches,
     isGettingTournaments,
     isGettingTournamentById,
     isCreating,
     isPublishing,
+    isPublishingMatches,
     isRegistering,
+    isGeneratingMatches,
   };
 };

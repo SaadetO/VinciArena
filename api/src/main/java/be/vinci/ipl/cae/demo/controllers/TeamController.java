@@ -1,5 +1,7 @@
 package be.vinci.ipl.cae.demo.controllers;
 
+import be.vinci.ipl.cae.demo.exceptions.InvalidTeamNameException;
+import be.vinci.ipl.cae.demo.models.dtos.FullTeamDto;
 import be.vinci.ipl.cae.demo.models.dtos.NewTeam;
 import be.vinci.ipl.cae.demo.models.dtos.TeamDetailsDto;
 import be.vinci.ipl.cae.demo.models.entities.Member;
@@ -17,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 /**
  * TeamController to handle team-related requests.
@@ -47,10 +48,11 @@ public class TeamController {
   @PostMapping("/")
   @ResponseStatus(HttpStatus.CREATED)
   @PreAuthorize("isAuthenticated()")
-  public Team createTeam(@RequestBody NewTeam newTeam,
+  public Team createTeam(
+      @RequestBody NewTeam newTeam,
       @AuthenticationPrincipal Member currentMember) {
     if (newTeam == null || newTeam.getName() == null || newTeam.getName().isBlank()) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+      throw new InvalidTeamNameException("Le nom de l'équipe ne peut pas être vide.");
     }
 
     return teamService.createTeam(newTeam.getName(), currentMember);
@@ -62,8 +64,10 @@ public class TeamController {
    * @return an iterable of all active teams.
    */
   @GetMapping({"", "/"})
-  public Iterable<Team> getAllActiveTeams() {
-    return teamService.getAllActiveTeams();
+  public Iterable<FullTeamDto> getAllTeams(
+      @RequestParam(required = false) boolean isActive,
+      @RequestParam(required = false) String searchQuery) {
+    return teamService.getAllTeams(isActive, searchQuery);
   }
 
   /**
@@ -74,7 +78,8 @@ public class TeamController {
    * @return the team details
    */
   @GetMapping("/{id}/details")
-  public TeamDetailsDto getTeamDetails(@PathVariable Long id,
+  public TeamDetailsDto getTeamDetails(
+      @PathVariable Long id,
       @AuthenticationPrincipal Member currentMember) {
     return teamService.getTeamDetails(id, currentMember);
   }
@@ -89,7 +94,9 @@ public class TeamController {
    */
   @PutMapping("/{id}/manager/{idMember}")
   @PreAuthorize("isAuthenticated()")
-  public Team designateSecondManager(@PathVariable Long id, @PathVariable Long idMember,
+  public Team designateSecondManager(
+      @PathVariable Long id,
+      @PathVariable Long idMember,
       @AuthenticationPrincipal Member currentMember) {
     return teamService.designateSecondManager(id, idMember, currentMember);
   }
@@ -104,11 +111,27 @@ public class TeamController {
    */
   @PutMapping("/{id}/resign")
   @PreAuthorize("isAuthenticated()")
-  public Team resignManager(@PathVariable Long id,
+  public Team resignManager(
+      @PathVariable Long id,
       @RequestParam(required = false) Long replacementId,
       @AuthenticationPrincipal Member currentMember) {
-
     return teamService.resignManager(id, currentMember, replacementId);
   }
 
+  /**
+   * Exclude a member from their team.
+   *
+   * @param id the team id
+   * @param idMember the id of the member to exclude
+   * @param currentMember the authenticated member
+   */
+  @PutMapping("/{id}/exclude-member/{idMember}")
+  @PreAuthorize("isAuthenticated()")
+  public void excludeMember(
+      @PathVariable Long id,
+      @PathVariable Long idMember,
+      @AuthenticationPrincipal Member currentMember
+  ) {
+    teamService.excludeMember(currentMember.getTeam(), idMember);
+  }
 }

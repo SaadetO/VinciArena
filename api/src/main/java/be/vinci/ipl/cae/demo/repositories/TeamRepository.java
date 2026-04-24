@@ -3,6 +3,7 @@ package be.vinci.ipl.cae.demo.repositories;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import java.util.Optional;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Repository;
  * Team Repository.
  */
 @Repository
-public interface TeamRepository extends CrudRepository<Team, Long> {
+public interface TeamRepository extends CrudRepository<Team, Long>, JpaSpecificationExecutor<Team> {
 
   /**
    * Finds the first team where the member is manager1 or manager2.
@@ -30,9 +31,18 @@ public interface TeamRepository extends CrudRepository<Team, Long> {
   boolean existsByName(String name);
 
   /**
-   * Returns an iterable of all active teams.
+   * Retrieves a team entity based on its unique name.
    *
-   * @return an iterable of all active teams
+   * @param name the name of the team to search for
+   * @return the found {@link Team} entity, or null if no team exists with that name
    */
-  Iterable<Team> findByIsActiveTrue();
+  Team findByName(String name);
+
+  /**
+   * Retrieves a team entity based on its id.
+   *
+   * @param teamId the id of the team to search for
+   * @return the found {@link Team} entity, or null if no team exists with that id
+   */
+  Team findTeamByIdTeam(Long teamId);
 }

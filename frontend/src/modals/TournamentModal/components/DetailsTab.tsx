@@ -20,6 +20,7 @@ export const DetailsTab = ({
   error,
   isCreation,
 }: DetailsTabProps) => {
+  /*
   const handleDateChange = (
     date: dayjs.Dayjs | null,
     field: keyof TournamentFormData,
@@ -59,7 +60,7 @@ export const DetailsTab = ({
     onChange('startDate', newStart.format('YYYY-MM-DD'));
     onChange('endDate', newEnd.format('YYYY-MM-DD'));
     onChange('registrationDeadline', newReg.format('YYYY-MM-DDTHH:mm:ss'));
-  };
+  };*/
 
   return (
     <Stack spacing="1rem">
@@ -69,8 +70,21 @@ export const DetailsTab = ({
           format="DD/MM/YYYY HH:mm"
           name="registrationDeadline"
           value={dayjs(formData.registrationDeadline)}
-          onChange={(date) => handleDateChange(date, 'registrationDeadline')}
+          // onChange ={(date)=> handleDateChange(date, 'registrationDeadline')}
+          onChange={(date) =>
+            onChange(
+              'registrationDeadline',
+              date ? date.format('YYYY-MM-DDTHH:mm:ss') : '',
+            )
+          }
           disablePast
+          slotProps={{
+            textField: {
+              inputProps: {
+                'data-testid': 'tournament-form-deadline', // THIS is the valid path for types
+              },
+            },
+          }}
         />
       </Stack>
 
@@ -81,8 +95,16 @@ export const DetailsTab = ({
             format="DD/MM/YYYY"
             name="startDate"
             value={dayjs(formData.startDate)}
-            onChange={(date) => handleDateChange(date, 'startDate')}
+            // onChange ={(date)=> handleDateChange(date, 'registrationDeadline')}
+            onChange={(date) =>
+              onChange('startDate', date ? date.format('YYYY-MM-DD') : '')
+            }
             disablePast
+            slotProps={{
+              textField: {
+                inputProps: { 'data-testid': 'tournament-form-start-date' },
+              },
+            }}
           />
           <Tooltip
             title={getDurationString({
@@ -107,8 +129,16 @@ export const DetailsTab = ({
             format="DD/MM/YYYY"
             name="endDate"
             value={dayjs(formData.endDate)}
-            onChange={(date) => handleDateChange(date, 'endDate')}
+            // onChange ={(date)=> handleDateChange(date, 'registrationDeadline')}
+            onChange={(date) =>
+              onChange('endDate', date ? date.format('YYYY-MM-DD') : '')
+            }
             disablePast
+            slotProps={{
+              textField: {
+                inputProps: { 'data-testid': 'tournament-form-end-date' },
+              },
+            }}
           />
         </Stack>
       </Stack>
@@ -116,6 +146,7 @@ export const DetailsTab = ({
       <Stack spacing="0.25rem">
         <InputLabel required={isCreation}>Capacité maximale</InputLabel>
         <NumericTextField
+          data-testid="tournament-form-capacity"
           value={formData.capacity}
           onChange={(val) => onChange('capacity', val)}
           min={2}

@@ -17,11 +17,16 @@ export const RegisterActions = ({ step, handleBack }: RegisterActionsProps) => {
             color="secondary"
             onClick={handleBack}
             startIcon={<ArrowLeft />}
+            data-testid={`return-step-${step}`}
           >
             Retour
           </Button>
         )}
-        <Button type="submit" variant="contained">
+        <Button
+          type="submit"
+          variant="contained"
+          data-testid={`register-submit-step-${step}`}
+        >
           {step < 3 ? 'Continuer' : "S'Inscrire"}
         </Button>
       </Stack>

@@ -37,6 +37,7 @@ export const Step1 = ({
         error={!!errors.email}
         helperText={errors.email || ''}
         required
+        inputProps={{ 'data-testid': 'register-email-input' }}
       />
       <TextField
         fullWidth
@@ -49,6 +50,7 @@ export const Step1 = ({
         error={!!errors.tag}
         helperText={errors.tag || ''}
         required
+        inputProps={{ 'data-testid': 'register-tag-input' }}
       />
       <Autocomplete
         options={specialties}
@@ -71,6 +73,10 @@ export const Step1 = ({
             error={!!errors.specialtyId}
             helperText={errors.specialtyId || ''}
             required
+            inputProps={{
+              ...params.inputProps,
+              'data-testid': 'register-specialty-input',
+            }}
           />
         )}
         onChange={handleSpecialtyChange}

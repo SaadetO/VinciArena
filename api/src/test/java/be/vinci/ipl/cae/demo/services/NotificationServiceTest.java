@@ -44,8 +44,13 @@ class NotificationServiceTest {
     return m;
   }
 
-  private Notification createNotification(Long id, String content, Member member, boolean isRead,
-      NotificationType type, Long idReference) {
+  private Notification createNotification(
+      Long id,
+      String content,
+      Member member,
+      boolean isRead,
+      NotificationType type,
+      Long idReference) {
     Notification n = new Notification();
     n.setIdNotification(id);
     n.setContent(content);
@@ -56,8 +61,12 @@ class NotificationServiceTest {
     return n;
   }
 
-  private void assertSavedNotification(Notification captured, Member expectedMember,
-      String expectedContent, NotificationType expectedType, Long expectedReference) {
+  private void assertSavedNotification(
+      Notification captured,
+      Member expectedMember,
+      String expectedContent,
+      NotificationType expectedType,
+      Long expectedReference) {
     assertEquals(expectedMember, captured.getMember());
     assertEquals(expectedContent, captured.getContent());
     assertEquals(expectedType, captured.getType());

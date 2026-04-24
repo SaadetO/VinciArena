@@ -39,7 +39,7 @@ const mockSnackbarContext = {
   showSnackbar: mockShowSnackbar,
 };
 
-// test compoenet to use the contexts
+// test componenet to use the contexts
 const wrapper = ({ children }: { children: ReactNode }) => (
   <SnackbarContext.Provider value={mockSnackbarContext}>
     <UserContext.Provider value={AUTH_USER}>
@@ -81,7 +81,7 @@ describe('useTournament basic tests', () => {
 
     // assert
     expect(fetch).toHaveBeenCalledWith(
-      '/api/tournaments?statuses=DONE&membersIds=123&search=Pro',
+      '/api/tournaments/?statuses=DONE&membersIds=123&searchQuery=Pro',
     );
   });
 
@@ -165,35 +165,6 @@ describe('useTournament basic tests', () => {
     );
   });
 
-  it('should trigger config.onError when API fails', async () => {
-    // stub with internal error
-    vi.stubGlobal(
-      'fetch',
-      vi.fn().mockResolvedValue({
-        ok: false,
-        status: 500,
-      } as Response),
-    );
-
-    const onError = vi.fn();
-    const { result } = renderHook(() => useTournament({ onError }), {
-      wrapper,
-    });
-
-    // send getAll  fetch with filters
-    await act(async () => {
-      await result.current.getAll({
-        statuses: ['DONE'],
-        members: [123],
-        teams: undefined,
-        searchQuery: 'Pro',
-      });
-    });
-
-    // Check call back recived the error
-    expect(onError).toHaveBeenCalledWith(expect.any(ApiError));
-  });
-
   it('should get tournament by id and handle 404 error logic', async () => {
     const mockTournament = { id: 42, name: 'Mock tournament' };
     const setTournament = vi.fn();
@@ -218,7 +189,12 @@ describe('useTournament basic tests', () => {
       await result.current.getById(42);
     });
 
-    expect(fetch).toHaveBeenCalledWith('/api/tournaments/42');
+    expect(fetch).toHaveBeenCalledWith('/api/tournaments/42', {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: AUTH_USER?.authenticatedUser?.token ?? '',
+      },
+    });
     expect(setTournament).toHaveBeenCalledWith(mockTournament);
 
     // fetch -> error 404

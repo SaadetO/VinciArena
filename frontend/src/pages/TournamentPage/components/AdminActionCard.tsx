@@ -2,12 +2,14 @@ import { Button, Stack, Typography } from '@mui/material';
 import { TournamentStatus } from '../../../types';
 
 interface AdminActionCardProps {
+  hasMatches: boolean;
   status: TournamentStatus;
   onAction: (status: TournamentStatus) => void;
   onAction2?: () => void;
 }
 
 export const AdminActionCard = ({
+  hasMatches,
   status,
   onAction,
   onAction2,
@@ -23,6 +25,14 @@ export const AdminActionCard = ({
           secondaryButtonLabel: 'Modifier',
         };
       case 'REGISTRATION_CLOSED':
+        if (hasMatches)
+          return {
+            title: 'Matchs générés',
+            description:
+              'Les matchs ont déjà été générés. Vous pouvez regénérer les matchs ou les publier.',
+            buttonLabel: 'Publier',
+            secondaryButtonLabel: 'Regénérer',
+          };
         return {
           title: 'Inscriptions closes',
           description:
@@ -62,6 +72,7 @@ export const AdminActionCard = ({
       <Stack padding="1rem" direction="row" spacing="0.75rem">
         {content.secondaryButtonLabel && (
           <Button
+            data-testid="tournament-edit-button"
             variant="contained"
             color="secondary"
             onClick={() => onAction2?.()}
@@ -71,6 +82,7 @@ export const AdminActionCard = ({
           </Button>
         )}
         <Button
+          data-testid="tournament-primary-action-button"
           variant="contained"
           color="primary"
           onClick={() => onAction(status)}

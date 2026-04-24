@@ -19,12 +19,13 @@ export interface TournamentFilters {
   members: number[];
   timeFrame: 'past' | 'current' | 'future';
   statuses: string[];
+  dates: { minDate: string | undefined; maxDate: string | undefined };
 }
 
 export const TIMEFRAME_STATUS_MAP: Record<string, string[]> = {
-  past: ['DONE'],
+  past: ['DONE', 'CANCELLED'],
   current: ['IN_PROGRESS'],
-  future: ['REGISTRATION_OPEN', 'REGISTRATION_CLOSED', 'PLANNED', 'CANCELLED'],
+  future: ['REGISTRATION_OPEN', 'REGISTRATION_CLOSED', 'PLANNED'],
 };
 
 /**
@@ -56,10 +57,10 @@ export const groupTournamentsByYearAndMonth = (
 ): YearGroup[] => {
   const grouped = tournaments.reduce(
     (acc, tournament) => {
-      const date = new Date(tournament.startDate);
-      const year = date.getFullYear().toString();
+      const d = dayjs(tournament.startDate);
+      const year = d.year().toString();
 
-      const monthKey = date.toLocaleDateString('fr-FR', { month: 'long' });
+      const monthKey = d.format('MMMM');
       const capitalizedMonthKey =
         monthKey.charAt(0).toUpperCase() + monthKey.slice(1);
 
@@ -69,7 +70,7 @@ export const groupTournamentsByYearAndMonth = (
       // if accumulator[year] doesn't have the month, add it
       if (!acc[year][capitalizedMonthKey]) {
         acc[year][capitalizedMonthKey] = {
-          monthNumber: date.getMonth(),
+          monthNumber: d.month(),
           tournaments: [],
         };
       }
@@ -161,13 +162,5 @@ export const formatAndCapitalize = (
   formatStr: string,
 ): string => {
   const formatted = d.format(formatStr);
-
-  // capitalize the first letter of the day label or the month label
-
-  const parts = formatted.split(' ');
-  for (let i = 0; i < parts.length; i++) {
-    parts[i] = parts[i].charAt(0).toUpperCase() + parts[i].slice(1);
-  }
-
-  return parts.join(' ');
+  return formatted.charAt(0).toUpperCase() + formatted.slice(1);
 };

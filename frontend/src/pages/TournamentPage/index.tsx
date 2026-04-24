@@ -3,7 +3,7 @@ import { useContext, useEffect, useMemo, useState } from 'react';
 import { TournamentDetailsInfoDto } from '../../types';
 import { useTournament } from '../../hooks/useTournaments';
 import { useParams } from 'react-router-dom';
-import { Container, Grid2, Stack, Typography } from '@mui/material';
+import { Container, Grid2, Stack } from '@mui/material';
 import { TeamsCard } from './components/TeamsCard';
 import { UserContext } from '../../contexts/UserContext';
 import { NotFoundPage } from '../NotFoundPage';
@@ -12,7 +12,12 @@ import { AdminActionCard } from './components/AdminActionCard';
 import { useTournamentModal } from '../../hooks/useTournamentModal';
 import { useModal } from '../../hooks/useModal';
 import { useModalController } from '../../hooks/useModalController';
-import { publishTournamentModal } from '../../modals/publishTournamentModal';
+import { publishTournamentModal } from './modals/publishTournamentModal';
+import { generateMatchesModal } from './modals/generateMatchesModal';
+import { groupMatchesByYearAndDay } from '../../utils/matchUtils';
+import { MatchYearGroup } from '../../components/MatchYearGroup';
+import { publishTournamentMatchModal } from './modals/publishTournamentMatch';
+import { MatchListSkeleton } from '../../components/MatchListSkeleton';
 
 export const TournamentPage = () => {
   const { id } = useParams();
@@ -28,12 +33,17 @@ export const TournamentPage = () => {
   const { openModal } = useModal();
   const { setLoading } = useModalController();
 
-  const { getById, publish, register, isGettingTournamentById } = useTournament(
-    {
-      setTournament,
-      setError,
-    },
-  );
+  const {
+    getById,
+    publish,
+    publishMatches,
+    register,
+    generateMatches,
+    isGettingTournamentById,
+  } = useTournament({
+    setTournament,
+    setError,
+  });
 
   const handleAdminAction = async (status: string) => {
     if (!idNbr) return;
@@ -46,14 +56,45 @@ export const TournamentPage = () => {
           publish(idNbr);
         }),
       );
+    } else if (
+      (status === 'REGISTRATION_CLOSED' && tournament?.matches?.length) ??
+      0 > 0
+    ) {
+      openModal(
+        publishTournamentMatchModal(async (close) => {
+          setLoading(true);
+          close();
+          publishMatches(idNbr);
+        }),
+      );
     } else if (status === 'REGISTRATION_CLOSED') {
-      // TODO
-      console.log('Generating matches...');
+      openModal(
+        generateMatchesModal(async (close) => {
+          setLoading(true);
+          await generateMatches(idNbr);
+          close();
+        }),
+      );
+    }
+  };
+
+  const handleAdminAction2 = async (status: string) => {
+    if (!idNbr) return;
+    if (status === 'IN_PREPARATION') {
+      openEditModal(tournament!, setTournament);
+    } else if (status === 'REGISTRATION_CLOSED') {
+      openModal(
+        generateMatchesModal(async (close) => {
+          setLoading(true);
+          await generateMatches(idNbr);
+          close();
+        }, true),
+      );
     }
   };
 
   const canCol1 = useMemo(() => {
-    if (isGettingTournamentById) return true;
+    if (isGettingTournamentById && !tournament) return true;
     if (!tournament || tournament.status === 'CANCELLED') return false;
 
     if (authenticatedUser?.admin) {
@@ -70,10 +111,16 @@ export const TournamentPage = () => {
   }, [tournament, isGettingTournamentById]);
 
   useEffect(() => {
-    if (idNbr) {
+    if (authenticatedUser === undefined) return;
+
+    getById(idNbr);
+
+    const intervalId = setInterval(() => {
       getById(idNbr);
-    }
-  }, [idNbr, getById]);
+    }, 15000);
+
+    return () => clearInterval(intervalId);
+  }, [authenticatedUser, idNbr, getById]);
 
   useEffect(() => {
     if (authenticatedUser === undefined) return;
@@ -84,17 +131,18 @@ export const TournamentPage = () => {
         subtitle: "Ce tournoi n'est pas encore ouvert au public.",
       });
     }
-  }, [tournament?.status, authenticatedUser, setError]);
+  }, [tournament?.status, authenticatedUser]);
+
+  const groupedMatches = groupMatchesByYearAndDay(tournament?.matches ?? []);
 
   if (error && !isGettingTournamentById) return <NotFoundPage error={error} />;
-
   return (
     <>
       <TournamentBanner tournament={tournament} />
       <Container maxWidth="lg">
         <Grid2
           container
-          spacing={3}
+          spacing="1.5rem"
           padding="1.5rem 0 4rem"
           direction={{ xs: 'column-reverse', desktop: 'row' }}
           justifyContent="center"
@@ -104,26 +152,27 @@ export const TournamentPage = () => {
               <Stack spacing="1.5rem">
                 {authenticatedUser?.admin && tournament?.status && (
                   <AdminActionCard
+                    hasMatches={tournament.matches.length > 0}
                     status={tournament.status}
                     onAction={() => handleAdminAction(tournament.status)}
-                    onAction2={() => openEditModal(tournament!, setTournament)}
+                    onAction2={() => handleAdminAction2(tournament.status)}
                   />
                 )}
                 {(!authenticatedUser?.admin ||
                   (tournament?.status !== 'IN_PREPARATION' &&
-                    tournament?.status !== 'REGISTRATION_CLOSED')) && (
-                  <Stack
-                    sx={{
-                      background: (theme) => theme.palette.background.s1,
-                    }}
-                    padding="5rem 1rem 20rem"
-                    borderRadius="1.5rem"
-                  >
-                    <Typography variant="h5" textAlign="center">
-                      Placeholder for matches section
-                    </Typography>
-                  </Stack>
-                )}
+                    tournament?.status !== 'REGISTRATION_CLOSED') ||
+                  (authenticatedUser?.admin &&
+                    tournament?.status === 'REGISTRATION_CLOSED')) &&
+                  (tournament && tournament.matches.length > 0
+                    ? groupedMatches.map((yearGroup) => (
+                        <MatchYearGroup
+                          key={yearGroup.year}
+                          year={yearGroup.year}
+                          daysData={yearGroup.daysData}
+                          refetch={() => getById(idNbr)}
+                        />
+                      ))
+                    : isGettingTournamentById && <MatchListSkeleton />)}
               </Stack>
             </Grid2>
           )}

@@ -1,4 +1,5 @@
 import { Stack, Typography, Skeleton, Chip, Avatar } from '@mui/material';
+import { Theme } from '@mui/material/styles';
 import profileHeroHeader from '../../../assets/images/profile_hero_header.jpg';
 import { ProfileInfoDto } from '../../../types';
 import { Link } from 'react-router-dom';
@@ -13,6 +14,7 @@ export const ProfileBanner = ({ user }: { user?: ProfileInfoDto }) => {
       width={1}
       height="fit-content"
       padding="5rem"
+      zIndex={15}
     >
       <Stack spacing="0.75rem" alignItems="center" direction="row">
         {user ? (
@@ -49,6 +51,7 @@ export const ProfileBanner = ({ user }: { user?: ProfileInfoDto }) => {
           <>
             {user.team && (
               <Chip
+                data-testid={`user-team-chip`}
                 component={Link}
                 to={`/teams/${user.team.id}`}
                 size="small"
@@ -57,12 +60,10 @@ export const ProfileBanner = ({ user }: { user?: ProfileInfoDto }) => {
                 clickable
                 sx={{
                   '& .MuiChip-label': {
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    color: (theme: any) => theme.palette.background.s0,
+                    color: (theme: Theme) => theme.palette.background.s0,
                   },
                   '&:hover': {
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    background: (theme: any) =>
+                    background: (theme: Theme) =>
                       `color-mix(in srgb, ${theme.palette.background.s1}, white 88%)`,
                   },
                 }}

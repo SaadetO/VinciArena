@@ -8,9 +8,8 @@ import {
   Tooltip,
   IconButton,
   Stack,
-  Box,
 } from '@mui/material';
-import { Ban } from '@gravity-ui/icons';
+import BlockIcon from '@mui/icons-material/Block';
 import { Member, AuthenticatedUser } from '../../../../../types';
 
 interface UserItemProps {
@@ -31,6 +30,7 @@ export const UserItem = ({
   if (!user) {
     return (
       <ListItem
+        data-testid="admin-user-row-loading"
         sx={{
           borderRadius: '0.5rem',
           mb: '0.25rem',
@@ -59,6 +59,7 @@ export const UserItem = ({
 
   return (
     <ListItem
+      data-testid={`admin-user-row-${user.tag}`}
       key={user.id}
       sx={{
         borderRadius: '0.5rem',
@@ -74,12 +75,12 @@ export const UserItem = ({
               <Tooltip title="Bannir" placement="left" arrow>
                 <IconButton
                   size="small"
-                  onClick={() => handleBan(user.id, user.tag)}
+                  onClick={async () => {
+                    await handleBan(user.id, user.tag);
+                  }}
                   disabled={isPending || user.deleted}
                 >
-                  <Box display="inline-flex">
-                    <Ban style={{ color: 'text.secondary' }} />
-                  </Box>
+                  <BlockIcon sx={{ color: 'text.secondary' }} />
                 </IconButton>
               </Tooltip>
             )}
@@ -100,6 +101,7 @@ export const UserItem = ({
             arrow
           >
             <Switch
+              data-testid="admin-status-switch"
               edge="end"
               checked={user.admin}
               onChange={() => !isPending && handleToggleAdmin(user)}

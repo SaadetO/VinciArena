@@ -74,6 +74,7 @@ export const UnavailabilitiesItem = memo(
                 onClick={handleAddUnavailability}
                 size="small"
                 color="secondary"
+                data-testid="add-unavailability-button"
               >
                 <Box display="inline-flex">
                   <Plus />
@@ -101,7 +102,11 @@ export const UnavailabilitiesItem = memo(
             ))
           ) : user.unavailabilities?.length === 0 ? (
             <Stack width="100%" alignItems="center" padding="1rem">
-              <Typography variant="h5" color="text.secondary">
+              <Typography
+                variant="h5"
+                color="text.secondary"
+                data-testid="no-unavailabilities-message"
+              >
                 Aucune indisponibilité pour le moment
               </Typography>
             </Stack>
