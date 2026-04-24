@@ -54,18 +54,14 @@ public class MatchService {
   /**
    * Constructs a new MatchService with the specified repositories and services.
    *
-   * @param matchRepository the match repository
+   * @param matchRepository       the match repository
    * @param matchLineupRepository the match lineup repository
-   * @param memberService the member service
-   * @param teamService the team service
-   * @param matchLineupService the match lineup service
+   * @param memberService         the member service
+   * @param teamService           the team service
+   * @param matchLineupService    the match lineup service
    */
-  public MatchService(
-      MatchRepository matchRepository,
-      MatchLineupRepository matchLineupRepository,
-      MemberService memberService,
-      TeamService teamService,
-      MatchLineupService matchLineupService) {
+  public MatchService(MatchRepository matchRepository, MatchLineupRepository matchLineupRepository,
+      MemberService memberService, TeamService teamService, MatchLineupService matchLineupService) {
     this.matchRepository = matchRepository;
     this.memberService = memberService;
     this.matchLineupRepository = matchLineupRepository;
@@ -95,33 +91,28 @@ public class MatchService {
         availableMembers.add(member);
       }
     }
-    return availableMembers
-        .stream()
-        .sorted(Comparator.comparing(Member::getTag))
+    return availableMembers.stream().sorted(Comparator.comparing(Member::getTag))
         .collect(Collectors.toCollection(LinkedHashSet::new));
   }
 
   /**
    * Retrieves matches for a team and member, filtered by search query.
    *
-   * @param teamId the id of the team
-   * @param memberId the id of the member
+   * @param teamId      the id of the team
+   * @param memberId    the id of the member
    * @param searchQuery the search query
    * @return the matches
    */
   public List<MatchSummaryDto> getMatches(Long teamId, Long memberId, String searchQuery) {
     Specification<Match> spec = Specification.where(null);
 
-    spec = spec
-        .and(MatchSpecifications.hasMember(memberId))
+    spec = spec.and(MatchSpecifications.hasMember(memberId))
         .and(MatchSpecifications.hasTeam(teamId))
         .and(MatchSpecifications.searchByTeamName(searchQuery));
 
     Sort sort = Sort.by(Sort.Direction.DESC, "dateHour");
 
-    return matchRepository
-        .findAll(spec, sort)
-        .stream()
+    return matchRepository.findAll(spec, sort).stream()
         .map(match -> mapMatchToSummaryDto(match, match.getTournament()))
         .collect(Collectors.toList());
   }
@@ -152,17 +143,16 @@ public class MatchService {
    */
 
   private Match getMatch(Long matchId) {
-    return matchRepository
-        .findById(matchId)
+    return matchRepository.findById(matchId)
         .orElseThrow(() -> new MatchNotFoundException("Match not found"));
   }
 
   /**
    * Validates if a user is allowed to confirm the result of a match.
    *
-   * @param match the match
+   * @param match  the match
    * @param member the member
-   * @throws MemberHasNoTeamException if the user has no team
+   * @throws MemberHasNoTeamException        if the user has no team
    * @throws MemberNotManagerOfTeamException if the user is not part of the match
    */
   private void validateUserCanConfirm(Match match, Member member) {
@@ -188,8 +178,8 @@ public class MatchService {
   /**
    * Updates the confirmation status (confirm or contest) for the correct team.
    *
-   * @param match the match
-   * @param team the team
+   * @param match  the match
+   * @param team   the team
    * @param status true for confirm, false for contest
    */
   private void updateConfirmationStatus(Match match, Team team, ConfirmationStatus status) {
@@ -210,8 +200,8 @@ public class MatchService {
    * Handles the result of a match for the authenticated user.
    *
    * @param matchId the id of the match
-   * @param member the authenticated user
-   * @param status true for confirm, false for contest
+   * @param member  the authenticated user
+   * @param status  true for confirm, false for contest
    */
   private Match handleMatchResult(Long matchId, Member member, ConfirmationStatus status) {
     Match match = getMatch(matchId);
@@ -227,7 +217,7 @@ public class MatchService {
    * Confirms the result of a match for the authenticated user.
    *
    * @param matchId the id of the match
-   * @param member the authenticated user
+   * @param member  the authenticated user
    */
   @Transactional
   public void confirmResult(Long matchId, Member member) {
@@ -258,7 +248,7 @@ public class MatchService {
    * Contests the result of a match for the authenticated user.
    *
    * @param matchId the id of the match
-   * @param member the authenticated user
+   * @param member  the authenticated user
    */
   @Transactional
   public void contestResult(Long matchId, Member member) {
@@ -289,16 +279,10 @@ public class MatchService {
 
     List<MatchLineup> lineups = getLineups(match);
 
-    MatchLineup team1Lineup = lineups
-        .stream()
-        .filter(l -> l.getTeam().equals(match.getTeam1()))
-        .findFirst()
-        .orElseThrow(MatchLineupNotFoundException::new);
-    MatchLineup team2Lineup = lineups
-        .stream()
-        .filter(l -> l.getTeam().equals(match.getTeam2()))
-        .findFirst()
-        .orElseThrow(MatchLineupNotFoundException::new);
+    MatchLineup team1Lineup = lineups.stream().filter(l -> l.getTeam().equals(match.getTeam1()))
+        .findFirst().orElseThrow(MatchLineupNotFoundException::new);
+    MatchLineup team2Lineup = lineups.stream().filter(l -> l.getTeam().equals(match.getTeam2()))
+        .findFirst().orElseThrow(MatchLineupNotFoundException::new);
 
     updateMatchWinner(team1Lineup, team2Lineup);
   }
@@ -356,8 +340,8 @@ public class MatchService {
 
     List<MatchLineup> lineups = match.getLineups();
 
-    MatchLineup winnerLineup =
-        lineups.stream().filter(l -> l.getTeam().equals(winningTeam)).findFirst().orElse(null);
+    MatchLineup winnerLineup = lineups.stream().filter(l -> l.getTeam().equals(winningTeam))
+        .findFirst().orElse(null);
 
     if (winnerLineup != null) {
       winnerLineup.setWinner(true);
@@ -366,8 +350,8 @@ public class MatchService {
     }
 
     if (forfeitingTeam != null) {
-      MatchLineup forfeitLineup =
-          lineups.stream().filter(l -> l.getTeam().equals(forfeitingTeam)).findFirst().orElse(null);
+      MatchLineup forfeitLineup = lineups.stream().filter(l -> l.getTeam().equals(forfeitingTeam))
+          .findFirst().orElse(null);
 
       if (forfeitLineup != null) {
         forfeitLineup.setHasForfeited(true);
@@ -384,7 +368,7 @@ public class MatchService {
   /**
    * Maps a match to a summary dto.
    *
-   * @param match the match
+   * @param match      the match
    * @param tournament the tournament
    * @return the summary dto
    */
@@ -394,24 +378,16 @@ public class MatchService {
     MatchTeamDto team1Dto = createMatchTeamDto(match.getTeam1(), lineups);
     MatchTeamDto team2Dto = createMatchTeamDto(match.getTeam2(), lineups);
 
-    return new MatchSummaryDto(
-        match.getIdMatch(),
-        match.getDateHour(),
-        match.getTurn(),
-        match.getStatus(),
-        team1Dto,
-        team2Dto,
-        new MatchSummaryTournamentDto(
-            tournament.getIdTournament(),
-            tournament.getName(),
-            tournament.getStatus()),
-        match.getNextMatch() == null);
+    return new MatchSummaryDto(match.getIdMatch(), match.getDateHour(), match.getTurn(),
+        match.getStatus(), team1Dto, team2Dto,
+        new MatchSummaryTournamentDto(tournament.getIdTournament(), tournament.getName(),
+            tournament.getStatus()), match.getNextMatch() == null);
   }
 
   /**
    * Create a match team dto.
    *
-   * @param team the team
+   * @param team    the team
    * @param lineups the lineups
    * @return the match team dto
    */
@@ -420,31 +396,16 @@ public class MatchService {
       return null;
     }
 
-    MatchLineup lineup = lineups
-        .stream()
-        .filter(l -> l.getTeam().getIdTeam().equals(team.getIdTeam()))
-        .findFirst()
-        .orElse(null);
+    MatchLineup lineup = lineups.stream()
+        .filter(l -> l.getTeam().getIdTeam().equals(team.getIdTeam())).findFirst().orElse(null);
 
     if (lineup == null) {
-      return new MatchTeamDto(
-          team.getIdTeam(),
-          team.getName(),
-          null,
-          false,
-          false,
-          ConfirmationStatus.PENDING,
-          null);
+      return new MatchTeamDto(team.getIdTeam(), team.getName(), null, false, false,
+          ConfirmationStatus.PENDING, null);
     }
     MatchLineupDto lineupDto = MatchLineupDto.fromEntity(lineup);
-    return new MatchTeamDto(
-        team.getIdTeam(),
-        team.getName(),
-        lineup.getScore(),
-        lineup.isWinner(),
-        lineup.isHasForfeited(),
-        lineup.getConfirmationStatus(),
-        lineupDto);
+    return new MatchTeamDto(team.getIdTeam(), team.getName(), lineup.getScore(), lineup.isWinner(),
+        lineup.isHasForfeited(), lineup.getConfirmationStatus(), lineupDto);
   }
 
   /**
@@ -466,8 +427,8 @@ public class MatchService {
       throw new MatchLineupNotFoundException("No lineups found for the match.");
     }
 
-    MatchLineup winnerLineup =
-        lineups.stream().filter(MatchLineup::isWinner).findFirst().orElse(null);
+    MatchLineup winnerLineup = lineups.stream().filter(MatchLineup::isWinner).findFirst()
+        .orElse(null);
 
     if (winnerLineup == null) {
       System.out.println("Nobody is marked as the winner in Match ID " + match.getIdMatch());
@@ -503,12 +464,12 @@ public class MatchService {
    * match is in PLANNED status, and transitions it to PLAYED.
    *
    * @param matchId the id of the match
-   * @param dto the DTO containing the scores for both teams
+   * @param dto     the DTO containing the scores for both teams
    * @return the updated match summary
-   * @throws MatchNotFoundException if the match is not found
-   * @throws InvalidMatchStatusException if the match is not in PLANNED status
+   * @throws MatchNotFoundException       if the match is not found
+   * @throws InvalidMatchStatusException  if the match is not in PLANNED status
    * @throws MatchLineupNotFoundException if a lineup is not found
-   * @throws UnallowedTieException if the scores are equal
+   * @throws UnallowedTieException        if the scores are equal
    */
   @Transactional
   public MatchSummaryDto encodeResult(Long matchId, EncodeMatchResultDto dto) {
@@ -529,24 +490,18 @@ public class MatchService {
   /**
    * Applies the scores from the DTO to the corresponding team lineups.
    *
-   * @param match the match
+   * @param match   the match
    * @param lineups the match lineups
-   * @param dto the DTO containing the scores
+   * @param dto     the DTO containing the scores
    * @throws MatchLineupNotFoundException if a lineup is not found for a team
    */
   private void applyScores(Match match, List<MatchLineup> lineups, EncodeMatchResultDto dto) {
-    MatchLineup team1Lineup = lineups
-        .stream()
-        .filter(l -> l.getTeam().equals(match.getTeam1()))
-        .findFirst()
-        .orElseThrow(
+    MatchLineup team1Lineup = lineups.stream().filter(l -> l.getTeam().equals(match.getTeam1()))
+        .findFirst().orElseThrow(
             () -> new MatchLineupNotFoundException("Composition introuvable pour l'équipe 1."));
 
-    MatchLineup team2Lineup = lineups
-        .stream()
-        .filter(l -> l.getTeam().equals(match.getTeam2()))
-        .findFirst()
-        .orElseThrow(
+    MatchLineup team2Lineup = lineups.stream().filter(l -> l.getTeam().equals(match.getTeam2()))
+        .findFirst().orElseThrow(
             () -> new MatchLineupNotFoundException("Composition introuvable pour l'équipe 2."));
 
     team1Lineup.setScore(dto.scoreTeam1());

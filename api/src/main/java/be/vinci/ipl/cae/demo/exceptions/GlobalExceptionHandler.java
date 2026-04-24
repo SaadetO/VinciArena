@@ -88,17 +88,5 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", ex.getMessage()));
   }
 
-  /**
-   * Handles privateLineupException.
-   *
-   * @param ex the exception
-   * @return a 403 response with error message
-   */
-  @ExceptionHandler(PrivateLineupException.class)
-  public ResponseEntity<String> handlePrivateLineup(PrivateLineupException ex) {
-    return ResponseEntity
-        .status(HttpStatus.FORBIDDEN)
-        .body(ex.getMessage());
-  }
 
 }

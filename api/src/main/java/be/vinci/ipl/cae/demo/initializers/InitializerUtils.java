@@ -2,6 +2,7 @@ package be.vinci.ipl.cae.demo.initializers;
 
 import be.vinci.ipl.cae.demo.models.entities.Match;
 import be.vinci.ipl.cae.demo.models.entities.MatchLineup;
+import be.vinci.ipl.cae.demo.models.entities.MatchStatus;
 import be.vinci.ipl.cae.demo.models.entities.Member;
 import be.vinci.ipl.cae.demo.models.entities.ProfileImage;
 import be.vinci.ipl.cae.demo.models.entities.Specialty;
@@ -9,6 +10,7 @@ import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.models.entities.Tournament;
 import be.vinci.ipl.cae.demo.models.entities.TournamentStatus;
 import be.vinci.ipl.cae.demo.repositories.MatchLineupRepository;
+import be.vinci.ipl.cae.demo.repositories.MatchRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.ProfileImageRepository;
 import be.vinci.ipl.cae.demo.repositories.SpecialtyRepository;
@@ -21,6 +23,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Utility class to share initialization logic and mock data.
@@ -139,10 +142,10 @@ public final class InitializerUtils {
   /**
    * Completes the registration of a tournament using a pool of ghost teams.
    *
-   * @param tournament tournament
-   * @param ghostPool pool of ghost teams
+   * @param tournament       tournament
+   * @param ghostPool        pool of ghost teams
    * @param totalTeamsTarget number of registered teams
-   * @param tournamentRepo tournament repository
+   * @param tournamentRepo   tournament repository
    */
   public static void completeTournamentRegistration(Tournament tournament, List<Team> ghostPool,
       int totalTeamsTarget, TournamentRepository tournamentRepo) {
@@ -169,8 +172,8 @@ public final class InitializerUtils {
   /**
    * Creates empty match lineup.
    *
-   * @param match match
-   * @param team team
+   * @param match           match
+   * @param team            team
    * @param matchLineupRepo match lineup repository
    */
   public static void createEmptyMatchLineup(Match match, Team team,
@@ -181,4 +184,63 @@ public final class InitializerUtils {
     lineup.setMembers(new HashSet<>());
     matchLineupRepo.save(lineup);
   }
+
+  public record MatchMockData(String tournamentName, String team1Name, String team2Name, int turn,
+                              int year, int month, int day, int hour, int minute,
+                              MatchStatus status, boolean isFinal) {
+
+  }
+
+  /**
+   * Creates a single match and its associated empty lineups.
+   */
+  public static Match createOneMatch(Tournament tournament, Team t1, Team t2, int turn,
+      Match nextMatch, LocalDateTime dateHour, MatchStatus status, MatchRepository matchRepo,
+      MatchLineupRepository matchLineupRepo) {
+    Match match = new Match();
+    match.setTournament(tournament);
+    match.setTeam1(t1);
+    match.setTeam2(t2);
+    match.setTurn(turn);
+    match.setNextMatch(nextMatch);
+    match.setDateHour(dateHour);
+    match.setStatus(status);
+
+    Match savedMatch = matchRepo.save(match);
+
+    // Automatically create lineups if teams are provided
+    if (t1 != null) {
+      createEmptyMatchLineup(savedMatch, t1, matchLineupRepo);
+    }
+    if (t2 != null) {
+      createEmptyMatchLineup(savedMatch, t2, matchLineupRepo);
+    }
+
+    return savedMatch;
+  }
+
+  /**
+   * Sets the lineup for a specific team in a match using a list of member emails.
+   */
+  public static void setTeamLineup(
+      Match match,
+      Team team,
+      String[] emails,
+      MemberRepository memberRepo,
+      MatchLineupRepository matchLineupRepo
+  ) {
+    // This line ensures the database knows about the lineups we just created
+    matchLineupRepo.flush();
+
+    matchLineupRepo.findByMatchAndTeam(match, team).ifPresent(lineup -> {
+      Set<Member> players = new HashSet<>();
+      for (String email : emails) {
+        memberRepo.findByEmail(email);
+      }
+      lineup.setMembers(players);
+      matchLineupRepo.save(lineup);
+    });
+  }
+
+
 }

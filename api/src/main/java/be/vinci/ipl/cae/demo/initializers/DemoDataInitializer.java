@@ -3,9 +3,7 @@ package be.vinci.ipl.cae.demo.initializers;
 import be.vinci.ipl.cae.demo.initializers.InitializerUtils.MemberMockData;
 import be.vinci.ipl.cae.demo.initializers.InitializerUtils.TournamentMockData;
 import be.vinci.ipl.cae.demo.models.entities.Match;
-import be.vinci.ipl.cae.demo.models.entities.MatchLineup;
 import be.vinci.ipl.cae.demo.models.entities.MatchStatus;
-import be.vinci.ipl.cae.demo.models.entities.ProfileImage;
 import be.vinci.ipl.cae.demo.models.entities.Specialty;
 import be.vinci.ipl.cae.demo.models.entities.Team;
 import be.vinci.ipl.cae.demo.models.entities.Tournament;
@@ -21,9 +19,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.StreamSupport;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
@@ -74,22 +72,7 @@ public class DemoDataInitializer implements CommandLineRunner {
     System.out.println("--- STARTING DEMO DATA INITIALIZATION ---");
 
     // Create Specialities
-    String[] specialities = {"architecte", "exécuteur", "tacticien", "gardien", "catalyseur",
-        "perturbateur", "guérisseur"};
-
-    Map<String, Specialty> specMap = new HashMap<>();
-    for (String specialty : specialities) {
-      Specialty spec = new Specialty();
-      spec.setName(specialty);
-      specMap.put(specialty, specRepo.save(spec));
-    }
-
-    // Insert profile image paths
-    for (int i = 1; i <= 20; i++) {
-      ProfileImage image = new ProfileImage();
-      image.setPath("profile-" + i + ".png");
-      imageRepo.save(image);
-    }
+    Map<String, Specialty> specMap = InitializerUtils.initializeBasics(specRepo, imageRepo);
 
     MemberMockData[] memberDataList = {
         new MemberMockData("lea@mail.com", "Lynx", "tacticien", "2025-11-12", true, true,
@@ -159,13 +142,13 @@ public class DemoDataInitializer implements CommandLineRunner {
             "Tournoi de Pâques ouvert à toutes les teams actives", "2026-04-15", "2026-04-25",
             "2026-04-08T20:00:00", 8, 7, "TEAM_DELTA", TournamentStatus.DONE),
 
-        new TournamentMockData("Elite Championship 2026",
-            "Compétition élite réservée aux meilleures teams", "2026-05-15", "2026-05-30",
-            "2026-05-11T20:00:00", 16, 14, null, TournamentStatus.REGISTRATION_OPEN),};
+        new TournamentMockData("Spring Battle Series 2026",
+            "Série printanière avec élimination directe et forte participation", "2026-05-04",
+            "2026-05-12", "2026-05-01T23:59:59", 8, 8, null, TournamentStatus.IN_PROGRESS)};
 
-    TournamentMockData currentTournament = new TournamentMockData("Spring Battle Series 2026",
-        "Série printanière avec élimination directe et forte participation", "2026-05-04",
-        "2026-05-12", "2026-05-01T23:59:59", 8, 8, null, TournamentStatus.IN_PROGRESS);
+    TournamentMockData futureTournamentMock = new TournamentMockData("Elite Championship 2026",
+        "Compétition élite réservée aux meilleures teams", "2026-05-15", "2026-05-30",
+        "2026-05-11T20:00:00", 10, 9, null, TournamentStatus.REGISTRATION_OPEN);
 
     for (TournamentMockData data : tournamentDataList) {
       Tournament t = new Tournament();
@@ -177,73 +160,202 @@ public class DemoDataInitializer implements CommandLineRunner {
       t.setCapacity(data.capacity());
       t.setStatus(data.status());
       t.setWinner(teamMap.get(data.winnerTeamName()));
-      t.registerTeam(teamMap.get("TEAM_ALPHA"));
-      t.registerTeam(teamMap.get("TEAM_DELTA"));
-      t.registerTeam(teamMap.get("TEAM_IOTA"));
-      t.registerTeam(teamMap.get("TEAM_OMEGA"));
+      t.getTeams().add(teamMap.get("TEAM_ALPHA"));
+      t.getTeams().add(teamMap.get("TEAM_DELTA"));
+      t.getTeams().add(teamMap.get("TEAM_IOTA"));
+      t.getTeams().add(teamMap.get("TEAM_OMEGA"));
       InitializerUtils.completeTournamentRegistration(t, ghostTeams, data.teamCount(),
           tournamentRepo);
 
     }
 
-    Tournament currentT = new Tournament();
-    currentT.setName(currentTournament.name());
-    currentT.setDescription(currentTournament.description());
-    currentT.setStartDate(LocalDate.parse(currentTournament.start()));
-    currentT.setEndDate(LocalDate.parse(currentTournament.end()));
-    currentT.setRegistrationDeadline(LocalDateTime.parse(currentTournament.deadline()));
-    currentT.setCapacity(currentTournament.capacity());
-    currentT.setStatus(currentTournament.status());
-    currentT.setWinner(teamMap.get(currentTournament.winnerTeamName()));
-    currentT.registerTeam(teamMap.get("TEAM_ALPHA"));
-    currentT.registerTeam(teamMap.get("TEAM_IOTA"));
-    InitializerUtils.completeTournamentRegistration(currentT, ghostTeams,
-        currentTournament.teamCount(), tournamentRepo);
+    Tournament futureTournament = new Tournament();
+    futureTournament.setName(futureTournamentMock.name());
+    futureTournament.setDescription(futureTournamentMock.description());
+    futureTournament.setStartDate(LocalDate.parse(futureTournamentMock.start()));
+    futureTournament.setEndDate(LocalDate.parse(futureTournamentMock.end()));
+    futureTournament.setRegistrationDeadline(LocalDateTime.parse(futureTournamentMock.deadline()));
+    futureTournament.setCapacity(futureTournamentMock.capacity());
+    futureTournament.setStatus(futureTournamentMock.status());
+    futureTournament.setWinner(teamMap.get(futureTournamentMock.winnerTeamName()));
+    futureTournament.getTeams().add(teamMap.get("TEAM_ALPHA"));
+    futureTournament.getTeams().add(teamMap.get("TEAM_IOTA"));
+    InitializerUtils.completeTournamentRegistration(futureTournament, ghostTeams,
+        futureTournamentMock.teamCount(), tournamentRepo);
 
-    // create mock matches
+    // Set up matches for current tournament : SPRING BATTLE SERIES 2026
     Tournament springBattle = StreamSupport.stream(tournamentRepo.findAll().spliterator(), false)
         .filter(t -> "Spring Battle Series 2026".equals(t.getName())).findFirst().orElse(null);
+
     Team alpha = teamRepo.findByName("TEAM_ALPHA");
+    Team omega = teamRepo.findByName("TEAM_OMEGA");
     Team delta = teamRepo.findByName("TEAM_DELTA");
     Team iota = teamRepo.findByName("TEAM_IOTA");
-    Team omega = teamRepo.findByName("TEAM_OMEGA");
+    Team ghost1 = teamRepo.findByName("TEAM_GHOST_1");
+    Team ghost2 = teamRepo.findByName("TEAM_GHOST_2");
+    Team ghost3 = teamRepo.findByName("TEAM_GHOST_3");
+    Team ghost4 = teamRepo.findByName("TEAM_GHOST_4");
+    // 1. Create the FINAL (nextMatch is null)
+    Match finalMatch = InitializerUtils.createOneMatch(
+        springBattle, null, null, 3, null,
+        LocalDateTime.of(2026, 5, 10, 20, 0),
+        MatchStatus.PLANNED, matchRepo, matchLineupRepo
+    );
 
-    // MATCH 1: delta vs iota
-    Match match1 = new Match();
-    match1.setTournament(springBattle);
-    match1.setTeam1(delta);
-    match1.setTeam2(iota);
-    match1.setTurn(1);
-    match1.setDateHour(LocalDateTime.of(2026, 05, 07, 6, 15));
-    match1.setStatus(MatchStatus.PLANNED);
-    match1 = matchRepo.save(match1);
+    Match deltaVSiota = InitializerUtils.createOneMatch(
+        springBattle, delta, iota, 2, finalMatch,
+        LocalDateTime.of(2026, 5, 7, 6, 30),
+        MatchStatus.PLANNED, matchRepo, matchLineupRepo
+    );
 
-    // MATCH 2: omega vs alpha
-    Match match2 = new Match();
-    match2.setTournament(springBattle);
-    match2.setTeam1(omega);
-    match2.setTeam2(alpha);
-    match2.setTurn(1);
-    match2.setDateHour(LocalDateTime.of(2026, 05, 07, 22, 30));
-    match2.setStatus(MatchStatus.PLANNED);
-    match2 = matchRepo.save(match2);
-    // After match1 = matchRepo.save(match1);
-    createEmptyMatchLineup(match1, delta, matchLineupRepo);
-    createEmptyMatchLineup(match1, iota, matchLineupRepo);
+    Match omegaVSalpha = InitializerUtils.createOneMatch(
+        springBattle, omega, alpha, 2, finalMatch,
+        LocalDateTime.of(2026, 5, 7, 23, 30),
+        MatchStatus.PLANNED, matchRepo, matchLineupRepo
+    );
 
-// After match2 = matchRepo.save(match2);
-    createEmptyMatchLineup(match2, omega, matchLineupRepo);
-    createEmptyMatchLineup(match2, alpha, matchLineupRepo);
+    Match g1vsiota = InitializerUtils.createOneMatch(
+        springBattle, ghost1, iota, 1, deltaVSiota,
+        LocalDateTime.of(2026, 5, 5, 16, 45),
+        MatchStatus.PLAYED, matchRepo, matchLineupRepo
+    );
+    matchLineupRepo.findByMatchAndTeam(g1vsiota, iota).ifPresent(lineup -> {
+      lineup.replaceLineup(Set.of(
+          memberRepo.findByEmail("lisa@mail.com"),
+          memberRepo.findByEmail("noa@mail.com"),
+          memberRepo.findByEmail("tim@mail.com"),
+          memberRepo.findByEmail("zoe@mail.com")
+      ));
+      lineup.setScore(4);
+      matchLineupRepo.save(lineup);
+    });
+    matchLineupRepo.findByMatchAndTeam(g1vsiota, ghost1).ifPresent(lineup -> {
+      lineup.setScore(0);
+      matchLineupRepo.save(lineup);
+    });
 
+    Match g2vsdelta = InitializerUtils.createOneMatch(
+        springBattle, ghost2, delta, 1, deltaVSiota,
+        LocalDateTime.of(2026, 5, 5, 19, 0),
+        MatchStatus.PLAYED, matchRepo, matchLineupRepo
+    );
+    matchLineupRepo.findByMatchAndTeam(g2vsdelta, delta).ifPresent(lineup -> {
+      lineup.replaceLineup(Set.of(
+          memberRepo.findByEmail("zed@mail.com"),
+          memberRepo.findByEmail("ali@mail.com"),
+          memberRepo.findByEmail("fin@mail.com"),
+          memberRepo.findByEmail("max@mail.com")
+      ));
+      lineup.setScore(5);
+      matchLineupRepo.save(lineup);
+    });
+
+    matchLineupRepo.findByMatchAndTeam(g2vsdelta, ghost2).ifPresent(lineup -> {
+      lineup.setScore(2);
+      matchLineupRepo.save(lineup);
+    });
+
+    Match g3vsalpha = InitializerUtils.createOneMatch(
+        springBattle, ghost3, alpha, 1, omegaVSalpha,
+        LocalDateTime.of(2026, 5, 5, 20, 30),
+        MatchStatus.PLAYED, matchRepo, matchLineupRepo
+    );
+    // saving the lineup composition and score
+    matchLineupRepo.findByMatchAndTeam(g3vsalpha, alpha).ifPresent(lineup -> {
+      lineup.replaceLineup(Set.of(
+          memberRepo.findByEmail("lea@mail.com"),
+          memberRepo.findByEmail("tom@mail.com"),
+          memberRepo.findByEmail("ines@mail.com"),
+          memberRepo.findByEmail("pol@mail.com")
+      ));
+      lineup.setScore(5);
+      matchLineupRepo.save(lineup);
+    });
+    matchLineupRepo.findByMatchAndTeam(g3vsalpha, ghost3).ifPresent(lineup -> {
+      lineup.setScore(3);
+      matchLineupRepo.save(lineup);
+    });
+
+    Match g4vsomega = InitializerUtils.createOneMatch(
+        springBattle, ghost4, omega, 1, omegaVSalpha,
+        LocalDateTime.of(2026, 5, 5, 20, 15),
+        MatchStatus.PLAYED, matchRepo, matchLineupRepo
+    );
+    // saving the lineup composition and score
+    matchLineupRepo.findByMatchAndTeam(g4vsomega, omega).ifPresent(lineup -> {
+      lineup.replaceLineup(
+          Set.of(memberRepo.findByEmail("tibo@mail.com"), memberRepo.findByEmail("neo@mail.com")
+          ));
+      lineup.setScore(5);
+      matchLineupRepo.save(lineup);
+    });
+    matchLineupRepo.findByMatchAndTeam(g4vsomega, ghost4).ifPresent(lineup -> {
+      lineup.setScore(0);
+      matchLineupRepo.save(lineup);
+    });
+
+    // set up match history for tibo@mail.com
+    Tournament eliteChamp25 = StreamSupport.stream(tournamentRepo.findAll().spliterator(), false)
+        .filter(t -> "Elite Championship 2025".equals(t.getName())).findFirst().orElse(null);
+
+    Match tiboMatch2 = InitializerUtils.createOneMatch(
+        eliteChamp25, omega, ghost1, 2, null,
+        LocalDateTime.of(2025, 5, 15, 20, 4),
+        MatchStatus.PLAYED, matchRepo, matchLineupRepo
+    );
+    matchLineupRepo.findByMatchAndTeam(tiboMatch2, omega).ifPresent(lineup -> {
+      lineup.replaceLineup(
+          Set.of(memberRepo.findByEmail("tibo@mail.com")
+          ));
+      lineup.setScore(3);
+      matchLineupRepo.save(lineup);
+    });
+    matchLineupRepo.findByMatchAndTeam(tiboMatch2, ghost1).ifPresent(lineup -> {
+      lineup.setScore(5);
+      matchLineupRepo.save(lineup);
+    });
+
+    Tournament winterClash26 = StreamSupport.stream(tournamentRepo.findAll().spliterator(), false)
+        .filter(t -> "Vinci Winter Clash 2026".equals(t.getName())).findFirst().orElse(null);
+
+    Match tiboMatch3 = InitializerUtils.createOneMatch(
+        winterClash26, omega, ghost1, 2, null,
+        LocalDateTime.of(2026, 1, 12, 16, 50),
+        MatchStatus.PLAYED, matchRepo, matchLineupRepo
+    );
+    matchLineupRepo.findByMatchAndTeam(tiboMatch3, omega).ifPresent(lineup -> {
+      lineup.replaceLineup(
+          Set.of(memberRepo.findByEmail("tibo@mail.com")
+          ));
+      lineup.setScore(4);
+      matchLineupRepo.save(lineup);
+    });
+    matchLineupRepo.findByMatchAndTeam(tiboMatch3, ghost1).ifPresent(lineup -> {
+      lineup.setScore(1);
+      lineup.replaceLineup(Set.of(
+          memberRepo.findByEmail("lea@mail.com"),
+          memberRepo.findByEmail("tom@mail.com")));
+      matchLineupRepo.save(lineup);
+    });
+
+    Match tiboMatch4 = InitializerUtils.createOneMatch(
+        winterClash26, omega, alpha, 1, tiboMatch3,
+        LocalDateTime.of(2026, 1, 11, 19, 0),
+        MatchStatus.PLAYED, matchRepo, matchLineupRepo
+    );
+    matchLineupRepo.findByMatchAndTeam(tiboMatch4, omega).ifPresent(lineup -> {
+      lineup.replaceLineup(
+          Set.of(memberRepo.findByEmail("tibo@mail.com")
+          ));
+      lineup.setScore(5);
+      lineup.setWinner(true);
+      matchLineupRepo.save(lineup);
+    });
+    matchLineupRepo.findByMatchAndTeam(tiboMatch4, alpha).ifPresent(lineup -> {
+      lineup.setHasForfeited(true);
+      matchLineupRepo.save(lineup);
+    });
     System.out.println("--- DEMO DATA INITIALIZATION COMPLETE ---");
   }
 
-  private void createEmptyMatchLineup(Match match, Team team,
-      MatchLineupRepository matchLineupRepo) {
-    MatchLineup lineup = new MatchLineup();
-    lineup.setMatch(match);
-    lineup.setTeam(team);
-    lineup.setMembers(new HashSet<>());
-    matchLineupRepo.save(lineup);
-  }
 }

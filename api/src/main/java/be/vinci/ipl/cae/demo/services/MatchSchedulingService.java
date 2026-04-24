@@ -24,10 +24,7 @@ public class MatchSchedulingService {
   /**
    * Constructor.
    */
-  public MatchSchedulingService(
-    MatchRepository matchRepository,
-    MatchService matchService
-  ) {
+  public MatchSchedulingService(MatchRepository matchRepository, MatchService matchService) {
     this.matchRepository = matchRepository;
     this.matchService = matchService;
   }
@@ -41,11 +38,8 @@ public class MatchSchedulingService {
   public void enforceMatchStartRules() {
     System.out.println("Updating matches...");
     LocalDateTime now = LocalDateTime.now();
-    List<Match> startingMatches =
-      matchRepository.findByStatusAndDateHourLessThanEqual(
-        MatchStatus.PLANNED,
-        now
-      );
+    List<Match> startingMatches = matchRepository.findByStatusAndDateHourLessThanEqual(
+        MatchStatus.PLANNED, now);
 
     for (Match match : startingMatches) {
       Team t1 = match.getTeam1();
@@ -90,17 +84,11 @@ public class MatchSchedulingService {
     System.out.println("Auto-validating matches...");
     LocalDateTime twoHoursAgo = LocalDateTime.now().minusHours(2);
 
-    List<Match> expiredMatches =
-      matchRepository.findByStatusAndScoreEncodedAtLessThanEqual(
-        MatchStatus.AWAITING_VALIDATION,
-        twoHoursAgo
-      );
+    List<Match> expiredMatches = matchRepository.findByStatusAndScoreEncodedAtLessThanEqual(
+        MatchStatus.AWAITING_VALIDATION, twoHoursAgo);
 
     for (Match match : expiredMatches) {
-      boolean isContested = match
-        .getLineups()
-        .stream()
-        .anyMatch(MatchLineup::isContested);
+      boolean isContested = match.getLineups().stream().anyMatch(MatchLineup::isContested);
 
       if (isContested) {
         continue;
