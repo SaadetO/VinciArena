@@ -1,24 +1,27 @@
 import { Avatar, Box, Chip, Stack, Tooltip, Typography } from '@mui/material';
-import dayjs from 'dayjs';
-import { MatchTeamDto, MaybeAuthenticatedUser } from '../../../types';
+import {
+  matchStatus,
+  MatchTeamDto,
+  MaybeAuthenticatedUser,
+} from '../../../types';
 import { Link } from 'react-router-dom';
 
 interface TeamLineupHoverProps {
   team: MatchTeamDto;
-  matchDate: string;
+  matchStatus: matchStatus;
   authenticatedUser: MaybeAuthenticatedUser;
   children: React.ReactNode;
 }
 
 export const TeamLineupHover = ({
   team,
-  matchDate,
+  matchStatus,
   authenticatedUser,
   children,
 }: TeamLineupHoverProps) => {
-  const isPast = dayjs(matchDate).isBefore(dayjs());
+  const isPlanned = matchStatus === 'PLANNED';
   const isTeammate = authenticatedUser?.teamId === team.idTeam;
-  const canSee = isPast || isTeammate;
+  const canSee = !isPlanned || isTeammate;
 
   // if not allowed to see no tooltip
   if (!canSee) {

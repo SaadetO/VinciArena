@@ -222,18 +222,20 @@ interface MatchSummaryDto {
   idMatch: number;
   dateHour: string;
   turn: number;
-  status:
-    | 'PLANNED'
-    | 'PLAYED'
-    | 'IN_PROGRESS'
-    | 'AWAITING_VALIDATION'
-    | 'FORFEIT';
+  status: matchStatus;
   teams: Team[];
   team1: MatchTeamDto;
   team2: MatchTeamDto;
   tournament: MatchSummaryDtoTournament;
   isFinal: boolean;
 }
+
+export type matchStatus =
+  | 'PLANNED'
+  | 'PLAYED'
+  | 'IN_PROGRESS'
+  | 'AWAITING_VALIDATION'
+  | 'FORFEIT';
 
 interface MatchSummaryDtoTournament {
   id: number;
