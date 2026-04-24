@@ -52,7 +52,6 @@ export const getMenuSectionDisplay = ({
 
   const isPlanned = match.status === 'PLANNED';
   const isInProgress = match.status === 'IN_PROGRESS';
-  // const isPlayed = match.status === 'PLAYED';
   const isForfeit = match.status === 'FORFEIT';
   const isInAwaitingValidation = match.status === 'AWAITING_VALIDATION';
 
@@ -139,27 +138,31 @@ export const getOverlayDisplay = ({
 
   const canConfirmScores = team && isPending(team) && isInAwaitingValidation;
 
-  // TODO: check if the user already has registered members in the match for canEditComposition
-  const canEditComposition = team && isPlanned;
+  const isCompositionFull = (team?.lineup?.players.length ?? 0) < 4;
+
+  const canEditComposition = team && isPlanned && isCompositionFull;
 
   const canEncodeScores = isAdmin && isInProgress;
 
   const team1 = match.team1;
   const team2 = match.team2;
 
-  const canEditScores =
-    isAdmin &&
-    isInAwaitingValidation &&
-    (isContested(team1) || isContested(team2));
-
+  const hasContestedScore = isContested(team1) || isContested(team2);
+  const canEditScores = isAdmin && isInAwaitingValidation && hasContestedScore;
   const displayOverlay =
-    canConfirmScores || canEditComposition || canEncodeScores || canEditScores;
+    canConfirmScores ||
+    canEditComposition ||
+    canEncodeScores ||
+    canEditScores ||
+    hasContestedScore;
 
   const getOverlayLabel = () => {
     if (canEncodeScores) return 'Veuillez encoder les scores de ce match.';
     if (canEditScores) return 'Veuillez corriger les scores de ce match.';
     if (canConfirmScores)
       return 'Veuillez confirmer ou contester les scores de ce match.';
+    if (hasContestedScore)
+      return 'Le résultat de ce match est actuellement contesté.';
     if (canEditComposition)
       return 'Veuillez enregistrer des joueurs pour ce match.';
   };
@@ -213,7 +216,7 @@ export const getVersusItemDisplay = ({
   match: MatchSummaryDto;
   authenticatedUser: MaybeAuthenticatedUser;
 }) => {
-  const isAdmin = authenticatedUser?.admin;
+  const isAdmin = !!authenticatedUser?.admin;
 
   const isAwaitingValidation = match.status === 'AWAITING_VALIDATION';
   const isPlayed = match.status === 'PLAYED';
@@ -241,7 +244,7 @@ export const getVersusItemDisplay = ({
         </Box>
       );
     else if (revealScores) return score;
-    else '-';
+    else return '-';
   };
 
   return {

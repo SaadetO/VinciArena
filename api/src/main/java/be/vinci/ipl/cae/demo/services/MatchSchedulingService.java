@@ -38,8 +38,8 @@ public class MatchSchedulingService {
   public void enforceMatchStartRules() {
     System.out.println("Updating matches...");
     LocalDateTime now = LocalDateTime.now();
-    List<Match> startingMatches = matchRepository.findByStatusAndDateHourLessThanEqual(
-        MatchStatus.PLANNED, now);
+    List<Match> startingMatches =
+        matchRepository.findByStatusAndDateHourLessThanEqual(MatchStatus.PLANNED, now);
 
     for (Match match : startingMatches) {
       Team t1 = match.getTeam1();
@@ -60,8 +60,8 @@ public class MatchSchedulingService {
         continue;
       }
 
-      boolean team1Valid = hasEnoughPlayers(t1);
-      boolean team2Valid = hasEnoughPlayers(t2);
+      boolean team1Valid = hasEnoughPlayers(match, t1);
+      boolean team2Valid = hasEnoughPlayers(match, t2);
 
       if (!team1Valid && !team2Valid) {
         matchService.executeDoubleForfeit(match);
@@ -84,8 +84,8 @@ public class MatchSchedulingService {
     System.out.println("Auto-validating matches...");
     LocalDateTime twoHoursAgo = LocalDateTime.now().minusHours(2);
 
-    List<Match> expiredMatches = matchRepository.findByStatusAndScoreEncodedAtLessThanEqual(
-        MatchStatus.AWAITING_VALIDATION, twoHoursAgo);
+    List<Match> expiredMatches = matchRepository
+        .findByStatusAndScoreEncodedAtLessThanEqual(MatchStatus.AWAITING_VALIDATION, twoHoursAgo);
 
     for (Match match : expiredMatches) {
       boolean isContested = match.getLineups().stream().anyMatch(MatchLineup::isContested);
@@ -109,12 +109,19 @@ public class MatchSchedulingService {
   }
 
   /**
-   * Checks if the team has all required members.
+   * Checks if the lineup for a specific team in a match has members.
    *
+   * @param match the match
    * @param team the team
-   * @return true if it has all required members, false otherwise
+   * @return true if the lineup has members, false otherwise
    */
-  private boolean hasEnoughPlayers(Team team) {
-    return team.getMembers() != null && !team.getMembers().isEmpty();
+  private boolean hasEnoughPlayers(Match match, Team team) {
+    return team != null && match
+        .getLineups()
+        .stream()
+        .filter(lineup -> lineup.getTeam().getIdTeam().equals(team.getIdTeam()))
+        .findFirst()
+        .map(lineup -> lineup.getMembers() != null && !lineup.getMembers().isEmpty())
+        .orElse(false);
   }
 }

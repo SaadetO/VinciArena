@@ -16,18 +16,8 @@ public record MatchLineupDto(
     Long matchId,
     Long teamId,
     String teamName,
-    Set<MemberSummary> players
+    Set<MemberSummaryDto> players
 ) {
-
-  /**
-   * Lightweight summary of a member for lineup display.
-   *
-   * @param id  the unique identifier of the member
-   * @param tag the member's display tag
-   */
-  public record MemberSummary(Long id, String tag) {
-
-  }
 
   /**
    * Creates a DTO from a MatchLineup entity.
@@ -36,8 +26,8 @@ public record MatchLineupDto(
    * @return a new MatchLineupDto populated with entity data
    */
   public static MatchLineupDto fromEntity(MatchLineup entity) {
-    Set<MemberSummary> summaries = entity.getMembers().stream()
-        .map(m -> new MemberSummary(m.getIdMember(), m.getTag()))
+    Set<MemberSummaryDto> summaries = entity.getMembers().stream()
+        .map(MemberSummaryDto::fromEntity)
         .collect(Collectors.toSet());
 
     return new MatchLineupDto(

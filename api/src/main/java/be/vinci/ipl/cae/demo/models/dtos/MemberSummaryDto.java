@@ -14,6 +14,7 @@ public class MemberSummaryDto {
   private Long id;
   private String tag;
   private String avatar;
+  private String specialty;
 
   /**
    * Converts a Member entity to a MemberSummaryDto. * @param member the entity to convert
@@ -26,6 +27,7 @@ public class MemberSummaryDto {
         .id(member.getIdMember())
         .tag(member.getTag())
         .avatar(member.getProfileImage().getPath())
+        .specialty(member.getSpecialty() != null ? member.getSpecialty().getName() : null)
         .build();
   }
 }

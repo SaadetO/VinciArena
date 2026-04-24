@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { MatchSummaryDto } from '../../../../types';
-import { AdminEncodeScoreForm } from './AdminEncodeScoreForm';
+import { MatchSummaryDto } from '../../../types';
+import { AdminEncodeScoreForm } from '../components/AdminEncodeScoreForm';
 
 interface AdminEncodeScoreModalContentProps {
   match: MatchSummaryDto;
