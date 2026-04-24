@@ -34,6 +34,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -128,7 +130,7 @@ public class TournamentService {
    * @return the matches of the tournament
    */
   private List<MatchSummaryDto> getMatchesSummaryDto(Tournament tournament, Member currentMember) {
-    Boolean isAdmin = currentMember != null && currentMember.isAdmin();
+    boolean isAdmin = currentMember != null && currentMember.isAdmin();
 
     if (tournament.getStatus() == TournamentStatus.REGISTRATION_CLOSED && !isAdmin) {
       return Collections.emptyList();
@@ -200,7 +202,8 @@ public class TournamentService {
       List<Long> membersIds,
       String search,
       LocalDate minDate,
-      LocalDate maxDate) {
+      LocalDate maxDate,
+      Integer limit) {
     Specification<Tournament> spec = Specification.where(null);
 
     spec = spec
@@ -211,7 +214,15 @@ public class TournamentService {
         .and(TournamentSpecifications.hasMembersInMatches(membersIds));
 
     Sort sort = Sort.by(Sort.Direction.DESC, "startDate");
-    List<Tournament> tournaments = tournamentRepository.findAll(spec, sort);
+
+    Pageable pageable;
+    if (limit != null && limit > 0) {
+      pageable = PageRequest.of(0, limit, sort);
+    } else {
+      pageable = PageRequest.ofSize(Integer.MAX_VALUE).withSort(sort);
+    }
+
+    List<Tournament> tournaments = tournamentRepository.findAll(spec, pageable).getContent();
 
     return tournaments.stream().map(this::mapToSummaryDto).toList();
   }
@@ -560,5 +571,4 @@ public class TournamentService {
 
     matchLineupRepository.saveAll(defaultLineups);
   }
-
 }

@@ -30,12 +30,15 @@ import be.vinci.ipl.cae.demo.repositories.UnavailabilityRepository;
 import be.vinci.ipl.cae.demo.specifications.MemberSpecifications;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -47,10 +50,21 @@ import org.springframework.stereotype.Service;
 @Service
 public class MemberService {
 
-  private static final String jwtSecret = "ilovemypizza!";
+  @Value("APP_JWT_SECRET")
+  private String jwtSecret;
   private static final long lifetimeJwt = 24 * 60 * 60 * 1000; // 24 hours
 
-  private static final Algorithm algorithm = Algorithm.HMAC256(jwtSecret);
+  // Do NOT make this final or static
+  private Algorithm algorithm;
+
+  /**
+   * Initialize jwt.
+   */
+  @PostConstruct
+  public void init() {
+    // This runs only after jwtSecret is successfully pulled from .env
+    this.algorithm = Algorithm.HMAC256(jwtSecret);
+  }
 
   private final BCryptPasswordEncoder passwordEncoder;
   private final MemberRepository memberRepository;
@@ -526,7 +540,7 @@ public class MemberService {
             .stream()
             .filter(m -> !m.getIdMember().equals(member.getIdMember()))
             .filter(m -> !m.isDeleted())
-            .min((m1, m2) -> m1.getCreationDate().compareTo(m2.getCreationDate()))
+            .min(Comparator.comparing(Member::getCreationDate))
             .orElse(null);
 
         if (replacement != null) {

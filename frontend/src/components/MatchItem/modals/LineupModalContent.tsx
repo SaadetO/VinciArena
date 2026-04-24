@@ -24,7 +24,7 @@ export const LineupModalContent = ({
     <Stack spacing="0.25rem" px="0.625rem">
       {allMembers.map((member: MemberSummaryDto) => {
         const isSelected = selectedIds.includes(member.id);
-        // On bloque si on a déjà 4 et que ce membre n'est PAS celui qu'on veut désélectionner
+        // block toggle if there are already 4 members and its not a member we are trying to unselect
         const isFull = selectedIds.length >= 4 && !isSelected;
 
         return (

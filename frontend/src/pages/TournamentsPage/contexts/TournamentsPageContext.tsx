@@ -6,7 +6,7 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { HomePageContextType, TournamentDto } from '../../../types';
+import { TournamentsPageContextType, TournamentDto } from '../../../types';
 import { useUser } from '../../../hooks/useUser';
 import {
   getStatusesForTimeframe,
@@ -15,7 +15,7 @@ import {
 } from '../../../utils/tournamentUtils';
 import { useTournament } from '../../../hooks/useTournaments';
 
-const defaultHomePageContext: HomePageContextType = {
+const defaultTournamentsPageContext: TournamentsPageContextType = {
   filters: {
     searchQuery: '',
     teams: [],
@@ -32,11 +32,15 @@ const defaultHomePageContext: HomePageContextType = {
   groupedTournaments: [],
 };
 
-const HomePageContext = createContext<HomePageContextType>(
-  defaultHomePageContext,
+const TournamentsPageContext = createContext<TournamentsPageContextType>(
+  defaultTournamentsPageContext,
 );
 
-const HomePageContextProvider = ({ children }: { children: ReactNode }) => {
+const TournamentsPageContextProvider = ({
+  children,
+}: {
+  children: ReactNode;
+}) => {
   const [tournaments, setTournaments] = useState<TournamentDto[]>([]);
   const { authenticatedUser } = useUser();
 
@@ -93,7 +97,7 @@ const HomePageContextProvider = ({ children }: { children: ReactNode }) => {
     return groupTournamentsByYearAndMonth(tournaments);
   }, [tournaments]);
 
-  const HomePageContextValue: HomePageContextType = useMemo(
+  const TournamentsPageContextValue: TournamentsPageContextType = useMemo(
     () => ({
       filters,
       fetchWithFilters,
@@ -115,10 +119,10 @@ const HomePageContextProvider = ({ children }: { children: ReactNode }) => {
   );
 
   return (
-    <HomePageContext.Provider value={HomePageContextValue}>
+    <TournamentsPageContext.Provider value={TournamentsPageContextValue}>
       {children}
-    </HomePageContext.Provider>
+    </TournamentsPageContext.Provider>
   );
 };
 
-export { HomePageContext, HomePageContextProvider };
+export { TournamentsPageContext, TournamentsPageContextProvider };

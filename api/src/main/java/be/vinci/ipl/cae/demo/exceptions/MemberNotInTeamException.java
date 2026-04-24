@@ -16,12 +16,4 @@ public class MemberNotInTeamException extends RuntimeException {
     super("The selected member does not belong to the required team.");
   }
 
-  /**
-   * Constructs a new MemberNotInTeamException with the specified message.
-   *
-   * @param message the detail message
-   */
-  public MemberNotInTeamException(String message) {
-    super(message);
-  }
 }

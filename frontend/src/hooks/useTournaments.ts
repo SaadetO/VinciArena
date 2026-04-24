@@ -34,6 +34,7 @@ export const useTournament = (config: UseTournamentOptions) => {
       searchQuery,
       minDate,
       maxDate,
+      limit,
     }: {
       statuses?: string[] | undefined;
       members?: number[] | undefined;
@@ -41,6 +42,7 @@ export const useTournament = (config: UseTournamentOptions) => {
       searchQuery?: string | undefined;
       minDate?: string | undefined;
       maxDate?: string | undefined;
+      limit?: number | undefined;
     }) => {
       const params = new URLSearchParams();
       if (statuses && statuses.length > 0)
@@ -51,6 +53,7 @@ export const useTournament = (config: UseTournamentOptions) => {
       if (searchQuery) params.append('searchQuery', searchQuery);
       if (minDate) params.append('minDate', minDate);
       if (maxDate) params.append('maxDate', maxDate);
+      if (limit) params.append('limit', String(limit));
 
       console.log(
         'fetching tournaments',

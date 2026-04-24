@@ -287,7 +287,7 @@ interface MemberFilters {
   searchQuery?: string;
 }
 
-interface HomePageContextType {
+interface TournamentsPageContextType {
   filters: TournamentFilters;
   fetchWithFilters: () => void;
   setFilters: (filters: TournamentFilters) => void;
@@ -349,7 +349,7 @@ export type {
   TournamentStatus,
   TournamentFormData,
   MemberFilters,
-  HomePageContextType,
+  TournamentsPageContextType,
   TournamentMatchFilters,
   MatchLineupDto,
   ConfirmOrContestMatchParams,

@@ -5,7 +5,7 @@ import { Box } from '@mui/material';
 import { NotificationProvider } from './contexts/NotificationContext';
 import { TournamentModalProvider } from './contexts/TournamentModalContext';
 import { TournamentModal } from './modals/TournamentModal';
-import { HomePageContextProvider } from './pages/HomePage/contexts/HomePageContext';
+import { TournamentsPageContextProvider } from './pages/TournamentsPage/contexts/TournamentsPageContext';
 
 export const App = () => {
   const mainContext: MainContext = {};
@@ -13,7 +13,7 @@ export const App = () => {
   return (
     <NotificationProvider>
       <TournamentModalProvider>
-        <HomePageContextProvider>
+        <TournamentsPageContextProvider>
           <Header />
           <Box
             component="main"
@@ -28,7 +28,7 @@ export const App = () => {
           </Box>
 
           <TournamentModal />
-        </HomePageContextProvider>
+        </TournamentsPageContextProvider>
       </TournamentModalProvider>
     </NotificationProvider>
   );

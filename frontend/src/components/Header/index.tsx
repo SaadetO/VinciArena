@@ -1,5 +1,5 @@
 import { Button, Stack, Tab, Tabs, Typography } from '@mui/material';
-import logo from '../../assets/images/Logo.svg';
+import logo from '../../assets/images/logo.svg';
 import { Link, useLocation } from 'react-router-dom';
 import { useContext } from 'react';
 import { NotificationMenu } from './components/NotificationMenu';
@@ -42,21 +42,19 @@ export const Header = () => {
         </Link>
         <Tabs
           value={
-            location.pathname === '/'
-              ? '/'
-              : location.pathname.startsWith('/teams')
-                ? '/teams'
-                : location.pathname.startsWith('/tournaments')
-                  ? '/'
-                  : false
+            location.pathname.startsWith('/teams')
+              ? '/teams'
+              : location.pathname.startsWith('/tournaments')
+                ? '/tournaments'
+                : false
           }
           sx={{ flex: 1 }}
         >
           <Tab
             label="Tournois"
-            value="/"
+            value="/tournaments"
             component={Link}
-            to="/"
+            to="/tournaments"
             data-testid="nav-tournaments-tab"
           />
           <Tab
