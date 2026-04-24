@@ -139,9 +139,15 @@ export const useFilterModalContent = ({
       const maxD = dayjs(newDates.maxDate);
 
       // Auto-adjust if dates overlap or are the same day
-      if (field === 'minDate' && (minD.isAfter(maxD) || minD.isSame(maxD, 'day')))
+      if (
+        field === 'minDate' &&
+        (minD.isAfter(maxD) || minD.isSame(maxD, 'day'))
+      )
         newDates.maxDate = minD.add(7, 'day').format('YYYY-MM-DD');
-      else if (field === 'maxDate' && (maxD.isBefore(minD) || maxD.isSame(minD, 'day')))
+      else if (
+        field === 'maxDate' &&
+        (maxD.isBefore(minD) || maxD.isSame(minD, 'day'))
+      )
         newDates.minDate = maxD.subtract(7, 'day').format('YYYY-MM-DD');
 
       return { ...prev, dates: newDates };
@@ -154,7 +160,8 @@ export const useFilterModalContent = ({
   const maxDateValue = localFilters.dates?.maxDate
     ? dayjs(localFilters.dates.maxDate)
     : null;
-  const hasDates = !!localFilters.dates?.minDate || !!localFilters.dates?.maxDate;
+  const hasDates =
+    !!localFilters.dates?.minDate || !!localFilters.dates?.maxDate;
   const durationString = getDurationString({
     startDate: minDateValue ?? dayjs(),
     endDate: maxDateValue ?? dayjs(),

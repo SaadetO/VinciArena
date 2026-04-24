@@ -48,7 +48,7 @@ export const FilterAutocomplete = <T,>({
           const avatar = getOptionAvatar?.(option);
           return (
             <Chip
-              key={getOptionId(option)}
+              key={`${key}${getOptionId(option)}`}
               {...tagProps}
               label={getOptionLabel(option)}
               size="small"

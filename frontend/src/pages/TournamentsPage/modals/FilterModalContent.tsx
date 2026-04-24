@@ -36,7 +36,12 @@ export const FilterModalContent = ({
     updateFilter,
     handleDateChange,
     handleResetDates,
-  } = useFilterModalContent({ initialFilters, timeFrame, isAdmin, onFiltersChange });
+  } = useFilterModalContent({
+    initialFilters,
+    timeFrame,
+    isAdmin,
+    onFiltersChange,
+  });
 
   return (
     <Stack spacing="0.625rem">
@@ -44,7 +49,10 @@ export const FilterModalContent = ({
         options={allTeams}
         value={selectedTeams}
         onChange={(teams) =>
-          updateFilter('teams', teams.map((t) => t.idTeam))
+          updateFilter(
+            'teams',
+            teams.map((t) => t.idTeam),
+          )
         }
         loading={isGettingAllTeams}
         placeholder="Filtrer par équipes"
@@ -55,7 +63,10 @@ export const FilterModalContent = ({
         options={allMembers}
         value={selectedMembers}
         onChange={(members) =>
-          updateFilter('members', members.map((m) => m.id))
+          updateFilter(
+            'members',
+            members.map((m) => m.id),
+          )
         }
         loading={isGettingSummaries}
         placeholder="Filtrer par membres"
@@ -68,7 +79,10 @@ export const FilterModalContent = ({
           options={statusOptions}
           value={selectedStatuses}
           onChange={(statuses) =>
-            updateFilter('statuses', statuses.map((s) => s.value))
+            updateFilter(
+              'statuses',
+              statuses.map((s) => s.value),
+            )
           }
           loading={false}
           placeholder="Filtrer par états"
@@ -88,11 +102,7 @@ export const FilterModalContent = ({
           value={minDateValue}
           onChange={(date) => handleDateChange(date, 'minDate')}
         />
-        <Tooltip
-          title={durationString}
-          arrow
-          placement="top"
-        >
+        <Tooltip title={durationString} arrow placement="top">
           <Box>
             <ArrowRight
               style={{
@@ -130,4 +140,3 @@ export const FilterModalContent = ({
     </Stack>
   );
 };
-

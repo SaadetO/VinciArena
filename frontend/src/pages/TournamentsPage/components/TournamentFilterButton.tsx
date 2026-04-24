@@ -49,4 +49,3 @@ export const TournamentFilterButton = ({
     </Tooltip>
   );
 };
-
