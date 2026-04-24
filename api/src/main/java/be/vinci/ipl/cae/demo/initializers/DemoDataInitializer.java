@@ -212,7 +212,7 @@ public class DemoDataInitializer implements CommandLineRunner {
     String encodedPw = new BCryptPasswordEncoder().encode(pw);
     Map<String, Team> teamMap = new HashMap<>();
 
-    List<Team> demoTeams = InitializerUtils.createMembers(memberDataList, encodedPw, specMap,
+    InitializerUtils.createMembers(memberDataList, encodedPw, specMap,
         teamMap, memberRepo, teamRepo, imageRepo);
 
     List<Team> fillerTeams = InitializerUtils.createMembers(fillerTeamMembers, encodedPw, specMap,
