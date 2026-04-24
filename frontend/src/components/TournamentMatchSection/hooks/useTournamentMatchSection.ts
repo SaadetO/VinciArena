@@ -4,7 +4,7 @@ import {
   TournamentDto,
   TournamentMatchFilters,
 } from '../../../types';
-import { useTournament } from '../../../hooks/useTournaments';
+import { useTournaments } from '../../../hooks/useTournaments';
 import { useMatches } from '../../../hooks/useMatches';
 import { groupTournamentsByYearAndMonth } from '../../../utils/tournamentUtils';
 import { groupMatchesByYearAndDay } from '../../../utils/matchUtils';
@@ -25,7 +25,7 @@ export const useTournamentMatchSection = ({
 
   const [tournaments, setTournaments] = useState<TournamentDto[]>([]);
   const [matches, setMatches] = useState<MatchSummaryDto[]>([]);
-  const { getAll, isGettingTournaments } = useTournament({ setTournaments });
+  const { getAll, isGettingTournaments } = useTournaments({ setTournaments });
   const { getAll: getAllMatches, isGettingMatches } = useMatches({
     setMatches,
   });
