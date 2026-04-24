@@ -286,10 +286,6 @@ public class DemoDataInitializer implements CommandLineRunner {
     Team omega = teamRepo.findByName("TEAM_OMEGA");
     Team delta = teamRepo.findByName("TEAM_DELTA");
     Team iota = teamRepo.findByName("TEAM_IOTA");
-    Team fillerTeam1 = teamRepo.findByName("Primus Squad");
-    Team fillerTeam2 = teamRepo.findByName("Secundus Force");
-    Team fillerTeam3 = teamRepo.findByName("Tertius Alliance");
-    Team fillerTeam4 = teamRepo.findByName("Quartus Legion");
     // 1. Create the FINAL (nextMatch is null)
     Match finalMatch = InitializerUtils.createOneMatch(springBattle, null, null, 3, null,
         LocalDateTime.of(2026, 5, 10, 20, 0), MatchStatus.PLANNED, matchRepo, matchLineupRepo);
@@ -297,9 +293,7 @@ public class DemoDataInitializer implements CommandLineRunner {
     Match deltaVsIota = InitializerUtils.createOneMatch(springBattle, delta, iota, 2, finalMatch,
         LocalDateTime.of(2026, 5, 7, 6, 30), MatchStatus.PLANNED, matchRepo, matchLineupRepo);
 
-    Match omegaVsAlpha = InitializerUtils.createOneMatch(springBattle, omega, alpha, 2, finalMatch,
-        LocalDateTime.of(2026, 5, 7, 23, 30), MatchStatus.PLANNED, matchRepo, matchLineupRepo);
-
+    Team fillerTeam1 = teamRepo.findByName("Primus Squad");
     Match f1VsIota = InitializerUtils.createOneMatch(springBattle, fillerTeam1, iota, 1,
         deltaVsIota, LocalDateTime.of(2026, 5, 5, 16, 45), MatchStatus.PLAYED, matchRepo,
         matchLineupRepo);
@@ -319,6 +313,7 @@ public class DemoDataInitializer implements CommandLineRunner {
       matchLineupRepo.save(lineup);
     });
 
+    Team fillerTeam2 = teamRepo.findByName("Secundus Force");
     Match f2vsdelta = InitializerUtils.createOneMatch(springBattle, fillerTeam2, delta, 1,
         deltaVsIota, LocalDateTime.of(2026, 5, 5, 19, 0), MatchStatus.PLAYED, matchRepo,
         matchLineupRepo);
@@ -338,6 +333,10 @@ public class DemoDataInitializer implements CommandLineRunner {
       matchLineupRepo.save(lineup);
     });
 
+    Match omegaVsAlpha = InitializerUtils.createOneMatch(springBattle, omega, alpha, 2, finalMatch,
+        LocalDateTime.of(2026, 5, 7, 23, 30), MatchStatus.PLANNED, matchRepo, matchLineupRepo);
+    
+    Team fillerTeam3 = teamRepo.findByName("Tertius Alliance");
     Match f3vsalpha = InitializerUtils.createOneMatch(springBattle, fillerTeam3, alpha, 1,
         omegaVsAlpha, LocalDateTime.of(2026, 5, 5, 20, 30), MatchStatus.PLAYED, matchRepo,
         matchLineupRepo);
@@ -358,6 +357,7 @@ public class DemoDataInitializer implements CommandLineRunner {
       matchLineupRepo.save(lineup);
     });
 
+    Team fillerTeam4 = teamRepo.findByName("Quartus Legion");
     Match f4vsomega = InitializerUtils.createOneMatch(springBattle, fillerTeam4, omega, 1,
         omegaVsAlpha, LocalDateTime.of(2026, 5, 5, 20, 15), MatchStatus.PLAYED, matchRepo,
         matchLineupRepo);
