@@ -139,8 +139,9 @@ export const getOverlayDisplay = ({
 
   const canConfirmScores = team && isPending(team) && isInAwaitingValidation;
 
-  // TODO: check if the user already has registered members in the match for canEditComposition
-  const canEditComposition = team && isPlanned;
+  const isCompositionFull = (team?.lineup?.players.length ?? 0) < 4;
+
+  const canEditComposition = team && isPlanned && isCompositionFull;
 
   const canEncodeScores = isAdmin && isInProgress;
 
@@ -216,7 +217,7 @@ export const getVersusItemDisplay = ({
   match: MatchSummaryDto;
   authenticatedUser: MaybeAuthenticatedUser;
 }) => {
-  const isAdmin = authenticatedUser?.admin;
+  const isAdmin = !!authenticatedUser?.admin;
 
   const isAwaitingValidation = match.status === 'AWAITING_VALIDATION';
   const isPlayed = match.status === 'PLAYED';
@@ -244,7 +245,7 @@ export const getVersusItemDisplay = ({
         </Box>
       );
     else if (revealScores) return score;
-    else '-';
+    else return '-';
   };
 
   return {
