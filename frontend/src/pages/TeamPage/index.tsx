@@ -49,7 +49,7 @@ export const TeamPage = () => {
             <Grid2 size={{ xs: 12, desktop: 5.5, lg: 4.5 }}>
               <Stack spacing="1.5rem" pt="1.5rem">
                 <ManagerCard team={team} setTeam={setTeam} />
-                <MembersCard team={team} />
+                <MembersCard team={team} setTeam={setTeam} />
                 {team?.managers?.find(
                   (e) => e.id === authenticatedUser?.id,
                 ) && (

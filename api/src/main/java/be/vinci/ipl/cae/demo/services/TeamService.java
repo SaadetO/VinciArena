@@ -3,6 +3,7 @@ package be.vinci.ipl.cae.demo.services;
 import be.vinci.ipl.cae.demo.exceptions.LastManagerCannotQuitException;
 import be.vinci.ipl.cae.demo.exceptions.MemberAlreadyManagerException;
 import be.vinci.ipl.cae.demo.exceptions.MemberNotFoundException;
+import be.vinci.ipl.cae.demo.exceptions.MemberNotInTeamException;
 import be.vinci.ipl.cae.demo.exceptions.NoManagerSpotsLeftException;
 import be.vinci.ipl.cae.demo.exceptions.NotManagerException;
 import be.vinci.ipl.cae.demo.exceptions.ReplacementRequiredException;
@@ -268,6 +269,34 @@ public class TeamService {
     currentMember.setTeam(null);
     memberRepository.save(currentMember);
 
+    teamRepository.save(team);
+  }
+
+  /**
+   * Exclude a member from their team.
+   * Promotes manager2 to manager1 if manager1 is excluded.
+   * Deactivates the team if no manager is remaining.
+   *
+   * @param team the team
+   * @param memberId the member's id
+   * @throws MemberNotFoundException if no member has memberId id
+   * @throws MemberNotInTeamException if the member is not in this team
+   */
+  public void excludeMember(Team team, Long memberId) {
+    Member member = getExistingMember(memberId);
+
+    if (!team.getIdTeam().equals(member.getTeam().getIdTeam())) {
+      throw new MemberNotInTeamException();
+    }
+
+    handleManagerQuitting(team, member);
+
+    deactivateIfEmpty(team);
+
+    member.setTeam(null);
+    memberRepository.save(member);
+
+    team.getMembers().remove(member);
     teamRepository.save(team);
   }
 
