@@ -1,4 +1,4 @@
-import { InputLabel, Stack, Typography } from '@mui/material';
+import { InputLabel, Stack } from '@mui/material';
 import { MatchSummaryDto } from '../../../types';
 import { useModalController } from '../../../hooks/useModalController';
 import { useEffect } from 'react';
@@ -20,53 +20,45 @@ export const AdminEncodeScoreForm = ({
   scoreTeam2,
   setScoreTeam2,
 }: AdminEncodeScoreFormProps) => {
-  const { setConfirmDisabled } = useModalController();
+  const { setConfirmDisabled, setError } = useModalController();
 
   useEffect(() => {
-    const isInvalid =
-      scoreTeam1 === undefined ||
-      scoreTeam2 === undefined ||
-      scoreTeam1 === scoreTeam2;
+    const isInvalid = scoreTeam1 === scoreTeam2;
     setConfirmDisabled(isInvalid);
-  }, [scoreTeam1, scoreTeam2, setConfirmDisabled]);
+    setError(isInvalid ? 'Les matchs nuls ne sont pas autorisés.' : null);
+  }, [scoreTeam1, scoreTeam2, setError, setConfirmDisabled]);
   return (
-    <Stack spacing="2rem" padding="1rem 0">
-      <Stack
-        direction="row"
-        spacing="2rem"
-        alignItems="flex-end"
-        justifyContent="center"
-      >
-        <Stack spacing="0.25rem" flex={1}>
-          <InputLabel>{match.team1.name}</InputLabel>
-          <NumericTextField
-            value={scoreTeam1}
-            onChange={setScoreTeam1}
-            min={0}
-            fullWidth={false}
-          />
-        </Stack>
-
-        <Stack justifyContent="center" height="2.25rem">
-          <VersusSymbol absolute={false} />
-        </Stack>
-
-        <Stack spacing="0.25rem" flex={1}>
-          <InputLabel>{match.team2.name}</InputLabel>
-          <NumericTextField
-            value={scoreTeam2}
-            onChange={setScoreTeam2}
-            min={0}
-            fullWidth={false}
-          />
-        </Stack>
+    <Stack
+      direction="row"
+      spacing="1.25rem"
+      alignItems="flex-end"
+      justifyContent="center"
+    >
+      <Stack spacing="0.25rem" alignItems="center" flex={1}>
+        <InputLabel>{match.team1.name}</InputLabel>
+        <NumericTextField
+          value={scoreTeam1}
+          onChange={setScoreTeam1}
+          min={0}
+          max={5}
+          fullWidth={false}
+        />
       </Stack>
 
-      {scoreTeam1 === scoreTeam2 && (
-        <Typography variant="body2" color="error" textAlign="center">
-          Les matchs nuls ne sont pas autorisés.
-        </Typography>
-      )}
+      <Stack justifyContent="center" height="2.25rem">
+        <VersusSymbol absolute={false} />
+      </Stack>
+
+      <Stack spacing="0.25rem" alignItems="center" flex={1}>
+        <InputLabel>{match.team2.name}</InputLabel>
+        <NumericTextField
+          value={scoreTeam2}
+          onChange={setScoreTeam2}
+          min={0}
+          max={5}
+          fullWidth={false}
+        />
+      </Stack>
     </Stack>
   );
 };
