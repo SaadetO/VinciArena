@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { TeamDetailsInfoDto, UserSummaryDto } from '../../../types';
 import {
   Autocomplete,
@@ -8,6 +8,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useModalController } from '../../../hooks/useModalController';
+import { UserContext } from '../../../contexts/UserContext';
 
 interface ExcludeMemberModalContentProps {
   team: TeamDetailsInfoDto | undefined;
@@ -22,13 +23,11 @@ export const ExcludeMemberModalContent = ({
   const [selectedUser, setSelectedUser] = useState<UserSummaryDto | null>(null);
 
   const { setError } = useModalController();
+  const { authenticatedUser } = useContext(UserContext);
 
   useEffect(() => {
     onSelect(selectedUser);
   }, [selectedUser, onSelect]);
-
-  // TODO: change options to get all members except the authenticatedUser
-  // (one of the team's manager)
 
   return (
     <>
@@ -36,8 +35,7 @@ export const ExcludeMemberModalContent = ({
         data-testid="member-selection-autocomplete"
         options={
           team?.members.filter(
-            (user: UserSummaryDto) =>
-              !team?.managers.find((manager) => manager.id === user.id),
+            (user: UserSummaryDto) => user.id !== authenticatedUser?.id,
           ) ?? []
         }
         fullWidth
