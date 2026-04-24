@@ -417,7 +417,7 @@ export const useTeams = (options?: UseTeamsOptions) => {
           prev
             ? {
                 ...prev,
-                members: [...prev.members, selectedMEmber!],
+                members: prev.members.filter((m) => m.id !== selectedMEmber.id),
               }
             : undefined,
         );
@@ -448,7 +448,7 @@ export const useTeams = (options?: UseTeamsOptions) => {
           prev
             ? {
                 ...prev,
-                members: prev.members.filter((m) => m.id !== selectedMEmber.id),
+                members: [...prev.members, selectedMEmber],
               }
             : undefined,
         );
