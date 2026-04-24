@@ -189,8 +189,9 @@ export const useMatches = (config?: UseMatchesOptions) => {
         },
       });
       if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
         throw new ApiError(
-          'Échec de la mise à jour du match !',
+          errorData.message || 'Échec de la mise à jour du match !',
           response.status,
         );
       }
@@ -228,7 +229,11 @@ export const useMatches = (config?: UseMatchesOptions) => {
         body: JSON.stringify(dto),
       });
       if (!response.ok) {
-        throw new ApiError("Échec de l'encodage des scores !", response.status);
+        const errorData = await response.json().catch(() => ({}));
+        throw new ApiError(
+          errorData.message || "Échec de l'encodage des scores !",
+          response.status,
+        );
       }
     },
     {

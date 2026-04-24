@@ -5,6 +5,7 @@ import dayjs from 'dayjs';
 import { Link } from 'react-router-dom';
 import { MatchMenu } from './components/MatchMenu';
 import { MatchOverlay } from './components/MatchOverlay';
+import { isContested } from '../../utils/confirmationUtils';
 
 interface MatchItemProps {
   match: MatchSummaryDto;
@@ -70,7 +71,22 @@ export const MatchItem = ({ match, refetch }: MatchItemProps) => {
               {match.tournament.name}
             </Typography>
           </Stack>
-          <Stack color="text.secondary" alignItems="flex-end" flex={1}>
+          <Stack
+            color="text.secondary"
+            alignItems="flex-end"
+            flex={1}
+            direction="row"
+            justifyContent="flex-end"
+            spacing={1}
+          >
+            {(isContested(match.team1) || isContested(match.team2)) && (
+              <Chip
+                label="Contesté"
+                color="error"
+                size="small"
+                variant="outlined"
+              />
+            )}
             {isFinal ? (
               <Chip label="Finale" color="primary" />
             ) : (
