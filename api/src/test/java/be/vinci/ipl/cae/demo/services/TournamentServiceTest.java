@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import be.vinci.ipl.cae.demo.exceptions.DuplicateRegistrationException;
+import be.vinci.ipl.cae.demo.exceptions.ImpossibleTournamentException;
 import be.vinci.ipl.cae.demo.exceptions.InactiveTeamException;
 import be.vinci.ipl.cae.demo.exceptions.InsufficientTeamMembersException;
 import be.vinci.ipl.cae.demo.exceptions.NotManagerException;
@@ -27,6 +28,7 @@ import be.vinci.ipl.cae.demo.repositories.MatchRepository;
 import be.vinci.ipl.cae.demo.repositories.MemberRepository;
 import be.vinci.ipl.cae.demo.repositories.TournamentRepository;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -517,5 +519,158 @@ class TournamentServiceTest {
         () -> assertEquals("Test Tournament", list.getFirst().name())
     );
   }
+
+  @Test
+  void scheduleMatchesSortsMatchesByTurn() {
+    // Arrange
+    Tournament tournament = new Tournament();
+    tournament.setStartDate(LocalDate.of(2030, 1, 1));
+    tournament.setEndDate(LocalDate.of(2030, 1, 10));
+
+    Match m1 = new Match(); m1.setTurn(2);
+    Match m2 = new Match(); m2.setTurn(1);
+
+    List<Match> matches = new ArrayList<>(List.of(m1, m2));
+
+    // Act
+    tournamentService.scheduleMatches(matches, tournament);
+
+    // Assert
+    assertAll(
+        () -> assertEquals(1, matches.getFirst().getTurn()),
+        () -> assertEquals(2, matches.get(1).getTurn())
+    );
+  }
+
+  @Test
+  void scheduleMatchesSetsPlannedStatusForNormalMatch() {
+    // Arrange
+    Tournament tournament = new Tournament();
+    tournament.setStartDate(LocalDate.of(2030, 1, 1));
+    tournament.setEndDate(LocalDate.of(2030, 1, 10));
+
+    Match m = new Match();
+    m.setTurn(1);
+    m.setTeam1(new Team());
+    m.setTeam2(new Team());
+
+    List<Match> matches = new ArrayList<>();
+    matches.add(m);
+
+    // Act
+    tournamentService.scheduleMatches(matches, tournament);
+
+    // Assert
+    assertAll(
+        () -> assertEquals(MatchStatus.PLANNED, m.getStatus()),
+        () -> assertNotNull(m.getDateHour())
+    );
+  }
+
+  @Test
+  void scheduleMatchesSetsPlayedStatusForByeMatch() {
+    // Arrange
+    Tournament tournament = new Tournament();
+    tournament.setStartDate(LocalDate.of(2030, 1, 1));
+    tournament.setEndDate(LocalDate.of(2030, 1, 10));
+
+    Team teamA = new Team();
+    teamA.setIdTeam(1L);
+
+    Match next = new Match();
+    next.setTeam1(teamA);
+
+    Match m = new Match();
+    m.setTurn(1);
+    m.setTeam1(teamA);
+    m.setTeam2(null);
+    m.setNextMatch(next);
+
+    List<Match> matches = new ArrayList<>();
+    matches.add(m);
+
+    // Act
+    tournamentService.scheduleMatches(matches, tournament);
+
+    // Assert
+    assertEquals(MatchStatus.PLAYED, m.getStatus());
+  }
+
+  @Test
+  void scheduleMatchesAdvancesDayWhenRoundChanges() {
+    // Arrange
+    Tournament tournament = new Tournament();
+    tournament.setStartDate(LocalDate.of(2030, 1, 1));
+    tournament.setEndDate(LocalDate.of(2030, 1, 10));
+
+    Match m1 = new Match(); m1.setTurn(1);
+    m1.setTeam1(new Team()); m1.setTeam2(new Team());
+
+    Match m2 = new Match(); m2.setTurn(2);
+    m2.setTeam1(new Team()); m2.setTeam2(new Team());
+
+    List<Match> matches = new ArrayList<>();
+    matches.add(m1);
+    matches.add(m2);
+
+    // Act
+    tournamentService.scheduleMatches(matches, tournament);
+
+    // Assert
+    assertAll(
+        () -> assertEquals(LocalDate.of(2030, 1, 1), m1.getDateHour().toLocalDate()),
+        () -> assertEquals(LocalDate.of(2030, 1, 2), m2.getDateHour().toLocalDate())
+    );
+  }
+
+  @Test
+  void scheduleMatchesThrowsIfTournamentCannotFinish() {
+    // Arrange
+    Tournament tournament = new Tournament();
+
+    // end date is before start date
+    tournament.setStartDate(LocalDate.of(2030, 1, 2));
+    tournament.setEndDate(LocalDate.of(2030, 1, 1));
+
+    Match m = new Match();
+    m.setTurn(1);
+    m.setTeam1(new Team());
+    m.setTeam2(new Team());
+
+    List<Match> matches = new ArrayList<>();
+    matches.add(m);
+
+    // Act + Assert
+    assertAll(
+        () -> assertThrows(
+            ImpossibleTournamentException.class,
+            () -> tournamentService.scheduleMatches(matches, tournament)
+        ),
+        () -> assertEquals(TournamentStatus.CANCELLED, tournament.getStatus())
+    );
+  }
+
+  @Test
+  void scheduleMatchesUpdatesTournamentEndDate() {
+    // Arrange
+    Tournament tournament = new Tournament();
+    tournament.setStartDate(LocalDate.of(2030, 1, 1));
+    tournament.setEndDate(LocalDate.of(2030, 1, 10));
+
+    Match m = new Match();
+    m.setTurn(1);
+    m.setTeam1(new Team());
+    m.setTeam2(new Team());
+
+    List<Match> matches = new ArrayList<>();
+    matches.add(m);
+
+    // Act
+    tournamentService.scheduleMatches(matches, tournament);
+
+    // Assert
+    assertEquals(m.getDateHour().toLocalDate(), tournament.getEndDate());
+  }
+
 
 }

@@ -508,7 +508,7 @@ public class TournamentService {
    * @param matches the matches to schedule
    * @param tournament the tournament
    */
-  private void scheduleMatches(List<Match> matches, Tournament tournament) {
+  public void scheduleMatches(List<Match> matches, Tournament tournament) {
     final int matchDurationMins = 60;
     final int bufferMins = 30;
     final int daysBetweenRounds = 1;
