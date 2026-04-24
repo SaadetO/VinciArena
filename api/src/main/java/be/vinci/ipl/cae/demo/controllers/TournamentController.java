@@ -65,9 +65,10 @@ public class TournamentController {
       @RequestParam(required = false) List<Long> membersIds,
       @RequestParam(required = false) String searchQuery,
       @RequestParam(required = false) LocalDate minDate,
-      @RequestParam(required = false) LocalDate maxDate) {
+      @RequestParam(required = false) LocalDate maxDate,
+      @RequestParam(required = false) Integer limit) {
     return tournamentService
-        .getTournaments(statuses, teamsIds, membersIds, searchQuery, minDate, maxDate);
+        .getTournaments(statuses, teamsIds, membersIds, searchQuery, minDate, maxDate, limit);
   }
 
   /**
