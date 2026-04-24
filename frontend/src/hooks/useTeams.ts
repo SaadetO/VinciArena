@@ -382,6 +382,80 @@ export const useTeams = (options?: UseTeamsOptions) => {
     },
   );
 
+  const { execute: excludeMember, loading: isExcludiingMember } = useApi(
+    async (idTeam: number, selectedMEmber: UserSummaryDto) => {
+      const response = await fetch(
+        `/api/teams/${idTeam}/exclude-member/${selectedMEmber.id}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: authenticatedUser?.token ?? '',
+          },
+        },
+      );
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new ApiError('Membre introuvable.', response.status);
+        } else if (response.status === 400) {
+          throw new ApiError(
+            "Le membre n'est pas dans l'équipe.",
+            response.status,
+          );
+        } else if (response.status === 409) {
+          throw new ApiError(
+            "Désignez un autre resppnsable avant d'exclure celui-ci.",
+            response.status,
+          );
+        }
+      }
+    },
+    {
+      onOptimism: (_idTeam, selectedMEmber) => {
+        setTeam?.((prev) =>
+          prev
+            ? {
+                ...prev,
+                members: [...prev.members, selectedMEmber!],
+              }
+            : undefined,
+        );
+      },
+      onSuccess: () => {
+        showSnackbar({
+          message: 'Membre exclu avec succès !',
+          severity: 'success',
+        });
+      },
+      onError: (err) => {
+        const status = err instanceof ApiError ? err.status : 500;
+        const message =
+          status === 404
+            ? 'Le membre est introuvable.'
+            : status === 400
+              ? "Le membre ne fait pas ou plus partie de l'équipe."
+              : status === 409
+                ? 'Le dernier responsable de la team ne peut pas etre exclu.'
+                : "Une erreur est survenue lors de l'exclusion.";
+        showSnackbar({
+          message,
+          severity: 'error',
+        });
+      },
+      onRollback: (_idTeam, selectedMEmber) => {
+        setTeam?.((prev) =>
+          prev
+            ? {
+                ...prev,
+                members: prev.members.filter((m) => m.id !== selectedMEmber.id),
+              }
+            : undefined,
+        );
+      },
+    },
+  );
+
   return {
     getAll,
     getById,
@@ -389,11 +463,13 @@ export const useTeams = (options?: UseTeamsOptions) => {
     quitTeam,
     promoteToManager,
     resignManager,
+    excludeMember,
     isGettingAllTeams,
     isGettingTeam,
     isCreatingTeam,
     isQuittingTeam,
     isPromotingToManager,
     isResigningManager,
+    isExcludiingMember,
   };
 };
