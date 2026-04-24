@@ -1,5 +1,6 @@
 package be.vinci.ipl.cae.demo.services;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -13,6 +14,8 @@ import be.vinci.ipl.cae.demo.exceptions.MatchLineupNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.MatchNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.MemberHasNoTeamException;
 import be.vinci.ipl.cae.demo.exceptions.MemberNotManagerOfTeamException;
+import be.vinci.ipl.cae.demo.exceptions.NoSlotAvailableForWinnerException;
+import be.vinci.ipl.cae.demo.exceptions.TeamNotFoundException;
 import be.vinci.ipl.cae.demo.exceptions.UnallowedTieException;
 import be.vinci.ipl.cae.demo.models.dtos.EncodeMatchResultDto;
 import be.vinci.ipl.cae.demo.models.dtos.MatchSummaryDto;
@@ -424,4 +427,136 @@ public class MatchServiceTest {
     assertTrue(team1Lineup.getConfirmationStatus() == ConfirmationStatus.PENDING);
     assertTrue(team2Lineup.getConfirmationStatus() == ConfirmationStatus.PENDING);
   }
+
+  @Test
+  void advanceWinnerToNextRoundThrowsWhenMatchIsNull() {
+    // Act + Assert
+    assertThrows(MatchNotFoundException.class,
+        () -> matchService.advanceWinnerToNextRound(null));
+  }
+
+  @Test
+  void advanceWinnerToNextRoundThrowsWhenLineupsAreEmpty() {
+    // Arrange
+    match.setLineups(List.of());
+
+    // Act + Assert
+    assertThrows(MatchLineupNotFoundException.class,
+        () -> matchService.advanceWinnerToNextRound(match));
+  }
+
+  @Test
+  void advanceWinnerToNextRoundDoesNothingWhenNoWinner() {
+    // Arrange
+    team1Lineup.setWinner(false);
+    team2Lineup.setWinner(false);
+
+    match.setNextMatch(new Match());
+
+    // Act
+    matchService.advanceWinnerToNextRound(match);
+
+    // Assert
+    // nothing has changed
+    assertFalse(match.getNextMatch().getLineups().size() > 0);
+  }
+
+  @Test
+  void advanceWinnerToNextRoundThrowsWhenWinnerHasNoTeam() {
+    // Arrange
+    team1Lineup.setWinner(true);
+    team1Lineup.setTeam(null);
+
+    // Act + Assert
+    assertThrows(TeamNotFoundException.class,
+        () -> matchService.advanceWinnerToNextRound(match));
+  }
+
+  @Test
+  void advanceWinnerToNextRoundSetsTournamentWinnerWhenNoNextMatch() {
+    // Arrange
+    team1Lineup.setWinner(true);
+    match.setNextMatch(null);
+
+    // Act
+    matchService.advanceWinnerToNextRound(match);
+
+    // Assert
+    assertEquals(match.getTeam1(), match.getTournament().getWinner());
+  }
+
+  @Test
+  void advanceWinnerToNextRoundPlacesWinnerInTeam1() {
+    // Arrange
+    team1Lineup.setWinner(true);
+
+    Match next = new Match();
+    next.setLineups(new java.util.ArrayList<>());
+    match.setNextMatch(next);
+
+    when(matchLineupService.createDefaultLineup(any(), any()))
+        .thenReturn(new MatchLineup());
+
+    // Act
+    matchService.advanceWinnerToNextRound(match);
+
+    // Assert
+    assertEquals(match.getTeam1(), next.getTeam1());
+  }
+
+  @Test
+  void advanceWinnerToNextRoundPlacesWinnerInTeam2() {
+    // Arrange
+    team1Lineup.setWinner(true);
+
+    Match next = new Match();
+    next.setTeam1(new Team());
+    next.setLineups(new java.util.ArrayList<>());
+    match.setNextMatch(next);
+
+    when(matchLineupService.createDefaultLineup(any(), any()))
+        .thenReturn(new MatchLineup());
+
+    // Act
+    matchService.advanceWinnerToNextRound(match);
+
+    // Assert
+    assertEquals(match.getTeam1(), next.getTeam2());
+  }
+
+  @Test
+  void advanceWinnerToNextRoundThrowsWhenNoSlotAvailable() {
+    // Arrange
+    team1Lineup.setWinner(true);
+
+    Match next = new Match();
+    next.setTeam1(new Team());
+    next.setTeam2(new Team());
+    match.setNextMatch(next);
+
+    // Act + Assert
+    assertThrows(NoSlotAvailableForWinnerException.class,
+        () -> matchService.advanceWinnerToNextRound(match));
+  }
+
+  @Test
+  void advanceWinnerToNextRoundCreatesNewLineupInNextMatch() {
+    // Arrange
+    team1Lineup.setWinner(true);
+
+    Match next = new Match();
+    next.setLineups(new java.util.ArrayList<>());
+    match.setNextMatch(next);
+
+    MatchLineup created = new MatchLineup();
+    when(matchLineupService.createDefaultLineup(any(), any()))
+        .thenReturn(created);
+
+    // Act
+    matchService.advanceWinnerToNextRound(match);
+
+    // Assert
+    assertTrue(next.getLineups().contains(created));
+  }
+
 }
