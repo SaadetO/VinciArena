@@ -30,8 +30,8 @@ A full-stack tournament management platform for organizing competitive events. C
 ###  Administrative & Management Modals
 | Member Permissions Management | Tournament Creation Wizard |
 | --- | --- |
-| ![Member Management Modal](assets/member-management.png) | ![Create Tournament Modal](assets/create-tournament-a.png) |
-| *Promote, moderate, or ban members globally (`member-management.png`)* | *Configuring dates, deadlines, and capacities (`create-tournamment-a.png`)* |
+| ![Member Management Modal](assets/manage-members.png) | ![Create Tournament Modal](assets/create-tournament-a.png) |
+| *Promote, moderate, or ban members globally (`manage-members.png`)* | *Configuring dates, deadlines, and capacities (`create-tournamment-a.png`)* |
 
 ###  Tournament Hub & Notifications
 | Live Tournament Portal | Real-Time Notification Center |
