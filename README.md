@@ -42,8 +42,8 @@ A full-stack tournament management platform for organizing competitive events. C
 ###  Team Directories & Profiles
 | Team Discovery Grid | Team Showcase Panel | User Profile & Availability |
 | --- | --- | --- |
-| ![Teams Catalog](assets/teams.png) | ![Team Management](assets/team.png) | ![User Profile](assets/user.png) |
-| *Card layout showcasing all groups (`teams.png`)* | *Roster curation and join applications (`team.jpg`)* | *Personal stats and scheduling tracking (`user.jpg`)* |
+| ![Teams Catalog](assets/teams.png) | ![Team Management](assets/team.png) | ![User Profile](assets/profile.png) |
+| *Card layout showcasing all groups (`teams.png`)* | *Roster curation and join applications (`team.png`)* | *Personal stats and scheduling tracking (`profile.png`)* |
 
 ## Overview
 
