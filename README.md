@@ -18,6 +18,32 @@ A full-stack tournament management platform for organizing competitive events. C
 
 ---
 
+##  Mini Interface Preview
+
+###  Authentication & Main Dashboard
+| Login Interface | Tournaments Feed |
+| --- | --- |
+| ![Login Page](assets/Screenshot%202026-06-30%20150032.jpg) | ![Main Dashboard](assets/Screenshot%202026-06-30%20150904.png) |
+| *Clean side-by-side splits with immersive gaming artwork (`Screenshot 2026-06-30 150032.jpg`)* | *Overview of upcoming, active, and past events (`Screenshot 2026-06-30 150904.png`)* |
+
+###  Administrative & Management Modals
+| Member Permissions Management | Tournament Creation Wizard |
+| --- | --- |
+| ![Member Management Modal](assets/Screenshot%202026-06-30%20150937.png) | ![Create Tournament Modal](assets/Screenshot%202026-06-30%20151021.png) |
+| *Promote, moderate, or ban members globally (`Screenshot 2026-06-30 150937.png`)* | *Configuring dates, deadlines, and capacities (`Screenshot 2026-06-30 151021.png`)* |
+
+###  Tournament Hub & Notifications
+| Live Tournament Portal | Real-Time Notification Center |
+| --- | --- |
+| ![Tournament View](assets/Screenshot%202026-06-30%20151049.jpg) | ![Notifications System](assets/Screenshot%202026-06-30%20151111.png) |
+| *Dedicated page with hero banner and rosters (`Screenshot 2026-06-30 151049.jpg`)* | *Global event updates and tracking headers (`Screenshot 2026-06-30 151111.png`)* |
+
+###  Team Directories & Profiles
+| Team Discovery Grid | Team Showcase Panel | User Profile & Availability |
+| --- | --- | --- |
+| ![Teams Catalog](assets/Screenshot%202026-06-30%20151125.png) | ![Team Management](assets/Screenshot%202026-06-30%20151229.jpg) | ![User Profile](assets/Screenshot%202026-06-30%20151254.jpg) |
+| *Card layout showcasing all groups (`Screenshot 2026-06-30 151125.png`)* | *Roster curation and join applications (`Screenshot 2026-06-30 151229.jpg`)* | *Personal stats and scheduling tracking (`Screenshot 2026-06-30 151254.jpg`)* |
+
 ## Overview
 
 Tournament Manager is a monorepo containing three main components:
