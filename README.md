@@ -6,6 +6,7 @@ A full-stack tournament management platform for organizing competitive events. C
 
 ## Table of Contents
 
+- [Mini Interface Preview](#mini-interface-preview)
 - [Overview](#overview)
 - [Features](#features)
 - [Tech Stack](#tech-stack)
@@ -23,13 +24,13 @@ A full-stack tournament management platform for organizing competitive events. C
 ###  Authentication & Main Dashboard
 | Login Interface | Tournaments Feed |
 | --- | --- |
-| ![Login Page](assets/login.png) | ![Main Dashboard](assets/main-page.ong) |
+| ![Login Page](assets/login.png) | ![Main Dashboard](assets/main-page.png) |
 | *Gamer aesthetic login page (`login.png`)* | *Overview of upcoming, active, and past events (`main-page.png`)* |
 
 ###  Administrative & Management Modals
 | Member Permissions Management | Tournament Creation Wizard |
 | --- | --- |
-| ![Member Management Modal](assets/member-management.png) | ![Create Tournament Modal](assets/create-tournamment-a.png) |
+| ![Member Management Modal](assets/member-management.png) | ![Create Tournament Modal](assets/create-tournament-a.png) |
 | *Promote, moderate, or ban members globally (`member-management.png`)* | *Configuring dates, deadlines, and capacities (`create-tournamment-a.png`)* |
 
 ###  Tournament Hub & Notifications
