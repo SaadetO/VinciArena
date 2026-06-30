@@ -37,7 +37,7 @@ A full-stack tournament management platform for organizing competitive events. C
 | Live Tournament Portal | Real-Time Notification Center |
 | --- | --- |
 | ![Tournament View](assets/tournament.png) | ![Notifications System](assets/notifications.png) |
-| *Dedicated page with hero banner and rosters (`Screenshot 2026-06-30 151049.jpg`)* | *Global event updates and tracking headers (`Screenshot 2026-06-30 151111.png`)* |
+| *Dedicated page with hero banner and rosters (`tournament.png`)* | *Global event updates and tracking headers (`notifications.png`)* |
 
 ###  Team Directories & Profiles
 | Team Discovery Grid | Team Showcase Panel | User Profile & Availability |
